@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NJ Land — ที่ดินฝากขาย/ฝากเช่า ผ่านการรังวัดยืนยันแล้ว</title>
-<meta name="description" content="ที่ดินฝากขาย/ฝากเช่า ทุกแปลงผ่านการรังวัดยืนยันเขตแดนจริงโดยช่างรังวัดเอกชนที่ได้รับอนุญาต — ข้อมูลแม่นยำ ตรวจสอบได้">
+<meta name="description" content="ที่ดินฝากขาย/ฝากเช่า ทุกแปลงผ่านการรังวัดยืนยันเขตแดนจริงโดยช่างรังวัดเอกชนที่ได้รับอนุญาต — ข้อมูลแม่นยำ ตรวจสอบได้ ต่างจากประกาศทั่วไปที่ไม่มีใครยืนยันเขตให้">
 <link rel="icon" href="https://nj-survey-system.onrender.com/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,23 +18,43 @@
       <img src="https://nj-survey-system.onrender.com/logo.png" alt="NJ" class="brand-logo">
       <span class="brand-name">NJ Land</span>
     </a>
+    <nav class="header-nav">
+      <a href="#listings">แปลงที่ดิน</a>
+      <a href="#knowledge">ความรู้เรื่องที่ดิน</a>
+    </nav>
     <a class="header-cta" href="#contact">ติดต่อเรา</a>
   </div>
 </header>
 
 <section id="top" class="hero">
   <div class="wrap hero-inner">
-    <div class="hero-badge">✓ ผ่านการรังวัดยืนยันแล้วทุกแปลง</div>
-    <h1>ที่ดินฝากขาย/ฝากเช่า<br>ที่ตรวจสอบเขตแดนจริงแล้ว</h1>
-    <p class="hero-sub">คัดเฉพาะแปลงที่ผ่านการรังวัดสอบเขตโดยช่างรังวัดเอกชนที่ได้รับใบอนุญาต — รู้เนื้อที่จริง รู้ขอบเขตจริง ก่อนตัดสินใจ</p>
-    <a href="#listings" class="hero-btn">ดูแปลงที่ดินทั้งหมด ↓</a>
+    <div class="hero-text" data-reveal>
+      <div class="hero-badge">✓ ผ่านการรังวัดยืนยันแล้วทุกแปลง</div>
+      <h1>ที่ดินฝากขาย/ฝากเช่า<br>ที่ตรวจสอบเขตแดนจริงแล้ว</h1>
+      <p class="hero-sub">ต่างจากประกาศที่ดินทั่วไป — ทุกแปลงบนเว็บนี้ผ่านการรังวัดสอบเขตจริงโดยช่างรังวัดเอกชนที่ได้รับใบอนุญาต รู้เนื้อที่จริง รู้ขอบเขตจริง ก่อนตัดสินใจ ไม่ใช่แค่ก๊อปข้อมูลจากโฉนดมาลงประกาศ</p>
+      <a href="#listings" class="hero-btn">ดูแปลงที่ดินทั้งหมด ↓</a>
+    </div>
+    <div class="hero-art" data-reveal>
+      <svg class="survey-svg" viewBox="0 0 320 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon class="plot-fill" points="60,60 250,45 275,180 90,230 40,150" />
+        <polygon class="plot-outline" points="60,60 250,45 275,180 90,230 40,150" />
+        <g class="plot-pins">
+          <circle class="pin" cx="60" cy="60" r="6"/>
+          <circle class="pin" cx="250" cy="45" r="6" style="animation-delay:.3s"/>
+          <circle class="pin" cx="275" cy="180" r="6" style="animation-delay:.6s"/>
+          <circle class="pin" cx="90" cy="230" r="6" style="animation-delay:.9s"/>
+          <circle class="pin" cx="40" cy="150" r="6" style="animation-delay:1.2s"/>
+        </g>
+        <line class="scan-line" x1="20" y1="0" x2="20" y2="280"/>
+      </svg>
+    </div>
   </div>
 </section>
 
 <section id="listings" class="listings">
   <div class="wrap">
-    <h2 class="section-title">แปลงที่ดินพร้อมฝากขาย/ฝากเช่า</h2>
-    <p class="section-sub">อัปเดตสดจากระบบงานรังวัดของเรา — ทุกแปลงได้รับความยินยอมเผยแพร่ข้อมูลจากเจ้าของที่ดินแล้ว</p>
+    <h2 class="section-title" data-reveal>แปลงที่ดินพร้อมฝากขาย/ฝากเช่า</h2>
+    <p class="section-sub" data-reveal>อัปเดตสดจากระบบงานรังวัดของเรา — ทุกแปลงได้รับความยินยอมเผยแพร่ข้อมูลจากเจ้าของที่ดินแล้ว</p>
     <div id="listing-grid" class="listing-grid">
       <div class="listing-loading">กำลังโหลดรายการที่ดิน...</div>
     </div>
@@ -43,17 +63,17 @@
 
 <section id="why" class="why">
   <div class="wrap why-inner">
-    <div class="why-item">
+    <div class="why-item" data-reveal>
       <div class="why-icon">📐</div>
       <div class="why-title">รังวัดยืนยันเขตแดนจริง</div>
       <div class="why-text">ทุกแปลงผ่านการรังวัดสอบเขตโดยช่างรังวัดเอกชนที่ได้รับใบอนุญาตจากกรมที่ดิน ไม่ใช่แค่ข้อมูลจากโฉนดเฉยๆ</div>
     </div>
-    <div class="why-item">
+    <div class="why-item" data-reveal>
       <div class="why-icon">📋</div>
       <div class="why-title">ข้อมูลตรวจสอบได้</div>
       <div class="why-text">เนื้อที่ ขอบเขต และตำแหน่งแปลง มาจากข้อมูลรังวัดจริง พร้อมเอกสารประกอบเมื่อสนใจติดต่อ</div>
     </div>
-    <div class="why-item">
+    <div class="why-item" data-reveal>
       <div class="why-icon">🤝</div>
       <div class="why-title">ติดต่อตรงกับทีมงาน</div>
       <div class="why-text">สอบถามข้อมูลเพิ่มเติมหรือนัดดูที่ดินจริงได้โดยตรง ไม่ผ่านนายหน้าหลายต่อ</div>
@@ -61,11 +81,56 @@
   </div>
 </section>
 
+<section id="knowledge" class="knowledge">
+  <div class="wrap">
+    <h2 class="section-title" data-reveal>ความรู้เรื่องที่ดิน</h2>
+    <p class="section-sub" data-reveal>เข้าใจสิทธิและขั้นตอนก่อนซื้อขายที่ดิน — สรุปให้อ่านง่าย จากทีมงานที่รังวัดที่ดินจริงทุกวัน</p>
+    <div class="knowledge-grid">
+      <div class="k-card" data-reveal>
+        <div class="k-icon">📄</div>
+        <div class="k-title">โฉนด vs น.ส.3 vs ส.ค.1 ต่างกันอย่างไร</div>
+        <div class="k-text">โฉนดที่ดิน (น.ส.4) คือเอกสารสิทธิ์สมบูรณ์แบบที่สุด ระวางแผนที่แม่นยำ ส่วน น.ส.3/น.ส.3ก เป็นสิทธิครอบครองที่ยังไม่ได้ออกโฉนดเต็มรูป และ ส.ค.1 เป็นเพียงการแจ้งครอบครองเบื้องต้น ยังไม่ใช่เอกสารสิทธิ์ที่โอนขายได้ทันที ควรตรวจสอบประเภทเอกสารให้ชัดก่อนตัดสินใจ</div>
+      </div>
+      <div class="k-card" data-reveal>
+        <div class="k-icon">📐</div>
+        <div class="k-title">ทำไมต้องรังวัดสอบเขตก่อนซื้อขาย</div>
+        <div class="k-text">เนื้อที่ในโฉนดอาจคลาดเคลื่อนจากพื้นที่จริง หรือแนวเขตทับซ้อนกับที่ดินข้างเคียงโดยไม่รู้ตัว การรังวัดสอบเขตโดยช่างรังวัดที่ได้รับอนุญาตจะยืนยันตำแหน่งหลักเขตจริงในสนาม ป้องกันปัญหาซื้อที่ดินผิดขนาดหรือมีข้อพิพาทแนวเขตภายหลัง</div>
+      </div>
+      <div class="k-card" data-reveal>
+        <div class="k-icon">🏛️</div>
+        <div class="k-title">ขั้นตอนโอนกรรมสิทธิ์ที่สำนักงานที่ดิน</div>
+        <div class="k-text">คู่สัญญาทั้งสองฝ่ายต้องไปแสดงตัวที่สำนักงานที่ดินที่ที่ดินตั้งอยู่ พร้อมโฉนดตัวจริง บัตรประชาชน และเอกสารที่เกี่ยวข้อง เจ้าหน้าที่จะตรวจสอบเอกสาร ประเมินราคา คำนวณค่าธรรมเนียม แล้วจดทะเบียนโอนและจดบันทึกหลังโฉนดในวันเดียวกัน</div>
+      </div>
+      <div class="k-card" data-reveal>
+        <div class="k-icon">💰</div>
+        <div class="k-title">ค่าธรรมเนียม/ภาษี วันโอนมีอะไรบ้าง</div>
+        <div class="k-text">โดยทั่วไปมีค่าธรรมเนียมการโอน ภาษีเงินได้หัก ณ ที่จ่าย อากรแสตมป์หรือภาษีธุรกิจเฉพาะ (แล้วแต่กรณี) — อัตราและผู้รับภาระขึ้นอยู่กับราคาประเมิน ระยะเวลาถือครอง และการตกลงระหว่างคู่สัญญา ควรสอบถามเจ้าหน้าที่สำนักงานที่ดินหรือคำนวณล่วงหน้าก่อนวันโอนจริง</div>
+      </div>
+      <div class="k-card" data-reveal>
+        <div class="k-icon">🔗</div>
+        <div class="k-title">ภาระจำยอม / สิทธิเก็บกิน คืออะไร</div>
+        <div class="k-text">ภาระจำยอมคือสิทธิที่ที่ดินแปลงหนึ่งต้องยอมให้ที่ดินอีกแปลง (เช่น ทางเข้า-ออก) ใช้ประโยชน์บางอย่าง ส่วนสิทธิเก็บกินคือสิทธิใช้และเก็บผลประโยชน์จากทรัพย์ของผู้อื่นตลอดชีวิตหรือตามกำหนด — ทั้งสองอย่างอาจถูกจดแจ้งไว้หลังโฉนด ควรตรวจสอบก่อนซื้อเสมอ</div>
+      </div>
+      <div class="k-card" data-reveal>
+        <div class="k-icon">🔎</div>
+        <div class="k-title">ตรวจสอบข้อมูลที่ดินออนไลน์ได้ที่ไหน</div>
+        <div class="k-text">กรมที่ดินมีระบบ LandsMaps ให้ค้นหาตำแหน่งแปลงที่ดินจากเลขโฉนด/พิกัดได้ฟรี ใช้ตรวจสอบตำแหน่งเบื้องต้นก่อนนัดดูที่ดินจริงได้ แต่ข้อมูลที่แม่นยำที่สุดยังต้องอาศัยการรังวัดสอบเขตจริงในสนามอยู่ดี</div>
+      </div>
+    </div>
+    <div class="k-resources" data-reveal>
+      <span class="k-resources-label">แหล่งข้อมูลทางการ:</span>
+      <a href="https://www.dol.go.th" target="_blank" rel="noopener">กรมที่ดิน (dol.go.th)</a>
+      <a href="https://landsmaps.dol.go.th" target="_blank" rel="noopener">LandsMaps — ค้นหาแปลงที่ดิน</a>
+    </div>
+    <p class="k-disclaimer">ข้อมูลข้างต้นเป็นความรู้เบื้องต้นเพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำทางกฎหมาย รายละเอียด/อัตราจริงอาจเปลี่ยนแปลงตามกฎหมายและดุลยพินิจของเจ้าหน้าที่ — โปรดตรวจสอบกับสำนักงานที่ดินหรือปรึกษาผู้เชี่ยวชาญก่อนตัดสินใจ</p>
+  </div>
+</section>
+
 <section id="contact" class="contact">
   <div class="wrap contact-inner">
-    <h2 class="section-title light">สนใจฝากขาย/ฝากเช่าที่ดิน หรือสอบถามแปลงที่ดิน?</h2>
-    <p class="section-sub light">ทักไลน์หรือโทรหาเราได้เลย ทีมงานยินดีให้ข้อมูลเพิ่มเติม</p>
-    <div class="contact-buttons">
+    <h2 class="section-title light" data-reveal>สนใจฝากขาย/ฝากเช่าที่ดิน หรือสอบถามแปลงที่ดิน?</h2>
+    <p class="section-sub light" data-reveal>ทักไลน์หรือโทรหาเราได้เลย ทีมงานยินดีให้ข้อมูลเพิ่มเติม</p>
+    <div class="contact-buttons" data-reveal>
       <a id="line-cta" class="contact-btn line" href="#" target="_blank" rel="noopener">💬 ทักไลน์ OA</a>
       <a id="tel-cta" class="contact-btn tel" href="#">📞 โทรหาเรา</a>
     </div>
