@@ -6,8 +6,8 @@ document.documentElement.classList.add('js');
 // ที่อยู่ระบบงานรังวัด NJ Survey System — แหล่งข้อมูลแปลงที่ดิน (ดึงสดทุกครั้งที่เปิดหน้านี้)
 var API_BASE = 'https://nj-survey-system.onrender.com';
 
-// TODO: ใส่ LINE OA ID จริงของบริษัท (หาได้จากหน้าจัดการ LINE Official Account Manager)
-var LINE_OA_URL = 'https://line.me/R/ti/p/@YOUR_LINE_ID';
+// LINE OA "รังวัดเอกชน NJ GROUP" — ใช้ตัวเดิมที่ทีมดูแลลูกค้ารังวัดอยู่แล้ว (ไม่แยก OA ใหม่)
+var LINE_OA_URL = 'https://line.me/R/ti/p/@716lffzt';
 // เบอร์โทร/ที่อยู่บริษัท — ใช้ชุดเดียวกับที่พิมพ์อยู่บนเอกสารของบริษัทอยู่แล้ว แก้ตรงนี้ถ้าเปลี่ยน
 var COMPANY_NAME = 'บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด';
 var COMPANY_TEL = '084-915-8601';
