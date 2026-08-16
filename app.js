@@ -58,11 +58,28 @@ function loadListings() {
 }
 
 function setupContact() {
-  document.getElementById('line-cta').href = LINE_OA_URL;
-  document.getElementById('tel-cta').href = 'tel:' + COMPANY_TEL.replace(/-/g, '');
-  document.getElementById('tel-cta').textContent = '📞 ' + COMPANY_TEL;
+  var lineBtn = document.getElementById('line-cta'), telBtn = document.getElementById('tel-cta');
+  lineBtn.href = LINE_OA_URL;
+  telBtn.href = 'tel:' + COMPANY_TEL.replace(/-/g, '');
+  telBtn.textContent = '📞 ' + COMPANY_TEL;
   document.getElementById('contact-name').textContent = COMPANY_NAME;
   document.getElementById('contact-address').textContent = COMPANY_ADDRESS;
+  lineBtn.addEventListener('click', function () { track('line_click'); });
+  telBtn.addEventListener('click', function () { track('tel_click'); });
+}
+
+// ---------- เก็บสถิติเข้าชม/คลิกติดต่อ — ไม่มี cookie ไม่มี PII ใช้แค่ตัดสินเกณฑ์ผ่าน Phase 2 ----------
+// sendBeacon ส่งข้อมูลได้แม้หน้าเว็บกำลังจะ unload (เช่นตอนกด tel:/line: แล้วเบราว์เซอร์สลับแอป)
+// ต่างจาก fetch ธรรมดาที่อาจถูกยกเลิกกลางทางถ้าหน้าเว็บ unload ก่อน request เสร็จ
+function track(type) {
+  try {
+    var body = JSON.stringify({ type: type });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(API_BASE + '/api/public/track', new Blob([body], { type: 'application/json' }));
+    } else {
+      fetch(API_BASE + '/api/public/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
+    }
+  } catch (e) { /* เก็บสถิติไม่ได้ก็ไม่ควรกระทบการใช้งานเว็บของผู้เข้าชม */ }
 }
 
 // เผยเนื้อหาแบบ fade-up ทีละส่วนตอนเลื่อนจอมาเห็น — เบากว่าไลบรารีอนิเมชันเต็มรูปแบบ ไม่มี dependency
@@ -94,3 +111,4 @@ document.getElementById('year').textContent = new Date().getFullYear() + 543; //
 setupContact();
 setupReveal();
 loadListings();
+track('pageview');
