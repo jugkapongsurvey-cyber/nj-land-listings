@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630"
+     font-family="'IBM Plex Sans Thai','Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif">
+  <title>ที่ดินชัวร์ — ภาพพรีวิวตอนแชร์ลิงก์ใน LINE / Facebook (1200×630)</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12315F"/>
+      <stop offset="1" stop-color="#0B1F3E"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- เส้นแนวเขตจางๆ เป็นพื้นหลัง สื่องานรังวัด -->
+  <g stroke="#1E4B8F" stroke-width="2" fill="none" opacity="0.55">
+    <path d="M-40 470 L320 380 L620 500 L980 400 L1240 470"/>
+    <path d="M-40 550 L360 460 L700 570 L1040 470 L1240 540"/>
+    <path d="M860 60 L1080 130 L1240 70" opacity="0.6"/>
+  </g>
+  <g transform="translate(96,150) scale(1.85)" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M64 8 L110 26 V64 C110 90 90 106 64 116 C38 106 18 90 18 64 V26 Z" fill="#FFFFFF"/>
+    <path d="M34 56 L66 42 L94 60 L60 76 Z" fill="none" stroke="#12315F" stroke-width="5"/>
+    <circle cx="34" cy="56" r="4.5" fill="#12315F"/>
+    <circle cx="66" cy="42" r="4.5" fill="#12315F"/>
+    <circle cx="94" cy="60" r="4.5" fill="#12315F"/>
+    <path d="M42 89 l12 13 26-29" fill="none" stroke="#16A34A" stroke-width="9"/>
+  </g>
+  <text x="330" y="252" font-size="96" font-weight="700" fill="#FFFFFF">ที่ดินชัวร์</text>
+  <text x="334" y="300" font-size="26" font-weight="600" fill="#7FA8DE" letter-spacing="5">NJ TEEDINSURE</text>
+  <text x="330" y="368" font-size="34" fill="#DCE7F6">ที่ดินทุกแปลง ผ่านการรังวัดยืนยันแล้ว</text>
+  <g transform="translate(330,400)">
+    <rect x="0" y="0" width="330" height="52" rx="26" fill="#16A34A"/>
+    <path d="M28 26 l9 10 18-21" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="70" y="35" font-size="24" font-weight="700" fill="#FFFFFF">รังวัดโดยช่างมีใบอนุญาต</text>
+  </g>
+  <text x="96" y="574" font-size="22" fill="#8FB0DC">โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</text>
+</svg>

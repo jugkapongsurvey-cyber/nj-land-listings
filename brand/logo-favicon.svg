@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>ที่ดินชัวร์ — favicon (ตัดรายละเอียดออก ให้อ่านออกที่ 16-32px)</title>
+  <!-- ขนาดเล็กมากต้องตัดหมุดมุมกับเส้นแปลงทิ้ง เหลือแค่ "โล่ + ติ๊กถูก" ที่ยังสื่อความหมายครบ -->
+  <rect width="64" height="64" rx="14" fill="#12315F"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 12 L50 19 V33 C50 44 42 50 32 54 C22 50 14 44 14 33 V19 Z" fill="#1E4B8F" stroke="#FFFFFF" stroke-width="2.5"/>
+    <path d="M23 33 l6 7 13-15" fill="none" stroke="#22C55E" stroke-width="6"/>
+  </g>
+</svg>

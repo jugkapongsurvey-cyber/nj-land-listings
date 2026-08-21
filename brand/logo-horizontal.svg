@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 160" width="660" height="160"
+     font-family="'IBM Plex Sans Thai','Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif">
+  <title>ที่ดินชัวร์ — โลโก้แนวนอน (หัวเว็บไซต์ / หัวจดหมาย / ป้าย)</title>
+  <g transform="translate(24,14) scale(1.02)" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M64 8 L110 26 V64 C110 90 90 106 64 116 C38 106 18 90 18 64 V26 Z" fill="#12315F"/>
+    <path d="M34 56 L66 42 L94 60 L60 76 Z" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+    <circle cx="34" cy="56" r="4.5" fill="#FFFFFF"/>
+    <circle cx="66" cy="42" r="4.5" fill="#FFFFFF"/>
+    <circle cx="94" cy="60" r="4.5" fill="#FFFFFF"/>
+    <path d="M42 89 l12 13 26-29" fill="none" stroke="#22C55E" stroke-width="9"/>
+  </g>
+  <text x="164" y="70" font-size="54" font-weight="700" fill="#12315F">ที่ดินชัวร์</text>
+  <text x="168" y="99" font-size="17" font-weight="600" fill="#1E6FE0" letter-spacing="3">NJ TEEDINSURE</text>
+  <path d="M166 117 h300" stroke="#E4E9F2" stroke-width="2"/>
+  <text x="166" y="140" font-size="16" fill="#556376">ที่ดินทุกแปลง ผ่านการรังวัดยืนยันแล้ว</text>
+</svg>

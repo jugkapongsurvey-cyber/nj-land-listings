@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>ที่ดินชัวร์ — รูปโปรไฟล์ (Facebook / TikTok / LINE OA)</title>
+  <!-- พื้นเต็มกรอบ เพราะทุกแพลตฟอร์มครอปเป็นวงกลม · โล่กับตัวหนังสืออยู่ในวงกลมปลอดภัยตรงกลาง -->
+  <rect width="512" height="512" fill="#12315F"/>
+  <circle cx="256" cy="256" r="250" fill="none" stroke="#1E4B8F" stroke-width="10"/>
+  <g transform="translate(256,214) scale(2.05) translate(-64,-62)" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M64 8 L110 26 V64 C110 90 90 106 64 116 C38 106 18 90 18 64 V26 Z" fill="#FFFFFF"/>
+    <path d="M34 56 L66 42 L94 60 L60 76 Z" fill="none" stroke="#12315F" stroke-width="5"/>
+    <circle cx="34" cy="56" r="4.5" fill="#12315F"/>
+    <circle cx="66" cy="42" r="4.5" fill="#12315F"/>
+    <circle cx="94" cy="60" r="4.5" fill="#12315F"/>
+    <path d="M42 89 l12 13 26-29" fill="none" stroke="#16A34A" stroke-width="9"/>
+  </g>
+  <text x="256" y="452" text-anchor="middle" font-size="60" font-weight="700" fill="#FFFFFF"
+        font-family="'IBM Plex Sans Thai','Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif">ที่ดินชัวร์</text>
+</svg>
