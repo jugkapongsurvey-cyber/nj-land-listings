@@ -1,5 +1,7 @@
 # NJ Land Listings — หน้าเว็บประกาศที่ดินฝากขาย/ฝากเช่า
 
+> หน้าแรกได้รับการปรับเป็น marketplace แบบ responsive แล้ว ดูแนวทางสำหรับ Claude Code ใน `CLAUDE.md` และระบบภาพใน `DESIGN-SYSTEM.md`
+
 เว็บสถิต (static site) ล้วนๆ — ไม่มี build step, ไม่มี backend ของตัวเอง ดึงข้อมูลแปลงที่ดินสดทุกครั้งที่มีคนเปิดเว็บจาก
 `https://nj-survey-system.onrender.com/api/public/listings` (endpoint สาธารณะ ไม่ต้อง login)
 

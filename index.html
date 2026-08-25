@@ -1,176 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ที่ดินชัวร์ — ที่ดินฝากขาย/ฝากเช่า ผ่านการรังวัดยืนยันแล้ว</title>
-<meta name="description" content="ที่ดินฝากขาย/ฝากเช่า ทุกแปลงผ่านการรังวัดยืนยันเขตแดนจริงโดยช่างรังวัดเอกชนที่ได้รับอนุญาต — ข้อมูลแม่นยำ ตรวจสอบได้ ต่างจากประกาศทั่วไปที่ไม่มีใครยืนยันเขตให้">
-<link rel="icon" href="brand/logo-favicon.svg">
-<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="ที่ดินชัวร์">
-<meta property="og:title" content="ที่ดินชัวร์ — ที่ดินฝากขาย/ฝากเช่า ผ่านการรังวัดยืนยันแล้ว">
-<meta property="og:description" content="ที่ดินทุกแปลงผ่านการรังวัดยืนยันเขตจริงโดยช่างรังวัดเอกชนที่ได้รับอนุญาต ข้อมูลแม่นยำ ตรวจสอบได้">
-<meta property="og:url" content="https://njteedinsure.com/">
-<meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="ui.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>ที่ดินชัวร์ — ค้นหาที่ดินที่รังวัดยืนยันแล้ว</title>
+  <meta name="description" content="ตลาดซื้อขายที่ดินที่ตรวจสอบแนวเขตจริง ค้นหาตามทำเล ราคา และขนาด ติดต่อทีมช่างรังวัดได้โดยตรง">
+  <link rel="icon" href="brand/logo-favicon.svg">
+  <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="ที่ดินชัวร์">
+  <meta property="og:title" content="ที่ดินชัวร์ — เช็กก่อนซื้อ ชัวร์ก่อนโอน">
+  <meta property="og:description" content="ที่ดินทุกแปลงผ่านการรังวัดยืนยันแนวเขตโดยทีมช่างรังวัดเอกชน">
+  <meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="marketplace.css">
 </head>
 <body>
+  <header class="topbar"><div class="shell topbar-inner">
+    <a class="logo" href="#top" aria-label="ที่ดินชัวร์ หน้าแรก"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a>
+    <nav aria-label="เมนูหลัก"><a class="active" href="#listings">ซื้อที่ดิน</a><a href="consign.html">ขายที่ดิน</a><a href="#services">บริการรังวัด</a><a href="#guides">คู่มือที่ดิน</a></nav>
+    <div class="top-actions"><a class="saved-link" href="guides.html">📖 <span>คู่มือที่ดิน</span></a><a class="post-btn" href="consign.html">＋ ฝากขายฟรี</a></div>
+  </div></header>
 
-<header class="site-header">
-  <div class="wrap header-inner">
-    <a href="#top" class="brand">
-      <img src="brand/logo-mark.svg" alt="ที่ดินชัวร์" class="brand-logo">
-      <span class="brand-name">ที่ดินชัวร์</span>
-    </a>
-    <nav class="header-nav">
-      <a href="#listings">แปลงที่ดิน</a>
-      <a href="consign.html">ฝากขายที่ดิน</a>
-      <a href="#knowledge">ความรู้เรื่องที่ดิน</a>
-    </nav>
-    <a class="header-cta" href="consign.html">ฝากขายฟรี</a>
-  </div>
-</header>
-
-<section id="top" class="hero">
-  <div class="wrap hero-inner">
-    <div class="hero-text" data-reveal>
-      <div class="hero-badge">✓ ผ่านการรังวัดยืนยันแล้วทุกแปลง</div>
-      <h1>ที่ดินฝากขาย/ฝากเช่า<br>ที่ตรวจสอบเขตแดนจริงแล้ว</h1>
-      <p class="hero-sub">ต่างจากประกาศที่ดินทั่วไป — ทุกแปลงบนเว็บนี้ผ่านการรังวัดสอบเขตจริงโดยช่างรังวัดเอกชนที่ได้รับใบอนุญาต รู้เนื้อที่จริง รู้ขอบเขตจริง ก่อนตัดสินใจ ไม่ใช่แค่ก๊อปข้อมูลจากโฉนดมาลงประกาศ</p>
-      <div class="hero-btns">
-        <a href="#listings" class="hero-btn">ดูแปลงที่ดินทั้งหมด ↓</a>
-        <a href="consign.html" class="hero-btn ghost">มีที่ดินอยากขาย? ฝากขายฟรี</a>
+  <main id="top">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy"><div class="eyebrow"><span>✓</span> ข้อมูลแนวเขตผ่านการตรวจสอบ</div><h1>ค้นหาที่ดินที่ใช่<br><em>ด้วยข้อมูลที่ชัวร์</em></h1><p>รู้ขนาดจริง เห็นแนวเขตจริง ตรวจสอบเอกสารก่อนตัดสินใจ พร้อมทีมช่างรังวัดดูแลตั้งแต่วันแรกถึงวันโอน</p><div class="trust-row"><div><strong>351</strong><span>ใบอนุญาตสำนักงาน</span></div><div><strong>100%</strong><span>ยินยอมก่อนเผยแพร่</span></div><div><strong>1 ทีม</strong><span>ดูแลครบทุกขั้นตอน</span></div></div></div>
+        <div class="map-art" aria-hidden="true"><div class="plot plot-a"><span>เนื้อที่วัดจริง</span></div><div class="plot plot-b"><span>แนวเขตชัดเจน</span></div><div class="road">ถนนสาธารณะ</div><div class="map-pin pin-a"><i></i>หมุดหลักเขต</div><div class="map-pin pin-b"><i></i>ค่าพิกัดจริง</div><div class="verified-float">✓ รังวัดแล้ว</div></div>
       </div>
-    </div>
-    <div class="hero-art" data-reveal>
-      <svg class="survey-svg" viewBox="0 0 320 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <polygon class="plot-fill" points="60,60 250,45 275,180 90,230 40,150" />
-        <polygon class="plot-outline" points="60,60 250,45 275,180 90,230 40,150" />
-        <g class="plot-pins">
-          <circle class="pin" cx="60" cy="60" r="6"/>
-          <circle class="pin" cx="250" cy="45" r="6" style="animation-delay:.3s"/>
-          <circle class="pin" cx="275" cy="180" r="6" style="animation-delay:.6s"/>
-          <circle class="pin" cx="90" cy="230" r="6" style="animation-delay:.9s"/>
-          <circle class="pin" cx="40" cy="150" r="6" style="animation-delay:1.2s"/>
-        </g>
-        <line class="scan-line" x1="20" y1="0" x2="20" y2="280"/>
-      </svg>
-    </div>
-  </div>
-</section>
+      <form id="search-form" class="search-box shell" role="search">
+        <div class="purpose-tabs" role="tablist" aria-label="ประเภทประกาศ"><button type="button" class="selected" data-purpose="sell">ซื้อ</button><button type="button" data-purpose="rent">เช่า</button></div>
+        <label class="search-location"><span class="field-label">ทำเลที่ต้องการ</span><span class="field-line"><b>⌖</b><input id="search-input" type="search" placeholder="จังหวัด อำเภอ หรือตำบล" autocomplete="off"></span></label>
+        <label><span class="field-label">ประเภทที่ดิน</span><select id="type-filter"><option value="all">ที่ดินทุกประเภท</option><option value="sell">ที่ดินขาย</option><option value="rent">ที่ดินให้เช่า</option></select></label>
+        <label><span class="field-label">ช่วงราคา</span><select id="price-filter"><option value="all">ทุกช่วงราคา</option><option value="3000000">ไม่เกิน 3 ล้านบาท</option><option value="5000000">ไม่เกิน 5 ล้านบาท</option><option value="10000000">ไม่เกิน 10 ล้านบาท</option></select></label>
+        <button class="search-submit" type="submit"><span>⌕</span> ค้นหาที่ดิน</button>
+      </form>
+    </section>
 
-<section id="listings" class="listings">
-  <div class="wrap">
-    <h2 class="section-title" data-reveal>แปลงที่ดินพร้อมฝากขาย/ฝากเช่า <span id="listing-count" class="lc-count"></span></h2>
-    <p class="section-sub" data-reveal>อัปเดตสดจากระบบงานรังวัดของเรา — ทุกแปลงได้รับความยินยอมเผยแพร่ข้อมูลจากเจ้าของที่ดินแล้ว</p>
-    <div id="listing-grid" class="listing-grid">
-      <div class="listing-loading">กำลังโหลดรายการที่ดิน...</div>
-    </div>
-  </div>
-</section>
+    <section class="quick shell" aria-label="ค้นหาด่วน"><a href="#listings" data-quick="all"><span class="quick-icon green">✓</span><b>ทุกแปลง</b><small>รังวัดยืนยันแล้วทั้งหมด</small></a><a href="#listings" data-quick="sell"><span class="quick-icon blue">⌂</span><b>ที่ดินขาย</b><small>พร้อมโอน</small></a><a href="#listings" data-quick="under5"><span class="quick-icon gold">฿</span><b>ไม่เกิน 5 ล้าน</b><small>งบเริ่มต้น</small></a><a href="consign.html"><span class="quick-icon mint">＋</span><b>ฝากขายที่ดิน</b><small>ประเมินเบื้องต้นฟรี</small></a></section>
 
-<section class="cta-band">
-  <div class="wrap cta-band-inner" data-reveal>
-    <div class="cta-band-text">
-      <div class="cta-band-title">มีที่ดินอยากขาย แต่กลัวคนซื้อไม่เชื่อเรื่องเขต?</div>
-      <div class="cta-band-sub">ฝากขายกับเราฟรี ไม่มีค่าใช้จ่ายล่วงหน้า — เรารังวัดยืนยันเขตให้ก่อนประกาศขาย</div>
-    </div>
-    <a href="consign.html" class="cta-band-btn">ฝากขายที่ดินฟรี →</a>
-  </div>
-</section>
+    <section id="listings" class="listing-section"><div class="shell"><div class="section-head"><div><span class="kicker">คัดสรรโดยทีมรังวัด</span><h2>ที่ดินแนะนำ</h2><p>ข้อมูลชัด ตำแหน่งจริง พร้อมนัดดูพื้นที่</p></div><div class="view-tools"><a href="consign.html">มีที่ดินอยากขาย? <span>→</span></a></div></div><div id="result-note" class="result-note" hidden></div><div id="listing-grid" class="listing-grid" aria-live="polite"><div class="loading"><span></span>กำลังโหลดแปลงที่ดิน...</div></div></div></section>
 
-<section id="why" class="why">
-  <div class="wrap why-inner">
-    <div class="why-item" data-reveal>
-      <div class="why-icon">📐</div>
-      <div class="why-title">รังวัดยืนยันเขตแดนจริง</div>
-      <div class="why-text">ทุกแปลงผ่านการรังวัดสอบเขตโดยช่างรังวัดเอกชนที่ได้รับใบอนุญาตจากกรมที่ดิน ไม่ใช่แค่ข้อมูลจากโฉนดเฉยๆ</div>
-    </div>
-    <div class="why-item" data-reveal>
-      <div class="why-icon">📋</div>
-      <div class="why-title">ข้อมูลตรวจสอบได้</div>
-      <div class="why-text">เนื้อที่ ขอบเขต และตำแหน่งแปลง มาจากข้อมูลรังวัดจริง พร้อมเอกสารประกอบเมื่อสนใจติดต่อ</div>
-    </div>
-    <div class="why-item" data-reveal>
-      <div class="why-icon">🤝</div>
-      <div class="why-title">ติดต่อตรงกับทีมงาน</div>
-      <div class="why-text">สอบถามข้อมูลเพิ่มเติมหรือนัดดูที่ดินจริงได้โดยตรง ไม่ผ่านนายหน้าหลายต่อ</div>
-    </div>
-  </div>
-</section>
+    <section id="services" class="proof-section"><div class="shell proof-grid"><div class="proof-copy"><span class="kicker light">TEEDIN SURE STANDARD</span><h2>ไม่ได้มีแค่ประกาศ<br>เราช่วยให้คุณซื้อได้อย่างมั่นใจ</h2><p>ทุกข้อมูลสำคัญถูกจัดให้อ่านง่าย พร้อมผู้เชี่ยวชาญช่วยตรวจสิ่งที่คนซื้อที่ดินมักมองข้าม</p><a href="guides.html" class="outline-btn">รู้จักมาตรฐานของเรา →</a></div><div class="proof-list"><article><span>01</span><div><b>แนวเขตและเนื้อที่จริง</b><p>ตรวจหมุด แนวเขต และขนาดพื้นที่โดยทีมช่างรังวัด</p></div></article><article><span>02</span><div><b>เอกสารและภาระผูกพัน</b><p>สรุปประเภทเอกสารสิทธิ์และประเด็นที่ควรตรวจเพิ่มเติม</p></div></article><article><span>03</span><div><b>ทางเข้าออกและสภาพแวดล้อม</b><p>เห็นภาพถนน สาธารณูปโภค และบริบทรอบแปลงก่อนนัดดู</p></div></article></div></div></section>
 
-<section id="knowledge" class="knowledge">
-  <div class="wrap">
-    <h2 class="section-title" data-reveal>ความรู้เรื่องที่ดิน</h2>
-    <p class="section-sub" data-reveal>เข้าใจสิทธิและขั้นตอนก่อนซื้อขายที่ดิน — สรุปให้อ่านง่าย จากทีมงานที่รังวัดที่ดินจริงทุกวัน</p>
-    <div class="knowledge-grid">
-      <div class="k-card" data-reveal>
-        <div class="k-icon">📄</div>
-        <div class="k-title">โฉนด vs น.ส.3 vs ส.ค.1 ต่างกันอย่างไร</div>
-        <div class="k-text">โฉนดที่ดิน (น.ส.4) คือเอกสารสิทธิ์สมบูรณ์แบบที่สุด ระวางแผนที่แม่นยำ ส่วน น.ส.3/น.ส.3ก เป็นสิทธิครอบครองที่ยังไม่ได้ออกโฉนดเต็มรูป และ ส.ค.1 เป็นเพียงการแจ้งครอบครองเบื้องต้น ยังไม่ใช่เอกสารสิทธิ์ที่โอนขายได้ทันที ควรตรวจสอบประเภทเอกสารให้ชัดก่อนตัดสินใจ</div>
-      </div>
-      <div class="k-card" data-reveal>
-        <div class="k-icon">📐</div>
-        <div class="k-title">ทำไมต้องรังวัดสอบเขตก่อนซื้อขาย</div>
-        <div class="k-text">เนื้อที่ในโฉนดอาจคลาดเคลื่อนจากพื้นที่จริง หรือแนวเขตทับซ้อนกับที่ดินข้างเคียงโดยไม่รู้ตัว การรังวัดสอบเขตโดยช่างรังวัดที่ได้รับอนุญาตจะยืนยันตำแหน่งหลักเขตจริงในสนาม ป้องกันปัญหาซื้อที่ดินผิดขนาดหรือมีข้อพิพาทแนวเขตภายหลัง</div>
-      </div>
-      <div class="k-card" data-reveal>
-        <div class="k-icon">🏛️</div>
-        <div class="k-title">ขั้นตอนโอนกรรมสิทธิ์ที่สำนักงานที่ดิน</div>
-        <div class="k-text">คู่สัญญาทั้งสองฝ่ายต้องไปแสดงตัวที่สำนักงานที่ดินที่ที่ดินตั้งอยู่ พร้อมโฉนดตัวจริง บัตรประชาชน และเอกสารที่เกี่ยวข้อง เจ้าหน้าที่จะตรวจสอบเอกสาร ประเมินราคา คำนวณค่าธรรมเนียม แล้วจดทะเบียนโอนและจดบันทึกหลังโฉนดในวันเดียวกัน</div>
-      </div>
-      <div class="k-card" data-reveal>
-        <div class="k-icon">💰</div>
-        <div class="k-title">ค่าธรรมเนียม/ภาษี วันโอนมีอะไรบ้าง</div>
-        <div class="k-text">โดยทั่วไปมีค่าธรรมเนียมการโอน ภาษีเงินได้หัก ณ ที่จ่าย อากรแสตมป์หรือภาษีธุรกิจเฉพาะ (แล้วแต่กรณี) — อัตราและผู้รับภาระขึ้นอยู่กับราคาประเมิน ระยะเวลาถือครอง และการตกลงระหว่างคู่สัญญา ควรสอบถามเจ้าหน้าที่สำนักงานที่ดินหรือคำนวณล่วงหน้าก่อนวันโอนจริง</div>
-      </div>
-      <div class="k-card" data-reveal>
-        <div class="k-icon">🔗</div>
-        <div class="k-title">ภาระจำยอม / สิทธิเก็บกิน คืออะไร</div>
-        <div class="k-text">ภาระจำยอมคือสิทธิที่ที่ดินแปลงหนึ่งต้องยอมให้ที่ดินอีกแปลง (เช่น ทางเข้า-ออก) ใช้ประโยชน์บางอย่าง ส่วนสิทธิเก็บกินคือสิทธิใช้และเก็บผลประโยชน์จากทรัพย์ของผู้อื่นตลอดชีวิตหรือตามกำหนด — ทั้งสองอย่างอาจถูกจดแจ้งไว้หลังโฉนด ควรตรวจสอบก่อนซื้อเสมอ</div>
-      </div>
-      <div class="k-card" data-reveal>
-        <div class="k-icon">🔎</div>
-        <div class="k-title">ตรวจสอบข้อมูลที่ดินออนไลน์ได้ที่ไหน</div>
-        <div class="k-text">กรมที่ดินมีระบบ LandsMaps ให้ค้นหาตำแหน่งแปลงที่ดินจากเลขโฉนด/พิกัดได้ฟรี ใช้ตรวจสอบตำแหน่งเบื้องต้นก่อนนัดดูที่ดินจริงได้ แต่ข้อมูลที่แม่นยำที่สุดยังต้องอาศัยการรังวัดสอบเขตจริงในสนามอยู่ดี</div>
-      </div>
-    </div>
-    <div class="k-resources" data-reveal>
-      <span class="k-resources-label">แหล่งข้อมูลทางการ:</span>
-      <a href="https://www.dol.go.th" target="_blank" rel="noopener">กรมที่ดิน (dol.go.th)</a>
-      <a href="https://landsmaps.dol.go.th" target="_blank" rel="noopener">LandsMaps — ค้นหาแปลงที่ดิน</a>
-    </div>
-    <p class="k-disclaimer">ข้อมูลข้างต้นเป็นความรู้เบื้องต้นเพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำทางกฎหมาย รายละเอียด/อัตราจริงอาจเปลี่ยนแปลงตามกฎหมายและดุลยพินิจของเจ้าหน้าที่ — โปรดตรวจสอบกับสำนักงานที่ดินหรือปรึกษาผู้เชี่ยวชาญก่อนตัดสินใจ</p>
-  </div>
-</section>
+    <section id="guides" class="guide-section shell"><div class="section-head compact"><div><span class="kicker">อ่านก่อนตัดสินใจ</span><h2>คู่มือคนซื้อที่ดิน</h2></div><a class="text-link" href="guides.html">ดูบทความทั้งหมด →</a></div><div class="guide-grid"><article class="guide-feature"><div class="guide-visual"><span>ฉบับเข้าใจง่าย</span><b>โฉนด<br>น.ส.3<br>ส.ค.1</b></div><div><small>เอกสารสิทธิ์ · 8 นาที</small><h3>เอกสารที่ดินแต่ละแบบต่างกันอย่างไร ซื้อขายได้หรือไม่</h3><p>เช็กสิทธิและข้อจำกัดให้เข้าใจก่อนวางเงินจอง</p><a href="guides.html#deed">อ่านบทความ →</a></div></article><div class="guide-side"><a href="guides.html#survey"><article><span class="guide-num">01</span><div><small>รังวัดที่ดิน</small><h3>ทำไมต้องรังวัดสอบเขตก่อนซื้อขายที่ดิน</h3></div></article></a><a href="guides.html#fee"><article><span class="guide-num">02</span><div><small>ค่าใช้จ่าย</small><h3>วันโอนมีค่าธรรมเนียมและภาษีอะไรบ้าง</h3></div></article></a><a href="guides.html#check"><article><span class="guide-num">03</span><div><small>ตรวจสอบ</small><h3>ตรวจสอบข้อมูลที่ดินออนไลน์ได้ที่ไหน</h3></div></article></a></div></div></section>
 
-<section id="contact" class="contact">
-  <div class="wrap contact-inner">
-    <h2 class="section-title light" data-reveal>สนใจฝากขาย/ฝากเช่าที่ดิน หรือสอบถามแปลงที่ดิน?</h2>
-    <p class="section-sub light" data-reveal>ทักไลน์หรือโทรหาเราได้เลย ทีมงานยินดีให้ข้อมูลเพิ่มเติม</p>
-    <div class="contact-buttons" data-reveal>
-      <a id="line-cta" class="contact-btn line" href="#" target="_blank" rel="noopener">💬 ทักไลน์ OA</a>
-      <a id="tel-cta" class="contact-btn tel" href="#">📞 โทรหาเรา</a>
-    </div>
-    <div class="contact-meta">
-      <div id="contact-name"></div>
-      <div id="contact-address"></div>
-    </div>
-  </div>
-</section>
+    <section class="sell-banner"><div class="shell sell-inner"><div><span>สำหรับเจ้าของที่ดิน</span><h2>มีที่ดินอยากขาย?<br>เริ่มจากข้อมูลที่ถูกต้อง</h2><p>ส่งข้อมูลให้ทีมงานประเมินเบื้องต้นฟรี ไม่มีค่าใช้จ่ายล่วงหน้า</p></div><a href="consign.html">ฝากขายที่ดินฟรี <b>→</b></a></div></section>
+  </main>
 
-<footer class="site-footer">
-  <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
-</footer>
+  <footer id="contact"><div class="shell footer-grid"><div><a class="logo footer-logo" href="#top"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a><p>แพลตฟอร์มซื้อขายที่ดินโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</p></div><div><b>ค้นหาที่ดิน</b><a href="#listings">ประกาศทั้งหมด</a><a href="#services">มาตรฐานที่ดินชัวร์</a></div><div><b>บริการ</b><a href="consign.html">ฝากขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a></div><div><b>ติดต่อทีมงาน</b><a href="tel:021620405">02-162-0405</a><a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener">LINE @716lffzt</a><span>จ.–ส. 08:30–17:30 น.</span></div></div><div class="shell footer-bottom"><span>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด</span><span>สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</span></div></footer>
 
-<script src="analytics.js"></script>
-<script src="app.js"></script>
+  <nav class="mobile-nav" aria-label="เมนูมือถือ"><a class="active" href="#top"><span>⌂</span>หน้าแรก</a><a href="#listings"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ลงประกาศ</a><a href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
+  <script src="analytics.js"></script><script src="marketplace.js"></script>
 </body>
 </html>
