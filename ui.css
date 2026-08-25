@@ -1,0 +1,409 @@
+/* ===========================================================================
+   ที่ดินชัวร์ — ชั้นดีไซน์เพิ่มเติม (โหลดต่อจาก style.css จึงใช้ตัวแปรสีชุดเดิมได้เลย)
+   ใช้กับหน้า "ฝากขายที่ดินฟรี" (consign.html) และแบนเนอร์ขอความยินยอมทุกหน้า
+
+   แนวทาง: มือถือมาก่อน — ทราฟฟิกจากโฆษณาเกือบทั้งหมดมาจากมือถือ
+   ขนาดฟอนต์ในช่องกรอกต้องไม่ต่ำกว่า 16px มิฉะนั้น iOS จะซูมหน้าจอเองตอนแตะช่อง
+   =========================================================================== */
+
+:root{
+  --teal:#0E9A8D;
+  --teal-deep:#0B6F72;
+  --amber:#B45309;
+  --shadow-card:0 18px 44px rgba(12,32,64,.13);
+  --shadow-soft:0 6px 18px rgba(12,32,64,.07);
+  --r-lg:20px;
+  --r-md:14px;
+}
+
+/* ---------- แบนเนอร์ขอความยินยอม (PDPA) ---------- */
+#nj-consent{
+  position:fixed;left:12px;right:12px;bottom:12px;z-index:900;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:#0F2748;color:#DDE7F5;
+  padding:14px 18px;border-radius:var(--r-md);
+  box-shadow:0 14px 40px rgba(0,0,0,.3);
+  font-size:13px;line-height:1.55;
+}
+.nj-consent-text{flex:1;min-width:220px}
+.nj-consent-btns{display:flex;gap:9px;flex:none}
+#nj-consent button{
+  font-family:inherit;font-size:13px;font-weight:700;
+  padding:9px 20px;border-radius:9px;border:0;cursor:pointer;white-space:nowrap;
+}
+.nj-consent-no{background:transparent;color:#9FB4D0;border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-yes{background:var(--green);color:#fff}
+
+/* ===========================================================================
+   หน้าฝากขาย — HERO + ฟอร์ม
+   =========================================================================== */
+.page-consign{background:var(--bg)}
+
+.cs-hero{
+  background:
+    radial-gradient(1100px 460px at 82% -12%, rgba(22,163,74,.30), transparent 62%),
+    linear-gradient(158deg,#0C2547 0%,#12315F 46%,#0B4F63 100%);
+  color:#fff;padding:44px 0 54px;
+}
+.cs-hero-grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:start}
+
+.cs-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(124,240,178,.14);border:1px solid rgba(124,240,178,.36);
+  color:#9EF5C4;font-size:12.5px;font-weight:700;
+  padding:7px 15px;border-radius:30px;margin-bottom:18px;
+}
+.cs-hero-copy h1{
+  font-size:clamp(27px,6.2vw,44px);font-weight:700;line-height:1.24;
+  margin:0 0 16px;letter-spacing:-.01em;
+}
+.cs-lead{font-size:15.5px;line-height:1.75;color:#C6D6EC;margin:0 0 22px;max-width:560px}
+.cs-lead strong{color:#fff;font-weight:600}
+
+.cs-ticks{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:11px;max-width:560px}
+.cs-ticks li{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;color:#D7E3F3;line-height:1.6}
+.cs-ticks span{
+  flex:none;width:21px;height:21px;border-radius:50%;
+  background:rgba(34,197,94,.18);color:#6EE7A3;
+  display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:2px;
+}
+
+.cs-proof{display:flex;gap:12px;flex-wrap:wrap}
+.cs-proof-item{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--r-md);padding:12px 18px;min-width:104px;
+}
+.cs-proof-item b{display:block;font-size:22px;font-weight:700;color:#fff;line-height:1.2}
+.cs-proof-item span{font-size:11.5px;color:#9FB4D0}
+
+/* ---------- การ์ดฟอร์ม ---------- */
+.cs-formcard{
+  background:#fff;border-radius:var(--r-lg);
+  box-shadow:var(--shadow-card);
+  overflow:hidden;scroll-margin-top:78px;
+}
+.cs-formhead{
+  background:linear-gradient(120deg,var(--green) 0%,#0E9A6B 58%,var(--teal) 100%);
+  color:#fff;padding:20px 22px;
+}
+.cs-formtitle{font-size:20px;font-weight:700;line-height:1.3}
+.cs-formsub{font-size:12.5px;color:rgba(255,255,255,.9);margin-top:4px}
+
+#consign-form{padding:20px 22px 24px;display:grid;gap:15px}
+
+/* honeypot — ต้องซ่อนแบบที่บอทตรวจไม่พบง่ายๆ แต่ไม่ใช้ display:none เพราะบอทบางตัวข้ามช่องที่ display:none */
+.cs-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+.cs-field{display:grid;gap:6px}
+.cs-label{font-size:12.5px;font-weight:700;color:var(--sub)}
+.cs-label b{color:#DC2626;font-weight:700}
+.cs-field input[type=text],
+.cs-field input[type=tel],
+.cs-field textarea{
+  font-family:inherit;font-size:16px;color:var(--ink);
+  padding:13px 15px;border:1.5px solid var(--border);border-radius:11px;
+  background:#fff;width:100%;transition:border-color .15s,box-shadow .15s;
+}
+.cs-field textarea{resize:vertical;min-height:62px;line-height:1.6}
+.cs-field input:focus,.cs-field textarea:focus{
+  outline:none;border-color:var(--green);box-shadow:0 0 0 3.5px rgba(22,163,74,.13);
+}
+.cs-field input::placeholder,.cs-field textarea::placeholder{color:#A8B6C9}
+.cs-hint{font-size:11.5px;color:var(--muted)}
+
+/* ---------- ปุ่มเลือกแบบ segmented ---------- */
+.cs-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cs-seg label{position:relative;display:block}
+.cs-seg input{position:absolute;opacity:0;width:0;height:0}
+.cs-seg span{
+  display:block;text-align:center;font-size:13.5px;font-weight:600;color:var(--sub);
+  padding:11px 6px;border:1.5px solid var(--border);border-radius:11px;
+  cursor:pointer;transition:all .15s;background:#fff;
+}
+.cs-seg input:checked + span{
+  border-color:var(--green);background:var(--green-light);color:#15803D;font-weight:700;
+}
+.cs-seg input:focus-visible + span{box-shadow:0 0 0 3.5px rgba(22,163,74,.18)}
+
+/* ---------- ยินยอม PDPA ---------- */
+.cs-check{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:12px;color:var(--sub);line-height:1.6;cursor:pointer;
+  background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:12px 14px;
+}
+.cs-check input{flex:none;width:18px;height:18px;margin-top:1px;accent-color:var(--green);cursor:pointer}
+
+.cs-err{
+  background:#FEF2F2;border:1px solid #FCA5A5;color:#B91C1C;
+  font-size:12.5px;line-height:1.6;padding:11px 14px;border-radius:10px;
+}
+
+.cs-submit{
+  font-family:inherit;font-size:16px;font-weight:700;color:#fff;
+  background:linear-gradient(120deg,var(--green),#0E9A6B);
+  border:0;border-radius:12px;padding:16px;cursor:pointer;width:100%;
+  box-shadow:0 10px 26px rgba(22,163,74,.32);transition:transform .12s,box-shadow .12s,opacity .12s;
+}
+.cs-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 32px rgba(22,163,74,.4)}
+.cs-submit:disabled{opacity:.6;cursor:default;box-shadow:none}
+
+.cs-alt{text-align:center;font-size:12.5px;color:var(--muted)}
+.cs-alt a{
+  display:inline-block;margin-left:8px;font-weight:700;color:var(--navy);text-decoration:none;
+  border-bottom:1.5px solid var(--border);padding-bottom:1px;
+}
+.cs-alt a:hover{border-color:var(--green);color:var(--green)}
+
+/* ---------- สถานะส่งสำเร็จ ---------- */
+.cs-done{padding:34px 24px 30px;text-align:center}
+.cs-done-icon{
+  width:62px;height:62px;margin:0 auto 16px;border-radius:50%;
+  background:var(--green-light);color:var(--green);
+  display:grid;place-items:center;font-size:31px;font-weight:800;
+}
+.cs-done-title{font-size:19px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.cs-done-text{font-size:13.5px;color:var(--sub);line-height:1.75;margin-bottom:20px}
+.cs-done-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cs-done-btn{
+  font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:11px;
+}
+.cs-done-btn.line{background:var(--line);color:#fff}
+.cs-done-btn.tel{background:var(--navy);color:#fff}
+
+/* ===========================================================================
+   ส่วนเนื้อหาด้านล่าง
+   =========================================================================== */
+.cs-h2{
+  font-size:clamp(21px,4.4vw,29px);font-weight:700;color:var(--navy);
+  text-align:center;margin:0 0 26px;line-height:1.35;
+}
+.cs-h2.light{color:#fff}
+
+/* ---------- ตารางเปรียบเทียบ ---------- */
+.cs-compare{padding:52px 0 46px;background:#fff}
+.cs-table{
+  max-width:800px;margin:0 auto;border:1px solid var(--border);
+  border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-soft);
+}
+.cs-trow{
+  display:grid;grid-template-columns:1.7fr 1fr 1fr;
+  border-top:1px solid var(--border);font-size:13px;
+}
+.cs-trow:first-child{border-top:0}
+.cs-trow > div{padding:13px 12px;display:flex;align-items:center;line-height:1.5}
+.cs-thead{background:var(--bg);font-weight:700;color:var(--sub);font-size:12px}
+.cs-trow > div:first-child{color:var(--ink);font-weight:500}
+.cs-no{color:var(--muted);font-size:12.5px}
+.cs-us{background:rgba(22,163,74,.05);border-left:1px solid var(--border)}
+.cs-thead .cs-us{background:var(--green-light);color:#15803D;font-weight:800}
+.cs-yes{color:#15803D;font-weight:700;font-size:12.5px}
+.cs-note{
+  max-width:800px;margin:14px auto 0;font-size:11px;color:var(--muted);
+  line-height:1.65;text-align:center;
+}
+
+/* ---------- ขั้นตอน ---------- */
+.cs-steps{padding:52px 0 56px;background:linear-gradient(160deg,#12315F,#0B4F63)}
+.cs-steplist{display:grid;grid-template-columns:1fr;gap:14px;max-width:960px;margin:0 auto}
+.cs-step{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--r-md);padding:20px;
+}
+.cs-stepno{
+  width:34px;height:34px;border-radius:10px;background:var(--green);color:#fff;
+  display:grid;place-items:center;font-size:16px;font-weight:800;margin-bottom:12px;
+}
+.cs-steptitle{font-size:15.5px;font-weight:700;color:#fff;margin-bottom:6px}
+.cs-steptext{font-size:13px;color:#B9CBE4;line-height:1.7}
+
+/* ---------- คำถามที่พบบ่อย ---------- */
+.cs-faq{padding:52px 0 46px;background:#fff}
+.cs-faqlist{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.cs-q{
+  border:1px solid var(--border);border-radius:var(--r-md);
+  background:#fff;overflow:hidden;transition:box-shadow .15s;
+}
+.cs-q[open]{box-shadow:var(--shadow-soft)}
+.cs-q summary{
+  cursor:pointer;list-style:none;padding:15px 46px 15px 18px;position:relative;
+  font-size:14.5px;font-weight:600;color:var(--navy);line-height:1.55;
+}
+.cs-q summary::-webkit-details-marker{display:none}
+.cs-q summary::after{
+  content:'+';position:absolute;right:17px;top:50%;transform:translateY(-50%);
+  font-size:20px;font-weight:400;color:var(--muted);transition:transform .2s;
+}
+.cs-q[open] summary::after{content:'−'}
+.cs-q > div{padding:0 18px 17px;font-size:13.5px;color:var(--sub);line-height:1.8}
+
+/* ---------- ปิดท้าย ---------- */
+.cs-final{
+  padding:54px 0 60px;text-align:center;
+  background:linear-gradient(120deg,var(--green) 0%,#0E9A6B 55%,var(--teal) 100%);color:#fff;
+}
+.cs-final h2{font-size:clamp(21px,4.4vw,30px);font-weight:700;margin:0 0 10px;line-height:1.35}
+.cs-final p{font-size:14.5px;color:rgba(255,255,255,.9);margin:0 0 24px}
+.cs-final-btn{
+  display:inline-block;background:#fff;color:#15803D;font-size:15.5px;font-weight:700;
+  padding:15px 34px;border-radius:12px;text-decoration:none;
+  box-shadow:0 12px 30px rgba(0,0,0,.18);
+}
+
+/* ---------- แถบติดต่อล่างจอ (มือถือเท่านั้น) ---------- */
+.cs-bottombar{
+  position:fixed;left:0;right:0;bottom:0;z-index:800;
+  display:flex;gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.97);backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(12,32,64,.09);
+}
+.cs-bar-btn{
+  flex:1;text-align:center;font-size:13.5px;font-weight:700;text-decoration:none;
+  padding:12px 6px;border-radius:11px;background:var(--bg);color:var(--navy);
+  border:1px solid var(--border);
+}
+.cs-bar-btn.line{background:var(--line);color:#fff;border-color:transparent}
+.cs-bar-btn.primary{flex:1.5;background:var(--green);color:#fff;border-color:transparent}
+.page-consign{padding-bottom:74px}          /* กันแถบล่างทับเนื้อหาท้ายหน้า */
+.page-consign #nj-consent{bottom:78px}      /* แบนเนอร์ยินยอมต้องไม่ทับแถบติดต่อ */
+
+/* ===========================================================================
+   จอใหญ่ขึ้น
+   =========================================================================== */
+@media (min-width:640px){
+  .cs-steplist{grid-template-columns:repeat(2,1fr)}
+  .cs-done-btns{flex-wrap:nowrap}
+}
+
+@media (min-width:900px){
+  .cs-hero{padding:60px 0 70px}
+  .cs-hero-grid{grid-template-columns:1.12fr .88fr;gap:44px;align-items:center}
+  .cs-steplist{grid-template-columns:repeat(4,1fr)}
+  .cs-formcard{position:sticky;top:82px}
+
+  /* จอใหญ่ไม่ต้องมีแถบล่าง — มีปุ่มติดต่อในฟอร์มและเมนูบนอยู่แล้ว */
+  .cs-bottombar{display:none}
+  .page-consign{padding-bottom:0}
+  .page-consign #nj-consent{bottom:12px}
+}
+
+@media (max-width:560px){
+  .header-nav{display:none}
+  .cs-trow{grid-template-columns:1.45fr .8fr .9fr;font-size:12px}
+  .cs-trow > div{padding:11px 9px}
+  .cs-seg{grid-template-columns:1fr;gap:7px}
+  .cs-seg span{text-align:left;padding:12px 15px}
+  #nj-consent{font-size:12.5px;padding:13px 15px}
+  .nj-consent-btns{width:100%}
+  #nj-consent button{flex:1}
+}
+
+/* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — ปิดทรานซิชันทั้งหมด */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+
+/* ===========================================================================
+   การ์ดแปลงที่ดิน (หน้าแรก) — ชุดใหม่ แทน .card เดิมใน style.css
+   ยกโครงมาจากแอปอสังหาฯ ที่คนไทยคุ้นมือ (ราคาตัวใหญ่ / ป้ายบนรูป / ปุ่มติดต่อในการ์ด)
+   แต่เพิ่มสิ่งที่ประกาศเจ้าอื่นให้ไม่ได้ไว้เด่นที่สุด — ป้าย "รังวัดยืนยันแล้ว"
+   =========================================================================== */
+.lc-count{
+  display:inline-block;vertical-align:middle;margin-left:8px;
+  font-size:12.5px;font-weight:700;color:#15803D;background:var(--green-light);
+  padding:4px 12px;border-radius:20px;
+}
+
+.lc{
+  border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:#fff;
+  display:flex;flex-direction:column;
+  transition:box-shadow .2s,transform .2s;
+  opacity:0;transform:translateY(14px);animation:card-in .5s ease forwards;
+}
+.lc:hover{box-shadow:var(--shadow-card);transform:translateY(-3px)}
+
+.lc-media{position:relative;background:var(--bg)}
+.lc-photo{width:100%;height:200px;object-fit:cover;display:block}
+.lc-photo-empty{
+  height:200px;display:grid;place-items:center;color:var(--muted);font-size:13px;
+  background:linear-gradient(135deg,#E7F0FB,#F5F9FD);
+}
+.lc-chips{position:absolute;left:11px;top:11px;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 22px)}
+.lc-chip{
+  font-size:11px;font-weight:800;padding:5px 11px;border-radius:20px;white-space:nowrap;
+  backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(0,0,0,.14);
+}
+.lc-chip-type{background:rgba(30,111,224,.94);color:#fff}
+.lc-chip-ok{background:rgba(22,163,74,.94);color:#fff}
+.lc-pcount{
+  position:absolute;right:11px;bottom:11px;
+  font-size:11px;font-weight:700;color:#fff;background:rgba(12,24,44,.68);
+  padding:4px 10px;border-radius:20px;backdrop-filter:blur(6px);
+}
+
+.lc-body{padding:16px 17px 17px;display:flex;flex-direction:column;flex:1;gap:7px}
+.lc-price{font-size:25px;font-weight:700;color:var(--navy);line-height:1.15;letter-spacing:-.01em}
+.lc-price.lc-price-tbd{font-size:16px;font-weight:600;color:var(--muted)}
+.lc-title{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.55;margin:0}
+.lc-blurb{
+  font-size:13px;color:var(--sub);line-height:1.65;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.lc-ago{font-size:11px;color:var(--muted);margin-top:auto;padding-top:5px}
+
+.lc-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.lc-btn{
+  text-align:center;font-size:13px;font-weight:700;text-decoration:none;
+  padding:11px 8px;border-radius:10px;white-space:nowrap;transition:filter .15s;
+}
+.lc-btn:hover{filter:brightness(.94)}
+.lc-btn-line{background:var(--line);color:#fff}
+.lc-btn-tel{background:var(--navy);color:#fff}
+.lc-btn-primary{background:var(--green);color:#fff}
+
+/* ---------- ยังไม่มีแปลงประกาศ ---------- */
+.lc-empty{
+  grid-column:1/-1;text-align:center;padding:46px 26px;
+  background:linear-gradient(160deg,#F2F8FF,#F7FCF9);
+  border:1px solid var(--border);border-radius:var(--r-lg);
+}
+.lc-empty-icon{font-size:38px;margin-bottom:12px}
+.lc-empty-title{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:9px;line-height:1.45}
+.lc-empty-text{
+  font-size:13.5px;color:var(--sub);line-height:1.8;
+  max-width:560px;margin:0 auto 22px;
+}
+.lc-empty-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.lc-empty-btns .lc-btn{padding:13px 24px;font-size:13.5px}
+
+/* ---------- ปุ่มคู่ใน hero ---------- */
+.hero-btns{display:flex;gap:11px;flex-wrap:wrap}
+.hero-btn.ghost{
+  background:transparent;color:#fff;
+  border:1.5px solid rgba(255,255,255,.45);box-shadow:none;
+}
+.hero-btn.ghost:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.7)}
+
+/* ---------- แถบชวนฝากขาย ---------- */
+.cta-band{padding:0 0 8px;background:#fff}
+.cta-band-inner{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#12315F 0%,#0E4E63 100%);
+  border-radius:var(--r-lg);padding:26px 30px;color:#fff;
+  box-shadow:var(--shadow-card);
+}
+.cta-band-title{font-size:19px;font-weight:700;line-height:1.4;margin-bottom:5px}
+.cta-band-sub{font-size:13.5px;color:#B9CBE4;line-height:1.65}
+.cta-band-btn{
+  flex:none;background:var(--green);color:#fff;font-size:14.5px;font-weight:700;
+  padding:14px 28px;border-radius:12px;text-decoration:none;white-space:nowrap;
+  box-shadow:0 10px 26px rgba(22,163,74,.34);
+}
+.cta-band-btn:hover{filter:brightness(1.06)}
+
+@media (max-width:560px){
+  .lc-price{font-size:22px}
+  .lc-photo,.lc-photo-empty{height:178px}
+  .cta-band-inner{padding:22px 20px;flex-direction:column;align-items:flex-start}
+  .cta-band-btn{width:100%;text-align:center}
+  .hero-btns .hero-btn{width:100%;text-align:center}
+}
