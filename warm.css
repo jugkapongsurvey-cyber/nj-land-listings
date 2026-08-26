@@ -1,0 +1,142 @@
+/* ===========================================================================
+   ที่ดินชัวร์ — ชั้น "คนและความอบอุ่น" (โหลดต่อจาก marketplace.css)
+   ใช้ตัวแปรสีชุดเดิม: --navy --green --paper --mist --line --ink --sub
+
+   แนวคิด: ความอบอุ่นไม่ได้มาจาก CSS แต่มาจากรูปคนจริง
+   ไฟล์นี้จึงเป็น "กรอบ" ที่รอรับรูปจริง + ปรับโทนพื้นหลังให้อุ่นขึ้น
+   ตราบใดที่ยังไม่มีรูป กรอบจะแสดงสเปกว่าต้องถ่ายอะไร ขนาดเท่าไหร่
+   (ดู photos/README.md) — ใส่ไฟล์ชื่อตรงตามสเปกแล้วรูปขึ้นเอง ไม่ต้องแก้โค้ด
+   =========================================================================== */
+
+:root{
+  --sand:#F6F1E8;          /* พื้นหลังอุ่น ใช้แทน mist ในส่วนที่มีคน */
+  --sand-2:#EFE7DA;
+  --clay:#9A6B3F;          /* สีเน้นอุ่น ใช้น้อยมาก เฉพาะป้ายกำกับ */
+  --warm-line:#E5DCCC;
+}
+
+/* ===========================================================================
+   ช่องใส่รูป — ใช้ซ้ำได้ทุกที่
+
+   ป้ายสเปก (::after) วางทับรูปไว้เต็มกรอบ แล้วถอดออกเมื่อมีรูปจริง
+   ตัวรูปเองไม่ถูกซ่อนด้วย opacity เลย — ถ้า JS ไม่ทำงานด้วยเหตุใดก็ตาม
+   ผลลัพธ์แย่ที่สุดคือป้ายสเปกค้างอยู่ ไม่ใช่รูปหายไปทั้งหน้า
+   (เคยลองใช้ opacity + transition แล้วพบว่ารูปที่โหลดตอนอยู่นอกจอ ค่าค้างที่ 0 ได้)
+   =========================================================================== */
+.ph{
+  margin:0;position:relative;overflow:hidden;
+  border-radius:16px;background:var(--sand-2);
+}
+.ph img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.97);   /* รูปถ่ายมือถือมักคอนทราสต์จัด ลดลงนิดให้กลมกลืนกับหน้าเว็บ */
+}
+.ph::after{
+  content:'📷 ' attr(data-spec) '\A' attr(data-file) ' · ' attr(data-size);
+  position:absolute;inset:0;display:grid;place-items:center;padding:22px;
+  white-space:pre-line;text-align:center;
+  font-size:12.5px;line-height:1.85;color:#8A7355;font-weight:500;
+  background:
+    repeating-linear-gradient(135deg,transparent 0 11px,rgba(154,107,63,.05) 11px 22px),
+    var(--sand);
+  border:1.5px dashed #C9B99F;border-radius:inherit;
+}
+/* มีรูปจริงแล้ว — ถอดป้ายออก เผยรูปที่อยู่ข้างใต้ (photos.js เติมคลาสนี้ให้) */
+.ph.has-photo::after{content:none}
+
+/* เว็บจริง: ช่องที่ยังไม่มีรูป ซ่อนไปเลย ลูกค้าไม่ควรเห็นกรอบว่างหรือโครงที่ยังไม่เสร็จ
+   ป้ายสเปกจะโผล่เฉพาะตอนเปิดจาก localhost หรือเติม ?photos=dev ท้าย URL (ดู photos.js) */
+.ph:not(.has-photo){display:none}
+.photo-dev .ph:not(.has-photo){display:block}
+
+.ph-16x10{aspect-ratio:16/10}
+.ph-4x3{aspect-ratio:4/3}
+.ph-1x1{aspect-ratio:1/1}
+.ph-3x2{aspect-ratio:3/2}
+
+/* ===========================================================================
+   HERO — รูปจริงทับภาพวาด
+   ยังไม่มีรูป = ภาพวาดแนวเขต/หมุดของเดิมทำงานต่อตามปกติ ไม่มีกรอบประ ไม่มีอะไรเสียหาย
+   =========================================================================== */
+.hero-photo{
+  position:absolute;inset:0;z-index:2;border-radius:inherit;overflow:hidden;
+  display:none;
+}
+.hero-photo.on{display:block}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+/* ไล่เฉดมืดด้านล่างให้ป้ายข้อความอ่านออกเมื่อวางทับรูป */
+.hero-photo::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,37,73,0) 45%,rgba(11,37,73,.58) 100%);
+}
+.hero-caption{
+  position:absolute;left:0;right:0;bottom:0;z-index:3;
+  padding:20px 22px;color:#fff;font-size:13px;line-height:1.6;
+  display:none;
+}
+.hero-photo.on ~ .hero-caption{display:block}
+.hero-caption b{display:block;font-size:14.5px;font-weight:700;margin-bottom:2px}
+
+/* ===========================================================================
+   ส่วน "ทีมเรา" — หัวใจของความอบอุ่น
+   =========================================================================== */
+.team{background:var(--sand);padding:62px 0 66px}
+.team .kicker{color:var(--clay)}
+.team h2{font-size:clamp(25px,4.6vw,33px);line-height:1.3;color:var(--navy);margin:0 0 6px}
+
+.team-lede{
+  font-size:15.5px;line-height:1.9;color:#5C5245;
+  max-width:60ch;margin:0 0 30px;
+}
+.team-lede strong{color:var(--navy);font-weight:600}
+
+.team-mosaic{display:grid;grid-template-columns:1fr;gap:12px}
+.team-mosaic .ph-lead{border-radius:20px}
+.team-sub{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+.team-note{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;
+  background:#fff;border:1px solid var(--warm-line);border-radius:16px;
+  padding:20px 24px;
+}
+.team-note-ico{
+  flex:none;width:44px;height:44px;border-radius:12px;
+  background:rgba(28,164,92,.1);color:var(--green);
+  display:grid;place-items:center;font-size:21px;
+}
+.team-note div{flex:1;min-width:220px}
+.team-note b{display:block;font-size:15px;color:var(--navy);margin-bottom:4px}
+.team-note p{margin:0;font-size:13.5px;line-height:1.85;color:#6B6153}
+
+/* ===========================================================================
+   แถบภาพงานสนาม — คั่นระหว่างส่วน ให้หน้าเว็บมีลมหายใจ
+   =========================================================================== */
+.field-strip{background:var(--paper);padding:10px 0 0}
+.field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.field-grid .ph{border-radius:14px}
+
+/* ===========================================================================
+   ปรับโทนส่วนเดิมให้อุ่นขึ้น (เปลี่ยนเฉพาะพื้นหลัง ไม่แตะโครงสร้าง)
+   ส่วนประกาศคงโทนเย็นไว้ — เป็นส่วนข้อมูล ไม่ใช่ส่วนความรู้สึก
+   =========================================================================== */
+.quick{background:linear-gradient(180deg,var(--paper) 0%,var(--sand) 100%)}
+.guide-section{background:var(--sand)}
+
+/* ===========================================================================
+   จอใหญ่
+   =========================================================================== */
+@media(min-width:760px){
+  .team-mosaic{grid-template-columns:1.35fr 1fr;align-items:start}
+  .team-sub{grid-template-columns:1fr;gap:12px}
+  .field-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:1000px){
+  .team-lede{font-size:16px}
+}
+@media(max-width:560px){
+  .team{padding:48px 0 52px}
+  .team-sub{grid-template-columns:repeat(3,1fr);gap:8px}
+  .team-note{padding:17px 18px;gap:12px}
+  .hero-caption{padding:15px 16px;font-size:12px}
+  .ph::after{font-size:11.5px;padding:14px}
+}
