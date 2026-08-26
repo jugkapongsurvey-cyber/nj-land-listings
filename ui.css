@@ -125,6 +125,38 @@
 }
 .cs-seg input:focus-visible + span{box-shadow:0 0 0 3.5px rgba(22,163,74,.18)}
 
+/* ---------- กลุ่มช่องกรอก (ที่ตั้ง · เนื้อที่ · ราคา) ---------- */
+/* ฟอร์มยาวขึ้นมากหลังแยกช่อง จึงต้องมีหัวข้อคั่นให้กวาดตาเจอว่ากำลังกรอกเรื่องอะไร */
+.cs-group{
+  display:grid;gap:12px;
+  background:var(--bg);border:1px solid var(--border);border-radius:13px;padding:14px;
+}
+.cs-group-title{
+  font-size:12px;font-weight:800;color:var(--ink);letter-spacing:.01em;
+  padding-bottom:9px;border-bottom:1px solid var(--border);
+}
+.cs-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cs-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+.cs-field select{
+  font-family:inherit;font-size:16px;color:var(--ink);
+  padding:12px 34px 12px 13px;border:1.5px solid var(--border);border-radius:11px;
+  background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236B7F95' stroke-width='2' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E") no-repeat right 12px center;
+  width:100%;appearance:none;-webkit-appearance:none;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;
+}
+.cs-field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3.5px rgba(22,163,74,.13)}
+.cs-field select:disabled{background-color:var(--bg);color:#A8B6C9;cursor:not-allowed}
+.cs-row3 .cs-field input{text-align:center}
+
+/* บรรทัดผลคำนวณ — เป็นผลลัพธ์ที่ระบบคิดให้ ไม่ใช่คำอธิบาย จึงต้องเด่นกว่า .cs-hint ชัดเจน */
+.cs-calc{
+  font-size:13px;font-weight:700;line-height:1.6;color:#15803D;
+  background:var(--green-light);border:1px solid rgba(22,163,74,.28);
+  border-radius:10px;padding:10px 13px;
+}
+.cs-calc-wait{color:#8A5A00;background:#FFF8E6;border-color:#FDE68A;font-weight:600}
+
 /* ---------- ยินยอม PDPA ---------- */
 .cs-check{
   display:flex;gap:10px;align-items:flex-start;
@@ -292,6 +324,12 @@
   .cs-trow > div{padding:11px 9px}
   .cs-seg{grid-template-columns:1fr;gap:7px}
   .cs-seg span{text-align:left;padding:12px 15px}
+  /* หน่วยราคาเป็นคำสั้น ๆ 3 คำ — เรียงเป็นแถวเดียวยังอ่านออกและกดถูก ไม่ต้องกินความสูง 3 บรรทัด */
+  .cs-seg-tight{grid-template-columns:repeat(3,1fr);gap:6px}
+  .cs-seg-tight span{text-align:center;padding:11px 4px;font-size:12.5px}
+  .cs-row2{grid-template-columns:1fr}
+  .cs-row3{gap:7px}
+  .cs-group{padding:12px}
   #nj-consent{font-size:12.5px;padding:13px 15px}
   .nj-consent-btns{width:100%}
   #nj-consent button{flex:1}

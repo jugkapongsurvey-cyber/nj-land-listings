@@ -41,11 +41,38 @@ function showErr(msg) {
   box.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// จังหวัดที่บริษัทให้บริการอยู่จริง — ยกขึ้นบนสุดของ dropdown เพราะคนส่วนใหญ่ที่เข้าฟอร์มนี้อยู่ในกลุ่มนี้
+var SERVICE_PROVINCES = ['สมุทรปราการ', 'กรุงเทพมหานคร', 'ฉะเชิงเทรา', 'ชลบุรี', 'ระยอง', 'ปทุมธานี', 'นครนายก'];
+
+// ประกอบข้อความที่ตั้งจากช่องที่เลือกไว้ ให้ทีมขายอ่านรวดเดียวจบในการ์ดโอกาสทางธุรกิจ
+// กรุงเทพฯ ใช้ "แขวง/เขต" ต่างจังหวัดใช้ "ต./อ." — ชื่ออำเภอในกรุงเทพฯ มีคำว่า "เขต" นำมาอยู่แล้ว
+function locationText(a, detail) {
+  var bkk = a.province === 'กรุงเทพมหานคร';
+  var parts = [];
+  if (a.tambon) parts.push((bkk ? 'แขวง' : 'ต.') + a.tambon);
+  if (a.amphoe) parts.push(/^เขต/.test(a.amphoe) ? a.amphoe : 'อ.' + a.amphoe);
+  if (a.province) parts.push(bkk ? a.province : 'จ.' + a.province);
+  if (a.zip) parts.push(a.zip);
+  var s = parts.join(' ');
+  if (detail) s = s ? s + ' · ' + detail : detail;
+  return s;
+}
+
 function setupForm() {
   var form = $('consign-form');
   if (!form) return;
   var btn = $('cs-submit');
   var sending = false;
+
+  var addr = NJLandForm.initAddress({
+    province: 'cs-province', amphoe: 'cs-amphoe', tambon: 'cs-tambon',
+    zip: 'cs-zip', fallback: 'cs-loc-fallback', pinned: SERVICE_PROVINCES
+  });
+  var areaPrice = NJLandForm.initAreaPrice({
+    rai: 'cs-rai', ngan: 'cs-ngan', wa: 'cs-wa',
+    price: 'cs-price', unitName: 'priceUnit',
+    areaOut: 'cs-area-out', priceOut: 'cs-price-out', priceLabel: 'cs-price-label'
+  });
 
   // แตะช่องแรก = แสดงว่าเริ่มสนใจจริง ใช้เป็นสัญญาณกลางทางให้ Meta เรียนรู้กลุ่มเป้าหมายเร็วขึ้น
   var startedOnce = false;
@@ -60,13 +87,27 @@ function setupForm() {
     if (sending) return;
 
     var fd = new FormData(form);
+    var a = addr ? addr.value() : { province: '', amphoe: '', tambon: '', zip: '' };
+    var ap = areaPrice ? areaPrice.value()
+      : { rai: 0, ngan: 0, wa: 0, totalWa: 0, areaText: '', priceUnit: 'wa', unitPrice: 0, estValue: 0 };
+    var detail = String(fd.get('locDetail') || '').trim();
+    // ถ้าโหลดรายชื่อจังหวัดไม่สำเร็จ ฟอร์มจะสลับไปใช้ช่องพิมพ์เอง — ต้องรับค่าจากช่องนั้นแทน
+    var locFallback = String(fd.get('locFallback') || '').trim();
+    var loc = locationText(a, detail) || locFallback;
+
     var v = {
       name: String(fd.get('name') || '').trim(),
       phone: String(fd.get('phone') || '').trim(),
       type: String(fd.get('type') || 'sell'),
-      parcelInfo: String(fd.get('parcelInfo') || '').trim(),
-      // ผู้ใช้พิมพ์ "2,500,000" หรือ "2.5 ล้าน" ได้ตามสะดวก — เก็บเฉพาะตัวเลขไปให้ระบบ
-      estValue: Number(String(fd.get('estValue') || '').replace(/[^0-9]/g, '')) || 0,
+      // parcelInfo = บรรทัดสรุปที่ทีมขายและหน้าประกาศใช้แสดง (ที่ตั้ง · เนื้อที่)
+      parcelInfo: [loc, ap.areaText].filter(Boolean).join(' · '),
+      // ส่งค่าที่แยกช่องไว้ไปด้วย เพื่อให้ระบบหลังบ้านเก็บเป็นข้อมูลจริง ไม่ใช่ข้อความก้อนเดียว
+      province: a.province, amphoe: a.amphoe, tambon: a.tambon, zip: a.zip,
+      locDetail: detail,
+      rai: ap.rai, ngan: ap.ngan, wa: ap.wa, totalWa: ap.totalWa,
+      priceUnit: ap.priceUnit, unitPrice: ap.unitPrice,
+      // ราคารวมที่คำนวณได้ — เซิร์ฟเวอร์คำนวณซ้ำจาก unitPrice × เนื้อที่เสมอ ไม่เชื่อค่านี้อย่างเดียว
+      estValue: ap.estValue,
       note: String(fd.get('note') || '').trim(),
       pdpa: !!fd.get('pdpa'),
       website: String(fd.get('website') || ''),        // honeypot — คนจริงมองไม่เห็นช่องนี้
