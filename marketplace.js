@@ -33,7 +33,9 @@
       estValue:Number(item.estValue||0),
       blurb:item.blurb||'',
       photos:Array.isArray(item.photos)?item.photos:[],
-      updatedAt:item.updatedAt||''
+      updatedAt:item.updatedAt||'',
+      // ระดับความน่าเชื่อถือจาก API — ไม่มีข้อมูล = ระดับ 1 เสมอ ห้ามเดาเป็น 2
+      tier:item.tier===2?2:1
     };
   }
 
@@ -46,14 +48,18 @@
     // คำโปรยมาจากที่ทีมงานเขียนเองในระบบ ไม่มีก็เว้นไว้
     var facts=item.blurb?'<div class="card-facts"><span>'+esc(item.blurb)+'</span></div>':'';
     var when=ago(item.updatedAt);
-    return '<article class="land-card" data-id="'+esc(item.id)+'">'+
+    var href='land.html?id='+encodeURIComponent(item.id);
+    return '<article class="land-card" data-href="'+esc(href)+'" data-id="'+esc(item.id)+'">'+
       '<div class="card-media">'+media+
-        '<div class="card-tags"><span>'+(item.type==='rent'?'ให้เช่า':'ขาย')+'</span><span class="verified">✓ รังวัดแล้ว</span></div>'+
+        '<div class="card-tags"><span>'+(item.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+
+          (item.tier===2
+            ? '<span class="verified">✓ รังวัดยืนยันแล้ว</span>'
+            : '<span class="basic">◐ ข้อมูลเบื้องต้น</span>')+'</div>'+
         count+
       '</div>'+
       '<div class="card-body">'+
         '<div><span class="card-price">'+money(item.estValue)+'</span></div>'+
-        '<h3 class="card-title">'+esc(item.parcelInfo||'แปลงที่ดิน')+'</h3>'+
+        '<h3 class="card-title"><a href="'+esc(href)+'">'+esc(item.parcelInfo||'แปลงที่ดิน')+'</a></h3>'+
         facts+
         '<div class="card-agent">'+
           '<span class="agent-avatar">NJ</span>'+
@@ -165,7 +171,13 @@
   // ปุ่มติดต่อบนการ์ด สร้างหลังโหลดข้อมูล จึงผูกที่ container ทีเดียว
   document.getElementById('listing-grid').addEventListener('click',function(e){
     var a=e.target.closest('[data-contact]');
-    if(!a)return;
+    if(!a){
+      // คลิกที่ตัวการ์ด (ไม่ใช่ปุ่มติดต่อ) = เข้าหน้ารายละเอียด
+      if(e.target.closest('a')) return;   // ลิงก์ชื่อแปลงทำงานเองอยู่แล้ว
+      var cardEl=e.target.closest('.land-card[data-href]');
+      if(cardEl) location.href=cardEl.dataset.href;
+      return;
+    }
     if(a.getAttribute('data-contact')==='line'){
       if(window.njTrackInternal)window.njTrackInternal('line_click');
       if(window.njTrack)window.njTrack('Contact',{method:'line',from:'listing_card'});

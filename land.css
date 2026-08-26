@@ -1,0 +1,152 @@
+/* ===========================================================================
+   หน้ารายละเอียดแปลงที่ดิน (land.html) — ต่อจาก marketplace.css + warm.css
+
+   หัวใจของหน้านี้คือแผงผลตรวจ 2 ระดับ ซึ่งต้องแยกกันให้ชัดตั้งแต่แวบแรก
+   ระดับ 1 = เหลือง (ข้อมูลเบื้องต้น) · ระดับ 2 = เขียว (ตรวจเชิงลึกแล้ว)
+   ถ้าสองระดับดูเหมือนกัน ป้าย "รังวัดยืนยันแล้ว" จะหมดความหมายทันที
+   =========================================================================== */
+
+.ld-main{padding:22px 0 46px;min-height:50vh}
+.ld-back{
+  display:inline-block;font-size:13px;font-weight:600;color:var(--sub);
+  text-decoration:none;margin-bottom:16px;
+}
+.ld-back:hover{color:var(--navy)}
+
+.ld-loading{
+  min-height:220px;display:grid;place-items:center;gap:12px;
+  color:#7c8998;font-size:14px;
+}
+.ld-loading span{
+  width:28px;height:28px;border:3px solid #dce5e6;border-top-color:var(--green);
+  border-radius:50%;animation:spin 1s linear infinite;
+}
+
+/* ---------- ภาพหลัก ---------- */
+.ld-gal{
+  position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;
+  background:linear-gradient(160deg,#8FBBD9 0 44%,#9CC47F 45% 64%,#6E9556 65% 100%);
+}
+.ld-gal img{width:100%;height:100%;object-fit:cover;display:block}
+.ld-noimg{width:100%;height:100%}
+.ld-badges{position:absolute;left:14px;top:14px;display:flex;gap:6px;flex-wrap:wrap}
+.ld-badge{
+  font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;color:#fff;
+  backdrop-filter:blur(5px);white-space:nowrap;
+}
+.ld-badge.type{background:rgba(11,37,73,.9)}
+.ld-badge.ok{background:rgba(28,164,92,.94)}
+.ld-badge.basic{background:rgba(138,96,8,.93)}
+.ld-count{
+  position:absolute;right:13px;top:14px;background:rgba(8,23,43,.72);color:#fff;
+  font-size:11px;padding:4px 10px;border-radius:5px;
+}
+/* ลายน้ำมุมล่างขวา — ไม่ทับผังแปลงตรงกลางซึ่งเป็นสิ่งที่คนซื้อมาดู */
+.ld-wm{
+  position:absolute;right:13px;bottom:12px;display:flex;align-items:center;gap:6px;
+  background:rgba(11,37,73,.42);backdrop-filter:blur(3px);padding:5px 11px;border-radius:6px;
+}
+.ld-wm span{color:#fff;font-size:11.5px;font-weight:700;opacity:.95}
+.ld-wm small{color:rgba(255,255,255,.75);font-size:10px}
+
+/* ---------- เนื้อหา ---------- */
+.ld-body{padding:22px 0 0;max-width:760px}
+.ld-price{
+  font-family:Manrope,sans-serif;font-size:clamp(26px,5.4vw,34px);font-weight:800;
+  color:var(--navy);line-height:1.15;
+}
+.ld-price small{
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:500;
+  color:#8b96a4;margin-left:9px;white-space:nowrap;
+}
+.ld-title{font-size:clamp(18px,3.4vw,23px);font-weight:600;line-height:1.5;margin:10px 0 6px;color:var(--ink)}
+.ld-loc{font-size:13.5px;color:var(--sub);margin-bottom:18px}
+.ld-blurb{font-size:14.5px;line-height:1.9;color:var(--sub);margin:0 0 20px}
+
+.ld-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+@media(min-width:640px){.ld-facts{grid-template-columns:repeat(3,1fr)}}
+.ld-fact{background:var(--mist);border-radius:11px;padding:13px 15px}
+.ld-fact b{display:block;font-family:Manrope,sans-serif;font-size:16px;color:var(--ink);line-height:1.35}
+.ld-fact span{font-size:11px;color:#8b96a4}
+
+/* ---------- แผงผลตรวจ ---------- */
+.ld-tier{border-radius:14px;padding:18px 20px;margin-bottom:22px;border:1px solid}
+.ld-tier.t1{background:#FDF8EC;border-color:#D9AF52}
+.ld-tier.t2{background:#EFF9F3;border-color:var(--green)}
+.ld-tier-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.ld-tier-h b{font-size:15px}
+.ld-tier.t1 .ld-tier-h b{color:#8A6008}
+.ld-tier.t2 .ld-tier-h b{color:#127A47}
+.ld-tier-h em{
+  font-style:normal;font-size:10.5px;padding:3px 9px;border-radius:4px;
+  margin-left:auto;color:#fff;white-space:nowrap;
+}
+.ld-tier.t1 .ld-tier-h em{background:#B8912F}
+.ld-tier.t2 .ld-tier-h em{background:var(--green)}
+
+.ld-crow{
+  display:flex;gap:11px;align-items:flex-start;
+  padding:11px 0;border-top:1px solid rgba(0,0,0,.07);
+}
+.ld-crow:first-of-type{border-top:0}
+.ld-crow.dim b,.ld-crow.dim span{color:#8b96a4}
+.ld-ico{
+  flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
+  font-size:11px;font-weight:800;margin-top:2px;color:#fff;
+}
+.ld-ico.ok{background:var(--green)}
+.ld-ico.warn{background:#B03A2B}
+.ld-ico.none{background:#B9C3C8}
+.ld-crow > div{flex:1;min-width:0}
+.ld-crow b{display:block;font-size:13.5px;line-height:1.55;color:var(--ink)}
+.ld-crow span{display:block;font-size:12px;color:var(--sub);line-height:1.7;margin-top:1px}
+.ld-val{
+  flex:none;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;
+  color:var(--ink);white-space:nowrap;margin-top:2px;
+}
+.ld-crow .ld-val{display:block;margin-top:2px}
+
+.ld-tier-foot{
+  font-size:11.5px;line-height:1.8;margin:14px 0 0;padding-top:12px;
+  border-top:1px solid rgba(0,0,0,.08);
+}
+.ld-tier.t1 .ld-tier-foot{color:#8A6008}
+.ld-tier.t2 .ld-tier-foot{color:#127A47}
+.ld-tier-foot b{font-weight:700}
+
+/* ---------- ชวนตรวจสอบ (เฉพาะระดับ 1) ---------- */
+.ld-upsell{background:var(--navy);color:#fff;border-radius:12px;padding:17px 19px;margin-top:16px}
+.ld-upsell b{display:block;font-size:15px;margin-bottom:5px}
+.ld-upsell p{font-size:13px;line-height:1.8;opacity:.85;margin:0 0 14px}
+.ld-upbtn{
+  display:inline-block;background:var(--green);color:#fff;font-size:14px;font-weight:700;
+  padding:11px 22px;border-radius:9px;text-decoration:none;
+}
+.ld-upbtn:hover{filter:brightness(1.07)}
+
+/* ---------- ปุ่มติดต่อ ---------- */
+.ld-cta{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:520px){.ld-cta{grid-template-columns:1fr 1fr}}
+.ld-btn{
+  text-align:center;font-size:14.5px;font-weight:700;text-decoration:none;
+  padding:14px 18px;border-radius:11px;
+}
+.ld-btn.line{background:#06C755;color:#fff}
+.ld-btn.tel{background:var(--navy);color:#fff}
+.ld-btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.ld-btn:hover{filter:brightness(.96)}
+
+/* ---------- ไม่พบ / โหลดไม่ได้ ---------- */
+.ld-empty{
+  text-align:center;padding:46px 24px;background:#fff;
+  border:1px dashed #cfd9dd;border-radius:14px;color:#667589;font-size:14px;line-height:1.8;
+}
+.ld-empty b{display:block;font-size:18px;color:var(--navy);margin-bottom:8px}
+.ld-empty-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.ld-empty-btns .ld-btn{padding:12px 22px;font-size:13.5px}
+
+@media(max-width:560px){
+  .ld-tier{padding:16px 15px}
+  .ld-body{padding-top:18px}
+  .ld-empty-btns{flex-direction:column}
+}

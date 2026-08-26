@@ -24,3 +24,11 @@ footer{background:#071c38;color:#fff;padding:55px 0 25px}.footer-grid{display:gr
   .empty-actions{flex-direction:column;align-items:stretch}
   .empty-actions a{text-align:center}
 }
+
+/* ป้ายระดับ 1 บนการ์ด — สีเหลือง ต้องต่างจากป้ายเขียว "รังวัดยืนยันแล้ว" ให้เห็นชัดตั้งแต่แวบแรก
+   ถ้าสองระดับดูเหมือนกัน ป้ายเขียวจะหมดความหมายทันที */
+.card-tags span.basic{background:rgba(138,96,8,.93)}
+/* การ์ดคลิกได้ทั้งใบ (marketplace.js พาไปหน้ารายละเอียด) แต่ยังไม่ใช่ <a> เพราะมีปุ่มติดต่อซ้อนอยู่ข้างใน */
+.land-card[data-href]{cursor:pointer}
+.card-title a{color:inherit;text-decoration:none}
+.card-title a:hover{text-decoration:underline}
