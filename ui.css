@@ -138,16 +138,15 @@
 .cs-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .cs-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
-.cs-field select{
-  font-family:inherit;font-size:16px;color:var(--ink);
-  padding:12px 34px 12px 13px;border:1.5px solid var(--border);border-radius:11px;
-  background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236B7F95' stroke-width='2' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E") no-repeat right 12px center;
-  width:100%;appearance:none;-webkit-appearance:none;cursor:pointer;
-  transition:border-color .15s,box-shadow .15s;
-}
-.cs-field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3.5px rgba(22,163,74,.13)}
-.cs-field select:disabled{background-color:var(--bg);color:#A8B6C9;cursor:not-allowed}
+/* ช่องพิมพ์ค้นหา + เลือกจากรายชื่อ (input + datalist) — จังหวัด/อำเภอ/ตำบล
+   เว้นที่ขวาไว้ให้ปุ่มเปิดรายการของเบราว์เซอร์ และวางลูกศรของเราไว้ใต้ปุ่มนั้นพอดี
+   เบราว์เซอร์ที่ไม่มีปุ่มให้ (Chrome เดสก์ท็อป) จะยังเห็นลูกศรว่าช่องนี้มีรายการให้เลือก */
+.cs-field input.cs-pick{padding-right:38px;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236B7F95' stroke-width='2' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.cs-pick::-webkit-calendar-picker-indicator{opacity:0;width:26px;margin:0;cursor:pointer}
 .cs-row3 .cs-field input{text-align:center}
+/* .cs-field ตั้ง display:grid ไว้ ซึ่งชนะกฎ [hidden]{display:none} ของเบราว์เซอร์
+   ทำให้ช่องที่ใส่ hidden ไว้ยังโผล่ออกมา (เคยหลุดขึ้นเว็บจริงมาแล้ว) — ต้องกันไว้ตรงนี้ */
+[hidden]{display:none !important}
 
 /* บรรทัดผลคำนวณ — เป็นผลลัพธ์ที่ระบบคิดให้ ไม่ใช่คำอธิบาย จึงต้องเด่นกว่า .cs-hint ชัดเจน */
 .cs-calc{

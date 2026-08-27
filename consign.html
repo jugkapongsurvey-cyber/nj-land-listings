@@ -96,31 +96,36 @@
           </div>
         </div>
 
-        <!-- ---------- ที่ตั้ง: เลือกจากรายชื่อจริง ไม่ต้องพิมพ์เอง ---------- -->
+        <!-- ---------- ที่ตั้ง: พิมพ์ค้นหาหรือแตะเลือกจากรายชื่อจริงก็ได้ ----------
+             ใช้ input + datalist ไม่ใช่ select เพราะจังหวัดมี 77 รายการ และอำเภอบางจังหวัดเกิน 30
+             เลื่อนหาทีละบรรทัดบนมือถือช้ากว่าพิมพ์ 2-3 ตัวอักษรมาก
+             ผลพลอยได้: ถ้าโหลดรายชื่อไม่สำเร็จ ช่องก็ยังเป็นช่องพิมพ์ธรรมดาที่กรอกเองได้
+             จึงไม่ต้องมีช่อง "ที่ตั้ง" สำรองแยกอีกช่องเหมือนตอนใช้ select -->
         <div class="cs-group">
           <div class="cs-group-title">ที่ตั้งของที่ดิน</div>
 
           <label class="cs-field">
             <span class="cs-label">จังหวัด</span>
-            <select id="cs-province" name="province"></select>
+            <input type="text" class="cs-pick" id="cs-province" name="province" list="cs-province-list"
+                   placeholder="พิมพ์ค้นหา หรือแตะเพื่อเลือก" autocomplete="off" enterkeyhint="next">
+            <datalist id="cs-province-list"></datalist>
+            <span class="cs-hint" id="cs-loc-note" hidden></span>
           </label>
 
           <div class="cs-row2">
             <label class="cs-field">
               <span class="cs-label">อำเภอ/เขต</span>
-              <select id="cs-amphoe" name="amphoe"></select>
+              <input type="text" class="cs-pick" id="cs-amphoe" name="amphoe" list="cs-amphoe-list"
+                     placeholder="เลือกจังหวัดก่อน" autocomplete="off" enterkeyhint="next">
+              <datalist id="cs-amphoe-list"></datalist>
             </label>
             <label class="cs-field">
               <span class="cs-label">ตำบล/แขวง</span>
-              <select id="cs-tambon" name="tambon"></select>
+              <input type="text" class="cs-pick" id="cs-tambon" name="tambon" list="cs-tambon-list"
+                     placeholder="เลือกอำเภอก่อน" autocomplete="off" enterkeyhint="next">
+              <datalist id="cs-tambon-list"></datalist>
             </label>
           </div>
-
-          <!-- แสดงแทน 3 ช่องบน เฉพาะกรณีโหลดรายชื่อจังหวัดไม่สำเร็จ — ฟอร์มต้องส่งได้เสมอ -->
-          <label class="cs-field" id="cs-loc-fallback" hidden>
-            <span class="cs-label">ที่ตั้ง (จังหวัด/อำเภอ/ตำบล)</span>
-            <input type="text" name="locFallback" placeholder="เช่น บางเสาธง สมุทรปราการ" disabled>
-          </label>
 
           <label class="cs-field">
             <span class="cs-label">รายละเอียดที่ตั้งเพิ่มเติม</span>

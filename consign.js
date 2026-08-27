@@ -66,7 +66,8 @@ function setupForm() {
 
   var addr = NJLandForm.initAddress({
     province: 'cs-province', amphoe: 'cs-amphoe', tambon: 'cs-tambon',
-    zip: 'cs-zip', fallback: 'cs-loc-fallback', pinned: SERVICE_PROVINCES
+    provinceList: 'cs-province-list', amphoeList: 'cs-amphoe-list', tambonList: 'cs-tambon-list',
+    zip: 'cs-zip', note: 'cs-loc-note', pinned: SERVICE_PROVINCES
   });
   var areaPrice = NJLandForm.initAreaPrice({
     rai: 'cs-rai', ngan: 'cs-ngan', wa: 'cs-wa',
@@ -91,9 +92,7 @@ function setupForm() {
     var ap = areaPrice ? areaPrice.value()
       : { rai: 0, ngan: 0, wa: 0, totalWa: 0, areaText: '', priceUnit: 'wa', unitPrice: 0, estValue: 0 };
     var detail = String(fd.get('locDetail') || '').trim();
-    // ถ้าโหลดรายชื่อจังหวัดไม่สำเร็จ ฟอร์มจะสลับไปใช้ช่องพิมพ์เอง — ต้องรับค่าจากช่องนั้นแทน
-    var locFallback = String(fd.get('locFallback') || '').trim();
-    var loc = locationText(a, detail) || locFallback;
+    var loc = locationText(a, detail);
 
     var v = {
       name: String(fd.get('name') || '').trim(),

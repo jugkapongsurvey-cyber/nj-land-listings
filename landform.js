@@ -68,110 +68,123 @@
 
   // ---------- ที่ตั้ง: จังหวัด → อำเภอ → ตำบล ----------
   // ข้อมูลอยู่ใน data/thai-admin.json (โครงสร้าง array ซ้อน ดู data/build-admin.js)
-  // โหลดครั้งเดียวแบบไม่บล็อกหน้า — ระหว่างรอ ช่องจะบอกว่ากำลังโหลด
+  // โหลดครั้งเดียวแบบไม่บล็อกหน้า
+  //
+  // ใช้ input + datalist ไม่ใช่ select — พิมพ์ 2-3 ตัวอักษรแล้วเบราว์เซอร์กรองให้เอง
+  // เร็วกว่าเลื่อนหาใน 77 จังหวัด / อำเภอบางจังหวัดเกิน 30 รายการมาก โดยเฉพาะบนมือถือ
+  // และถ้าโหลดรายชื่อไม่สำเร็จ ช่องก็ยังเป็นช่องพิมพ์ธรรมดาที่กรอกเองได้ ฟอร์มไม่มีวันส่งไม่ได้
   function initAddress(opt) {
-    var pSel = document.getElementById(opt.province);
-    var aSel = document.getElementById(opt.amphoe);
-    var tSel = document.getElementById(opt.tambon);
+    var pEl = document.getElementById(opt.province);
+    var aEl = document.getElementById(opt.amphoe);
+    var tEl = document.getElementById(opt.tambon);
     var zipEl = opt.zip ? document.getElementById(opt.zip) : null;
-    var fbEl = opt.fallback ? document.getElementById(opt.fallback) : null;
-    if (!pSel || !aSel || !tSel) return null;
+    var noteEl = opt.note ? document.getElementById(opt.note) : null;
+    if (!pEl || !aEl || !tEl) return null;
 
     var DATA = null;
-    var api = {
-      value: function () {
-        return {
-          province: pSel.value || '',
-          amphoe: aSel.value || '',
-          tambon: tSel.value || '',
-          zip: zipEl ? (zipEl.value || '') : ''
-        };
-      }
-    };
+    var lastP = '', lastA = '';
+    function txt(el) { return String(el.value || '').trim(); }
 
-    function fill(sel, items, placeholder) {
-      sel.innerHTML = '';
-      var o = document.createElement('option');
-      o.value = ''; o.textContent = placeholder;
-      sel.appendChild(o);
+    function fillList(id, items) {
+      var dl = document.getElementById(id);
+      if (!dl) return;
+      dl.innerHTML = '';
       items.forEach(function (name) {
-        var x = document.createElement('option');
-        x.value = name; x.textContent = name;
-        sel.appendChild(x);
+        var o = document.createElement('option');
+        o.value = name;
+        dl.appendChild(o);
       });
-      sel.disabled = !items.length;
     }
-    function provinceRec() {
-      if (!DATA) return null;
-      for (var i = 0; i < DATA.p.length; i++) if (DATA.p[i][0] === pSel.value) return DATA.p[i];
+    function findIn(list, name) {
+      for (var i = 0; i < list.length; i++) if (list[i][0] === name) return list[i];
       return null;
     }
-    function amphoeRec() {
-      var p = provinceRec();
-      if (!p) return null;
-      for (var i = 0; i < p[1].length; i++) if (p[1][i][0] === aSel.value) return p[1][i];
-      return null;
-    }
-    function onProvince() {
-      var p = provinceRec();
-      fill(aSel, p ? p[1].map(function (d) { return d[0]; }) : [], p ? 'เลือกอำเภอ/เขต' : 'เลือกจังหวัดก่อน');
-      fill(tSel, [], 'เลือกอำเภอก่อน');
-      if (zipEl) zipEl.value = '';
-      if (opt.onChange) opt.onChange();
-    }
-    function onAmphoe() {
-      var a = amphoeRec();
-      fill(tSel, a ? a[1].map(function (t) { return t[0]; }) : [], a ? 'เลือกตำบล/แขวง' : 'เลือกอำเภอก่อน');
-      if (zipEl) zipEl.value = '';
-      if (opt.onChange) opt.onChange();
-    }
-    function onTambon() {
-      // รหัสไปรษณีย์เติมให้อัตโนมัติจากตำบลที่เลือก — เจ้าของที่ดินส่วนใหญ่จำไม่ได้
-      var a = amphoeRec();
-      if (zipEl && a) {
-        for (var i = 0; i < a[1].length; i++) {
-          if (a[1][i][0] === tSel.value) { zipEl.value = a[1][i][1] ? String(a[1][i][1]) : ''; break; }
-        }
-      }
-      if (opt.onChange) opt.onChange();
+    function provinceRec() { return DATA ? findIn(DATA.p, txt(pEl)) : null; }
+    function amphoeRec() { var p = provinceRec(); return p ? findIn(p[1], txt(aEl)) : null; }
+
+    function note(msg) {
+      if (!noteEl) return;
+      if (msg) { noteEl.textContent = msg; noteEl.hidden = false; }
+      else { noteEl.textContent = ''; noteEl.hidden = true; }
     }
 
-    fill(pSel, [], 'กำลังโหลดรายชื่อจังหวัด…');
-    fill(aSel, [], 'เลือกจังหวัดก่อน');
-    fill(tSel, [], 'เลือกอำเภอก่อน');
+    // ข้อความเตือนเมื่อพิมพ์ชื่อที่ไม่มีในรายชื่อ — บอกระดับที่ผิดระดับแรกที่เจอ
+    function noteFor() {
+      if (!DATA) return '';
+      var tail = ' — ลองพิมพ์ใหม่ หรือปล่อยไว้แล้วทีมงานจะยืนยันตอนโทรกลับ';
+      if (txt(pEl) && !provinceRec()) return 'ไม่พบจังหวัดนี้ในรายชื่อ' + tail;
+      if (txt(aEl) && !amphoeRec()) return 'ไม่พบอำเภอนี้ในจังหวัดที่เลือก' + tail;
+      var a = amphoeRec();
+      if (a && txt(tEl) && !findIn(a[1], txt(tEl))) return 'ไม่พบตำบลนี้ในอำเภอที่เลือก' + tail;
+      return '';
+    }
+
+    // เรียกทุกครั้งที่พิมพ์/เลือก — รีเฟรชรายการลูก ล้างค่าที่ไม่เข้าคู่แล้ว และเติมรหัสไปรษณีย์
+    // showNote=false ระหว่างพิมพ์ — ไม่งั้นจะขึ้น "ไม่พบจังหวัดนี้" ตั้งแต่ตัวอักษรแรกทุกครั้ง
+    function sync(showNote) {
+      var p = provinceRec(), pv = p ? p[0] : '';
+      if (pv !== lastP) {
+        lastP = pv;
+        fillList(opt.amphoeList, p ? p[1].map(function (d) { return d[0]; }) : []);
+        // จังหวัดเปลี่ยน = อำเภอ/ตำบลเดิมใช้ไม่ได้แล้ว ต้องล้าง ไม่งั้นจะได้ที่อยู่ผสมข้ามจังหวัด
+        aEl.value = ''; tEl.value = '';
+        lastA = '';
+        aEl.placeholder = p ? 'พิมพ์ค้นหา หรือแตะเพื่อเลือก' : 'เลือกจังหวัดก่อน';
+      }
+      var a = amphoeRec(), av = a ? a[0] : '';
+      if (av !== lastA) {
+        lastA = av;
+        fillList(opt.tambonList, a ? a[1].map(function (t) { return t[0]; }) : []);
+        tEl.value = '';
+        tEl.placeholder = a ? 'พิมพ์ค้นหา หรือแตะเพื่อเลือก' : 'เลือกอำเภอก่อน';
+      }
+      // รหัสไปรษณีย์เติมให้อัตโนมัติจากตำบลที่เลือก — เจ้าของที่ดินส่วนใหญ่จำไม่ได้
+      if (zipEl) {
+        var z = '', tv = txt(tEl);
+        if (a && tv) { var rec = findIn(a[1], tv); if (rec) z = rec[1] ? String(rec[1]) : ''; }
+        zipEl.value = z;
+      }
+      // พิมพ์ชื่อที่ไม่มีในรายชื่อ = สะกดผิด หรือเป็นชื่อที่เราไม่รู้จัก
+      // บอกให้รู้ แต่ไม่บล็อกการส่งฟอร์ม — ทีมงานยืนยันอีกทีตอนโทรกลับได้
+      note(showNote ? noteFor() : '');
+      if (opt.onChange) opt.onChange();
+    }
 
     fetch(opt.url || 'data/thai-admin.json')
       .then(function (r) { if (!r.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ'); return r.json(); })
       .then(function (j) {
         DATA = j;
-        fill(pSel, j.p.map(function (x) { return x[0]; }), 'เลือกจังหวัด');
-        // จังหวัดที่บริษัทให้บริการอยู่จริง ยกขึ้นไว้บนสุด — คนส่วนใหญ่ที่เข้าฟอร์มนี้อยู่ในกลุ่มนี้
-        (opt.pinned || []).slice().reverse().forEach(function (name) {
-          for (var i = 0; i < pSel.options.length; i++) {
-            if (pSel.options[i].value === name) {
-              pSel.insertBefore(pSel.options[i], pSel.options[1] || null);
-              break;
-            }
-          }
-        });
+        var names = j.p.map(function (x) { return x[0]; });
+        // จังหวัดที่บริษัทให้บริการอยู่จริง ยกขึ้นไว้บนสุดของรายการที่ยังไม่ได้พิมพ์กรอง
+        // (คนส่วนใหญ่ที่เข้าฟอร์มนี้อยู่ในกลุ่มนี้ · พอเริ่มพิมพ์ เบราว์เซอร์กรองเองอยู่แล้ว)
+        var pin = (opt.pinned || []).filter(function (n) { return names.indexOf(n) >= 0; });
+        fillList(opt.provinceList, pin.concat(names.filter(function (n) { return pin.indexOf(n) < 0; })));
+        sync(false);
       })
       .catch(function () {
-        // โหลดข้อมูลไม่ได้ห้ามทำให้ฟอร์มส่งไม่ได้ — สลับไปใช้ช่องพิมพ์เองแทน ลีดสำคัญกว่า dropdown
-        [pSel, aSel, tSel].forEach(function (s) {
-          var wrap = s.closest ? s.closest('.cs-field') : null;
-          if (wrap) wrap.hidden = true;
-        });
-        if (fbEl) {
-          fbEl.hidden = false;
-          var inp = fbEl.querySelector('input');
-          if (inp) inp.disabled = false;
-        }
+        // ไม่ต้องทำอะไรเป็นพิเศษ — ช่องยังเป็น input ธรรมดาที่พิมพ์เองได้อยู่แล้ว
+        // แค่บอกให้รู้ว่าตัวช่วยเลือกใช้ไม่ได้ จะได้ไม่นั่งรอรายการที่ไม่มีวันมา
+        note('โหลดรายชื่อจังหวัดไม่สำเร็จ — พิมพ์ชื่อจังหวัด/อำเภอ/ตำบลเองได้เลย');
+        aEl.placeholder = 'พิมพ์ชื่ออำเภอ/เขต';
+        tEl.placeholder = 'พิมพ์ชื่อตำบล/แขวง';
       });
 
-    pSel.addEventListener('change', onProvince);
-    aSel.addEventListener('change', onAmphoe);
-    tSel.addEventListener('change', onTambon);
-    return api;
+    // ต้องดัก input ไม่ใช่แค่ change — เลือกจาก datalist บางเบราว์เซอร์ยิงแค่ input
+    // ส่วนคำเตือน "ไม่พบชื่อนี้" รอจนออกจากช่องค่อยขึ้น (change/blur) จะได้ไม่ขึ้นระหว่างพิมพ์
+    [pEl, aEl, tEl].forEach(function (el) {
+      el.addEventListener('input', function () { sync(false); });
+      el.addEventListener('change', function () { sync(true); });
+      el.addEventListener('blur', function () { sync(true); });
+    });
+
+    return {
+      value: function () {
+        return {
+          province: txt(pEl), amphoe: txt(aEl), tambon: txt(tEl),
+          zip: zipEl ? (zipEl.value || '') : ''
+        };
+      }
+    };
   }
 
   // ---------- เนื้อที่ + ราคา: คำนวณสดขณะพิมพ์ ----------
