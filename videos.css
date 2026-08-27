@@ -1,0 +1,61 @@
+/* หมวดวิดีโอให้ความรู้ — ใช้ตัวแปรสีเดิมจาก marketplace.css/warm.css */
+
+.vd-head { background: var(--sand); border-bottom: 1px solid var(--warm-line); padding: 46px 0 38px }
+.vd-head h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.2; margin: 6px 0 10px; color: var(--navy) }
+.vd-head p { color: var(--sub); max-width: 640px; line-height: 1.7 }
+
+.vd-body { padding: 34px 0 56px }
+.vd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 26px }
+
+.vd-card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 18px;
+  overflow: hidden; display: flex; flex-direction: column;
+  box-shadow: 0 10px 30px rgba(8, 31, 61, .07);
+}
+.vd-card:target { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(18, 97, 168, .18) }
+
+/* กรอบวิดีโอล็อกสัดส่วน 9:16 กันหน้าเด้งตอนโหลด */
+.vd-media { position: relative; aspect-ratio: 9 / 16; background: var(--ink) }
+.vd-media video { width: 100%; height: 100%; display: block; object-fit: cover }
+
+.vd-info { padding: 15px 16px 17px; display: flex; flex-direction: column; gap: 9px; flex: 1 }
+.vd-for { font-size: 12px; font-weight: 700; letter-spacing: .3px; color: var(--blue);
+  background: #eaf2fa; align-self: flex-start; padding: 4px 10px; border-radius: 999px }
+.vd-info h2 { font-size: 17px; line-height: 1.38; color: var(--navy); margin: 0 }
+.vd-info p { font-size: 13.5px; line-height: 1.62; color: var(--sub); margin: 0; flex: 1 }
+
+.vd-share { display: flex; gap: 7px; flex-wrap: wrap; padding-top: 4px }
+.vd-share button, .vd-share a {
+  font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--line); background: var(--mist); color: var(--ink);
+  padding: 7px 12px; border-radius: 9px; text-decoration: none; line-height: 1;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.vd-share a.line { background: #06c755; border-color: #06c755; color: #fff }
+.vd-share a.fb { background: #1877f2; border-color: #1877f2; color: #fff }
+.vd-share button:hover, .vd-share a:hover { filter: brightness(.95) }
+.vd-share .ok { background: var(--green); border-color: var(--green); color: #fff }
+
+.vd-note { margin-top: 30px; font-size: 13px; color: var(--sub); line-height: 1.7;
+  background: var(--mist); border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px }
+
+@media (max-width: 560px) {
+  .vd-grid { grid-template-columns: 1fr; gap: 20px }
+  .vd-media { aspect-ratio: 9 / 16; max-height: 74vh }
+}
+
+/* แถบวิดีโอในหน้าแรก (หมวดให้ความรู้) */
+.vhome-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px }
+.vhome { position: relative; display: block; border-radius: 14px; overflow: hidden;
+  background: var(--ink); text-decoration: none; aspect-ratio: 9 / 16 }
+.vhome img { width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .35s ease }
+.vhome:hover img { transform: scale(1.05) }
+.vhome b { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 12px 12px;
+  font-size: 13px; line-height: 1.4; color: #fff; font-weight: 600;
+  background: linear-gradient(transparent, rgba(8, 20, 38, .88)) }
+.vhome-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 46px; height: 46px; border-radius: 50%; background: rgba(255, 255, 255, .92);
+  color: var(--navy); display: grid; place-items: center; font-size: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .28) }
+@media (max-width: 760px) { .vhome-row { grid-template-columns: repeat(2, 1fr) } }
