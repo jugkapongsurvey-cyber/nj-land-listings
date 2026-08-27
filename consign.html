@@ -32,7 +32,8 @@
     </a>
     <nav class="header-nav">
       <a href="index.html#listings">แปลงที่ดิน</a>
-      <a href="index.html#knowledge">ความรู้เรื่องที่ดิน</a>
+      <a href="guides.html">ความรู้เรื่องที่ดิน</a>
+      <a href="videos.html">วิดีโอ</a>
     </nav>
     <a class="header-cta" href="#form">ฝากขายฟรี</a>
   </div>
@@ -205,7 +206,44 @@
       <div class="cs-done" id="cs-done" hidden>
         <div class="cs-done-icon">✓</div>
         <div class="cs-done-title">ได้รับข้อมูลแล้ว ขอบคุณครับ</div>
-        <div class="cs-done-text">ทีมงานจะโทรกลับภายใน 1 วันทำการ<br>ถ้าต้องการคุยเร็วกว่านั้น ทักไลน์หรือโทรหาเราได้เลย</div>
+        <div class="cs-done-text">
+          รหัสของคุณคือ <b id="cs-ref">—</b><br>
+          ทีมงานจะโทรกลับภายใน 1 วันทำการ
+        </div>
+
+        <!-- ---------- แนบไฟล์ต่อ (ทำได้เฉพาะหลังส่งฟอร์มสำเร็จ ผูกกับรหัสด้านบน) ---------- -->
+        <div class="cs-up" id="cs-up">
+          <div class="cs-up-head">
+            <b>ส่งรูปที่ดินให้เราดูเลยไหม</b>
+            <span>ไม่บังคับ แต่ทีมงานประเมินราคาให้ได้แม่นกว่ามาก และช่วยให้ประกาศน่าสนใจขึ้น</span>
+          </div>
+
+          <label class="cs-up-box" for="cs-up-photo">
+            <span class="cs-up-ico" aria-hidden="true">📷</span>
+            <span class="cs-up-txt">
+              <b>รูปที่ดิน</b>
+              <span>ทางเข้า · หน้ากว้างติดถนน · กลางแปลง · วิวรอบ — เลือกได้หลายรูปพร้อมกัน</span>
+            </span>
+            <input type="file" id="cs-up-photo" accept="image/*" multiple hidden>
+          </label>
+          <div class="cs-up-list" id="cs-up-photo-list"></div>
+
+          <label class="cs-up-box" for="cs-up-doc">
+            <span class="cs-up-ico" aria-hidden="true">📄</span>
+            <span class="cs-up-txt">
+              <b>เอกสารที่ดิน</b>
+              <span>โฉนด หรือเอกสารสิทธิ์อื่น (รูปหรือ PDF) — <b>ทีมงานเห็นเท่านั้น ไม่ขึ้นเว็บ</b></span>
+            </span>
+            <input type="file" id="cs-up-doc" accept="image/*,application/pdf" multiple hidden>
+          </label>
+          <div class="cs-up-list" id="cs-up-doc-list"></div>
+
+          <div class="cs-up-note">
+            ทุกไฟล์ที่ส่งมาจะถูก<b>ทีมงาน เอ็นเจ กรุ๊ป ตรวจสอบก่อน</b> ไม่ได้ขึ้นเว็บทันที
+            · ถ้ายังไม่สะดวกตอนนี้ ส่งทางไลน์ทีหลังก็ได้
+          </div>
+        </div>
+
         <div class="cs-done-btns">
           <a href="#" id="cs-done-line" class="cs-done-btn line" target="_blank" rel="noopener">💬 ทักไลน์</a>
           <a href="#" id="cs-done-fb" class="cs-done-btn fb" target="_blank" rel="noopener">💬 เมสเซนเจอร์</a>

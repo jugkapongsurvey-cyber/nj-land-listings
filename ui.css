@@ -198,6 +198,34 @@
 .cs-done-btn{
   font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:11px;
 }
+/* ---------- แนบไฟล์หลังส่งฟอร์มสำเร็จ ---------- */
+.cs-up{text-align:left;margin:20px 0 22px;display:grid;gap:9px}
+.cs-up-head{display:grid;gap:3px;margin-bottom:3px}
+.cs-up-head b{font-size:14.5px;color:var(--ink)}
+.cs-up-head span{font-size:12px;color:var(--muted);line-height:1.6}
+.cs-up-box{
+  display:flex;gap:12px;align-items:flex-start;cursor:pointer;
+  border:1.5px dashed var(--border);border-radius:12px;padding:13px 15px;background:#fff;
+  transition:border-color .15s,background .15s;
+}
+.cs-up-box:hover,.cs-up-box:focus-within{border-color:var(--green);background:var(--green-light)}
+.cs-up-ico{font-size:19px;line-height:1.35;flex:none}
+.cs-up-txt{display:grid;gap:2px;min-width:0}
+.cs-up-txt>b{font-size:13.5px;color:var(--ink)}
+.cs-up-txt>span{font-size:11.5px;color:var(--muted);line-height:1.6}
+.cs-up-list{display:grid;gap:5px}
+.cs-up-list:empty{display:none}
+.cs-up-item{
+  font-size:11.5px;line-height:1.6;border-radius:8px;padding:7px 11px;
+  display:flex;gap:8px;align-items:baseline;
+}
+.cs-up-item.ok{background:var(--green-light);color:#15803D}
+.cs-up-item.busy{background:#EAF1FC;color:#1552B0}
+.cs-up-item.bad{background:#FEF2F2;color:#B91C1C}
+.cs-up-note{
+  font-size:11.5px;color:var(--muted);line-height:1.7;
+  background:var(--bg);border-radius:10px;padding:11px 13px;
+}
 .cs-done-btn.line{background:var(--line);color:#fff}
 .cs-done-btn.fb{background:#0084FF;color:#fff}
 .cs-done-btn.tel{background:var(--navy);color:#fff}

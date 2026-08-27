@@ -63,6 +63,83 @@ function locationText(a, detail) {
   return s;
 }
 
+// ---------- แนบรูป/เอกสารหลังส่งฟอร์มสำเร็จ ----------
+// ทำหลังส่งฟอร์ม ไม่ใช่ในฟอร์ม เพราะไฟล์ต้องผูกกับรหัสแปลงเสมอ
+// และการบังคับให้กรอกฟอร์มก่อน = ช่องอัปโหลดไม่กลายเป็นที่ฝากไฟล์ฟรีของคนทั่วไป
+var UPLOAD_MAX_MB = 8;
+
+// ย่อรูปก่อนส่ง — รูปจากมือถือใบละ 3-8 MB อัปดิบๆ ทั้งชุดคือรอเป็นนาทีบนเน็ตมือถือ
+function shrinkImage(file, cb) {
+  if (!/^image\//.test(file.type) || /heic|heif/i.test(file.type)) return cb(file);
+  var url = URL.createObjectURL(file);
+  var img = new Image();
+  img.onload = function () {
+    var MAX = 1800;
+    var w = img.width, h = img.height;
+    var s = Math.min(1, MAX / Math.max(w, h));
+    if (s === 1 && file.size <= UPLOAD_MAX_MB * 1024 * 1024) { URL.revokeObjectURL(url); return cb(file); }
+    var c = document.createElement('canvas');
+    c.width = Math.round(w * s); c.height = Math.round(h * s);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    c.toBlob(function (blob) {
+      URL.revokeObjectURL(url);
+      cb(blob && blob.size < file.size ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }) : file);
+    }, 'image/jpeg', 0.85);
+  };
+  img.onerror = function () { URL.revokeObjectURL(url); cb(file); };
+  img.src = url;
+}
+
+function setupUpload(id, token) {
+  var box = $('cs-up');
+  var ref = $('cs-ref');
+  if (ref) ref.textContent = id || '—';
+  // ไม่มีรหัส/ตั๋ว = อัปไม่ได้ ซ่อนทั้งกล่องไปเลย ดีกว่าโชว์ปุ่มที่กดแล้วพัง
+  if (!box || !id || !token) { if (box) box.hidden = true; return; }
+
+  function wire(inputId, listId, kind, label) {
+    var input = $(inputId), list = $(listId);
+    if (!input || !list) return;
+    input.addEventListener('change', function () {
+      var files = Array.prototype.slice.call(input.files || []);
+      input.value = '';
+      if (!files.length) return;
+      if (files.length > 10) { files = files.slice(0, 10); }
+
+      var row = document.createElement('div');
+      row.className = 'cs-up-item busy';
+      row.textContent = 'กำลังส่ง ' + label + ' ' + files.length + ' ไฟล์…';
+      list.appendChild(row);
+
+      var out = [], left = files.length;
+      files.forEach(function (f, i) {
+        shrinkImage(f, function (small) {
+          out[i] = small;
+          if (--left) return;
+          var fd = new FormData();
+          out.forEach(function (o) { if (o) fd.append('files', o, o.name); });
+          fetch(NJ_API_BASE + '/api/public/consign/' + encodeURIComponent(id) +
+                '/files?kind=' + kind + '&t=' + encodeURIComponent(token), { method: 'POST', body: fd })
+            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (x) {
+              if (!x.ok) throw new Error(x.d.error || 'ส่งไฟล์ไม่สำเร็จ');
+              row.className = 'cs-up-item ok';
+              row.textContent = '✓ ส่ง' + label + ' ' + x.d.added + ' ไฟล์แล้ว — ทีมงานจะตรวจสอบให้';
+              njTrackInternal('consign_files');
+            })
+            .catch(function (e) {
+              row.className = 'cs-up-item bad';
+              // บอกทางออกเสมอ — คนที่ส่งไฟล์ไม่ผ่านแล้วไม่รู้จะทำยังไงต่อ คือลีดที่หลุดไปเฉยๆ
+              row.textContent = '✕ ' + (e.message || 'ส่งไฟล์ไม่สำเร็จ') + ' — ส่งทางไลน์ให้ทีมงานแทนได้เลย';
+            });
+        });
+      });
+    });
+  }
+  wire('cs-up-photo', 'cs-up-photo-list', 'photo', 'รูปที่ดิน');
+  wire('cs-up-doc', 'cs-up-doc-list', 'doc', 'เอกสาร');
+}
+
 function setupForm() {
   var form = $('consign-form');
   if (!form) return;
@@ -137,12 +214,13 @@ function setupForm() {
           throw new Error(d.error || 'ส่งข้อมูลไม่สำเร็จ');
         });
       })
-      .then(function () {
+      .then(function (res) {
         // ไม่ต้องยิง njTrackInternal('consign_submit') ที่นี่ — ฝั่งเซิร์ฟเวอร์บันทึกให้แล้วตอนสร้างโอกาส
         // (นับที่เดียวเท่านั้น ไม่งั้นตัวเลข conversion ในหน้าสถิติจะเป็นสองเท่าของจริง)
         njTrack('Lead', { content_name: 'consign', content_category: v.type });
         form.hidden = true;
         $('cs-done').hidden = false;
+        setupUpload(res && res.id, res && res.uploadToken);
         $('cs-done').scrollIntoView({ behavior: 'smooth', block: 'center' });
       })
       .catch(function (e) {
