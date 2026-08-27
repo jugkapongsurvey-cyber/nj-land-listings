@@ -9,6 +9,7 @@
   //   3. ประกาศระดับ 1 ห้ามขึ้นป้าย "รังวัดยืนยันแล้ว" เด็ดขาด
 
   var LINE='https://line.me/R/ti/p/@716lffzt';
+  var FB=window.NJ_MESSENGER_URL||'https://m.me/NJTeeDinSure';   // ตั้งค่าไว้ใน analytics.js
   var TEL='tel:021620405';
   var TEL_TXT='02-162-0405';
 
@@ -143,6 +144,7 @@
         (tier===2?tier2Html(L):tier1Html(L))+
         '<div class="ld-cta">'+
           '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
+          '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
           '<a class="ld-btn tel" href="'+TEL+'" data-contact="tel">📞 '+TEL_TXT+'</a>'+
         '</div>'+
       '</div>';
@@ -156,6 +158,7 @@
       '<div class="ld-empty"><b>'+esc(title)+'</b>'+esc(detail)+
       '<span class="ld-empty-btns">'+
         '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
+        '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
         '<a class="ld-btn ghost" href="index.html#listings">ดูแปลงทั้งหมด</a>'+
       '</span></div>';
   }
@@ -177,16 +180,15 @@
       });
   }
 
+  // แมปช่องทาง → ชื่อเหตุการณ์ · ห้ามใช้ if/else สองทาง ไม่งั้นช่องทางที่ 3 จะถูกนับเป็นกดโทร
+  var TRACK={line:['line_click','line'],messenger:['messenger_click','messenger'],tel:['tel_click','phone']};
   document.getElementById('ld-root').addEventListener('click',function(e){
     var a=e.target.closest('[data-contact]');
     if(!a) return;
-    if(a.getAttribute('data-contact')==='line'){
-      if(window.njTrackInternal) njTrackInternal('line_click');
-      if(window.njTrack) njTrack('Contact',{method:'line',from:'land_detail'});
-    }else{
-      if(window.njTrackInternal) njTrackInternal('tel_click');
-      if(window.njTrack) njTrack('Contact',{method:'phone',from:'land_detail'});
-    }
+    var t=TRACK[a.getAttribute('data-contact')];
+    if(!t) return;
+    if(window.njTrackInternal) njTrackInternal(t[0]);
+    if(window.njTrack) njTrack('Contact',{method:t[1],from:'land_detail'});
   });
 
   document.getElementById('year').textContent=new Date().getFullYear()+543;   // ปี พ.ศ.

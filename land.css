@@ -132,6 +132,7 @@
   padding:14px 18px;border-radius:11px;
 }
 .ld-btn.line{background:#06C755;color:#fff}
+.ld-btn.fb{background:#0084FF;color:#fff}
 .ld-btn.tel{background:var(--navy);color:#fff}
 .ld-btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
 .ld-btn:hover{filter:brightness(.96)}

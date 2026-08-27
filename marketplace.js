@@ -11,6 +11,7 @@
   // ช่องไหนไม่มี = ไม่แสดงบรรทัดนั้น ไม่ใช่เติมข้อความกลางๆ ลงไปแทน
 
   var LINE='https://line.me/R/ti/p/@716lffzt';
+  var FB=window.NJ_MESSENGER_URL||'https://m.me/NJTeeDinSure';   // ตั้งค่าไว้ใน analytics.js
   var TEL='tel:021620405';
   var state={listings:[],loaded:false,query:'',price:'all',type:'all'};
 
@@ -66,6 +67,7 @@
           '<div><b>ทีมที่ดินชัวร์</b>'+(when?'<small>'+esc(when)+'</small>':'')+'</div>'+
           '<span class="contact-mini">'+
             '<a href="'+LINE+'" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์">●</a>'+
+            '<a href="'+FB+'" target="_blank" rel="noopener" class="fb" data-contact="messenger" aria-label="ติดต่อทางเมสเซนเจอร์">f</a>'+
             '<a href="'+TEL+'" data-contact="tel" aria-label="โทรสอบถาม">☎</a>'+
           '</span>'+
         '</div>'+
@@ -97,6 +99,7 @@
       'ทักไลน์ไว้เพื่อให้เราแจ้งทันทีที่แปลงใหม่เปิดขาย หรือถ้าคุณมีที่ดินอยากขาย ฝากขายกับเราได้ฟรี'+
       '<span class="empty-actions">'+
         '<a class="outline-btn" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">แจ้งเตือนแปลงใหม่ทางไลน์</a>'+
+        '<a class="outline-btn" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">ทักทางเมสเซนเจอร์</a>'+
         '<a class="post-btn" href="consign.html">ฝากขายที่ดินฟรี →</a>'+
       '</span>'+
     '</div>';
@@ -168,6 +171,8 @@
     });
   });
 
+  // แมปช่องทาง → ชื่อเหตุการณ์ที่จะนับ · เพิ่มช่องทางใหม่ = เพิ่มบรรทัดเดียวตรงนี้
+  var CONTACT_TRACK={line:['line_click','line'],messenger:['messenger_click','messenger'],tel:['tel_click','phone']};
   // ปุ่มติดต่อบนการ์ด สร้างหลังโหลดข้อมูล จึงผูกที่ container ทีเดียว
   document.getElementById('listing-grid').addEventListener('click',function(e){
     var a=e.target.closest('[data-contact]');
@@ -178,13 +183,10 @@
       if(cardEl) location.href=cardEl.dataset.href;
       return;
     }
-    if(a.getAttribute('data-contact')==='line'){
-      if(window.njTrackInternal)window.njTrackInternal('line_click');
-      if(window.njTrack)window.njTrack('Contact',{method:'line',from:'listing_card'});
-    }else{
-      if(window.njTrackInternal)window.njTrackInternal('tel_click');
-      if(window.njTrack)window.njTrack('Contact',{method:'phone',from:'listing_card'});
-    }
+    var t=CONTACT_TRACK[a.getAttribute('data-contact')];
+    if(!t) return;
+    if(window.njTrackInternal)window.njTrackInternal(t[0]);
+    if(window.njTrack)window.njTrack('Contact',{method:t[1],from:'listing_card'});
   });
 
   document.getElementById('year').textContent=new Date().getFullYear()+543;   // ปี พ.ศ.

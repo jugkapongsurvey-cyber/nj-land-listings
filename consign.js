@@ -10,18 +10,23 @@ function telHref(t) { return 'tel:' + String(t).replace(/[^0-9+]/g, ''); }
 function $(id) { return document.getElementById(id); }
 
 // ---------- ลิงก์ติดต่อทุกจุดในหน้า ----------
+// ปลายทาง + ชื่อเหตุการณ์ที่จะนับ แยกตามช่องทาง — เพิ่มช่องทางใหม่ = เพิ่มบรรทัดเดียวตรงนี้
+var CONTACT_CHANNELS = {
+  line:      { href: function () { return LINE_OA_URL; },        ev: 'line_click',      method: 'line' },
+  messenger: { href: function () { return NJ_MESSENGER_URL; },   ev: 'messenger_click', method: 'messenger' },
+  tel:       { href: function () { return telHref(COMPANY_TEL); }, ev: 'tel_click',     method: 'phone' }
+};
 function setupContactLinks() {
   [['cs-line', 'line'], ['cs-done-line', 'line'], ['cs-bar-line', 'line'],
+   ['cs-fb', 'messenger'], ['cs-done-fb', 'messenger'], ['cs-bar-fb', 'messenger'],
    ['cs-tel', 'tel'], ['cs-done-tel', 'tel'], ['cs-bar-tel', 'tel']].forEach(function (pair) {
-    var el = $(pair[0]);
-    if (!el) return;
-    if (pair[1] === 'line') {
-      el.href = LINE_OA_URL;
-      el.addEventListener('click', function () { njTrackInternal('line_click'); njTrack('Contact', { method: 'line' }); });
-    } else {
-      el.href = telHref(COMPANY_TEL);
-      el.addEventListener('click', function () { njTrackInternal('tel_click'); njTrack('Contact', { method: 'phone' }); });
-    }
+    var el = $(pair[0]), ch = CONTACT_CHANNELS[pair[1]];
+    if (!el || !ch) return;
+    el.href = ch.href();
+    el.addEventListener('click', function () {
+      njTrackInternal(ch.ev);
+      njTrack('Contact', { method: ch.method });
+    });
   });
 }
 

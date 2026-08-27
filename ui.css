@@ -199,6 +199,7 @@
   font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:11px;
 }
 .cs-done-btn.line{background:var(--line);color:#fff}
+.cs-done-btn.fb{background:#0084FF;color:#fff}
 .cs-done-btn.tel{background:var(--navy);color:#fff}
 
 /* ===========================================================================
