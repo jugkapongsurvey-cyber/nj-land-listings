@@ -147,11 +147,17 @@
       }, { once: false });
     });
 
-    // เปิดมาพร้อม #clipN ให้เลื่อนไปที่การ์ดนั้น
-    if (location.hash) {
+    // เปิดมาพร้อม #clipN / #teamN ให้เลื่อนไปที่การ์ดนั้น
+    // ต้องรอ layout นิ่งก่อน — การ์ด 9 ใบสูงใบละ ~800px ถ้าเลื่อนตอน layout
+    // ยังไม่เสร็จจะคำนวณตำแหน่งผิดแล้วค้างอยู่บนสุด (เจอจริงบนเว็บ production)
+    function gotoHash() {
+      if (!location.hash) return;
       var el = document.getElementById(location.hash.slice(1));
-      if (el) setTimeout(function () { el.scrollIntoView({ block: 'center' }); }, 60);
+      if (el) el.scrollIntoView({ block: 'center' });
     }
+    requestAnimationFrame(function () { requestAnimationFrame(gotoHash); });
+    window.addEventListener('load', gotoHash);
+    window.addEventListener('hashchange', gotoHash);
   })();
 
   document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
