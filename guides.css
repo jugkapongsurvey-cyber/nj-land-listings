@@ -45,3 +45,7 @@
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
+
+/* กล่องเครื่องคำนวณค่าโอน — ตัวกล่องเองอยู่ใน feecalc.css ตรงนี้แค่จัดระยะให้เข้ากับ .gd-item */
+.gd-calc{scroll-margin-top:80px}
+.gd-calc .fc{margin-top:0}

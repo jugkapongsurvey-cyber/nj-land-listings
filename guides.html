@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>คู่มือที่ดิน — เรื่องที่ควรรู้ก่อนซื้อขาย | ที่ดินชัวร์</title>
-  <meta name="description" content="เอกสารสิทธิ์แต่ละแบบต่างกันอย่างไร ทำไมต้องรังวัดสอบเขต ค่าธรรมเนียมวันโอนมีอะไรบ้าง — สรุปจากทีมช่างรังวัดเอกชนใบอนุญาต 351">
+  <title>คู่มือที่ดิน + เครื่องคำนวณค่าโอนที่ดิน | ที่ดินชัวร์</title>
+  <meta name="description" content="คำนวณค่าโอนที่ดินออนไลน์ฟรี — ค่าธรรมเนียมโอน 2% ภาษีธุรกิจเฉพาะ อากรแสตมป์ ภาษีเงินได้หัก ณ ที่จ่าย พร้อมคู่มือเอกสารสิทธิ์และการรังวัดสอบเขต จากทีมช่างรังวัดเอกชนใบอนุญาต 351">
   <link rel="icon" href="brand/logo-favicon.svg">
   <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
   <meta property="og:type" content="article"><meta property="og:site_name" content="ที่ดินชัวร์">
@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="guides.css">
+  <link rel="stylesheet" href="feecalc.css">
 </head>
 <body>
 
@@ -70,6 +71,10 @@
         </div>
       </article>
 
+      <div id="calc" class="gd-calc">
+        <div id="gd-fee"></div>
+      </div>
+
       <article class="gd-item" id="servitude">
         <div class="gd-ico">🔗</div>
         <div>
@@ -103,8 +108,11 @@
   <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a href="index.html#listings"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a class="active" href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
 
   <script src="analytics.js"></script>
+  <script src="feecalc.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
+    // เครื่องคำนวณบนหน้าคู่มือไม่ผูกกับแปลงใด จึงไม่เติมตัวเลขใดให้เลย
+    NJFeeCalc.mount(document.getElementById('gd-fee'), {});
     if (window.njTrackInternal) njTrackInternal('pageview');
   </script>
 </body>

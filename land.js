@@ -147,7 +147,12 @@
           '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
           '<a class="ld-btn tel" href="'+TEL+'" data-contact="tel">📞 '+TEL_TXT+'</a>'+
         '</div>'+
+        '<div id="ld-fee"></div>'+
       '</div>';
+
+    // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
+    // ⚠️ ห้ามเติมราคาประเมินราชการให้ (ดูเหตุผลใน feecalc.js) — ผู้ซื้อต้องกรอกเอง
+    if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue});
 
     document.title=(l.parcelInfo||'แปลงที่ดิน')+' | ที่ดินชัวร์';
     if(window.njTrack) njTrack('ViewContent',{content_name:'land_detail',content_ids:[l.id],content_category:'tier'+tier});
