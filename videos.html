@@ -39,7 +39,12 @@
     </section>
 
     <div class="shell vd-body">
+      <h2 class="vd-sec">เรื่องที่ควรรู้ก่อนตัดสินใจ</h2>
       <div class="vd-grid" id="grid"></div>
+
+      <h2 class="vd-sec">เบื้องหลังการทำงาน — ทีมช่างรังวัดออกหน้างานจริง</h2>
+      <p class="vd-secsub">ตามทีมงานตั้งแต่ออกเดินทาง จนปักหมุดหลักเขตเสร็จ แบ่งเป็น 5 ตอน ตอนละ 30 วินาที</p>
+      <div class="vd-grid" id="gridteam"></div>
 
       <div class="vd-note">
         คลิปทั้งหมดผลิตโดย <b>สำนักงานช่างรังวัดเอกชน เอ็นเจ กรุ๊ป ใบอนุญาต 351</b> —
@@ -60,6 +65,23 @@
   <script>
   (function () {
     var PAGE = 'https://njteedinsure.com/videos.html';
+    var TEAM = [
+      { id: 'team1', dir: 'video/team/', who: 'ตอนที่ 1',
+        title: 'ออกเดินทางถึงแปลงจริง',
+        desc: 'ทุกงานทีมเราลงพื้นที่จริง ไม่มีการรังวัดจากโต๊ะ — แปลงที่อยู่ห่างไกล ต้องเผื่อเวลาเดินทางไว้ในแผนงาน' },
+      { id: 'team2', dir: 'video/team/', who: 'ตอนที่ 2',
+        title: 'ประสานงานราชการ',
+        desc: 'ยื่นเรื่องตามขั้นตอนราชการ ไม่มีทางลัด — งานรังวัดต้องนัดหมายล่วงหน้า วางแผนเวลาไว้ให้พอ' },
+      { id: 'team3', dir: 'video/team/', who: 'ตอนที่ 3',
+        title: 'ตั้งเครื่องรับดาวเทียม',
+        desc: 'เครื่องมือสำรวจที่ใช้งานจริงหน้างาน — ค่าพิกัดที่แม่นยำ เริ่มจากการตั้งเครื่องให้ถูกจุดแรก' },
+      { id: 'team4', dir: 'video/team/', who: 'ตอนที่ 4',
+        title: 'เก็บค่าพิกัดทีละหมุด',
+        desc: 'บันทึกค่าทุกจุดลงเครื่อง ตรวจย้อนหลังได้ — แนวเขตที่ถูกต้องมาจากค่าที่วัดจริง ไม่ใช่การกะจากภาพถ่าย' },
+      { id: 'team5', dir: 'video/team/', who: 'ตอนที่ 5',
+        title: 'ทำหมุดหลักเขต',
+        desc: 'ทำเครื่องหมายให้เห็นชัด กลับมาตรวจได้ทุกเมื่อ — หมุดที่ทำเครื่องหมายชัดเจน คือหลักฐานแนวเขตที่อ้างอิงได้' }
+    ];
     var VIDEOS = [
       { id: 'clip1', who: 'เจ้าของที่ดิน',
         title: 'โฉนดบอกว่า 5 ไร่ — แล้วที่คุณถืออยู่จริง กี่ไร่?',
@@ -78,14 +100,15 @@
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-    document.getElementById('grid').innerHTML = VIDEOS.map(function (v) {
+    function card(v) {
+      var dir = v.dir || 'video/';
       var url = PAGE + '#' + v.id;
       return '<article class="vd-card" id="' + v.id + '">' +
         '<div class="vd-media"><video controls preload="none" playsinline ' +
-          'poster="video/' + v.id + '.jpg" data-vid="' + v.id + '">' +
-          '<source src="video/' + v.id + '.mp4" type="video/mp4">' +
+          'poster="' + dir + v.id + '.jpg" data-vid="' + v.id + '">' +
+          '<source src="' + dir + v.id + '.mp4" type="video/mp4">' +
           'เบราว์เซอร์ของคุณเปิดวิดีโอนี้ไม่ได้ ' +
-          '<a href="video/' + v.id + '.mp4">ดาวน์โหลดคลิป</a></video></div>' +
+          '<a href="' + dir + v.id + '.mp4">ดาวน์โหลดคลิป</a></video></div>' +
         '<div class="vd-info">' +
           '<span class="vd-for">' + esc(v.who) + '</span>' +
           '<h2>' + esc(v.title) + '</h2>' +
@@ -98,10 +121,12 @@
             '<button type="button" data-copy="' + url + '">คัดลอกลิงก์</button>' +
           '</div>' +
         '</div></article>';
-    }).join('');
+    }
+    document.getElementById('grid').innerHTML = VIDEOS.map(card).join('');
+    document.getElementById('gridteam').innerHTML = TEAM.map(card).join('');
 
     // คัดลอกลิงก์ — มี fallback ให้เบราว์เซอร์ที่ไม่รองรับ clipboard API
-    document.getElementById('grid').addEventListener('click', function (e) {
+    document.body.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-copy]');
       if (!b) return;
       var done = function () {
@@ -113,7 +138,7 @@
     });
 
     // เล่นได้ทีละคลิป — กันเสียงซ้อนกันเวลาผู้ใช้กดหลายอัน
-    var vids = document.querySelectorAll('#grid video');
+    var vids = document.querySelectorAll('#grid video, #gridteam video');
     vids.forEach(function (v) {
       v.addEventListener('play', function () {
         vids.forEach(function (o) { if (o !== v) o.pause(); });

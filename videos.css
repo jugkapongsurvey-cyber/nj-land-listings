@@ -59,3 +59,10 @@
   color: var(--navy); display: grid; place-items: center; font-size: 15px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, .28) }
 @media (max-width: 760px) { .vhome-row { grid-template-columns: repeat(2, 1fr) } }
+
+/* หัวข้อแบ่งหมวดในหน้าวิดีโอ */
+.vd-sec { font-size: 21px; color: var(--navy); margin: 40px 0 4px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--line) }
+.vd-sec:first-of-type { margin-top: 0 }
+.vd-secsub { color: var(--sub); font-size: 13.5px; margin: 0 0 18px }
+.vd-grid + .vd-sec { margin-top: 46px }
