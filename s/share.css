@@ -1,0 +1,119 @@
+/* ===========================================================================
+   /s/ — หน้ารับคนดูจากลิงก์ที่พนักงานแชร์
+   งานเดียวของหน้านี้: เล่นคลิปให้จบ แล้วทำให้กดทักได้ทันที
+
+   ทำไมไม่ใช้ marketplace.css: คนที่มาหน้านี้มาจาก TikTok/Facebook บนเน็ตมือถือ
+   ไม่เคยเห็นเว็บเรามาก่อน และไม่ได้มาหาแปลงที่ดิน — เมนู แถบค้นหา และ bottom nav
+   ของหน้าตลาดคือสิ่งรบกวนล้วนๆ ที่นี่ · ตัวแปรสีคัดลอกมาให้ตรงกัน ถ้าแก้โทนแบรนด์
+   ต้องแก้ทั้งสองไฟล์ (แลกกับการที่หน้านี้โหลดจบในไฟล์เดียว)
+   =========================================================================== */
+
+:root{
+  --navy:#0b2549; --green:#1ca45c; --ink:#142033; --sub:#627086;
+  --line:#e4e9ef; --paper:#fff; --mist:#f4f7f8; --sand:#f6f1e8;
+  --line-green:#06c755; --fb-blue:#0084ff;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans Thai",system-ui,sans-serif; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{width:min(560px,100%); margin:auto}
+a{color:inherit; text-decoration:none}
+h1,h2,p{margin:0}
+
+/* ---- แถบบน: บอกว่าเป็นใครภายในหนึ่งวินาที ---- */
+.sh-top{border-bottom:1px solid var(--line); background:var(--paper)}
+.sh-top-in{display:flex; align-items:center; gap:10px; padding:11px 16px}
+.sh-top img{width:34px; height:34px; flex:none}
+.sh-top b{display:block; font-size:16px; color:var(--navy); line-height:1.25}
+.sh-top small{display:block; font-size:10.5px; color:var(--sub); line-height:1.4}
+
+/* ---- คลิป ---- */
+.sh-stage{background:#0a1727; display:grid; place-items:center; position:relative}
+.sh-stage video{
+  display:block; width:100%; max-width:100%;
+  aspect-ratio:9/16; max-height:min(62vh,620px); object-fit:contain; background:#0a1727;
+}
+/* ปุ่มเปิดเสียง — คลิปเริ่มเล่นแบบปิดเสียงเพราะเบราว์เซอร์มือถือไม่ยอมให้เล่นพร้อมเสียงเอง */
+.sh-unmute{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+  background:rgba(255,255,255,.94); color:var(--navy); border:0; border-radius:999px;
+  padding:9px 17px; font:600 13px/1 "IBM Plex Sans Thai",sans-serif; cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.3); display:inline-flex; align-items:center; gap:7px;
+}
+.sh-unmute[hidden]{display:none !important}   /* กฎเดียวกับ ui.css — [hidden] แพ้ display ที่เราตั้งเอง */
+.sh-fallback{padding:30px 20px; text-align:center; color:#c6d2e0; font-size:14px; line-height:1.75}
+.sh-fallback b{display:block; color:#fff; font-size:16px; margin-bottom:6px}
+
+/* ---- ปุ่มติดต่อ — ของหลักของหน้านี้ ---- */
+.sh-cta{padding:18px 16px 22px; display:flex; flex-direction:column; gap:9px}
+.sh-cta h1{font-size:19px; line-height:1.45; color:var(--navy); text-wrap:balance; margin-bottom:3px}
+.sh-cta > p{font-size:13.5px; color:var(--sub); margin-bottom:6px}
+.sh-btn{
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  padding:15px 16px; border-radius:11px; font-size:15.5px; font-weight:700;
+  border:1px solid var(--line); background:var(--mist); color:var(--navy);
+}
+.sh-btn .ic{font-size:17px; line-height:1}
+.sh-btn.line{background:var(--line-green); border-color:var(--line-green); color:#fff}
+.sh-btn.fb{background:#e8f2ff; border-color:#cfe4ff; color:#0b5fbf}
+.sh-btn.tel{background:var(--paper); border-color:#cfd8e2}
+.sh-btn:active{filter:brightness(.94)}
+.sh-hint{font-size:11.5px; color:var(--sub); text-align:center; margin-top:2px}
+
+/* ---- ความน่าเชื่อถือ ---- */
+.sh-trust{background:var(--sand); padding:20px 16px; display:flex; flex-direction:column; gap:13px}
+.sh-trust h2{font-size:12px; font-weight:700; color:var(--green); letter-spacing:.4px}
+.sh-trust div{display:grid; grid-template-columns:20px 1fr; gap:10px; align-items:start}
+.sh-trust span{color:var(--green); font-weight:700; line-height:1.5}
+.sh-trust b{display:block; font-size:14.5px; color:var(--navy); line-height:1.45}
+.sh-trust p{font-size:13px; color:#6b6152; line-height:1.65}
+
+/* ---- ท้ายหน้า ---- */
+.sh-foot{padding:20px 16px 30px; border-top:1px solid var(--line); display:flex;
+  flex-direction:column; gap:7px; font-size:11.5px; color:var(--sub); line-height:1.7}
+.sh-foot a{color:var(--navy); font-weight:600; text-decoration:underline}
+.sh-foot .price-note{background:var(--mist); border:1px solid var(--line); border-radius:9px;
+  padding:11px 13px; color:#5a6879}
+
+/* ---- แบนเนอร์ขอความยินยอม (PDPA) ----
+   analytics.js เป็นคนสร้าง element นี้ แต่สไตล์ของมันอยู่ใน ui.css ซึ่งมีแค่ consign.html ที่โหลด
+   หน้าอื่นทั้งเว็บจึงขึ้นแบนเนอร์แบบไม่มีสไตล์ — คัดลอกมาที่นี่เพื่อให้หน้านี้ถูกต้อง
+   ⚠️ นี่คือสำเนาที่สอง ทางแก้จริงคือแยกเป็น consent.css แล้วให้ทุกหน้าโหลด (ดูบันทึกที่ส่งให้เจ้าของ) */
+/* หน้านี้วางแบนเนอร์ไว้ "ด้านบน" ต่างจากหน้าอื่นที่วางไว้ล่าง — เพราะที่ความสูงจอมือถือทั่วไป
+   แบนเนอร์แบบล่างทับปุ่ม "ทักไลน์" พอดี ซึ่งเป็นปุ่มเดียวที่หน้านี้มีไว้เพื่อ (วัดแล้ว: แบนเนอร์ 679–800px
+   ปุ่มไลน์ 704–761px บนจอ 375×812) · คนที่มาจากโซเชียลจำนวนมากจะเลื่อนผ่านโดยไม่กดตอบแบนเนอร์
+   ย้ายขึ้นบนแล้วยังเห็นแบนเนอร์ชัดเท่าเดิม แต่ไม่บังปุ่ม */
+#nj-consent{
+  position:fixed; left:12px; right:12px; top:12px; bottom:auto; z-index:900;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  background:#0F2748; color:#DDE7F5;
+  padding:14px 18px; border-radius:12px;
+  box-shadow:0 14px 40px rgba(0,0,0,.3);
+  font-size:13px; line-height:1.55;
+}
+.nj-consent-text{flex:1; min-width:220px}
+.nj-consent-btns{display:flex; gap:9px; flex:none}
+#nj-consent button{
+  font-family:inherit; font-size:13px; font-weight:700;
+  padding:9px 20px; border-radius:9px; border:0; cursor:pointer; white-space:nowrap;
+}
+.nj-consent-no{background:transparent; color:#9FB4D0; border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-yes{background:var(--green); color:#fff}
+@media (max-width:560px){
+  #nj-consent{font-size:12.5px; padding:13px 15px}
+  .nj-consent-btns{width:100%}
+  #nj-consent button{flex:1}
+}
+
+@media (min-width:600px){
+  .sh-stage video{border-radius:0}
+  .sh-cta{padding:22px 20px 26px}
+  .sh-cta h1{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important}
+}
