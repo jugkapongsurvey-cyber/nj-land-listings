@@ -46,6 +46,12 @@
       <p class="vd-secsub">ตามทีมงานตั้งแต่ออกเดินทาง จนปักหมุดหลักเขตเสร็จ แบ่งเป็น 4 ตอน ตอนละ 30 วินาที</p>
       <div class="vd-grid" id="gridteam"></div>
 
+      <section id="ytsec" class="vd-yt" hidden>
+        <h2 class="vd-sec">คลิปใหม่จากช่อง YouTube</h2>
+        <p class="vd-secsub">อัปคลิปขึ้นช่อง <a href="https://www.youtube.com/@njandconsulting" target="_blank" rel="noopener">รังวัดเอกชน เอ็นเจกรุ๊ป</a> แล้วคลิปจะมาขึ้นตรงนี้เองภายในไม่กี่นาที ไม่ต้องแก้เว็บ</p>
+        <div class="vd-grid" id="gridyt"></div>
+      </section>
+
       <div class="vd-note">
         คลิปทั้งหมดผลิตโดย <b>สำนักงานช่างรังวัดเอกชน เอ็นเจ กรุ๊ป ใบอนุญาต 351</b> —
         ตัวเลขค่าบริการที่ปรากฏเป็นราคาตั้งต้น ราคาจริงขึ้นกับประเภทงาน เนื้อที่ และจำนวนโฉนด
@@ -139,10 +145,102 @@
     vids.forEach(function (v) {
       v.addEventListener('play', function () {
         vids.forEach(function (o) { if (o !== v) o.pause(); });
+        // ปิดคลิป YouTube ที่เปิดค้างอยู่ด้วย ไม่งั้นเสียงจะซ้อนกัน
+        document.querySelectorAll('.vd-media.yt iframe').forEach(function (n) { n.remove(); });
         // นับยอดเล่นแยกจากลีด — ดูคลิปไม่ใช่การติดต่อ ห้ามนับรวมเป็นลีด
         if (window.njTrackInternal) njTrackInternal('video_play_' + v.dataset.vid);
       }, { once: false });
     });
+
+    // ---------- คลิปจากช่อง YouTube ----------
+    // ดึงจาก "playlist อัปโหลด" ของช่อง = ทุกคลิปที่อัปขึ้นช่องจะมาเองอัตโนมัติ
+    // คีย์นี้จำกัดให้เรียกได้เฉพาะจาก njteedinsure.com เว็บอื่นก๊อปไปใช้ไม่ได้
+    var YT_KEY = 'AIzaSyDQmcGIMG5SoRFasQ0ojxzEju_BR2EBunM';
+    var YT_PL  = 'UUJCF_jDIU2FQQ_fBWRcS4qw';
+    var YT_TTL = 600000;   // แคช 10 นาที — โควตาฟรีมี 10,000 หน่วย/วัน ถ้ายิงทุกครั้งที่รีเฟรชจะหมดเร็ว
+
+    function ytCache(val) {
+      try {
+        if (val === undefined) {
+          var c = JSON.parse(localStorage.getItem('njyt') || 'null');
+          return (c && Date.now() - c.t < YT_TTL) ? c.v : null;
+        }
+        localStorage.setItem('njyt', JSON.stringify({ t: Date.now(), v: val }));
+      } catch (e) { return null; }   // Safari โหมดส่วนตัวเขียน localStorage ไม่ได้ — ข้ามแคชไปเลย
+    }
+
+    function ytCard(v) {
+      var url = 'https://youtu.be/' + v.id;
+      return '<article class="vd-card" id="yt' + v.id + '">' +
+        '<div class="vd-media yt">' +
+          '<button type="button" class="yt-fac" data-yt="' + v.id + '" ' +
+            'aria-label="เล่นคลิป ' + esc(v.title) + '">' +
+            '<img src="' + esc(v.thumb) + '" alt="" loading="lazy">' +
+            '<span class="yt-play" aria-hidden="true">▶</span></button></div>' +
+        '<div class="vd-info">' +
+          '<span class="vd-for">คลิปใหม่</span>' +
+          '<h2>' + esc(v.title) + '</h2>' +
+          '<p>' + esc(v.desc) + '</p>' +
+          '<div class="vd-share">' +
+            '<a class="line" target="_blank" rel="noopener" ' +
+              'href="https://line.me/R/msg/text/?' + encodeURIComponent(v.title + ' ' + url) + '">แชร์ LINE</a>' +
+            '<a class="fb" target="_blank" rel="noopener" ' +
+              'href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
+            '<button type="button" data-copy="' + url + '">คัดลอกลิงก์</button>' +
+            '<a class="ytb" target="_blank" rel="noopener" href="' + url + '">ดูบน YouTube</a>' +
+          '</div>' +
+        '</div></article>';
+    }
+
+    function ytRender(list) {
+      if (!list || !list.length) return;          // ไม่มีคลิป = ซ่อนทั้งหมวด ไม่ให้เห็นหัวข้อโล่ง
+      document.getElementById('gridyt').innerHTML = list.map(ytCard).join('');
+      document.getElementById('ytsec').hidden = false;
+      gotoHash();                                 // เผื่อเปิดมาพร้อม #yt<id> จากลิงก์ที่แชร์
+    }
+
+    // กดปุ่มเล่นถึงค่อยโหลด iframe — ก่อนกด YouTube ยังไม่ได้ตั้งคุกกี้ใดๆ (PDPA)
+    // ใช้ youtube-nocookie เพื่อไม่ให้เก็บพฤติกรรมผู้ชมไปทำโฆษณา
+    document.body.addEventListener('click', function (e) {
+      var f = e.target.closest('.yt-fac');
+      if (!f) return;
+      vids.forEach(function (o) { o.pause(); });                                  // หยุดคลิปในเว็บ
+      document.querySelectorAll('.vd-media.yt iframe').forEach(function (n) { n.remove(); });  // ปิดคลิป YouTube อันอื่น
+      var ifr = document.createElement('iframe');
+      ifr.src = 'https://www.youtube-nocookie.com/embed/' + f.dataset.yt +
+                '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      ifr.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      ifr.allowFullscreen = true;
+      ifr.title = f.getAttribute('aria-label');
+      f.parentNode.appendChild(ifr);
+      if (window.njTrackInternal) njTrackInternal('video_play_yt_' + f.dataset.yt);
+    });
+
+    (function () {
+      var c = ytCache();
+      if (c) { ytRender(c); return; }
+      fetch('https://www.googleapis.com/youtube/v3/playlistItems' +
+            '?part=snippet&maxResults=12&playlistId=' + YT_PL + '&key=' + YT_KEY)
+        .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+        .then(function (d) {
+          var list = (d.items || []).map(function (it) {
+            var s = it.snippet || {}, t = s.thumbnails || {};
+            var th = t.maxres || t.standard || t.high || t.medium || t.default;
+            return {
+              id: (s.resourceId || {}).videoId,
+              title: s.title || '',
+              desc: (s.description || '').split('\n')[0].slice(0, 170),
+              thumb: th && th.url
+            };
+          }).filter(function (v) {
+            // คลิปที่ตั้งเป็นส่วนตัวหรือถูกลบ ยังค้างอยู่ใน playlist แต่ไม่มีรูป — คัดออก
+            return v.id && v.thumb && v.title !== 'Private video' && v.title !== 'Deleted video';
+          });
+          ytCache(list);
+          ytRender(list);
+        })
+        .catch(function (err) { console.warn('ดึงคลิป YouTube ไม่ได้:', err); });
+    })();
 
     // เปิดมาพร้อม #clipN / #teamN ให้เลื่อนไปที่การ์ดนั้น
     // ต้องรอ layout นิ่งก่อน — การ์ด 9 ใบสูงใบละ ~800px ถ้าเลื่อนตอน layout
