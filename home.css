@@ -39,52 +39,6 @@ button{cursor:pointer}
 .hv-bronzetext:hover{color:var(--bronze) !important}
 
 /* ---------------------------------------------------------------------------
-   แผงลายกราฟิกแทนรูปภาพ
-   ยังไม่มีรูปถ่ายจริงของทีมงาน/แปลงที่ดิน และกติกาข้อ 9 ห้ามใช้ภาพสต็อกแทน
-   จึงใช้ลายเส้นแนวเขตแบบระวางแผนที่ไปก่อน — พอมีรูปจริงค่อยเปลี่ยนเป็น <img>
---------------------------------------------------------------------------- */
-.panel{background-color:var(--ink);position:relative;overflow:hidden}
-
-.panel-cadastre{
-  background-image:
-    radial-gradient(circle at 22% 26%,rgba(223,201,143,.16),transparent 46%),
-    radial-gradient(circle at 78% 72%,rgba(192,161,99,.12),transparent 52%),
-    repeating-linear-gradient(64deg,rgba(223,201,143,.16) 0 1px,transparent 1px 132px),
-    repeating-linear-gradient(154deg,rgba(223,201,143,.13) 0 1px,transparent 1px 108px),
-    linear-gradient(168deg,#1B2016 0%,#14170F 58%,#0E100A 100%);
-}
-.panel-survey{
-  background-image:
-    radial-gradient(circle at 50% 50%,rgba(223,201,143,.4) 0 2px,transparent 3px),
-    repeating-radial-gradient(circle at 50% 50%,transparent 0 38px,rgba(223,201,143,.16) 38px 39px),
-    repeating-linear-gradient(90deg,rgba(223,201,143,.1) 0 1px,transparent 1px 46px),
-    linear-gradient(150deg,#20261A 0%,#14170F 100%);
-}
-.panel-plot{
-  background-color:var(--sand);
-  background-image:
-    radial-gradient(circle at 30% 34%,rgba(138,106,46,.5) 0 3px,transparent 4px),
-    radial-gradient(circle at 71% 63%,rgba(138,106,46,.5) 0 3px,transparent 4px),
-    repeating-linear-gradient(58deg,rgba(138,106,46,.22) 0 1px,transparent 1px 74px),
-    repeating-linear-gradient(148deg,rgba(138,106,46,.18) 0 1px,transparent 1px 62px),
-    linear-gradient(160deg,#F2EDE2 0%,#E4DDCC 100%);
-}
-.panel-doc{
-  background-color:var(--sand);
-  background-image:
-    repeating-linear-gradient(180deg,rgba(138,106,46,.16) 0 1px,transparent 1px 17px),
-    linear-gradient(120deg,rgba(192,161,99,.16) 0 34%,transparent 34%),
-    linear-gradient(160deg,#F5F1E7 0%,#E7E0D0 100%);
-}
-.panel-office{
-  background-color:var(--sand);
-  background-image:
-    radial-gradient(circle at 74% 24%,rgba(255,255,255,.7),transparent 48%),
-    repeating-linear-gradient(102deg,rgba(138,106,46,.09) 0 1px,transparent 1px 96px),
-    linear-gradient(155deg,#FBF8F1 0%,#E9E2D3 100%);
-}
-
-/* ---------------------------------------------------------------------------
    ค้นหา + ประกาศที่ดิน (โครงสร้าง DOM ผูกกับ marketplace.js — ห้ามเปลี่ยน id)
 --------------------------------------------------------------------------- */
 .search-box{
@@ -93,7 +47,7 @@ button{cursor:pointer}
   box-shadow:0 30px 70px rgba(20,23,15,.12);
   display:grid;grid-template-columns:auto 1.5fr 1fr 1fr auto;align-items:end;gap:1px;
 }
-.search-box > *{padding:22px 24px}
+.search-box > *{padding:18px 22px}
 .purpose-tabs{display:flex;gap:8px;align-items:center}
 .purpose-tabs button{
   background:transparent;border:1px solid var(--line);color:var(--muted);
@@ -116,11 +70,11 @@ button{cursor:pointer}
 .search-submit:hover{background:var(--bronze);color:#FFFFFF}
 
 .quick{
-  max-width:1280px;margin:0 auto;padding:34px 32px 0;
+  max-width:1280px;margin:0 auto;padding:26px 32px 0;
   display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
 }
 .quick a{
-  background:var(--paper);padding:22px 24px;display:grid;gap:5px;color:var(--ink);
+  background:var(--paper);padding:18px 22px;display:grid;gap:4px;color:var(--ink);
   border:1px solid transparent;
 }
 .quick a:hover{border-color:var(--brass)}
@@ -161,11 +115,11 @@ button{cursor:pointer}
   position:absolute;bottom:14px;right:14px;background:rgba(20,23,15,.72);
   color:var(--gold);font-size:12px;padding:5px 10px;
 }
-.card-body{padding:24px 26px;display:grid;gap:12px}
+.card-body{padding:20px 24px;display:grid;gap:10px}
 .card-price{font-family:Trirong,serif;font-size:24px;color:var(--ink)}
 .card-title{margin:0;font-family:Trirong,serif;font-weight:500;font-size:19px;line-height:1.5}
 .card-title a{color:var(--ink)}
-.card-facts{font-size:15px;font-weight:300;line-height:1.8;color:var(--muted)}
+.card-facts{font-size:15px;font-weight:300;line-height:1.7;color:var(--muted)}
 .card-agent{
   display:flex;align-items:center;gap:12px;
   border-top:1px solid var(--line2);padding-top:18px;
@@ -188,7 +142,7 @@ button{cursor:pointer}
 
 .empty-result{
   grid-column:1/-1;background:var(--card);border:1px solid var(--line);
-  padding:52px 44px;font-size:16px;font-weight:300;line-height:1.85;color:var(--muted);
+  padding:42px 38px;font-size:16px;font-weight:300;line-height:1.7;color:var(--muted);
 }
 .empty-result b{
   display:block;font-family:Trirong,serif;font-weight:500;font-size:26px;
@@ -233,7 +187,7 @@ button{cursor:pointer}
   [data-r="rules3"]{grid-template-columns:1fr !important}
   [data-r="g4"]{grid-template-columns:repeat(2,1fr) !important}
   [data-r="sticky"]{position:static !important}
-  [data-r="hero"]{height:auto !important;min-height:660px !important}
+  [data-r="hero"]{min-height:560px !important}
   [data-r="display"]{font-size:52px !important}
   [data-r="stats"]{grid-template-columns:repeat(3,1fr) !important}
   .search-box{grid-template-columns:1fr 1fr}
@@ -245,15 +199,22 @@ button{cursor:pointer}
 @media (max-width:640px){
   [data-r="display"]{font-size:36px !important}
   h2{font-size:27px !important}
-  [data-r="bar"],[data-r="g4"],[data-r="table"],[data-r="stats"],[data-r="guides"]{
-    grid-template-columns:1fr !important;
-  }
-  [data-r="table"] > div{border-top:1px solid var(--line) !important}
+  /* การ์ดสั้นๆ เรียง 2 คอลัมน์ได้แม้จอ 375px — ถ้าเรียงคอลัมน์เดียวทั้งหมด
+     หน้าจะยาวขึ้นเกือบ 2,000px ต้องปัดนิ้วผ่านการ์ดซ้ำๆ กว่าจะถึงเนื้อหาถัดไป */
+  [data-r="bar"],[data-r="g4"]{grid-template-columns:repeat(2,1fr) !important}
+  [data-r="bar"] > div{padding:18px 16px !important;border-right:0 !important}
+  [data-r="bar"] > div + div{border-left:1px solid var(--line2)}
+  [data-r="g4"] > div{padding:22px 18px !important}
+  .quick{grid-template-columns:repeat(2,1fr);padding-left:18px;padding-right:18px}
+  .quick a{padding:16px 16px}
+
+  /* ตารางเทียบและการ์ดคู่มือต้องใช้ความกว้างเต็ม อ่านไม่ออกถ้าบีบเป็น 2 คอลัมน์ */
+  [data-r="table"],[data-r="stats"],[data-r="guides"]{grid-template-columns:1fr !important}
+  [data-r="table"] > div{border-top:1px solid var(--line) !important;padding:14px 20px !important}
   section{padding-left:18px !important;padding-right:18px !important}
   [data-r="ctapad"]{padding:34px 22px !important}
   .search-box{grid-template-columns:1fr;margin-left:18px;margin-right:18px}
   .search-box > *{padding:18px}
-  .quick{grid-template-columns:1fr;padding-left:18px;padding-right:18px}
   .listing-grid{grid-template-columns:1fr}
   .empty-result{padding:34px 22px}
 
@@ -272,4 +233,8 @@ button{cursor:pointer}
   .mobile-nav .mobile-post span{color:var(--ink)}
   body{padding-bottom:64px}
   #nj-consent{bottom:76px}
+
+  /* ภาพปกคลิปสูง 280px คูณ 4 ใบ กินความสูงหน้าจอมือถือไปเกือบ 1,200px */
+  #วิดีโอ img{height:190px !important}
+  #ทีมเรา img{height:170px !important}
 }
