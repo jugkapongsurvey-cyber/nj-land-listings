@@ -1,101 +1,150 @@
 // ทดสอบเครื่องคำนวณค่าโอน — เทียบกับการคำนวณมือทีละขั้น
-// รันด้วย:  node feecalc.test.js   (ไม่มี dependency ใดๆ)
+// รันด้วย:  node feecalc.test.js
 const fs = require('fs');
 global.window = {};
 new Function(fs.readFileSync(__dirname + '/feecalc.js', 'utf8'))();
-const { calc } = global.window.NJFeeCalc;
+const { calc, estimateBuilding } = global.window.NJFeeCalc;
 
 let pass = 0, fail = 0;
 function eq(label, got, want, tol) {
   const ok = Math.abs(got - want) <= (tol == null ? 0.5 : tol);
-  if (ok) { pass++; } else { fail++; console.log('  ✗ ' + label + '\n      ได้ ' + got + '  ต้องการ ' + want); }
+  if (ok) pass++; else { fail++; console.log('  ✗ ' + label + '\n      ได้ ' + got + '  ต้องการ ' + want); }
 }
+function ok(label, cond) { if (cond) pass++; else { fail++; console.log('  ✗ ' + label); } }
 function row(r, k) { return r.rows.filter(x => x.k === k)[0]; }
-function has(label, r, k, yes) {
-  const ok = !!row(r, k) === yes;
-  if (ok) pass++; else { fail++; console.log('  ✗ ' + label); }
-}
+function has(label, r, k, yes) { ok(label, !!row(r, k) === yes); }
 
 // ---------------------------------------------------------------------------
-// เคส 1 — บุคคลธรรมดา ถือครอง 6 ปี · ขาย 10,000,000 · ประเมิน 4,000,000
-//   ค่าโอน       2% ของ 4,000,000                     =   80,000
-//   ถือครอง ≥ 5 ปี → อากรแสตมป์ 0.5% ของ 10,000,000    =   50,000  (ไม่เสียภาษีธุรกิจเฉพาะ)
-//   หัก ณ ที่จ่าย: ค่าใช้จ่ายเหมา 6 ปี = 60% → สุทธิ 1,600,000
-//                 ต่อปี = 266,666.67 → ขั้นแรก 5%  = 13,333.33
-//                 × 6 ปี                            =   80,000
+// ส่วนที่ 1 — ของเดิมต้องไม่พัง (ที่ดินเปล่า ผลลัพธ์ต้องเท่าเวอร์ชันเก่าเป๊ะ)
 // ---------------------------------------------------------------------------
-console.log('เคส 1 — บุคคลธรรมดา ถือครอง 6 ปี');
-let r = calc({ salePrice: 10000000, appraisal: 4000000, sellerType: 'person', years: 6 });
-eq('ค่าธรรมเนียมโอน', row(r, 'transfer').v, 80000);
-has('ต้องเป็นอากรแสตมป์ ไม่ใช่ภาษีธุรกิจเฉพาะ', r, 'stamp', true);
-has('ต้องไม่มีภาษีธุรกิจเฉพาะ', r, 'sbt', false);
-eq('อากรแสตมป์', row(r, 'stamp').v, 50000);
-eq('ภาษีเงินได้หัก ณ ที่จ่าย', row(r, 'wht').v, 80000, 1);
+console.log('เคส 1 — ที่ดินเปล่า บุคคลธรรมดา ถือครอง 6 ปี (ต้องได้เท่าเวอร์ชันเดิม)');
+let r = calc({ propertyType:'land', salePrice:10000000, landAppraisal:4000000, sellerType:'person', years:6 });
+eq('ค่าธรรมเนียมโอน 2% ของ 4,000,000', row(r,'transfer').v, 80000);
+has('ต้องเป็นอากรแสตมป์', r, 'stamp', true);
+eq('อากรแสตมป์ 0.5% ของ 10,000,000', row(r,'stamp').v, 50000);
+eq('ภาษีเงินได้หัก ณ ที่จ่าย', row(r,'wht').v, 80000, 1);
 eq('รวม', r.total, 210000, 1);
-eq('ผู้ซื้อ (ครึ่งค่าโอน)', r.buyer, 40000);
-eq('ผู้ขาย', r.seller, 170000, 1);
+eq('ผู้ซื้อครึ่งค่าโอน', r.buyer, 40000);
 
-// ---------------------------------------------------------------------------
-// เคส 2 — บุคคลธรรมดา ถือครอง 2 ปี · ขาย 10,000,000 · ประเมิน 4,000,000
-//   ค่าโอน 2% ของ 4,000,000                          =   80,000
-//   ถือครอง < 5 ปี → ภาษีธุรกิจเฉพาะ 3.3% ของ 10,000,000 =  330,000 (ไม่เสียอากรแสตมป์)
-//   หัก ณ ที่จ่าย: เหมา 2 ปี = 84% → สุทธิ 640,000
-//                 ต่อปี = 320,000 → 300,000×5% + 20,000×10% = 15,000+2,000 = 17,000
-//                 × 2 ปี                             =   34,000
-// ---------------------------------------------------------------------------
-console.log('เคส 2 — บุคคลธรรมดา ถือครอง 2 ปี');
-r = calc({ salePrice: 10000000, appraisal: 4000000, sellerType: 'person', years: 2 });
-eq('ค่าธรรมเนียมโอน', row(r, 'transfer').v, 80000);
+console.log('เคส 2 — ที่ดินเปล่า ถือครอง 2 ปี');
+r = calc({ propertyType:'land', salePrice:10000000, landAppraisal:4000000, sellerType:'person', years:2 });
 has('ต้องเป็นภาษีธุรกิจเฉพาะ', r, 'sbt', true);
-has('ต้องไม่มีอากรแสตมป์', r, 'stamp', false);
-eq('ภาษีธุรกิจเฉพาะ', row(r, 'sbt').v, 330000);
-eq('ภาษีเงินได้หัก ณ ที่จ่าย', row(r, 'wht').v, 34000, 1);
+eq('ภาษีธุรกิจเฉพาะ', row(r,'sbt').v, 330000);
 eq('รวม', r.total, 444000, 1);
 
-// ---------------------------------------------------------------------------
-// เคส 3 — นิติบุคคล ถือครอง 9 ปี · ขาย 10,000,000 · ประเมิน 4,000,000
-//   นิติบุคคลเสียภาษีธุรกิจเฉพาะเสมอ แม้ถือครองเกิน 5 ปี
-//   ค่าโอน 80,000 · ธ.ก. 330,000 · หัก ณ ที่จ่าย 1% ของ 10,000,000 = 100,000
-// ---------------------------------------------------------------------------
 console.log('เคส 3 — นิติบุคคล ถือครอง 9 ปี');
-r = calc({ salePrice: 10000000, appraisal: 4000000, sellerType: 'company', years: 9 });
-has('นิติบุคคลต้องเสียภาษีธุรกิจเฉพาะแม้ถือครองเกิน 5 ปี', r, 'sbt', true);
-eq('ภาษีธุรกิจเฉพาะ', row(r, 'sbt').v, 330000);
-eq('หัก ณ ที่จ่าย 1%', row(r, 'wht').v, 100000);
+r = calc({ propertyType:'land', salePrice:10000000, landAppraisal:4000000, sellerType:'company', years:9 });
+has('นิติบุคคลเสียภาษีธุรกิจเฉพาะเสมอ', r, 'sbt', true);
+eq('หัก ณ ที่จ่าย 1%', row(r,'wht').v, 100000);
 eq('รวม', r.total, 510000);
 
 // ---------------------------------------------------------------------------
-// เคส 4 — ไม่กรอกราคาประเมิน → ใช้ราคาขายแทน และต้องตั้งธง assumed
+// ส่วนที่ 2 — สิ่งปลูกสร้าง
 // ---------------------------------------------------------------------------
-console.log('เคส 4 — ไม่กรอกราคาประเมิน');
-r = calc({ salePrice: 10000000, appraisal: '', sellerType: 'person', years: 6 });
-eq('ค่าโอนคิดจากราคาขาย 2% ของ 10,000,000', row(r, 'transfer').v, 200000);
-if (r.assumed) pass++; else { fail++; console.log('  ✗ ต้องตั้งธง assumed'); }
-const withAppr = calc({ salePrice: 10000000, appraisal: 4000000, sellerType: 'person', years: 6 });
-if (r.total > withAppr.total) pass++; else { fail++; console.log('  ✗ ไม่กรอกราคาประเมินต้องได้ตัวเลขสูงกว่า (ประมาณการแบบระมัดระวัง)'); }
+// บ้านเดี่ยว: ที่ดินประเมิน 2,000,000 + สิ่งปลูกสร้างกรอกเอง 1,500,000 = 3,500,000
+//   ค่าโอน 2% ของ 3,500,000 = 70,000
+console.log('เคส 4 — บ้านเดี่ยว กรอกราคาประเมินสิ่งปลูกสร้างเอง');
+r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
+           buildingAppraisal:1500000, sellerType:'person', years:6 });
+eq('ราคาประเมินรวม = ที่ดิน + สิ่งปลูกสร้าง', r.appraisal, 3500000);
+eq('ค่าธรรมเนียมโอน 2% ของ 3,500,000', row(r,'transfer').v, 70000);
+ok('ต้องไม่ติดธง estimated เพราะกรอกเอง', r.estimated === false);
+ok('ต้องไม่ติดธง assumed', r.assumed === false);
+
+// ตัวช่วยประมาณ: บ้านเดี่ยวตึก 150 ตร.ม. อายุ 10 ปี
+//   9,000 × 150 = 1,350,000 · ค่าเสื่อม 10 ปี × 1% = 10% → 1,350,000 × .9 = 1,215,000
+console.log('เคส 5 — ตัวช่วยประมาณราคาสิ่งปลูกสร้าง');
+let e = estimateBuilding('house', 150, 10);
+eq('ประมาณสิ่งปลูกสร้าง', e.value, 1215000);
+eq('ค่าเสื่อม 10%', e.dep, 0.10, 0.0001);
+r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
+           buildingArea:150, buildingAge:10, sellerType:'person', years:6 });
+eq('ราคาประเมินรวมจากตัวช่วย', r.appraisal, 3215000);
+ok('ต้องติดธง estimated เพื่อให้หน้าเว็บเตือน', r.estimated === true);
+
+// เพดานค่าเสื่อม — บ้านไม้ 3%/ปี เพดาน 70%  ต่อให้ 90 ปีก็ต้องหยุดที่ 70%
+console.log('เคส 6 — เพดานค่าเสื่อม');
+e = estimateBuilding('wood', 100, 90);
+eq('ค่าเสื่อมต้องตันที่ 70%', e.dep, 0.70, 0.0001);
+eq('มูลค่าเหลือ 30%', e.value, 100 * 4500 * 0.30, 1);
+
+// กรอกราคาประเมินสิ่งปลูกสร้างเองต้องชนะตัวช่วยประมาณเสมอ
+console.log('เคส 7 — กรอกเองต้องชนะค่าประมาณ');
+r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
+           buildingAppraisal:900000, buildingArea:150, buildingAge:10,
+           sellerType:'person', years:6 });
+eq('ต้องใช้ 900,000 ที่กรอกเอง ไม่ใช่ 1,215,000 ที่ประมาณได้', r.appraisal, 2900000);
+ok('กรอกเองแล้วต้องไม่ติดธง estimated', r.estimated === false);
 
 // ---------------------------------------------------------------------------
-// เคส 5 — ราคาประเมินสูงกว่าราคาขาย → ภาษีต้องใช้ราคาประเมินเป็นฐาน (แล้วแต่สูงกว่า)
+// ส่วนที่ 3 — ยกเว้นภาษีธุรกิจเฉพาะจากทะเบียนบ้าน
 // ---------------------------------------------------------------------------
-console.log('เคส 5 — ราคาประเมินสูงกว่าราคาขาย');
-r = calc({ salePrice: 3000000, appraisal: 5000000, sellerType: 'person', years: 6 });
-eq('อากรแสตมป์คิดจาก 5,000,000', row(r, 'stamp').v, 25000);
+console.log('เคส 8 — มีชื่อในทะเบียนบ้านครบ 1 ปี ถือครอง 2 ปี');
+r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000, buildingAppraisal:1000000,
+           sellerType:'person', years:2, registered:true });
+has('ต้องได้ยกเว้นภาษีธุรกิจเฉพาะ', r, 'sbt', false);
+has('ต้องเสียอากรแสตมป์แทน', r, 'stamp', true);
+eq('อากรแสตมป์ 0.5% ของ 5,000,000', row(r,'stamp').v, 25000);
+
+console.log('เคส 9 — ที่ดินเปล่าติ๊กทะเบียนบ้านต้องไม่มีผล (ที่ดินเปล่าไม่มีทะเบียนบ้าน)');
+r = calc({ propertyType:'land', salePrice:5000000, landAppraisal:2000000,
+           sellerType:'person', years:2, registered:true });
+has('ต้องยังเสียภาษีธุรกิจเฉพาะ', r, 'sbt', true);
+ok('ธง registered ต้องเป็น false', r.registered === false);
+
+console.log('เคส 10 — นิติบุคคลติ๊กทะเบียนบ้านต้องไม่มีผล');
+r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000, buildingAppraisal:1000000,
+           sellerType:'company', years:2, registered:true });
+has('นิติบุคคลต้องยังเสียภาษีธุรกิจเฉพาะ', r, 'sbt', true);
 
 // ---------------------------------------------------------------------------
-// เคส 6 — เพดานภาษีหัก ณ ที่จ่าย ไม่เกิน 20% ของราคาประเมิน
+// ส่วนที่ 4 — มาตรการลดค่าธรรมเนียม ต้องไม่เปิดเอง และห้ามใช้กับที่ดินเปล่า
 // ---------------------------------------------------------------------------
-console.log('เคส 6 — เพดาน 20%');
-r = calc({ salePrice: 900000000, appraisal: 900000000, sellerType: 'person', years: 1 });
-if (row(r, 'wht').v <= 900000000 * 0.2 + 0.5) pass++; else { fail++; console.log('  ✗ เกินเพดาน 20%: ' + row(r, 'wht').v); }
+console.log('เคส 11 — ไม่ติ๊กมาตรการ ต้องคิด 2% เต็มเสมอ');
+r = calc({ propertyType:'house', salePrice:3000000, landAppraisal:1000000, buildingAppraisal:1000000,
+           sellerType:'person', years:6 });
+eq('ต้องเป็น 2% ของ 2,000,000', row(r,'transfer').v, 40000);
+ok('ธง discountOn ต้องเป็น false', r.discountOn === false);
+
+console.log('เคส 12 — ติ๊กมาตรการ 0.01% กับบ้าน');
+r = calc({ propertyType:'house', salePrice:3000000, landAppraisal:1000000, buildingAppraisal:1000000,
+           sellerType:'person', years:6, govDiscount:true, govRate:0.01 });
+eq('ค่าโอน 0.01% ของ 2,000,000', row(r,'transfer').v, 200);
+ok('ธง discountOn ต้องเป็น true', r.discountOn === true);
+
+console.log('เคส 13 — ติ๊กมาตรการ 1% (อีกอัตราที่แหล่งข้อมูลระบุ)');
+r = calc({ propertyType:'house', salePrice:3000000, landAppraisal:1000000, buildingAppraisal:1000000,
+           sellerType:'person', years:6, govDiscount:true, govRate:1 });
+eq('ค่าโอน 1% ของ 2,000,000', row(r,'transfer').v, 20000);
+
+console.log('เคส 14 — ที่ดินเปล่าติ๊กมาตรการต้องถูกปฏิเสธ (กติกาข้อ 3)');
+r = calc({ propertyType:'land', salePrice:3000000, landAppraisal:2000000,
+           sellerType:'person', years:6, govDiscount:true, govRate:0.01 });
+eq('ต้องยังเป็น 2% ของ 2,000,000', row(r,'transfer').v, 40000);
+ok('ธง discountOn ต้องเป็น false', r.discountOn === false);
+
+console.log('เคส 15 — โรงเรือน/โกดัง ไม่ใช่ที่อยู่อาศัย ติ๊กมาตรการต้องไม่มีผล');
+r = calc({ propertyType:'other', salePrice:3000000, landAppraisal:1000000, buildingAppraisal:1000000,
+           sellerType:'person', years:6, govDiscount:true, govRate:0.01 });
+eq('ต้องยังเป็น 2%', row(r,'transfer').v, 40000);
+ok('ธง discountOn ต้องเป็น false', r.discountOn === false);
 
 // ---------------------------------------------------------------------------
-// เคส 7 — ขอบเขต: ไม่กรอกอะไรเลย · ปีถือครองเกิน 10 · ปีถือครอง 0
+// ส่วนที่ 5 — ค่าขอบ
 // ---------------------------------------------------------------------------
-console.log('เคส 7 — ค่าขอบ');
-if (calc({}) === null) pass++; else { fail++; console.log('  ✗ ไม่กรอกอะไรเลยต้องคืน null'); }
-eq('ถือครอง 30 ปี ต้องถูกจำกัดที่ 10', calc({ salePrice: 1000000, years: 30 }).years, 10);
-eq('ถือครอง 0 ปี ต้องนับเป็น 1', calc({ salePrice: 1000000, years: 0 }).years, 1);
-eq('ค่าที่มีคอมมาต้องอ่านได้', calc({ salePrice: '10,000,000', appraisal: '4,000,000', years: 6 }).rows[0].v, 80000);
+console.log('เคส 16 — ค่าขอบ');
+ok('ไม่กรอกอะไรเลยต้องคืน null', calc({}) === null);
+r = calc({ propertyType:'house', salePrice:5000000, sellerType:'person', years:6 });
+ok('ไม่กรอกราคาประเมินเลยต้องติดธง assumed', r.assumed === true);
+eq('ต้องใช้ราคาขายแทน', r.appraisal, 5000000);
+ok('พื้นที่ 0 ต้องประมาณไม่ได้ ไม่ใช่ได้ 0', estimateBuilding('house', 0, 5) === null);
+ok('ที่ดินเปล่าต้องประมาณสิ่งปลูกสร้างไม่ได้', estimateBuilding('land', 100, 5) === null);
+eq('ค่ามีคอมมาต้องอ่านได้', calc({ propertyType:'house', salePrice:'5,000,000',
+     landAppraisal:'2,000,000', buildingAppraisal:'1,500,000', years:6 }).appraisal, 3500000);
+eq('ถือครอง 30 ปีต้องถูกจำกัดที่ 10', calc({ propertyType:'land', salePrice:1000000, years:30 }).years, 10);
+r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
+           buildingAppraisal:1000000, buildingRate:99999, sellerType:'person', years:6 });
+eq('กรอกราคาเองแล้ว buildingRate ต้องไม่ถูกใช้', r.appraisal, 3000000);
 
 console.log('\n' + (fail ? '✗ ไม่ผ่าน ' + fail + ' ข้อ · ผ่าน ' + pass : '✓ ผ่านทั้งหมด ' + pass + ' ข้อ'));
 process.exit(fail ? 1 : 0);

@@ -1,29 +1,52 @@
 (function(){
   'use strict';
-  // เครื่องคำนวณค่าใช้จ่ายวันโอนกรรมสิทธิ์ที่ดิน — ใช้ร่วมกันทั้ง land.html และ guides.html
+  // เครื่องคำนวณค่าใช้จ่ายวันโอน — ใช้ร่วมกันทั้ง land.html และ guides.html
+  // รองรับทั้งที่ดินเปล่าและที่ดินพร้อมสิ่งปลูกสร้าง
   //
-  // ⚠️ กติกาที่ห้ามผ่อนในไฟล์นี้
-  //   1. **ห้ามเติมราคาประเมินราชการของแปลงให้อัตโนมัติ** ผู้ใช้ต้องกรอกเอง
-  //      ค่าธรรมเนียมโอนคือ 2% ของราคาประเมิน ใครเห็นตัวเลขค่าโอนก็หารกลับได้ราคาประเมินทันที
-  //      ถ้าเติมให้ = เท่ากับประกาศราคาประเมินของแปลงนั้นต่อสาธารณะ ซึ่งทำให้เจ้าของที่ดิน
-  //      (ลูกค้าเรา) เสียเปรียบตอนต่อรอง — เราตั้งใจไม่ส่งราคาประเมินออกทาง /api/public/* อยู่แล้ว
-  //   2. ไม่กรอกราคาประเมิน = ใช้ราคาซื้อขายแทน ซึ่งทำให้ตัวเลข **สูงกว่าความจริง**
-  //      ต้องบอกผู้ใช้ตรงๆ ทุกครั้ง ห้ามปล่อยให้เข้าใจว่าเป็นตัวเลขจริง
-  //   3. ที่ดินเปล่าไม่ได้สิทธิลดค่าโอนเหลือ 0.01% (มาตรการนั้นใช้เฉพาะที่อยู่อาศัย ≤ 7 ล้าน)
-  //      ห้ามคำนวณให้เป็น 0.01% เด็ดขาด เพราะผู้ซื้อจะไปเจอตัวเลขจริงที่สำนักงานที่ดินแล้วดีลพัง
+  // ⚠️ กติกาที่ห้ามผ่อน (ยกมาจากของเดิม ยังใช้ทั้งหมด)
+  //   1. ห้ามเติมราคาประเมินราชการให้อัตโนมัติ ผู้ใช้ต้องกรอกเอง
+  //      ค่าธรรมเนียมโอนคือ % ของราคาประเมิน ใครเห็นตัวเลขค่าโอนก็หารกลับได้ราคาประเมินทันที
+  //   2. ไม่กรอกราคาประเมิน = ใช้ราคาซื้อขายแทน ได้ตัวเลข "สูงกว่าความจริง" ต้องบอกผู้ใช้ทุกครั้ง
+  //   3. ที่ดินเปล่าไม่ได้สิทธิลดค่าธรรมเนียมตามมาตรการรัฐ — มาตรการนั้นใช้เฉพาะ "ที่อยู่อาศัย"
+  //      จึงล็อกไว้ว่าเลือกลดค่าธรรมเนียมได้เฉพาะเมื่อเลือกประเภทที่มีสิ่งปลูกสร้างเท่านั้น
   //
-  // ที่มาของอัตรา (ตรวจสอบ ส.ค. 2569):
-  //   ค่าธรรมเนียมโอน 2% ของราคาประเมินทุนทรัพย์
-  //   ภาษีธุรกิจเฉพาะ 3.3% ของราคาซื้อขายหรือราคาประเมิน แล้วแต่สูงกว่า (ถือครอง < 5 ปี หรือนิติบุคคล)
-  //   อากรแสตมป์ 0.5% ของราคาซื้อขายหรือราคาประเมิน แล้วแต่สูงกว่า (เสียเมื่อไม่ต้องเสียภาษีธุรกิจเฉพาะ)
-  //   ภาษีเงินได้หัก ณ ที่จ่าย — นิติบุคคล 1% · บุคคลธรรมดาคิดขั้นบันไดจากราคาประเมิน (พ.ร.ฎ. 165)
+  // ⚠️ ของใหม่ในเวอร์ชันนี้ — 2 เรื่องที่ "ห้ามคำนวณให้เองโดยผู้ใช้ไม่ได้สั่ง"
+  //   ก. ราคาประเมินสิ่งปลูกสร้าง — ตัวเลขจริงมาจากบัญชีของกรมธนารักษ์ ต่างกันตามพื้นที่และปีบัญชี
+  //      เราไม่มีบัญชีนั้นในเว็บ จึงให้ "กรอกเอง" เป็นค่าหลัก ส่วนตัวช่วยประมาณเป็นทางเลือกเสริม
+  //      และต้องติดป้ายว่าเป็นค่าประมาณทุกครั้งที่ใช้
+  //   ข. มาตรการลดค่าธรรมเนียมโอนของรัฐ — ณ ส.ค. 2569 แหล่งข้อมูลสาธารณะยังขัดกันเอง
+  //      ทั้งเรื่องวันสิ้นสุด (30 มิ.ย. 2569 หรือ 2570) และอัตรา (0.01% หรือ 1%)
+  //      จึง **ไม่เปิดใช้อัตโนมัติเด็ดขาด** ผู้ใช้ต้องติ๊กเลือกเองและเลือกอัตราเอง
+  //      ถ้าเราเดาแล้วผิด ผู้ซื้อจะไปเจอตัวเลขจริงที่สำนักงานที่ดินแล้วดีลพัง — เหมือนกรณีที่ดินเปล่า
+  //
+  // ที่มาของอัตราที่ยืนยันแล้ว:
+  //   ค่าธรรมเนียมโอน 2% ของราคาประเมินทุนทรัพย์ (ที่ดิน + สิ่งปลูกสร้าง)
+  //   ภาษีธุรกิจเฉพาะ 3.3% ของราคาซื้อขายหรือราคาประเมิน แล้วแต่สูงกว่า
+  //   อากรแสตมป์ 0.5% — เสียเมื่อไม่ต้องเสียภาษีธุรกิจเฉพาะ (ไม่เสียซ้อนกัน)
+  //   ภาษีเงินได้หัก ณ ที่จ่าย — นิติบุคคล 1% · บุคคลธรรมดาขั้นบันไดจากราคาประเมิน (พ.ร.ฎ. 165)
+  //   ยกเว้นภาษีธุรกิจเฉพาะ ถ้าผู้ขายมีชื่อในทะเบียนบ้านหลังที่ขาย ≥ 1 ปี (กรมสรรพากร)
+  //     — ข้อนี้ใช้ได้เฉพาะกรณีมีสิ่งปลูกสร้างที่อยู่อาศัยได้ ที่ดินเปล่าไม่มีทะเบียนบ้าน
 
-  // ค่าใช้จ่ายเหมาตามจำนวนปีที่ถือครอง · index = ปี (8 ปีขึ้นไปใช้ 50%)
   var EXPENSE = [0, .92, .84, .77, .71, .65, .60, .55, .50];
-
-  // อัตราภาษีเงินได้ที่ใช้กับเงินได้จากการขายอสังหาฯ — [ความกว้างของขั้น, อัตรา]
-  // ⚠️ ขั้นแรกเริ่มที่ 5% ตั้งแต่บาทแรก **ไม่ได้รับยกเว้น 150,000 บาทแรก** เหมือนภาษีเงินได้ทั่วไป
   var BRACKETS = [[300000,.05],[200000,.10],[250000,.15],[250000,.20],[1000000,.25],[3000000,.30],[Infinity,.35]];
+
+  // ---------------------------------------------------------------------------
+  // ประเภททรัพย์
+  //   build      = มีสิ่งปลูกสร้าง (เปิดช่องกรอกราคาประเมินสิ่งปลูกสร้าง)
+  //   home       = เป็น "ที่อยู่อาศัย" ตามมาตรการรัฐ → ให้เลือกลดค่าธรรมเนียมได้
+  //   rate/decay = ค่าตั้งต้นของ "ตัวช่วยประมาณ" เท่านั้น ไม่ใช่บัญชีราคาจริง
+  //                ผู้ใช้แก้ตัวเลขได้ และผลลัพธ์ติดป้ายว่าเป็นค่าประมาณเสมอ
+  // ---------------------------------------------------------------------------
+  var TYPES = {
+    land:       { label:'ที่ดินเปล่า',                  build:false, home:false },
+    house:      { label:'บ้านเดี่ยว (ตึก/คอนกรีต)',      build:true,  home:true,  rate:9000,  decay:.01, cap:.40 },
+    halfwood:   { label:'บ้านครึ่งตึกครึ่งไม้',           build:true,  home:true,  rate:6000,  decay:.02, cap:.60 },
+    wood:       { label:'บ้านไม้',                      build:true,  home:true,  rate:4500,  decay:.03, cap:.70 },
+    townhouse:  { label:'ทาวน์เฮาส์ / บ้านแถว',          build:true,  home:true,  rate:7500,  decay:.01, cap:.40 },
+    commercial: { label:'อาคารพาณิชย์ / ตึกแถว',        build:true,  home:true,  rate:8500,  decay:.01, cap:.40 },
+    condo:      { label:'ห้องชุด / คอนโด',              build:true,  home:true,  rate:10000, decay:.01, cap:.40 },
+    other:      { label:'สิ่งปลูกสร้างอื่น ๆ (โรงเรือน โกดัง)', build:true, home:false, rate:5000, decay:.02, cap:.60 }
+  };
 
   function progressive(income){
     var left = Math.max(0, income), tax = 0;
@@ -38,32 +61,80 @@
   function num(v){ var n = Number(String(v == null ? '' : v).replace(/[^0-9.]/g, '')); return isFinite(n) ? n : 0; }
   function baht(n){ return Math.round(n).toLocaleString('en-US'); }
 
-  // ---------------------------------------------------------------------------
-  // คำนวณ — คืนรายการค่าใช้จ่ายทั้งหมด ไม่ตัดสินใจเรื่องการแสดงผลใดๆ
+  // ประมาณราคาประเมินสิ่งปลูกสร้าง = พื้นที่ × ราคาต่อ ตร.ม. − ค่าเสื่อมตามอายุ
+  // คืน null ถ้าข้อมูลไม่พอ — ผู้เรียกต้องไม่แสดงตัวเลขมั่ว
+  function estimateBuilding(typeKey, area, age, rateOverride){
+    var t = TYPES[typeKey];
+    if (!t || !t.build) return null;
+    var a = num(area);
+    if (!(a > 0)) return null;
+    var rate = num(rateOverride) > 0 ? num(rateOverride) : t.rate;
+    var yrs = Math.max(0, Math.min(60, num(age)));
+    var dep = Math.min(t.cap, yrs * t.decay);      // ค่าเสื่อมมีเพดาน ไม่หักจนเหลือศูนย์
+    return { value: a * rate * (1 - dep), rate: rate, dep: dep, area: a, age: yrs };
+  }
+
   // ---------------------------------------------------------------------------
   function calc(input){
     var b = input || {};
+    var typeKey = TYPES[b.propertyType] ? b.propertyType : 'land';
+    var type = TYPES[typeKey];
+
     var sale = num(b.salePrice);
-    var appraisalGiven = num(b.appraisal) > 0;
-    // ไม่ทราบราคาประเมิน → ใช้ราคาซื้อขายแทน · ราคาประเมินจริงมักต่ำกว่ามาก
-    // ตัวเลขที่ได้จึงเป็นเพดานบน ไม่ใช่ค่ากลาง — ผู้เรียกต้องบอกผู้ใช้ให้ชัด (ดู assumed)
-    var appraisal = appraisalGiven ? num(b.appraisal) : sale;
+    var landGiven = num(b.landAppraisal) > 0;
+    var land = num(b.landAppraisal);
+
+    // ราคาประเมินสิ่งปลูกสร้าง — กรอกเองมาก่อนเสมอ ถ้าไม่กรอกค่อยลองประมาณให้
+    var buildGiven = type.build && num(b.buildingAppraisal) > 0;
+    var est = null;
+    var building = 0;
+    if (type.build){
+      if (buildGiven) building = num(b.buildingAppraisal);
+      else {
+        est = estimateBuilding(typeKey, b.buildingArea, b.buildingAge, b.buildingRate);
+        building = est ? est.value : 0;
+      }
+    }
+
+    var apprGiven = landGiven || buildGiven || !!est;
+    // ไม่รู้ราคาประเมินเลย → ใช้ราคาซื้อขายแทน (ได้ตัวเลขสูงกว่าจริง ต้องเตือน)
+    var appraisal = apprGiven ? (land + building) : sale;
+    if (apprGiven && appraisal <= 0) appraisal = sale;
+
+    if (!(sale > 0) && !apprGiven) return null;
+
     var company = b.sellerType === 'company';
     var years = Math.max(1, Math.min(10, Math.round(num(b.years)) || 1));
-    var base = Math.max(sale, appraisal);          // ฐานของภาษีที่ใช้ "แล้วแต่อย่างใดสูงกว่า"
+    var base = Math.max(sale, appraisal);
 
-    if (!(sale > 0) && !appraisalGiven) return null;
+    // มีชื่อในทะเบียนบ้าน ≥ 1 ปี → ยกเว้นภาษีธุรกิจเฉพาะ (เฉพาะที่อยู่อาศัย ไม่ใช่ที่ดินเปล่า)
+    var registered = !!b.registered && type.home && !company;
 
     var rows = [];
-    // 1) ค่าธรรมเนียมการจดทะเบียนโอน — ที่ดินเปล่าเสียอัตราปกติ 2% เสมอ
-    var transfer = appraisal * .02;
-    rows.push({ k:'transfer', t:'ค่าธรรมเนียมการโอน 2%', sub:'ของราคาประเมินราชการ', v:transfer, who:'split' });
 
-    // 2) ภาษีธุรกิจเฉพาะ หรือ อากรแสตมป์ — อย่างใดอย่างหนึ่งเท่านั้น ไม่เสียซ้อนกัน
-    //    นิติบุคคลถือเป็นการขายเป็นทางค้าหากำไรเสมอ จึงเข้าภาษีธุรกิจเฉพาะทุกกรณี
-    var sbt = company || years < 5;
-    if (sbt) rows.push({ k:'sbt', t:'ภาษีธุรกิจเฉพาะ 3.3%', sub: company ? 'ผู้ขายเป็นนิติบุคคล' : 'ถือครองไม่ถึง 5 ปี', v: base * .033, who:'seller' });
-    else     rows.push({ k:'stamp', t:'อากรแสตมป์ 0.5%', sub:'ถือครองครบ 5 ปี จึงไม่เสียภาษีธุรกิจเฉพาะ', v: base * .005, who:'seller' });
+    // 1) ค่าธรรมเนียมการโอน
+    //    ปกติ 2% · ลดได้เฉพาะเมื่อผู้ใช้ยืนยันเองว่าเข้าเงื่อนไขมาตรการรัฐ
+    var discountOn = !!b.govDiscount && type.home;
+    var feeRate = .02, feeSub = 'ของราคาประเมินราชการ';
+    if (discountOn){
+      feeRate = num(b.govRate) > 0 ? num(b.govRate) / 100 : .0001;
+      feeSub = 'ใช้อัตราลดตามมาตรการรัฐที่คุณเลือก (' + (feeRate * 100) + '%) — ต้องยืนยันสิทธิกับสำนักงานที่ดินก่อน';
+    }
+    rows.push({ k:'transfer', t:'ค่าธรรมเนียมการโอน ' + (feeRate * 100) + '%', sub:feeSub,
+                v: appraisal * feeRate, who:'split' });
+
+    // 2) ภาษีธุรกิจเฉพาะ หรือ อากรแสตมป์ — อย่างใดอย่างหนึ่ง
+    var sbt = company || (years < 5 && !registered);
+    if (sbt){
+      rows.push({ k:'sbt', t:'ภาษีธุรกิจเฉพาะ 3.3%',
+                  sub: company ? 'ผู้ขายเป็นนิติบุคคล' : 'ถือครองไม่ถึง 5 ปี',
+                  v: base * .033, who:'seller' });
+    } else {
+      var why = company ? '' :
+                (registered && years < 5) ? 'มีชื่อในทะเบียนบ้านครบ 1 ปี จึงได้ยกเว้นภาษีธุรกิจเฉพาะ'
+                                          : 'ถือครองครบ 5 ปี จึงไม่เสียภาษีธุรกิจเฉพาะ';
+      rows.push({ k:'stamp', t:'อากรแสตมป์ 0.5%', sub:why, v: base * .005, who:'seller' });
+    }
 
     // 3) ภาษีเงินได้หัก ณ ที่จ่าย
     var wht, whtSub;
@@ -74,17 +145,20 @@
       var expRate = EXPENSE[Math.min(years, 8)];
       var net = appraisal * (1 - expRate);
       wht = progressive(net / years) * years;
-      wht = Math.min(wht, appraisal * .20);        // เพดานตามกฎหมาย ไม่เกิน 20% ของราคาประเมิน
+      wht = Math.min(wht, appraisal * .20);
       whtSub = 'คิดขั้นบันไดจากราคาประเมิน หักค่าใช้จ่ายเหมา ' + Math.round(expRate * 100) + '% (ถือครอง ' + years + ' ปี)';
     }
     rows.push({ k:'wht', t:'ภาษีเงินได้หัก ณ ที่จ่าย', sub:whtSub, v:wht, who:'seller' });
 
     var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
-    // ธรรมเนียมปฏิบัติ: ค่าธรรมเนียมโอนคนละครึ่ง · ภาษีทั้งหมดเป็นของผู้ขาย
-    // เป็นแค่ "ธรรมเนียม" ไม่ใช่กฎหมาย — คู่สัญญาตกลงกันเป็นอย่างอื่นได้
     var buyer = rows.reduce(function(a, r){ return a + (r.who === 'split' ? r.v / 2 : 0); }, 0);
+
     return { rows:rows, total:total, buyer:buyer, seller:total - buyer,
-             appraisal:appraisal, assumed:!appraisalGiven, years:years, company:company };
+             appraisal:appraisal, land:land, building:building,
+             estimated:!!est && !buildGiven, est:est,
+             assumed:!apprGiven, years:years, company:company,
+             type:typeKey, typeLabel:type.label, hasBuilding:type.build,
+             registered:registered, discountOn:discountOn, feeRate:feeRate };
   }
 
   // ---------------------------------------------------------------------------
@@ -97,45 +171,102 @@
     var rows = r.rows.map(function(x){
       return '<div class="fc-row"><div><b>' + x.t + '</b><span>' + x.sub + '</span></div><em>' + baht(x.v) + '</em></div>';
     }).join('');
+
+    // แจกแจงให้เห็นว่าราคาประเมินที่ใช้คำนวณมาจากไหน เมื่อมีสิ่งปลูกสร้าง
+    var breakdown = '';
+    if (r.hasBuilding && !r.assumed){
+      breakdown = '<div class="fc-break"><b>ราคาประเมินที่ใช้คำนวณ ' + baht(r.appraisal) + ' บาท</b>' +
+        '<span>ที่ดิน ' + baht(r.land) + ' + สิ่งปลูกสร้าง ' + baht(r.building) +
+        (r.estimated ? ' <i>(ประมาณจาก ' + baht(r.est.area) + ' ตร.ม. × ' + baht(r.est.rate) +
+                       ' บาท/ตร.ม. หักค่าเสื่อม ' + Math.round(r.est.dep * 100) + '%)</i>' : '') +
+        '</span></div>';
+    }
+
+    var warns = '';
+    if (r.assumed){
+      warns += '<p class="fc-warn">ยังไม่ได้กรอกราคาประเมินราชการ — ตัวเลขข้างบนคำนวณจากราคาซื้อขายแทน ' +
+        'ราคาประเมินจริงมักต่ำกว่าราคาซื้อขายมาก <b>ค่าใช้จ่ายจริงจึงมักถูกกว่านี้</b> ' +
+        '<a href="' + LINE + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมเราตรวจราคาประเมินให้ฟรี →</a></p>';
+    }
+    if (r.estimated){
+      warns += '<p class="fc-warn">ราคาสิ่งปลูกสร้างเป็น <b>ค่าประมาณจากตัวช่วย</b> ไม่ใช่บัญชีราคาประเมินจริงของกรมธนารักษ์ ' +
+        'ตัวเลขจริงต่างกันตามพื้นที่และปีบัญชี ใช้ดูคร่าว ๆ ได้ แต่อย่าใช้แทนตัวเลขจากสำนักงานที่ดิน</p>';
+    }
+    if (r.discountOn){
+      warns += '<p class="fc-warn">คุณเลือกใช้อัตราลดตามมาตรการรัฐเอง — <b>เว็บนี้ไม่ได้ตรวจสอบให้ว่าเข้าเงื่อนไขจริงหรือไม่</b> ' +
+        'มาตรการมีกำหนดเวลาและเงื่อนไข (เช่น ผู้ซื้อต้องเป็นบุคคลธรรมดาสัญชาติไทย ราคาไม่เกินเพดานที่กำหนด) ' +
+        'ทั้งอัตราและวันสิ้นสุดเปลี่ยนได้ <b>ต้องยืนยันกับสำนักงานที่ดินก่อนเสมอ</b></p>';
+    }
+
     return rows +
       '<div class="fc-row total"><div><b>รวมค่าใช้จ่ายวันโอน</b></div><em>' + baht(r.total) + '</em></div>' +
       '<div class="fc-split">' +
         '<div><span>ผู้ซื้อจ่ายตามธรรมเนียม</span><b>' + baht(r.buyer) + '</b></div>' +
         '<div><span>ผู้ขายจ่ายตามธรรมเนียม</span><b>' + baht(r.seller) + '</b></div>' +
-      '</div>' +
-      (r.assumed
-        ? '<p class="fc-warn">ยังไม่ได้กรอกราคาประเมินราชการ — ตัวเลขข้างบนคำนวณจากราคาซื้อขายแทน ' +
-          'ราคาประเมินจริงมักต่ำกว่าราคาซื้อขายมาก <b>ค่าใช้จ่ายจริงจึงมักถูกกว่านี้</b> ' +
-          '<a href="' + LINE + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมเราตรวจราคาประเมินให้ฟรี →</a></p>'
-        : '');
+      '</div>' + breakdown + warns;
   }
 
   function mount(el, opts){
     if (!el) return;
     var o = opts || {};
     var sale = Number(o.salePrice) || 0;
+    var typeOpts = Object.keys(TYPES).map(function(k){
+      return '<option value="' + k + '">' + TYPES[k].label + '</option>';
+    }).join('');
+
     el.className = 'fc';
     el.innerHTML =
-      '<div class="fc-head"><b>💰 ประมาณการค่าใช้จ่ายวันโอน</b><span>กรอกตัวเลขเองเพื่อดูค่าธรรมเนียมและภาษีที่ต้องเตรียม</span></div>' +
+      '<div class="fc-head"><b>ประมาณการค่าใช้จ่ายวันโอน</b><span>กรอกตัวเลขเองเพื่อดูค่าธรรมเนียมและภาษีที่ต้องเตรียม</span></div>' +
       '<div class="fc-grid">' +
+        '<label>ประเภททรัพย์<select data-fc="propertyType">' + typeOpts + '</select></label>' +
         '<label>ราคาซื้อขาย (บาท)<input type="text" inputmode="numeric" data-fc="salePrice" value="' + (sale ? baht(sale) : '') + '" placeholder="เช่น 5,000,000"></label>' +
-        '<label>ราคาประเมินราชการ (บาท)<input type="text" inputmode="numeric" data-fc="appraisal" placeholder="ถ้าไม่ทราบ เว้นว่างไว้ได้"></label>' +
+        '<label>ราคาประเมินที่ดิน (บาท)<input type="text" inputmode="numeric" data-fc="landAppraisal" placeholder="ถ้าไม่ทราบ เว้นว่างไว้ได้"></label>' +
         '<label>ผู้ขายเป็น<select data-fc="sellerType"><option value="person">บุคคลธรรมดา</option><option value="company">นิติบุคคล / บริษัท</option></select></label>' +
         '<label>ถือครองมาแล้ว (ปี)<input type="number" min="1" max="10" step="1" data-fc="years" value="5"></label>' +
       '</div>' +
+
+      '<div class="fc-sub" data-fc-building hidden>' +
+        '<div class="fc-sub-h">สิ่งปลูกสร้าง</div>' +
+        '<div class="fc-grid">' +
+          '<label>ราคาประเมินสิ่งปลูกสร้าง (บาท)<input type="text" inputmode="numeric" data-fc="buildingAppraisal" placeholder="ทราบตัวเลขจริง กรอกตรงนี้"></label>' +
+          '<label>หรือประมาณจากพื้นที่ (ตร.ม.)<input type="text" inputmode="numeric" data-fc="buildingArea" placeholder="เช่น 150"></label>' +
+          '<label>อายุอาคาร (ปี)<input type="number" min="0" max="60" step="1" data-fc="buildingAge" value="10"></label>' +
+        '</div>' +
+        '<p class="fc-note">กรอกราคาประเมินสิ่งปลูกสร้างเองจะแม่นที่สุด — ค้นได้ที่ ' +
+          '<a href="https://assessprice.treasury.go.th/" target="_blank" rel="noopener">ระบบค้นหาราคาประเมินของกรมธนารักษ์</a> ' +
+          'หรือถามเจ้าหน้าที่สำนักงานที่ดิน ถ้ากรอกแค่พื้นที่กับอายุ ระบบจะประมาณให้แบบคร่าว ๆ</p>' +
+        '<label class="fc-check"><input type="checkbox" data-fc="registered"> ' +
+          'ผู้ขายมีชื่อในทะเบียนบ้านหลังนี้มาแล้วเกิน 1 ปี <i>(ได้ยกเว้นภาษีธุรกิจเฉพาะ แม้ถือครองไม่ถึง 5 ปี)</i></label>' +
+        '<label class="fc-check"><input type="checkbox" data-fc="govDiscount"> ' +
+          'ใช้สิทธิลดค่าธรรมเนียมโอนตามมาตรการรัฐ <i>(ต้องยืนยันสิทธิกับสำนักงานที่ดินก่อน)</i></label>' +
+        '<label class="fc-rate" data-fc-rate hidden>อัตราที่สำนักงานที่ดินแจ้ง' +
+          '<select data-fc="govRate"><option value="0.01">0.01%</option><option value="1">1%</option></select></label>' +
+      '</div>' +
+
       '<div class="fc-out" data-fc-out></div>' +
-      '<p class="fc-foot">ที่ดินเปล่า<b>ไม่ได้สิทธิ</b>ลดค่าธรรมเนียมโอนเหลือ 0.01% — มาตรการนั้นใช้เฉพาะที่อยู่อาศัยราคาไม่เกิน 7 ล้านบาท · ' +
+      '<p class="fc-foot"><b>ที่ดินเปล่าไม่ได้สิทธิ</b>ลดค่าธรรมเนียมโอนตามมาตรการรัฐ — มาตรการนั้นใช้เฉพาะที่อยู่อาศัย · ' +
       'การแบ่งจ่ายคนละครึ่งเป็นธรรมเนียมปฏิบัติ ไม่ใช่ข้อบังคับตามกฎหมาย ตกลงกันเป็นอย่างอื่นได้ · ' +
       'ตัวเลขนี้เป็นประมาณการเพื่อใช้เตรียมเงินเท่านั้น <b>ยอดจริงเจ้าหน้าที่สำนักงานที่ดินคำนวณในวันโอน</b> ' +
       'และอาจต่างไปตามกรณีเฉพาะ (เช่น ได้ที่ดินมาโดยมรดก หรือแปลงอยู่นอกเขตเทศบาลซึ่งได้ยกเว้นเงินได้ 200,000 บาท)</p>';
 
     var out = el.querySelector('[data-fc-out]');
-    function update(){
+    var buildBox = el.querySelector('[data-fc-building]');
+    var rateBox = el.querySelector('[data-fc-rate]');
+
+    function read(){
       var v = {};
-      el.querySelectorAll('[data-fc]').forEach(function(f){ v[f.getAttribute('data-fc')] = f.value; });
+      el.querySelectorAll('[data-fc]').forEach(function(f){
+        v[f.getAttribute('data-fc')] = f.type === 'checkbox' ? f.checked : f.value;
+      });
+      return v;
+    }
+    function update(){
+      var v = read();
+      var t = TYPES[v.propertyType] || TYPES.land;
+      buildBox.hidden = !t.build;
+      rateBox.hidden = !(t.home && v.govDiscount);
       out.innerHTML = resultHtml(calc(v));
     }
-    // ใส่คอมมาให้อ่านง่ายระหว่างพิมพ์ โดยรักษาตำแหน่งเคอร์เซอร์ให้อยู่ท้ายเสมอ
     el.addEventListener('input', function(e){
       var f = e.target;
       if (f.type === 'text' && f.hasAttribute('data-fc')){
@@ -148,5 +279,5 @@
     update();
   }
 
-  window.NJFeeCalc = { calc:calc, mount:mount };
+  window.NJFeeCalc = { calc:calc, estimateBuilding:estimateBuilding, TYPES:TYPES, mount:mount };
 })();
