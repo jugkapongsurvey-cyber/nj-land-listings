@@ -1,0 +1,130 @@
+/* เช็กราคางานรังวัดออนไลน์ — โทนเดียวกับหน้าแรก (น้ำเงินเข้ม–ทอง)
+   [hidden] ต้องเป็น !important เพราะ .sq ตั้ง display ไว้ (กับดักเดิม ดู CLAUDE.md) */
+.sq[hidden]{display:none !important}
+
+.sq{
+  display:block;max-width:1280px;margin:0 auto;
+  background:#FFFFFF;border:1px solid #D8E1EA;
+  box-shadow:0 30px 70px rgba(11,31,58,.12);
+}
+
+.sq-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:18px;
+  padding:24px 30px;background:#0B1F3A;color:#FFFFFF;
+}
+.sq-head b{display:block;font-family:Trirong,serif;font-weight:500;font-size:22px;color:#D8B96B}
+.sq-head span{display:block;margin-top:6px;font-size:14px;font-weight:300;line-height:1.7;color:#BFCAD6;max-width:640px}
+.sq-close{
+  flex:none;background:transparent;border:1px solid rgba(216,185,107,.4);
+  color:#D8B96B;width:34px;height:34px;font-size:14px;line-height:1;
+}
+.sq-close:hover{background:rgba(216,185,107,.14)}
+
+.sq-body{display:grid;grid-template-columns:1.05fr .95fr}
+.sq-left{padding:26px 30px;border-right:1px solid #E3EAF1}
+.sq-right{padding:26px 30px;background:#F4F7FA}
+
+.sq-lbl{
+  font-size:12px;letter-spacing:.14em;color:#1B4B7A;
+  margin:0 0 12px;text-transform:uppercase;
+}
+.sq-left .sq-lbl + .sq-lbl,.sq-grid + .sq-lbl{margin-top:24px}
+
+/* เลือกประเภทงาน */
+.sq-jobs{display:grid;gap:9px;margin-bottom:22px}
+.sq-job{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border:1px solid #D8E1EA;cursor:pointer}
+.sq-job:hover{border-color:#B08D57}
+.sq-job input{margin:3px 0 0;flex:none;accent-color:#1B4B7A;width:16px;height:16px;cursor:pointer}
+.sq-job b{display:block;font-size:15px;font-weight:500;color:#0B1F3A}
+.sq-job i{display:block;font-style:normal;font-size:13px;font-weight:300;color:#5A6B7D;margin-top:2px}
+.sq-job:has(input:checked){border-color:#1B4B7A;background:#F4F7FA}
+
+.sq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sq-field{display:flex;flex-direction:column;gap:6px;font-size:12px;letter-spacing:.06em;color:#1B4B7A;margin-bottom:14px}
+.sq-field input{
+  height:44px;border:1px solid #D8E1EA;background:#FFFFFF;padding:0 13px;
+  font-family:inherit;font-size:15px;font-weight:300;color:#0B1F3A;width:100%;
+}
+.sq-field input:focus{outline:0;border-color:#1B4B7A}
+.sq-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* ตัวเลือกเสริม */
+.sq-add{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;border:1px solid #D8E1EA;cursor:pointer;margin-bottom:9px}
+.sq-add:hover{border-color:#B08D57}
+.sq-add input{margin:3px 0 0;flex:none;accent-color:#1B4B7A;width:16px;height:16px;cursor:pointer}
+.sq-add b{display:block;font-size:14.5px;font-weight:500;color:#0B1F3A}
+.sq-add b em{font-style:normal;color:#B08D57;font-weight:500}
+.sq-add i{display:block;font-style:normal;font-size:12.5px;font-weight:300;color:#5A6B7D;line-height:1.65;margin-top:2px}
+.sq-add:has(input:checked){border-color:#1B4B7A;background:#F4F7FA}
+.sq-combo{border-color:#D8B96B;background:#FDFAF3}
+.sq-combo:has(input:checked){border-color:#B08D57;background:#FBF4E4}
+
+/* ผลลัพธ์ */
+.sq-out{margin-bottom:22px}
+.sq-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid #E3EAF1;font-size:14px;font-weight:300;color:#31465E}
+.sq-row em{flex:none;font-style:normal;font-weight:500;color:#0B1F3A;white-space:nowrap}
+.sq-total{border-bottom:0;border-top:2px solid #0B1F3A;margin-top:6px;padding-top:14px}
+.sq-total span{font-size:16px;font-weight:500;color:#0B1F3A}
+.sq-total em{font-family:Trirong,serif;font-size:26px;color:#0B1F3A}
+.sq-inc{margin-top:10px;padding:10px 13px;background:#E7EEF5;font-size:13px;font-weight:300;color:#31465E}
+.sq-inc b{font-weight:500;color:#0B1F3A}
+.sq-note{margin:12px 0 0;font-size:12.5px;font-weight:300;line-height:1.8;color:#5A6B7D}
+.sq-note b{font-weight:500;color:#31465E}
+.sq-msg{padding:26px 0;font-size:14px;font-weight:300;color:#5A6B7D}
+.sq-msg a{color:#1B4B7A;font-weight:500}
+
+/* ส่งข้อมูลให้ทีมขาย */
+.sq-cta{border-top:1px solid #D8E1EA;padding-top:20px}
+.sq-cta-h{font-family:Trirong,serif;font-weight:500;font-size:19px;color:#0B1F3A;margin-bottom:5px}
+.sq-cta-p{margin:0 0 16px;font-size:13.5px;font-weight:300;line-height:1.7;color:#5A6B7D}
+.sq-send{
+  width:100%;border:0;background:#0B1F3A;color:#D8B96B;
+  padding:15px 22px;font-size:15px;font-weight:500;letter-spacing:.1em;
+}
+.sq-send:hover:not(:disabled){background:#123055}
+.sq-send:disabled{opacity:.6;cursor:default}
+.sq-sent{margin-top:12px;padding:12px 14px;font-size:13.5px;font-weight:300;line-height:1.7}
+.sq-sent.ok{background:#E8F5ED;color:#1C6C43;border:1px solid #CDE0D2}
+.sq-sent.bad{background:#FEF2F2;color:#B91C1C;border:1px solid #FCA5A5}
+.sq-sent a{color:inherit;font-weight:500;text-decoration:underline}
+.sq-or{margin-top:14px;font-size:13px;font-weight:300;color:#5A6B7D;text-align:center}
+.sq-or a{color:#1B4B7A;font-weight:500}
+
+@media (max-width:1040px){
+  .sq-body{grid-template-columns:1fr}
+  .sq-left{border-right:0;border-bottom:1px solid #E3EAF1}
+}
+@media (max-width:640px){
+  .sq{margin-left:18px;margin-right:18px}
+  .sq-head{padding:20px 20px}
+  .sq-head b{font-size:19px}
+  .sq-left,.sq-right{padding:20px 20px}
+  .sq-grid{grid-template-columns:1fr}
+  .sq-total em{font-size:23px}
+}
+
+/* ปุ่มเปิดบนการ์ด 02 ของแถบไฮไลต์ */
+.sq-open{
+  margin-top:12px;background:transparent;border:1px solid #B08D57;color:#1B4B7A;
+  padding:9px 15px;font-size:13px;font-weight:500;letter-spacing:.06em;
+}
+.sq-open:hover{background:#0B1F3A;border-color:#0B1F3A;color:#D8B96B}
+
+/* ---------------------------------------------------------------------------
+   การ์ดวิดีโอระบบ njsurvey — ลอยมุมขวาบนของ hero
+   เป็นภาพประกอบล้วน จึงปิดเสียงและเล่นวน · preload="none" กันไม่ให้แย่งแบนด์วิดท์
+   กับรูป hero ตอนเปิดหน้าครั้งแรก · จอแคบซ่อนทิ้ง เพราะทับหัวข้อจนอ่านไม่ออก
+--------------------------------------------------------------------------- */
+.nj-vidcard{
+  position:absolute;top:104px;right:32px;z-index:12;width:290px;
+  background:rgba(11,31,58,.72);border:1px solid rgba(216,185,107,.34);
+  backdrop-filter:blur(6px);box-shadow:0 24px 54px rgba(0,0,0,.34);
+}
+.nj-vidcard video{display:block;width:100%;height:163px;object-fit:cover}
+.nj-vidcap{padding:11px 14px 13px}
+.nj-vidcap b{display:block;font-size:13.5px;font-weight:500;color:#D8B96B;line-height:1.5}
+.nj-vidcap i{display:block;font-style:normal;font-size:12px;font-weight:300;color:#BFCAD6;line-height:1.6;margin-top:3px}
+
+@media (max-width:1180px){ .nj-vidcard{width:240px;top:96px;right:24px} .nj-vidcard video{height:135px} }
+@media (max-width:900px){ .nj-vidcard{display:none} }
+.sq-inc i{display:block;font-style:normal;margin-top:5px;color:#5A6B7D}
