@@ -1,0 +1,275 @@
+/* หน้าแรก "ที่ดินชัวร์" — ชุดสีและเลย์เอาต์ของดีไซน์ใหม่ (โทนครีม–ทอง–เขียวเข้ม)
+   หน้านี้ไม่โหลด marketplace.css โดยตั้งใจ — คนละชุดสี ถ้าโหลดคู่กันฟอนต์และพื้นหลังจะตีกัน
+   การ์ดแปลงที่ดินที่ marketplace.js สร้าง จึงมีสไตล์ของตัวเองอยู่ในไฟล์นี้ */
+
+:root{
+  --ink:#14170F;         /* ตัวหนังสือหลัก / พื้นเข้ม */
+  --paper:#F7F4EE;       /* พื้นหลังหน้า */
+  --card:#FFFFFF;
+  --sand:#EDE8DD;        /* พื้นหลังส่วนบริการ */
+  --line:#E7E0D2;
+  --line2:#EFE9DC;
+  --gold:#DFC98F;        /* ทองอ่อน — ใช้บนพื้นเข้ม */
+  --bronze:#8A6A2E;      /* ทองเข้ม — ใช้บนพื้นสว่าง */
+  --brass:#C0A163;
+  --muted:#6B6B62;
+}
+
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:Sarabun,"Helvetica Neue",Arial,sans-serif;font-weight:400;
+}
+*{box-sizing:border-box}
+a{color:var(--bronze);text-decoration:none}
+a:hover{color:var(--ink)}
+img{display:block;max-width:100%}
+button,input,select{font:inherit}
+button{cursor:pointer}
+[hidden]{display:none !important}
+
+/* สไตล์ hover — ต้องเป็น !important เพราะดีไซน์ใช้ inline style ซึ่งชนะ class เสมอ */
+.hv-gold:hover{color:var(--gold) !important}
+.hv-goldbg:hover{background:var(--gold) !important;color:var(--ink) !important}
+.hv-white:hover{background:#FFFFFF !important;color:var(--ink) !important}
+.hv-glass:hover{background:rgba(255,255,255,.12) !important;color:#FFFFFF !important}
+.hv-card:hover{border-color:var(--brass) !important;color:var(--ink) !important}
+.hv-outline:hover{border-color:var(--brass) !important;color:var(--bronze) !important}
+.hv-bronze:hover{background:var(--bronze) !important;color:#FFFFFF !important}
+.hv-bronzetext:hover{color:var(--bronze) !important}
+
+/* ---------------------------------------------------------------------------
+   แผงลายกราฟิกแทนรูปภาพ
+   ยังไม่มีรูปถ่ายจริงของทีมงาน/แปลงที่ดิน และกติกาข้อ 9 ห้ามใช้ภาพสต็อกแทน
+   จึงใช้ลายเส้นแนวเขตแบบระวางแผนที่ไปก่อน — พอมีรูปจริงค่อยเปลี่ยนเป็น <img>
+--------------------------------------------------------------------------- */
+.panel{background-color:var(--ink);position:relative;overflow:hidden}
+
+.panel-cadastre{
+  background-image:
+    radial-gradient(circle at 22% 26%,rgba(223,201,143,.16),transparent 46%),
+    radial-gradient(circle at 78% 72%,rgba(192,161,99,.12),transparent 52%),
+    repeating-linear-gradient(64deg,rgba(223,201,143,.16) 0 1px,transparent 1px 132px),
+    repeating-linear-gradient(154deg,rgba(223,201,143,.13) 0 1px,transparent 1px 108px),
+    linear-gradient(168deg,#1B2016 0%,#14170F 58%,#0E100A 100%);
+}
+.panel-survey{
+  background-image:
+    radial-gradient(circle at 50% 50%,rgba(223,201,143,.4) 0 2px,transparent 3px),
+    repeating-radial-gradient(circle at 50% 50%,transparent 0 38px,rgba(223,201,143,.16) 38px 39px),
+    repeating-linear-gradient(90deg,rgba(223,201,143,.1) 0 1px,transparent 1px 46px),
+    linear-gradient(150deg,#20261A 0%,#14170F 100%);
+}
+.panel-plot{
+  background-color:var(--sand);
+  background-image:
+    radial-gradient(circle at 30% 34%,rgba(138,106,46,.5) 0 3px,transparent 4px),
+    radial-gradient(circle at 71% 63%,rgba(138,106,46,.5) 0 3px,transparent 4px),
+    repeating-linear-gradient(58deg,rgba(138,106,46,.22) 0 1px,transparent 1px 74px),
+    repeating-linear-gradient(148deg,rgba(138,106,46,.18) 0 1px,transparent 1px 62px),
+    linear-gradient(160deg,#F2EDE2 0%,#E4DDCC 100%);
+}
+.panel-doc{
+  background-color:var(--sand);
+  background-image:
+    repeating-linear-gradient(180deg,rgba(138,106,46,.16) 0 1px,transparent 1px 17px),
+    linear-gradient(120deg,rgba(192,161,99,.16) 0 34%,transparent 34%),
+    linear-gradient(160deg,#F5F1E7 0%,#E7E0D0 100%);
+}
+.panel-office{
+  background-color:var(--sand);
+  background-image:
+    radial-gradient(circle at 74% 24%,rgba(255,255,255,.7),transparent 48%),
+    repeating-linear-gradient(102deg,rgba(138,106,46,.09) 0 1px,transparent 1px 96px),
+    linear-gradient(155deg,#FBF8F1 0%,#E9E2D3 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   ค้นหา + ประกาศที่ดิน (โครงสร้าง DOM ผูกกับ marketplace.js — ห้ามเปลี่ยน id)
+--------------------------------------------------------------------------- */
+.search-box{
+  position:relative;z-index:20;max-width:1280px;margin:40px auto 0;
+  background:var(--card);border:1px solid var(--line);
+  box-shadow:0 30px 70px rgba(20,23,15,.12);
+  display:grid;grid-template-columns:auto 1.5fr 1fr 1fr auto;align-items:end;gap:1px;
+}
+.search-box > *{padding:22px 24px}
+.purpose-tabs{display:flex;gap:8px;align-items:center}
+.purpose-tabs button{
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:11px 18px;font-size:14px;letter-spacing:.06em;
+}
+.purpose-tabs button.selected{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+.search-box label{display:grid;gap:9px;border-left:1px solid var(--line2)}
+.field-label{font-size:12px;letter-spacing:.14em;color:var(--bronze)}
+.field-line{display:flex;align-items:center;gap:9px}
+.field-line b{color:var(--brass)}
+.search-box input,.search-box select{
+  width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;
+  padding:7px 0;font-size:15px;font-weight:300;color:var(--ink);
+}
+.search-box input:focus,.search-box select:focus{outline:0;border-bottom-color:var(--brass)}
+.search-submit{
+  border:0;background:var(--ink);color:var(--gold);
+  font-size:14px;font-weight:500;letter-spacing:.16em;align-self:stretch;
+}
+.search-submit:hover{background:var(--bronze);color:#FFFFFF}
+
+.quick{
+  max-width:1280px;margin:0 auto;padding:34px 32px 0;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+}
+.quick a{
+  background:var(--paper);padding:22px 24px;display:grid;gap:5px;color:var(--ink);
+  border:1px solid transparent;
+}
+.quick a:hover{border-color:var(--brass)}
+.quick-icon{font-family:Trirong,serif;font-size:15px;color:var(--bronze)}
+.quick b{font-family:Trirong,serif;font-weight:500;font-size:18px}
+.quick small{font-size:14px;font-weight:300;color:var(--muted)}
+
+.result-note{
+  margin-bottom:22px;padding:13px 20px;background:var(--sand);
+  font-size:14px;font-weight:300;color:#5F6157;
+}
+.listing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.loading{
+  grid-column:1/-1;padding:60px 0;text-align:center;
+  font-size:15px;font-weight:300;color:var(--muted);
+}
+
+.land-card{background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column}
+.land-card:hover{border-color:var(--brass)}
+.land-card[data-href]{cursor:pointer}
+.card-media{position:relative;background:var(--ink)}
+.card-media img{width:100%;height:220px;object-fit:cover}
+.fallback-land{height:220px;background:var(--ink)}
+.fallback-land::after{
+  content:"";position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(58deg,rgba(223,201,143,.16) 0 1px,transparent 1px 58px),
+    repeating-linear-gradient(148deg,rgba(223,201,143,.12) 0 1px,transparent 1px 48px);
+}
+.card-tags{position:absolute;top:14px;left:14px;display:flex;gap:8px;flex-wrap:wrap}
+.card-tags span{
+  background:rgba(20,23,15,.78);color:#FFFFFF;
+  font-size:12px;letter-spacing:.06em;padding:5px 10px;
+}
+.card-tags .verified{background:#1F4D2E;color:#BFE6CB}
+.card-tags .basic{background:#6B571E;color:var(--gold)}
+.photo-count{
+  position:absolute;bottom:14px;right:14px;background:rgba(20,23,15,.72);
+  color:var(--gold);font-size:12px;padding:5px 10px;
+}
+.card-body{padding:24px 26px;display:grid;gap:12px}
+.card-price{font-family:Trirong,serif;font-size:24px;color:var(--ink)}
+.card-title{margin:0;font-family:Trirong,serif;font-weight:500;font-size:19px;line-height:1.5}
+.card-title a{color:var(--ink)}
+.card-facts{font-size:15px;font-weight:300;line-height:1.8;color:var(--muted)}
+.card-agent{
+  display:flex;align-items:center;gap:12px;
+  border-top:1px solid var(--line2);padding-top:18px;
+}
+.agent-avatar{
+  width:38px;height:38px;flex:none;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-family:Trirong,serif;font-size:13px;color:var(--bronze);
+}
+.card-agent > div{flex:1;display:grid;gap:3px}
+.card-agent b{font-size:14px;font-weight:500}
+.card-agent small{font-size:12px;font-weight:300;color:var(--muted)}
+.contact-mini{display:flex;gap:7px}
+.contact-mini a{
+  width:32px;height:32px;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--bronze);
+}
+.contact-mini a:hover{border-color:var(--brass);color:var(--ink)}
+
+.empty-result{
+  grid-column:1/-1;background:var(--card);border:1px solid var(--line);
+  padding:52px 44px;font-size:16px;font-weight:300;line-height:1.85;color:var(--muted);
+}
+.empty-result b{
+  display:block;font-family:Trirong,serif;font-weight:500;font-size:26px;
+  line-height:1.45;color:var(--ink);margin-bottom:14px;
+}
+.empty-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
+.outline-btn,.post-btn{
+  font-size:14px;font-weight:500;letter-spacing:.16em;padding:15px 30px;
+}
+.outline-btn{border:1px solid #DCD3BF;color:var(--ink)}
+.outline-btn:hover{border-color:var(--brass);color:var(--bronze)}
+.post-btn{background:var(--ink);color:var(--paper)}
+.post-btn:hover{background:var(--bronze);color:#FFFFFF}
+
+/* เมนูล่างสำหรับมือถือ */
+.mobile-nav{display:none}
+
+/* แบนเนอร์ขอความยินยอม (analytics.js สร้างเอง สไตล์อยู่ที่นี่) */
+#nj-consent{
+  position:fixed;left:12px;right:12px;bottom:12px;z-index:200;
+  background:var(--ink);color:#C9C8BC;border:1px solid rgba(223,201,143,.32);
+  padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:13px;font-weight:300;line-height:1.7;
+}
+.nj-consent-text{flex:1;min-width:220px}
+.nj-consent-btns{display:flex;gap:9px;flex:none}
+#nj-consent button{
+  border:0;padding:11px 22px;font-size:13px;font-weight:500;letter-spacing:.1em;
+}
+.nj-consent-no{background:transparent;color:#9C9B90;border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-yes{background:var(--gold);color:var(--ink)}
+
+/* ---------------------------------------------------------------------------
+   จอเล็ก — ค่า breakpoint เดียวกับที่ดีไซน์ใหม่กำหนดไว้
+--------------------------------------------------------------------------- */
+@media (max-width:1040px){
+  header nav{display:none !important}
+  [data-r="bar"]{grid-template-columns:repeat(2,1fr) !important}
+  [data-r="split"],[data-r="steps"],[data-r="split3"],[data-r="g3"],[data-r="team"]{
+    grid-template-columns:1fr !important;gap:30px !important;
+  }
+  [data-r="rules3"]{grid-template-columns:1fr !important}
+  [data-r="g4"]{grid-template-columns:repeat(2,1fr) !important}
+  [data-r="sticky"]{position:static !important}
+  [data-r="hero"]{height:auto !important;min-height:660px !important}
+  [data-r="display"]{font-size:52px !important}
+  [data-r="stats"]{grid-template-columns:repeat(3,1fr) !important}
+  .search-box{grid-template-columns:1fr 1fr}
+  .search-box label{border-left:0;border-top:1px solid var(--line2)}
+  .quick{grid-template-columns:repeat(2,1fr)}
+  .listing-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media (max-width:640px){
+  [data-r="display"]{font-size:36px !important}
+  h2{font-size:27px !important}
+  [data-r="bar"],[data-r="g4"],[data-r="table"],[data-r="stats"],[data-r="guides"]{
+    grid-template-columns:1fr !important;
+  }
+  [data-r="table"] > div{border-top:1px solid var(--line) !important}
+  section{padding-left:18px !important;padding-right:18px !important}
+  [data-r="ctapad"]{padding:34px 22px !important}
+  .search-box{grid-template-columns:1fr;margin-left:18px;margin-right:18px}
+  .search-box > *{padding:18px}
+  .quick{grid-template-columns:1fr;padding-left:18px;padding-right:18px}
+  .listing-grid{grid-template-columns:1fr}
+  .empty-result{padding:34px 22px}
+
+  /* เมนูล่างมือถือ — เว็บเดิมมีอยู่ ถ้าตัดออกคนบนมือถือจะกดฝากขายไม่เจอ */
+  .mobile-nav{
+    display:grid;grid-template-columns:repeat(5,1fr);
+    position:fixed;left:0;right:0;bottom:0;z-index:150;
+    background:var(--ink);border-top:1px solid rgba(223,201,143,.28);
+  }
+  .mobile-nav a{
+    display:grid;gap:3px;justify-items:center;padding:10px 4px;
+    font-size:11px;font-weight:300;color:#B6B5A9;
+  }
+  .mobile-nav a span{font-size:16px;color:var(--gold)}
+  .mobile-nav .mobile-post{background:var(--gold);color:var(--ink)}
+  .mobile-nav .mobile-post span{color:var(--ink)}
+  body{padding-bottom:64px}
+  #nj-consent{bottom:76px}
+}
