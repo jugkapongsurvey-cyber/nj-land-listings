@@ -2,38 +2,38 @@
    หน้านี้เป็นหน้าอ่านล้วน จึงคุมความกว้างบรรทัดไว้ไม่ให้ยาวจนตาไล่ไม่ทัน */
 
 .gd-head{
-  background:linear-gradient(158deg,#0C2547 0%,#12315F 52%,#0B4F63 100%);
+  background:linear-gradient(158deg,#0B1F3A 0%,#0B1F3A 52%,#1B4B7A 100%);
   color:#fff;padding:46px 0 40px;
 }
 .gd-head h1{font-size:clamp(28px,5.4vw,42px);font-weight:800;line-height:1.2;margin:10px 0 12px;letter-spacing:-.02em}
-.gd-head p{font-size:15.5px;line-height:1.8;color:#C6D6EC;margin:0;max-width:60ch}
+.gd-head p{font-size:15.5px;line-height:1.8;color:#D8E1EA;margin:0;max-width:60ch}
 .gd-head .kicker{color:#8FE3B8}
 
 .gd-body{padding:38px 0 46px;display:flex;flex-direction:column;gap:14px}
 
 .gd-item{
   display:flex;gap:16px;align-items:flex-start;
-  background:#fff;border:1px solid #E4E9F2;border-radius:16px;
+  background:#fff;border:1px solid #E3EAF1;border-radius:16px;
   padding:22px 24px;scroll-margin-top:84px;
 }
 .gd-item:target{border-color:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.12)}
 .gd-ico{
   flex:none;width:44px;height:44px;border-radius:12px;
-  background:#EFF5FD;display:grid;place-items:center;font-size:21px;
+  background:#E7EEF5;display:grid;place-items:center;font-size:21px;
 }
-.gd-item h2{font-size:17.5px;font-weight:700;color:#12315F;margin:0 0 8px;line-height:1.45}
-.gd-item p{font-size:14.5px;line-height:1.9;color:#4A5B75;margin:0;max-width:70ch}
+.gd-item h2{font-size:17.5px;font-weight:700;color:#0B1F3A;margin:0 0 8px;line-height:1.45}
+.gd-item p{font-size:14.5px;line-height:1.9;color:#5A6B7D;margin:0;max-width:70ch}
 
 .gd-links{
   display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
-  padding:18px 22px;background:#F3F7FC;border:1px solid #E4E9F2;border-radius:14px;
-  font-size:13.5px;color:#65779A;margin-top:8px;
+  padding:18px 22px;background:#E7EEF5;border:1px solid #E3EAF1;border-radius:14px;
+  font-size:13.5px;color:#5A6B7D;margin-top:8px;
 }
-.gd-links a{color:#1E6FE0;font-weight:600;text-decoration:none}
+.gd-links a{color:#1B4B7A;font-weight:600;text-decoration:none}
 .gd-links a:hover{text-decoration:underline}
 
 .gd-disclaimer{
-  font-size:12px;line-height:1.8;color:#8598B4;margin:6px 2px 0;max-width:78ch;
+  font-size:12px;line-height:1.8;color:#8798A9;margin:6px 2px 0;max-width:78ch;
 }
 
 @media (max-width:560px){

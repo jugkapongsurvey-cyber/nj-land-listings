@@ -15,17 +15,17 @@
 
 .ld-loading{
   min-height:220px;display:grid;place-items:center;gap:12px;
-  color:#7c8998;font-size:14px;
+  color:#8798A9;font-size:14px;
 }
 .ld-loading span{
-  width:28px;height:28px;border:3px solid #dce5e6;border-top-color:var(--green);
+  width:28px;height:28px;border:3px solid #E3EAF1;border-top-color:var(--green);
   border-radius:50%;animation:spin 1s linear infinite;
 }
 
 /* ---------- ภาพหลัก ---------- */
 .ld-gal{
   position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;
-  background:linear-gradient(160deg,#8FBBD9 0 44%,#9CC47F 45% 64%,#6E9556 65% 100%);
+  background:linear-gradient(160deg,#8798A9 0 44%,#9CC47F 45% 64%,#6E9556 65% 100%);
 }
 .ld-gal img{width:100%;height:100%;object-fit:cover;display:block}
 .ld-noimg{width:100%;height:100%}
@@ -57,7 +57,7 @@
 }
 .ld-price small{
   font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:500;
-  color:#8b96a4;margin-left:9px;white-space:nowrap;
+  color:#8798A9;margin-left:9px;white-space:nowrap;
 }
 .ld-title{font-size:clamp(18px,3.4vw,23px);font-weight:600;line-height:1.5;margin:10px 0 6px;color:var(--ink)}
 .ld-loc{font-size:13.5px;color:var(--sub);margin-bottom:18px}
@@ -67,11 +67,11 @@
 @media(min-width:640px){.ld-facts{grid-template-columns:repeat(3,1fr)}}
 .ld-fact{background:var(--mist);border-radius:11px;padding:13px 15px}
 .ld-fact b{display:block;font-family:Manrope,sans-serif;font-size:16px;color:var(--ink);line-height:1.35}
-.ld-fact span{font-size:11px;color:#8b96a4}
+.ld-fact span{font-size:11px;color:#8798A9}
 
 /* ---------- แผงผลตรวจ ---------- */
 .ld-tier{border-radius:14px;padding:18px 20px;margin-bottom:22px;border:1px solid}
-.ld-tier.t1{background:#FDF8EC;border-color:#D9AF52}
+.ld-tier.t1{background:#FDF8EC;border-color:#D8B96B}
 .ld-tier.t2{background:#EFF9F3;border-color:var(--green)}
 .ld-tier-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .ld-tier-h b{font-size:15px}
@@ -81,7 +81,7 @@
   font-style:normal;font-size:10.5px;padding:3px 9px;border-radius:4px;
   margin-left:auto;color:#fff;white-space:nowrap;
 }
-.ld-tier.t1 .ld-tier-h em{background:#B8912F}
+.ld-tier.t1 .ld-tier-h em{background:#B08D57}
 .ld-tier.t2 .ld-tier-h em{background:var(--green)}
 
 .ld-crow{
@@ -89,14 +89,14 @@
   padding:11px 0;border-top:1px solid rgba(0,0,0,.07);
 }
 .ld-crow:first-of-type{border-top:0}
-.ld-crow.dim b,.ld-crow.dim span{color:#8b96a4}
+.ld-crow.dim b,.ld-crow.dim span{color:#8798A9}
 .ld-ico{
   flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
   font-size:11px;font-weight:800;margin-top:2px;color:#fff;
 }
 .ld-ico.ok{background:var(--green)}
 .ld-ico.warn{background:#B03A2B}
-.ld-ico.none{background:#B9C3C8}
+.ld-ico.none{background:#D8E1EA}
 .ld-crow > div{flex:1;min-width:0}
 .ld-crow b{display:block;font-size:13.5px;line-height:1.55;color:var(--ink)}
 .ld-crow span{display:block;font-size:12px;color:var(--sub);line-height:1.7;margin-top:1px}
@@ -140,7 +140,7 @@
 /* ---------- ไม่พบ / โหลดไม่ได้ ---------- */
 .ld-empty{
   text-align:center;padding:46px 24px;background:#fff;
-  border:1px dashed #cfd9dd;border-radius:14px;color:#667589;font-size:14px;line-height:1.8;
+  border:1px dashed #D8E1EA;border-radius:14px;color:#5A6B7D;font-size:14px;line-height:1.8;
 }
 .ld-empty b{display:block;font-size:18px;color:var(--navy);margin-bottom:8px}
 .ld-empty-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}

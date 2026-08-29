@@ -9,8 +9,8 @@
    =========================================================================== */
 
 :root{
-  --navy:#0b2549; --green:#1ca45c; --ink:#142033; --sub:#627086;
-  --line:#e4e9ef; --paper:#fff; --mist:#f4f7f8; --sand:#f6f1e8;
+  --navy:#0B1F3A; --green:#1ca45c; --ink:#0B1F3A; --sub:#5A6B7D;
+  --line:#E3EAF1; --paper:#fff; --mist:#F4F7FA; --sand:#E7EEF5;
   --line-green:#06c755; --fb-blue:#0084ff;
 }
 
@@ -32,10 +32,10 @@ h1,h2,p{margin:0}
 .sh-top small{display:block; font-size:10.5px; color:var(--sub); line-height:1.4}
 
 /* ---- คลิป ---- */
-.sh-stage{background:#0a1727; display:grid; place-items:center; position:relative}
+.sh-stage{background:#0B1F3A; display:grid; place-items:center; position:relative}
 .sh-stage video{
   display:block; width:100%; max-width:100%;
-  aspect-ratio:9/16; max-height:min(62vh,620px); object-fit:contain; background:#0a1727;
+  aspect-ratio:9/16; max-height:min(62vh,620px); object-fit:contain; background:#0B1F3A;
 }
 /* ปุ่มเปิดเสียง — คลิปเริ่มเล่นแบบปิดเสียงเพราะเบราว์เซอร์มือถือไม่ยอมให้เล่นพร้อมเสียงเอง */
 .sh-unmute{
@@ -45,7 +45,7 @@ h1,h2,p{margin:0}
   box-shadow:0 6px 20px rgba(0,0,0,.3); display:inline-flex; align-items:center; gap:7px;
 }
 .sh-unmute[hidden]{display:none !important}   /* กฎเดียวกับ ui.css — [hidden] แพ้ display ที่เราตั้งเอง */
-.sh-fallback{padding:30px 20px; text-align:center; color:#c6d2e0; font-size:14px; line-height:1.75}
+.sh-fallback{padding:30px 20px; text-align:center; color:#D8E1EA; font-size:14px; line-height:1.75}
 .sh-fallback b{display:block; color:#fff; font-size:16px; margin-bottom:6px}
 
 /* ---- ปุ่มติดต่อ — ของหลักของหน้านี้ ---- */
@@ -59,8 +59,8 @@ h1,h2,p{margin:0}
 }
 .sh-btn .ic{font-size:17px; line-height:1}
 .sh-btn.line{background:var(--line-green); border-color:var(--line-green); color:#fff}
-.sh-btn.fb{background:#e8f2ff; border-color:#cfe4ff; color:#0b5fbf}
-.sh-btn.tel{background:var(--paper); border-color:#cfd8e2}
+.sh-btn.fb{background:#E7EEF5; border-color:#D8E1EA; color:#1B4B7A}
+.sh-btn.tel{background:var(--paper); border-color:#D8E1EA}
 .sh-btn:active{filter:brightness(.94)}
 .sh-hint{font-size:11.5px; color:var(--sub); text-align:center; margin-top:2px}
 
@@ -70,14 +70,14 @@ h1,h2,p{margin:0}
 .sh-trust div{display:grid; grid-template-columns:20px 1fr; gap:10px; align-items:start}
 .sh-trust span{color:var(--green); font-weight:700; line-height:1.5}
 .sh-trust b{display:block; font-size:14.5px; color:var(--navy); line-height:1.45}
-.sh-trust p{font-size:13px; color:#6b6152; line-height:1.65}
+.sh-trust p{font-size:13px; color:#5A6B7D; line-height:1.65}
 
 /* ---- ท้ายหน้า ---- */
 .sh-foot{padding:20px 16px 30px; border-top:1px solid var(--line); display:flex;
   flex-direction:column; gap:7px; font-size:11.5px; color:var(--sub); line-height:1.7}
 .sh-foot a{color:var(--navy); font-weight:600; text-decoration:underline}
 .sh-foot .price-note{background:var(--mist); border:1px solid var(--line); border-radius:9px;
-  padding:11px 13px; color:#5a6879}
+  padding:11px 13px; color:#5A6B7D}
 
 /* ---- แบนเนอร์ขอความยินยอม (PDPA) ----
    analytics.js เป็นคนสร้าง element นี้ แต่สไตล์ของมันอยู่ใน ui.css ซึ่งมีแค่ consign.html ที่โหลด
@@ -90,7 +90,7 @@ h1,h2,p{margin:0}
 #nj-consent{
   position:fixed; left:12px; right:12px; top:12px; bottom:auto; z-index:900;
   display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-  background:#0F2748; color:#DDE7F5;
+  background:#0B1F3A; color:#E3EAF1;
   padding:14px 18px; border-radius:12px;
   box-shadow:0 14px 40px rgba(0,0,0,.3);
   font-size:13px; line-height:1.55;
@@ -101,7 +101,7 @@ h1,h2,p{margin:0}
   font-family:inherit; font-size:13px; font-weight:700;
   padding:9px 20px; border-radius:9px; border:0; cursor:pointer; white-space:nowrap;
 }
-.nj-consent-no{background:transparent; color:#9FB4D0; border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-no{background:transparent; color:#8798A9; border:1px solid rgba(255,255,255,.28) !important}
 .nj-consent-yes{background:var(--green); color:#fff}
 @media (max-width:560px){
   #nj-consent{font-size:12.5px; padding:13px 15px}

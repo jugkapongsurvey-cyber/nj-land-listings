@@ -1,50 +1,50 @@
 /* เครื่องคำนวณค่าใช้จ่ายวันโอน — ใช้ร่วมกันทั้ง land.html และ guides.html */
 
 .fc{
-  background:#fff;border:1px solid #E4E9F2;border-radius:16px;
+  background:#fff;border:1px solid #E3EAF1;border-radius:16px;
   padding:20px 22px;margin-top:22px;
 }
 .fc-head{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
-.fc-head b{font-size:16px;font-weight:700;color:#12315F}
-.fc-head span{font-size:13px;color:#7186A3;line-height:1.7}
+.fc-head b{font-size:16px;font-weight:700;color:#0B1F3A}
+.fc-head span{font-size:13px;color:#5A6B7D;line-height:1.7}
 
 .fc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fc-grid label{
   display:flex;flex-direction:column;gap:5px;
-  font-size:12px;font-weight:600;color:#65779A;
+  font-size:12px;font-weight:600;color:#5A6B7D;
 }
 .fc-grid input,.fc-grid select{
-  height:42px;border:1px solid #DCE3EF;border-radius:10px;padding:0 12px;
-  font-size:14.5px;font-family:inherit;color:#12315F;background:#F8FAFD;
+  height:42px;border:1px solid #E3EAF1;border-radius:10px;padding:0 12px;
+  font-size:14.5px;font-family:inherit;color:#0B1F3A;background:#F4F7FA;
   outline:none;width:100%;box-sizing:border-box;
 }
-.fc-grid input:focus,.fc-grid select:focus{border-color:#1E6FE0;background:#fff}
+.fc-grid input:focus,.fc-grid select:focus{border-color:#1B4B7A;background:#fff}
 
 .fc-out{margin-top:18px}
 .fc-row{
   display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
-  padding:11px 0;border-bottom:1px solid #F1F5FA;
+  padding:11px 0;border-bottom:1px solid #E7EEF5;
 }
 .fc-row div{min-width:0}
-.fc-row b{display:block;font-size:14px;font-weight:600;color:#26364F;line-height:1.5}
-.fc-row span{display:block;font-size:11.5px;color:#8598B4;line-height:1.6;margin-top:2px}
+.fc-row b{display:block;font-size:14px;font-weight:600;color:#213A57;line-height:1.5}
+.fc-row span{display:block;font-size:11.5px;color:#8798A9;line-height:1.6;margin-top:2px}
 .fc-row em{
   flex:none;font-style:normal;font-family:Manrope,system-ui,sans-serif;
-  font-size:15px;font-weight:700;color:#26364F;white-space:nowrap;
+  font-size:15px;font-weight:700;color:#213A57;white-space:nowrap;
 }
-.fc-row.total{border-bottom:none;border-top:2px solid #E4E9F2;margin-top:4px;padding-top:13px}
-.fc-row.total b{font-size:15px;color:#12315F}
-.fc-row.total em{font-size:19px;color:#12315F}
+.fc-row.total{border-bottom:none;border-top:2px solid #E3EAF1;margin-top:4px;padding-top:13px}
+.fc-row.total b{font-size:15px;color:#0B1F3A}
+.fc-row.total em{font-size:19px;color:#0B1F3A}
 
 .fc-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .fc-split div{
-  background:#F3F7FC;border-radius:11px;padding:11px 13px;
+  background:#E7EEF5;border-radius:11px;padding:11px 13px;
   display:flex;flex-direction:column;gap:3px;
 }
-.fc-split span{font-size:11.5px;color:#7186A3;font-weight:600}
-.fc-split b{font-family:Manrope,system-ui,sans-serif;font-size:16px;font-weight:700;color:#12315F}
+.fc-split span{font-size:11.5px;color:#5A6B7D;font-weight:600}
+.fc-split b{font-family:Manrope,system-ui,sans-serif;font-size:16px;font-weight:700;color:#0B1F3A}
 
-.fc-hint{font-size:13px;color:#8598B4;margin:2px 0;line-height:1.8}
+.fc-hint{font-size:13px;color:#8798A9;margin:2px 0;line-height:1.8}
 .fc-warn{
   background:#FFFBEB;border:1px solid #FDE68A;border-radius:11px;
   padding:11px 13px;margin:13px 0 0;
@@ -52,8 +52,8 @@
 }
 .fc-warn a{display:inline-block;margin-top:3px;color:#B45309;font-weight:700;text-decoration:none}
 .fc-warn a:hover{text-decoration:underline}
-.fc-foot{font-size:11.5px;line-height:1.85;color:#8598B4;margin:14px 0 0}
-.fc-foot b{color:#65779A}
+.fc-foot{font-size:11.5px;line-height:1.85;color:#8798A9;margin:14px 0 0}
+.fc-foot b{color:#5A6B7D}
 
 @media (max-width:560px){
   .fc{padding:17px 16px;border-radius:14px}
@@ -71,46 +71,46 @@
 /* กล่องสิ่งปลูกสร้าง — แยกพื้นหลังให้เห็นว่าเป็นส่วนที่โผล่มาตามประเภททรัพย์ */
 .fc-sub{
   margin-top:16px;padding:15px 16px 4px;
-  background:#F8FAFD;border:1px solid #E4E9F2;border-radius:12px;
+  background:#F4F7FA;border:1px solid #E3EAF1;border-radius:12px;
 }
 .fc-sub-h{
-  font-size:12px;font-weight:700;color:#12315F;
+  font-size:12px;font-weight:700;color:#0B1F3A;
   letter-spacing:.04em;margin-bottom:11px;
 }
 .fc-sub .fc-grid{grid-template-columns:1fr 1fr 1fr}
 
 .fc-note{
-  font-size:11.5px;line-height:1.8;color:#7186A3;margin:10px 0 0;
+  font-size:11.5px;line-height:1.8;color:#5A6B7D;margin:10px 0 0;
 }
-.fc-note a{color:#1E6FE0;font-weight:600;text-decoration:none}
+.fc-note a{color:#1B4B7A;font-weight:600;text-decoration:none}
 .fc-note a:hover{text-decoration:underline}
 
 /* ช่องติ๊ก — ทั้ง 2 ข้อเปลี่ยนตัวเลขเยอะ จึงทำให้กดง่ายและอ่านออกว่าได้อะไร */
 .fc-check{
   display:flex;align-items:flex-start;gap:9px;
-  font-size:12.5px;line-height:1.7;color:#26364F;font-weight:600;
+  font-size:12.5px;line-height:1.7;color:#213A57;font-weight:600;
   margin-top:11px;cursor:pointer;
 }
-.fc-check input{margin:2px 0 0;flex:none;width:16px;height:16px;accent-color:#1E6FE0;cursor:pointer}
-.fc-check i{display:block;font-style:normal;font-weight:400;color:#7186A3;font-size:11.5px}
+.fc-check input{margin:2px 0 0;flex:none;width:16px;height:16px;accent-color:#1B4B7A;cursor:pointer}
+.fc-check i{display:block;font-style:normal;font-weight:400;color:#5A6B7D;font-size:11.5px}
 
 .fc-rate{
   display:flex;flex-direction:column;gap:5px;margin:11px 0 4px;
-  font-size:12px;font-weight:600;color:#65779A;max-width:260px;
+  font-size:12px;font-weight:600;color:#5A6B7D;max-width:260px;
 }
 .fc-rate select{
-  height:40px;border:1px solid #DCE3EF;border-radius:10px;padding:0 12px;
-  font-size:14.5px;font-family:inherit;color:#12315F;background:#fff;
+  height:40px;border:1px solid #E3EAF1;border-radius:10px;padding:0 12px;
+  font-size:14.5px;font-family:inherit;color:#0B1F3A;background:#fff;
 }
 
 /* แจกแจงที่มาของราคาประเมิน — ที่ดิน + สิ่งปลูกสร้าง */
 .fc-break{
   margin-top:12px;padding:11px 13px;border-radius:11px;
-  background:#F3F7FC;border:1px solid #E4E9F2;
+  background:#E7EEF5;border:1px solid #E3EAF1;
 }
-.fc-break b{display:block;font-size:13px;font-weight:700;color:#12315F}
-.fc-break span{display:block;font-size:11.5px;color:#7186A3;line-height:1.75;margin-top:3px}
-.fc-break i{font-style:normal;color:#8598B4}
+.fc-break b{display:block;font-size:13px;font-weight:700;color:#0B1F3A}
+.fc-break span{display:block;font-size:11.5px;color:#5A6B7D;line-height:1.75;margin-top:3px}
+.fc-break i{font-style:normal;color:#8798A9}
 
 @media (max-width:560px){
   .fc-sub{padding:13px 13px 4px}

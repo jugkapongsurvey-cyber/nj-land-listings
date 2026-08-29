@@ -20,7 +20,7 @@
 
 .vd-info { padding: 15px 16px 17px; display: flex; flex-direction: column; gap: 9px; flex: 1 }
 .vd-for { font-size: 12px; font-weight: 700; letter-spacing: .3px; color: var(--blue);
-  background: #eaf2fa; align-self: flex-start; padding: 4px 10px; border-radius: 999px }
+  background: #E7EEF5; align-self: flex-start; padding: 4px 10px; border-radius: 999px }
 .vd-info h2 { font-size: 17px; line-height: 1.38; color: var(--navy); margin: 0 }
 .vd-info p { font-size: 13.5px; line-height: 1.62; color: var(--sub); margin: 0; flex: 1 }
 
