@@ -22,13 +22,37 @@
   border-radius:50%;animation:spin 1s linear infinite;
 }
 
-/* ---------- ภาพหลัก ---------- */
+/* ---------- ภาพหลัก ----------
+   ⚠️ ต้องเป็น object-fit:contain ห้ามกลับไปใช้ cover
+   ภาพที่เจ้าของแปลงส่งมามีทั้งรูปถ่ายมือถือ (แนวตั้ง 3:4) และภาพกราฟิกแผนที่ที่ออกแบบมา
+   ซึ่งมีตัวหนังสือชิดขอบ · cover จะครอบตัดส่วนที่เกินกรอบ 16:9 ทิ้ง ทำให้ชื่อสถานที่
+   บนภาพแผนที่ขาดหายไปครึ่งคำ (เจอจริงกับ OP-018 เมื่อ 2026-08-30)
+   contain ย่อทั้งภาพให้อยู่ในกรอบครบ แลกกับมีแถบพื้นหลังด้านข้าง ซึ่งยอมรับได้กว่าข้อมูลหาย */
+/* สัดส่วนกรอบต่างกันตามขนาดจอ (mobile-first ตามกติกาข้อ 1)
+   มือถือใช้กรอบตั้ง 4:5 เพราะรูปจากมือถือเป็นแนวตั้งเกือบทั้งหมด
+   ถ้าใช้ 16:9 บนจอ 375px กรอบจะสูงแค่ ~211px รูปแนวตั้งเหลือกว้างแค่ ~158px เล็กจนดูไม่รู้เรื่อง
+   จอกว้างค่อยกลับไป 16:9 เพื่อไม่ให้ภาพดันราคาและเครื่องคำนวณค่าโอนตกไปใต้ขอบจอ */
 .ld-gal{
-  position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;
+  position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;
+  background:#0B1F3A;
+}
+@media(min-width:640px){ .ld-gal{aspect-ratio:16/9} }
+.ld-gal img{width:100%;height:100%;object-fit:contain;display:block}
+/* พื้นหลังเบลอ — รูปใบเดียวกันขยายเต็มกรอบแล้วเบลอ ใช้ถมแถบว่างข้างภาพแนวตั้ง
+   ให้ดูเป็นการออกแบบ ไม่ใช่กรอบดำที่ดูเหมือนโหลดรูปไม่ขึ้น
+   scale เกิน 1 เล็กน้อยเพื่อดันขอบที่เบลอจนโปร่งออกนอกกรอบ ไม่งั้นจะเห็นเส้นจางๆ รอบภาพ */
+.ld-gal-bd{
+  position:absolute;inset:0;z-index:0;
+  object-fit:cover !important;
+  filter:blur(26px) brightness(.62);transform:scale(1.15);
+}
+@media(prefers-reduced-motion:reduce){.ld-gal-bd{transition:none}}
+/* ช่องว่างตอนยังไม่มีรูป — เดิมอาศัยพื้นหลังของ .ld-gal ซึ่งตอนนี้เปลี่ยนเป็นสีทึบแล้ว
+   จึงต้องย้ายไล่สีมาไว้ตรงนี้เอง ไม่งั้นแปลงที่ไม่มีรูปจะได้กล่องน้ำเงินเปล่าๆ */
+.ld-noimg{
+  width:100%;height:100%;
   background:linear-gradient(160deg,#8798A9 0 44%,#9CC47F 45% 64%,#6E9556 65% 100%);
 }
-.ld-gal img{width:100%;height:100%;object-fit:cover;display:block}
-.ld-noimg{width:100%;height:100%}
 .ld-badges{position:absolute;left:14px;top:14px;display:flex;gap:6px;flex-wrap:wrap;z-index:3}
 .ld-badge{
   font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;color:#fff;

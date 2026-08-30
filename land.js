@@ -151,12 +151,16 @@
   // สไลด์โชว์ภาพแนบ — เลื่อนอัตโนมัติเมื่อมีมากกว่า 1 รูป กดปุ่มหยุด/เล่นหรือแตะจุด/ลูกศรได้เอง
   function galleryHtml(photos, altBase){
     if(!photos.length) return '<div class="ld-noimg"></div>';
+    // ภาพพื้นหลังเบลอ = รูปใบเดียวกันขยายเต็มกรอบ ใช้ถมแถบว่างข้างภาพแนวตั้ง
+    // (รูปจากมือถือเกือบทั้งหมดเป็นแนวตั้ง 3:4 แต่กรอบเป็น 16:9 — ดูเหตุผลที่ .ld-gal ใน land.css)
+    // aria-hidden เพราะเป็นภาพประดับล้วน ไม่มีข้อมูลเพิ่มจากรูปจริงที่อยู่ข้างหน้า
+    var bd='<img class="ld-gal-bd" src="'+esc(photos[0])+'" alt="" aria-hidden="true">';
     var slides=photos.map(function(src,i){
       return '<img class="ld-slide'+(i===0?' active':'')+'" data-i="'+i+'" src="'+esc(src)+'" alt="'+esc(altBase)+(photos.length>1?' (รูปที่ '+(i+1)+' จาก '+photos.length+')':'')+'">';
     }).join('');
-    if(photos.length<2) return slides;
+    if(photos.length<2) return bd+slides;
     var dots=photos.map(function(_,i){return '<button type="button" class="ld-dot'+(i===0?' active':'')+'" data-i="'+i+'" aria-label="ไปที่รูปที่ '+(i+1)+'"></button>';}).join('');
-    return slides+
+    return bd+slides+
       '<div class="ld-gal-ctrl">'+
         '<button type="button" class="ld-gal-prev" aria-label="รูปก่อนหน้า">‹</button>'+
         '<span class="ld-gal-counter">1/'+photos.length+'</span>'+
@@ -167,11 +171,12 @@
   }
 
   function initGallery(root, count){
-    if(count<2) return;
+    if(!root || count<2) return;
     var slides=[].slice.call(root.querySelectorAll('.ld-slide'));
     var dots=[].slice.call(root.querySelectorAll('.ld-dot'));
     var counter=root.querySelector('.ld-gal-counter');
     var pauseBtn=root.querySelector('.ld-gal-pause');
+    var backdrop=root.querySelector('.ld-gal-bd');
     var idx=0, timer=null, playing=false;
     var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     function show(i){
@@ -179,6 +184,8 @@
       slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
       dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
       if(counter) counter.textContent=(idx+1)+'/'+slides.length;
+      // ตั้งผ่าน .src ไม่ใช่ background-image ในสไตล์ — ค่าจาก API จึงไม่มีทางหลุดไปเป็นโค้ด CSS
+      if(backdrop && slides[idx]) backdrop.src=slides[idx].src;
     }
     function updateBtn(){ if(!pauseBtn) return; pauseBtn.textContent=playing?'⏸':'▶'; pauseBtn.setAttribute('aria-label',playing?'หยุดสไลด์':'เล่นสไลด์ต่อ'); }
     function stop(){ if(timer){ clearInterval(timer); timer=null; } playing=false; updateBtn(); }
