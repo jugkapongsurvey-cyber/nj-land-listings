@@ -146,7 +146,7 @@ function njTrack(name, params) {
 //    เหตุการณ์ที่ไม่มีชื่ออยู่ในนี้จะถูกทิ้งเงียบๆ ตั้งแต่ฝั่งเบราว์เซอร์ ไม่มี error ให้เห็น
 //    (messenger_click เคยตกหล่นตรงนี้มาก่อน ทั้งที่ server.js รับอยู่แล้ว — คลิก Messenger ทุกครั้งจึงหายไปเฉยๆ)
 var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_click', 'consign_view', 'consign_submit', 'consign_files',
-                          'share_view', 'video_75'];
+                          'share_view', 'video_75', 'propcheck_view'];
 function njTrackInternal(type) {
   if (NJ_INTERNAL_EVENTS.indexOf(type) < 0) return;
   try {
