@@ -23,7 +23,7 @@
 <div style="overflow-x:hidden">
 
   <section data-r="hero" style="position:relative;min-height:600px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;background:#0B1F3A">
-    <img src="photos/hero.jpg" alt="" fetchpriority="high" width="2000" height="1125" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.88">
+    <img src="photos/hero.jpg" alt="" class="hero-ken" fetchpriority="high" width="2000" height="1125" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.88">
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,15,10,0.68) 0%,rgba(12,15,10,0.3) 34%,rgba(12,15,10,0.52) 62%,rgba(12,15,10,0.86) 100%)"></div>
 
     <header style="position:relative;z-index:20;border-bottom:1px solid rgba(255,255,255,0.16)">
@@ -49,7 +49,6 @@
       </div>
     </header>
 
-    <div class="nj-vidcard" aria-hidden="false"><video src="video/njsurvey.mp4" poster="video/njsurvey-poster.jpg" muted loop playsinline preload="metadata"></video><div class="nj-vidcap"><b>ติดตามงานรังวัดออนไลน์ได้ทุกขั้น</b><i>ระบบ njsurvey — รู้สถานะงานและคิวสำนักงานที่ดิน</i></div></div>
       <div style="position:relative;z-index:10;max-width:1280px;margin:0 auto;width:100%;padding:48px 32px 40px">
       <div style="max-width:820px">
         <div style="display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(216,185,107,0.5);padding:9px 18px;font-size:13px;letter-spacing:0.06em;color:#D8B96B;margin-bottom:26px">ข้อมูลแนวเขตผ่านการตรวจสอบ</div>
@@ -154,6 +153,35 @@
     <a href="consign.html"><span class="quick-icon">04</span><b>ฝากขายที่ดิน</b><small>ประเมินเบื้องต้นฟรี</small></a>
     <a href="verify.html"><span class="quick-icon">05</span><b>ตรวจทรัพย์ก่อนซื้อ</b><small>บังคับคดี · ธนาคาร · BAM/SAM</small></a>
   </nav>
+
+  <!-- โรงฉายระบบ njsurvey — แถบเต็มจอสีเข้มคั่นระหว่างแถบค้นหากับรายการแปลง
+       ย้ายมาจากการ์ดวิดีโอมุมขวาบนของ hero (2026-08-30) การ์ดเดิมทับเมนูจนอ่านไม่ออก
+       และเล็กเกินกว่าจะดูรู้เรื่อง · ที่นี่เป็นจุดเดียวบนหน้าที่พื้นเข้ม สายตาจึงหยุดเอง
+       ปุ่มควบคุม/การเล่นอยู่ใน surveyquote.js (เล่นเมื่อเลื่อนถึง หยุดเมื่อเลื่อนพ้น) -->
+  <section class="nj-stage" id="ระบบ" aria-labelledby="nj-stage-h">
+    <div class="nj-stage-bg" aria-hidden="true"></div>
+    <div class="nj-stage-in">
+      <div class="nj-stage-eyebrow">ระบบติดตามงาน njsurvey</div>
+      <h2 id="nj-stage-h">ติดตามงานรังวัดออนไลน์ได้ทุกขั้น</h2>
+      <p class="nj-stage-lede">ตั้งแต่วันยื่นเรื่องถึงวันโอน เปิดดูสถานะงานและคิวสำนักงานที่ดินของแปลงตัวเองได้ตลอด ไม่ต้องโทรถาม</p>
+
+      <div class="nj-screen">
+        <div class="nj-screen-frame">
+          <video src="video/njsurvey.mp4" poster="video/njsurvey-poster.jpg" muted loop playsinline preload="none"
+                 aria-label="ภาพเคลื่อนไหวประกอบระบบติดตามงานรังวัด njsurvey"></video>
+          <div class="nj-screen-sheen" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="nj-stage-points">
+        <div><b>ยื่นเรื่อง</b><i>รู้เลขคำขอและคิวสำนักงานที่ดิน</i></div>
+        <div><b>วันรังวัด</b><i>รู้วันนัดและทีมช่างที่ลงพื้นที่</i></div>
+        <div><b>ส่งมอบ</b><i>รับผลงานและเอกสารครบก่อนวันโอน</i></div>
+      </div>
+
+      <a class="nj-stage-cta" href="videos.html">ดูวิดีโอทั้งหมด →</a>
+    </div>
+  </section>
 
   <section id="listings" style="max-width:1280px;margin:0 auto;padding:52px 32px 0">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:36px;flex-wrap:wrap;margin-bottom:32px">

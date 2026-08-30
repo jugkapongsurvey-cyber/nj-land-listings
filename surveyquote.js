@@ -328,22 +328,62 @@
 })();
 
 /* ---------------------------------------------------------------------------
-   วิดีโอระบบ njsurvey บน hero
-   กติกาข้อ 7 ของโปรเจกต์บังคับให้เคารพ prefers-reduced-motion — วิดีโอเล่นวนอัตโนมัติ
-   เป็นภาพเคลื่อนไหวที่ผู้ใช้กลุ่มนี้ตั้งใจปิด จึงต้องไม่เล่นเอง แต่ยังต้องดูได้ถ้าอยากดู
-   จึงใส่ปุ่มควบคุมให้แทน ไม่ใช่ซ่อนวิดีโอทิ้ง
+   โรงฉายระบบ njsurvey (.nj-stage) บนหน้าแรก
+   เดิมเป็นการ์ดเล็กมุมขวาบนของ hero ที่เล่นทันทีตอนเปิดหน้า — ย้ายลงมาเป็นแถบเต็มจอ
+   จึงต้องเปลี่ยนจังหวะเล่นด้วย: เล่นเมื่อเลื่อนมาถึงจริงๆ และหยุดเมื่อเลื่อนพ้น
+   ไม่งั้นคลิปวน 8 วินาทีจะกินซีพียู/แบตตลอดเวลาที่คนอ่านส่วนอื่นของหน้า
+
+   กติกาข้อ 7 ของโปรเจกต์บังคับให้เคารพ prefers-reduced-motion — คนกลุ่มนี้ตั้งใจปิด
+   ภาพเคลื่อนไหว จึงต้องไม่เล่นเอง แต่ยังต้องดูได้ถ้าอยากดู จึงใส่ปุ่มควบคุมให้แทน
+   ไม่ใช่ซ่อนวิดีโอทิ้ง (CSS ก็ปิดอนิเมชันการเผยตัวและ ken-burns ของ hero ให้แล้ว)
 --------------------------------------------------------------------------- */
 (function () {
   'use strict';
   function boot() {
-    var v = document.querySelector('.nj-vidcard video');
+    var stage = document.querySelector('.nj-stage');
+    if (!stage) return;
+    var v = stage.querySelector('video');
     if (!v) return;
-    var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mq.matches) { v.controls = true; return; }
-    v.play().catch(function () {
-      // บางเบราว์เซอร์ยังบล็อก autoplay แม้ปิดเสียง — ให้ปุ่มควบคุมแทน จอจะได้ไม่ค้างเป็นภาพนิ่งเฉยๆ
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       v.controls = true;
-    });
+      v.preload = 'metadata';
+      stage.classList.add('is-in');
+      return;
+    }
+
+    // IntersectionObserver ไม่มี (เบราว์เซอร์เก่ามาก) ก็ให้เล่นไปเลย ดีกว่าค้างเป็นภาพนิ่ง
+    if (!('IntersectionObserver' in window)) {
+      stage.classList.add('is-in');
+      play();
+      return;
+    }
+
+    function play() {
+      v.play().catch(function () {
+        // บางเบราว์เซอร์ยังบล็อก autoplay แม้ปิดเสียง — ให้ปุ่มควบคุมแทน จอจะได้ไม่ค้างเป็นภาพนิ่งเฉยๆ
+        v.controls = true;
+      });
+    }
+
+    // เฝ้าที่ "ตัวจอ" ไม่ใช่ทั้งแถบ — แถบทั้งอันสูงเกิน 1,900px บนมือถือ
+    // ถ้าตั้ง threshold เป็นสัดส่วนของทั้งแถบ จอมือถือจะมองไม่เห็นถึงสัดส่วนนั้นเลยสักครั้ง
+    // ผลคือคลาส is-in ไม่ถูกใส่ → ทั้งจอและข้อความใต้จอค้างที่ opacity:0 คือหายไปทั้งดุ้น
+    // ใส่ js-reveal ก่อน แล้ว CSS ถึงจะซ่อนของไว้รอเผยตัว — ดูเหตุผลใน home.css
+    stage.classList.add('js-reveal');
+    var screen = stage.querySelector('.nj-screen');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          stage.classList.add('is-in');   // เผยตัวครั้งเดียว ไม่ถอดออกตอนเลื่อนพ้น
+          play();
+        } else if (!v.paused) {
+          v.pause();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    io.observe(screen || stage);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

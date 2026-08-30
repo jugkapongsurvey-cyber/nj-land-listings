@@ -125,6 +125,29 @@
     '</section>';
   }
 
+  // สถานที่ใกล้เคียง — ข้อมูลจาก Google Places ที่ทีมงานดึงไว้ตอนตรวจแปลง
+  // ⚠️ นี่คือข้อมูลของบุคคลที่สาม ไม่ใช่สิ่งที่ทีมช่างรังวัดไปยืนยันเองในสนาม
+  //    จึงต้องแยกหน้าตาออกจากแผงผลตรวจ 7 หัวข้อให้ชัด และต้องบอกที่มา + วันที่ดึงเสมอ
+  //    (ร้าน/โรงเรียน/โรงพยาบาลปิดหรือย้ายได้ ข้อมูลวันนี้ไม่ใช่คำรับประกันว่าพรุ่งนี้ยังอยู่)
+  function nearbyHtml(L){
+    var n=L.nearby;
+    if(!n || !n.groups || !n.groups.length) return '';
+    var groups=n.groups.map(function(g){
+      var items=(g.items||[]).map(function(it){
+        return '<li><span>'+esc(it.name)+'</span><b>'+Number(it.km||0).toFixed(1)+' กม.</b></li>';
+      }).join('');
+      if(!items) return '';
+      return '<div class="ld-nb-g"><h3>'+esc(g.icon||'')+' '+esc(g.label)+'</h3><ul>'+items+'</ul></div>';
+    }).join('');
+    if(!groups) return '';
+    return '<section class="ld-nb">'+
+      '<div class="ld-nb-h">สถานที่ใกล้เคียง<small>ในรัศมีประมาณ 5 กม. จากตำแหน่งแปลง</small></div>'+
+      groups+
+      '<p class="ld-nb-foot">ข้อมูลสถานที่จาก Google Places · สำรวจเมื่อ '+esc(thaiDate(n.at))+' · '+
+        'ระยะทางเป็นเส้นตรงจากตำแหน่งแปลง ไม่ใช่ระยะทางขับรถ — สถานที่อาจเปลี่ยนแปลงได้ ควรตรวจสอบอีกครั้งก่อนตัดสินใจ</p>'+
+    '</section>';
+  }
+
   function tier1Html(L){
     var known=[];
     if(L.deedArea) known.push(['เนื้อที่ตามหน้าโฉนด','อ่านจากเอกสารสิทธิ์ที่เจ้าของแสดง',L.deedArea]);
@@ -223,6 +246,7 @@
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+
         mapHtml(L)+
+        nearbyHtml(L)+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
         (tier===2?tier2Html(L):tier1Html(L))+
         '<div class="ld-cta">'+

@@ -128,6 +128,32 @@
 }
 .ld-map-open:hover{text-decoration:underline}
 
+/* ---------- สถานที่ใกล้เคียง (ข้อมูล Google Places) ----------
+   ต้องดูต่างจากแผงผลตรวจ 7 หัวข้อให้ชัด เพราะเป็นข้อมูลของบุคคลที่สาม
+   ไม่ใช่สิ่งที่ทีมช่างรังวัดไปยืนยันเองในสนาม — ใช้พื้นเทาเรียบ ไม่ใช้เขียว/เหลืองแบบแผงผลตรวจ */
+.ld-nb{
+  background:var(--mist);border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;margin:0 0 22px;
+}
+.ld-nb-h{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px}
+.ld-nb-h small{display:block;font-size:11.5px;font-weight:400;color:#8798A9;margin-top:3px}
+.ld-nb-g{margin-bottom:13px}
+.ld-nb-g h3{
+  font-size:12px;font-weight:700;color:var(--sub);margin:0 0 7px;
+  padding-bottom:5px;border-bottom:1px solid rgba(0,0,0,.06);
+}
+.ld-nb-g ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+@media(min-width:560px){.ld-nb-g ul{grid-template-columns:1fr 1fr;gap:5px 18px}}
+.ld-nb-g li{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13px}
+.ld-nb-g li span{color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.ld-nb-g li b{
+  flex:none;font-family:Manrope,sans-serif;font-size:12.5px;font-weight:700;color:var(--green);
+}
+.ld-nb-foot{
+  font-size:11.5px;line-height:1.8;color:#8798A9;margin:12px 0 0;
+  padding-top:11px;border-top:1px solid rgba(0,0,0,.07);
+}
+
 /* ---------- แผงผลตรวจ ---------- */
 .ld-tier{border-radius:14px;padding:18px 20px;margin-bottom:22px;border:1px solid}
 .ld-tier.t1{background:#FDF8EC;border-color:#D8B96B}
@@ -222,7 +248,7 @@
   .ld-main{padding:0}
   .ld-gal{aspect-ratio:auto;height:75mm;border-radius:0}
   .ld-body{max-width:100%;padding-top:14px}
-  .ld-tier,.ld-upsell{break-inside:avoid}
+  .ld-tier,.ld-upsell,.ld-nb,.ld-nb-g{break-inside:avoid}
   .ld-cta{grid-template-columns:1fr 1fr 1fr}
   .ld-btn{padding:8px 10px;font-size:12px}
 }

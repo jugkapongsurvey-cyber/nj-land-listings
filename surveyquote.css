@@ -110,23 +110,6 @@
 }
 .sq-open:hover{background:#0B1F3A;border-color:#0B1F3A;color:#D8B96B}
 
-/* ---------------------------------------------------------------------------
-   การ์ดวิดีโอระบบ njsurvey — ลอยมุมขวาบนของ hero
-   เป็นภาพประกอบล้วน จึงปิดเสียงและเล่นวน · preload="none" กันไม่ให้แย่งแบนด์วิดท์
-   กับรูป hero ตอนเปิดหน้าครั้งแรก · จอแคบซ่อนทิ้ง เพราะทับหัวข้อจนอ่านไม่ออก
---------------------------------------------------------------------------- */
-.nj-vidcard{
-  position:absolute;top:104px;right:32px;z-index:12;width:290px;
-  background:rgba(11,31,58,.72);border:1px solid rgba(216,185,107,.34);
-  backdrop-filter:blur(6px);box-shadow:0 24px 54px rgba(0,0,0,.34);
-}
-.nj-vidcard video{display:block;width:100%;height:163px;object-fit:cover}
-.nj-vidcap{padding:11px 14px 13px}
-.nj-vidcap b{display:block;font-size:13.5px;font-weight:500;color:#D8B96B;line-height:1.5}
-.nj-vidcap i{display:block;font-style:normal;font-size:12px;font-weight:300;color:#BFCAD6;line-height:1.6;margin-top:3px}
-
-@media (max-width:1180px){ .nj-vidcard{width:240px;top:96px;right:24px} .nj-vidcard video{height:135px} }
-@media (max-width:900px){ .nj-vidcard{display:none} }
 .sq-inc i{display:block;font-style:normal;margin-top:5px;color:#5A6B7D}
 
 /* ช่องเนื้อที่ ไร่-งาน-ตร.ว. เรียง 3 ช่องเหมือนหน้าใบเสนอราคาในระบบ njsurvey */
