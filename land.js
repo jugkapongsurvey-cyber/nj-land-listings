@@ -93,17 +93,35 @@
     '</section>';
   }
 
-  // แผนที่โดยประมาณ — ใช้ได้เฉพาะ locality (ข้อความบรรยายทำเลคร่าวๆ) เท่านั้น
-  // ⚠️ ห้ามใช้พิกัด lat/lng ปักหมุดจุดแม่นยำเด็ดขาด — server.js ตัด lat/lng ออกจาก
-  // /api/public/listings อยู่แล้วด้วยเหตุผลความปลอดภัย (กันคนบุกรุกดูที่โดยไม่ผ่านทีมขาย)
-  // ค้นด้วยข้อความทำเลจึงได้แผนที่ระดับพื้นที่โดยธรรมชาติ ไม่ใช่หมุดจุดเดียวที่แม่นยำ
+  // แผนที่แปลง — มี 2 โหมด ขึ้นกับว่าทีมงานปักหมุดให้แปลงนี้ไว้หรือยัง
+  //   pinLat/pinLng มีค่า = ทีมงานเลือกจุดนี้เองในระบบว่าให้ลูกค้าเห็นได้ → ปักหมุดตำแหน่งจริง
+  //   ไม่มี              = ถอยไปค้นด้วยข้อความทำเล ได้แผนที่ระดับพื้นที่ ไม่ใช่จุดแม่นยำ
+  // ⚠️ API สาธารณะไม่เคยส่ง lat/lng (พิกัดภายในจากงานรังวัด) ออกมาเลย — ดู publicLand ใน server.js
+  // ห้ามเปลี่ยนมาอ่าน L.lat/L.lng ตรงนี้ เพราะจะกลายเป็นเผยพิกัดของแปลงที่ไม่มีใครเคยกดอนุญาต
+  function pinOf(L){
+    var la=Number(L.pinLat), ln=Number(L.pinLng);
+    if(!isFinite(la)||!isFinite(ln)||L.pinLat==null||L.pinLng==null) return null;
+    return [la,ln];
+  }
   function mapHtml(L){
-    if(!L.locality) return '';
-    var q=encodeURIComponent(L.locality+' ประเทศไทย');
+    var pin=pinOf(L);
+    if(!pin && !L.locality) return '';
+    var src,head,note;
+    if(pin){
+      src='https://www.google.com/maps?q='+pin[0]+','+pin[1]+'&z=17&output=embed';
+      head='📍 ตำแหน่งแปลงบนแผนที่';
+      note='หมุดนี้คือตำแหน่งแปลงที่ทีมงานระบุไว้ · แนวเขตที่แน่นอนต้องยืนยันด้วยการรังวัดในสนาม — '+
+           'ทักไลน์เพื่อนัดดูที่จริงกับทีมงานได้';
+    }else{
+      src='https://www.google.com/maps?q='+encodeURIComponent(L.locality+' ประเทศไทย')+'&z=14&output=embed';
+      head='📍 ทำเลโดยประมาณ';
+      note='ตำแหน่งบนแผนที่เป็นค่าประมาณระดับพื้นที่เท่านั้น ไม่ใช่พิกัดจุดแปลงที่แน่นอน — ทักไลน์เพื่อขอนัดดูที่จริงกับทีมงาน';
+    }
     return '<section class="ld-map">'+
-      '<div class="ld-map-h">📍 ทำเลโดยประมาณ</div>'+
-      '<div class="ld-map-frame"><iframe src="https://www.google.com/maps?q='+q+'&z=14&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่ทำเลโดยประมาณของแปลงที่ดิน"></iframe></div>'+
-      '<p class="ld-map-note">ตำแหน่งบนแผนที่เป็นค่าประมาณระดับพื้นที่เท่านั้น ไม่ใช่พิกัดจุดแปลงที่แน่นอน — ทักไลน์เพื่อขอนัดดูที่จริงกับทีมงาน</p>'+
+      '<div class="ld-map-h">'+head+'</div>'+
+      '<div class="ld-map-frame"><iframe src="'+esc(src)+'" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่ตำแหน่งแปลงที่ดิน"></iframe></div>'+
+      (pin?('<a class="ld-map-open" href="https://www.google.com/maps/search/?api=1&query='+pin[0]+','+pin[1]+'" target="_blank" rel="noopener">เปิดใน Google Maps / ขอเส้นทาง →</a>'):'')+
+      '<p class="ld-map-note">'+note+'</p>'+
     '</section>';
   }
 

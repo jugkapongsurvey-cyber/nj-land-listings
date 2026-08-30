@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500&family=Trirong:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="home.css">
   <link rel="stylesheet" href="surveyquote.css">
+  <link rel="stylesheet" href="feecalc.css">
 </head>
 <body id="top">
 <div style="overflow-x:hidden">
@@ -96,6 +97,7 @@
         <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">03</div>
         <div style="font-family:Trirong,serif;font-weight:500;font-size:18px;margin-bottom:7px">ตรวจสอบกรรมสิทธิ์</div>
         <div style="font-size:14px;font-weight:300;line-height:1.65;color:#5A6B7D">โฉนด ภาระผูกพัน ทางเข้า–ออก ผังเมือง</div>
+        <button type="button" data-fc-open class="sq-open">คำนวณค่าโอนออนไลน์ →</button>
       </div>
       <div style="padding:30px 28px">
         <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">04</div>
@@ -107,6 +109,12 @@
 
   <section style="max-width:1280px;margin:0 auto;padding:26px 32px 0">
     <div id="survey-quote"></div>
+  </section>
+
+  <!-- เครื่องคำนวณค่าใช้จ่ายวันโอน — ตัวเดียวกับที่ใช้ในหน้าแปลงและหน้าคู่มือ (feecalc.js)
+       เปิดจากปุ่มในแถบบริการด้านบน · ไม่เติมราคาให้ล่วงหน้าเพราะหน้าแรกไม่ได้ผูกกับแปลงใดแปลงหนึ่ง -->
+  <section style="max-width:1280px;margin:0 auto;padding:0 32px">
+    <div id="fee-calc"></div>
   </section>
 
   
@@ -474,6 +482,7 @@
 <script src="analytics.js"></script>
 <script src="marketplace.js"></script>
 <script src="surveyquote.js"></script>
+<script src="feecalc.js"></script>
 
 
 </body>

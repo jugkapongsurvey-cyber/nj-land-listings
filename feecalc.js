@@ -350,6 +350,37 @@
   // รายชื่อจังหวัดในบัญชี — ว่างถ้ายังโหลดไม่เสร็จหรือโหลดไม่ได้
   function provinces() { return (BP && BP.provinces) || []; }
 
+  // ---------------------------------------------------------------------------
+  // การต่อเข้าหน้าเว็บแบบ "ปุ่มเปิด + กล่องกางออก" — ใช้กับหน้าแรก (index.html)
+  // หน้าที่เรียก mount() เองอยู่แล้ว (land.html · guides.html) ไม่มี #fee-calc จึงข้ามทั้งก้อน
+  // ทำตามแบบเดียวกับ surveyquote.js เพื่อให้ปุ่มทั้งสองใบในแถบบริการหน้าแรกทำงานเหมือนกัน
+  function bootPage(){
+    var root = document.getElementById('fee-calc');
+    if (!root) return;
+    var mounted = false;
+    root.hidden = true;
+    function open(){
+      // mount ครั้งเดียวตลอดอายุหน้า — mount ซ้ำทุกครั้งที่กดปุ่ม ตัวเลขที่ผู้ใช้กรอกค้างไว้จะหายหมด
+      if (!mounted) { mount(root, {}); mounted = true; }
+      root.hidden = false;
+      root.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      var f = root.querySelector('[data-fc="salePrice"]');
+      if (f) f.focus({ preventScroll:true });
+    }
+    document.querySelectorAll('[data-fc-open]').forEach(function (t){
+      t.addEventListener('click', function (e){
+        e.preventDefault();
+        if (root.hidden) open(); else root.hidden = true;
+      });
+    });
+  }
+  // ⚠️ ต้องเช็ค document ก่อนเสมอ — feecalc.test.js รันไฟล์นี้ด้วย node ซึ่งไม่มี DOM
+  // ของเดิมไม่เคยแตะ document ตอนโหลด (mount ถูกเรียกจากหน้าเว็บทีหลัง) เทสต์จึงผ่านมาตลอด
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootPage);
+    else bootPage();
+  }
+
   window.NJFeeCalc = { calc:calc, estimateBuilding:estimateBuilding, TYPES:TYPES,
                        mount:mount, setBuildingPrices:setBuildingPrices,
                        loadBuildingPrices:loadBuildingPrices, provinces:provinces };
