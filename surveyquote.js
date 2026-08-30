@@ -33,6 +33,21 @@
     { v: 'รวมโฉนด',     label: 'รวมโฉนด',             hint: 'รวมหลายแปลงเป็นโฉนดเดียว' }
   ];
 
+  // ---------------------------------------------------------------------------
+  // แปลงเนื้อที่ ไร่-งาน-ตร.ว. เป็นไร่ทศนิยม — คัดลอกสูตรจาก njsurvey ให้ตรงกันเป๊ะ
+  //   waFromArea(rai,ngan,wa) = rai*400 + ngan*100 + wa   (public/app.js:19)
+  //   quoteRai = totalWa / 400                            (public/app.js:10436)
+  //   raiTxt   = toFixed(4) แล้วตัดศูนย์ท้าย               (public/app.js:10437)
+  // ตัวเลขไร่ที่ได้คือตัวที่เอาไปเทียบช่วงราคาในตาราง ถ้าคำนวณคนละแบบกับหลังบ้าน
+  // ลูกค้าจะเห็นราคาคนละช่วงกับที่ทีมขายออกใบเสนอราคาให้ — ต้องตรงกันเท่านั้น
+  var WA_PER_RAI = 400, WA_PER_NGAN = 100;
+  function waFromArea(rai, ngan, wa) {
+    return (Number(rai) || 0) * WA_PER_RAI + (Number(ngan) || 0) * WA_PER_NGAN + (Number(wa) || 0);
+  }
+  function raiTxt(n) {
+    return Number(n || 0).toFixed(4).replace(/\.?0+$/, '') || '0';
+  }
+
   var P = null;            // NJPricing เมื่อโหลดสำเร็จ
   var root, out, form;
 
@@ -58,21 +73,24 @@
   // ---------------------------------------------------------------------------
   function compute(v) {
     if (!P) return null;
-    var rai = Number(v.rai) || 0;
-    var deeds = Math.max(1, Math.floor(Number(v.deeds) || 1));
+    var totalWa = waFromArea(v.rai, v.ngan, v.wa);
+    var rai = totalWa / WA_PER_RAI;
+    var deeds = Math.max(0, Math.floor(Number(v.deeds) || 0));
+    // ค่าแปลงแบ่งเพิ่มมีเฉพาะงานแบ่งแยก (pricing.js คิดให้เฉพาะ jobType นี้อยู่แล้ว)
+    var splitPlots = v.jobType === 'รวม-แบ่งแยก' ? Math.max(0, Math.floor(Number(v.split) || 0)) : 0;
     if (!(rai > 0)) return null;
 
     var fees = [];
     ADDONS.forEach(function (a) { if (v[a.key]) fees.push({ label: a.label, amount: a.price }); });
 
+    var args = { jobType: v.jobType, rai: rai, deeds: deeds, splitPlots: splitPlots, vatRate: 0, fees: fees };
     // คิดราคาก่อนส่วนลดคอมโบ เพื่อเอายอดมาคำนวณ 5%
-    var pre = P.computeQuote({ jobType: v.jobType, rai: rai, deeds: deeds, vatRate: 0, fees: fees });
+    var pre = P.computeQuote(args);
     var combo = v.combo ? -Math.round(pre.subtotal * COMBO_RATE) : 0;
-    var r = P.computeQuote({
-      jobType: v.jobType, rai: rai, deeds: deeds, vatRate: 0, fees: fees, adjust: combo
-    });
+    var r = P.computeQuote(Object.assign({}, args, { adjust: combo }));
     r.combo = combo;
     r.addons = fees;
+    r.totalWa = totalWa;
     return r;
   }
 
@@ -105,12 +123,22 @@
   // ---------------------------------------------------------------------------
   function render() {
     var v = vals();
-    out.innerHTML = resultHtml(compute(v));
-    var cur = root.querySelector('[data-sq-current]');
-    if (cur) {
-      var r = compute(v);
-      cur.textContent = r ? baht(r.subtotal) + ' บาท' : '—';
+    var r = compute(v);
+    out.innerHTML = resultHtml(r);
+
+    // ยอดรวมเนื้อที่ แสดงแบบเดียวกับหน้าใบเสนอราคาในระบบ
+    var sum = root.querySelector('[data-sq-sum]');
+    if (sum) {
+      var wa = waFromArea(v.rai, v.ngan, v.wa);
+      sum.innerHTML = wa > 0
+        ? 'รวมเนื้อที่ทั้งหมด <b>' + raiTxt(wa / WA_PER_RAI) + ' ไร่</b> ' +
+          '<i>(' + baht(wa) + ' ตร.ว. · ใช้เทียบช่วงราคาในตาราง)</i>'
+        : '';
     }
+
+    // ค่าแปลงแบ่งเพิ่มมีเฉพาะงานแบ่งแยก จึงโชว์ช่องเฉพาะตอนนั้น
+    var sw = root.querySelector('[data-sq-splitwrap]');
+    if (sw) sw.hidden = v.jobType !== 'รวม-แบ่งแยก';
   }
 
   function markup() {
@@ -134,11 +162,18 @@
         '<div class="sq-left">' +
           '<div class="sq-lbl">ต้องการงานแบบไหน</div>' +
           '<div class="sq-jobs">' + jobs + '</div>' +
+          '<div class="sq-lbl">เนื้อที่</div>' +
+          '<div class="sq-area">' +
+            '<label class="sq-field">ไร่<input type="text" inputmode="numeric" data-sq="rai" placeholder="0"></label>' +
+            '<label class="sq-field">งาน<input type="text" inputmode="numeric" data-sq="ngan" placeholder="0"></label>' +
+            '<label class="sq-field">ตร.ว.<input type="text" inputmode="decimal" data-sq="wa" placeholder="0"></label>' +
+          '</div>' +
+          '<div class="sq-sum" data-sq-sum></div>' +
           '<div class="sq-grid">' +
-            '<label class="sq-field">เนื้อที่ (ไร่)' +
-              '<input type="text" inputmode="decimal" data-sq="rai" placeholder="เช่น 5"></label>' +
             '<label class="sq-field">จำนวนโฉนด' +
-              '<input type="number" min="1" max="50" step="1" data-sq="deeds" value="1"></label>' +
+              '<input type="number" min="0" max="50" step="1" data-sq="deeds" value="1"></label>' +
+            '<label class="sq-field" data-sq-splitwrap hidden>จำนวนแปลงแบ่งเพิ่ม' +
+              '<input type="number" min="0" max="50" step="1" data-sq="split" value="0"></label>' +
           '</div>' +
           '<div class="sq-lbl">เพิ่มเติม (เลือกหรือไม่เลือกก็ได้)</div>' +
           addons +
@@ -186,8 +221,15 @@
     // สรุปสิ่งที่ลูกค้าเลือก ส่งไปเป็นบันทึกให้ทีมขายเห็นครบโดยไม่ต้องถามซ้ำ
     var lines = ['ลีดจากเครื่องเช็กราคารังวัดออนไลน์'];
     lines.push('ประเภทงาน: ' + (v.jobType || 'สอบเขต'));
-    if (v.rai) lines.push('เนื้อที่ที่ลูกค้าแจ้ง: ' + v.rai + ' ไร่');
-    lines.push('จำนวนโฉนด: ' + (v.deeds || 1));
+    var waSum = waFromArea(v.rai, v.ngan, v.wa);
+    if (waSum > 0) {
+      lines.push('เนื้อที่ที่ลูกค้าแจ้ง: ' + (Number(v.rai) || 0) + '-' + (Number(v.ngan) || 0) + '-' +
+                 (Number(v.wa) || 0) + ' ไร่ (' + raiTxt(waSum / WA_PER_RAI) + ' ไร่ · ' + baht(waSum) + ' ตร.ว.)');
+    }
+    lines.push('จำนวนโฉนด: ' + (Number(v.deeds) || 0));
+    if (v.jobType === 'รวม-แบ่งแยก' && Number(v.split) > 0) {
+      lines.push('จำนวนแปลงแบ่งเพิ่ม: ' + Number(v.split) + ' แปลง');
+    }
     ADDONS.forEach(function (a) { if (v[a.key]) lines.push('เลือกเพิ่ม: ' + a.label + ' (+' + baht(a.price) + ')'); });
     if (v.combo) lines.push('เลือก: รังวัด + ฝากขาย (ลด 5%)');
     if (r) lines.push('ราคาประมาณการที่เว็บแสดง: ' + baht(r.subtotal) + ' บาท (ยังไม่รวม VAT · ไม่ใช่ใบเสนอราคา)');
@@ -207,7 +249,7 @@
         // survey_first = ลีดที่เริ่มจากงานรังวัด (ค่าที่ระบบหลังบ้านรับอยู่แล้ว)
         type: 'survey_first',
         parcelInfo: String(v.place || '').trim(),
-        rai: Number(v.rai) || 0,
+        rai: waFromArea(v.rai, v.ngan, v.wa) / WA_PER_RAI,
         note: lines.join('\n'),
         ref: 'survey-quote',
         website: String(v.website || '')

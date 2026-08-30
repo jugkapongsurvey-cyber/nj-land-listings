@@ -128,3 +128,15 @@
 @media (max-width:1180px){ .nj-vidcard{width:240px;top:96px;right:24px} .nj-vidcard video{height:135px} }
 @media (max-width:900px){ .nj-vidcard{display:none} }
 .sq-inc i{display:block;font-style:normal;margin-top:5px;color:#5A6B7D}
+
+/* ช่องเนื้อที่ ไร่-งาน-ตร.ว. เรียง 3 ช่องเหมือนหน้าใบเสนอราคาในระบบ njsurvey */
+.sq-area{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.sq-sum{
+  margin:0 0 18px;padding:10px 13px;background:#E7EEF5;
+  font-size:13.5px;font-weight:300;color:#31465E;
+}
+.sq-sum:empty{display:none}
+.sq-sum b{font-weight:500;color:#0B1F3A}
+.sq-sum i{font-style:normal;color:#5A6B7D;font-size:12.5px}
+.sq-field[hidden]{display:none !important}
+@media (max-width:640px){ .sq-area{grid-template-columns:1fr 1fr 1fr;gap:8px} }
