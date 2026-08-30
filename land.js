@@ -93,6 +93,20 @@
     '</section>';
   }
 
+  // แผนที่โดยประมาณ — ใช้ได้เฉพาะ locality (ข้อความบรรยายทำเลคร่าวๆ) เท่านั้น
+  // ⚠️ ห้ามใช้พิกัด lat/lng ปักหมุดจุดแม่นยำเด็ดขาด — server.js ตัด lat/lng ออกจาก
+  // /api/public/listings อยู่แล้วด้วยเหตุผลความปลอดภัย (กันคนบุกรุกดูที่โดยไม่ผ่านทีมขาย)
+  // ค้นด้วยข้อความทำเลจึงได้แผนที่ระดับพื้นที่โดยธรรมชาติ ไม่ใช่หมุดจุดเดียวที่แม่นยำ
+  function mapHtml(L){
+    if(!L.locality) return '';
+    var q=encodeURIComponent(L.locality+' ประเทศไทย');
+    return '<section class="ld-map">'+
+      '<div class="ld-map-h">📍 ทำเลโดยประมาณ</div>'+
+      '<div class="ld-map-frame"><iframe src="https://www.google.com/maps?q='+q+'&z=14&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่ทำเลโดยประมาณของแปลงที่ดิน"></iframe></div>'+
+      '<p class="ld-map-note">ตำแหน่งบนแผนที่เป็นค่าประมาณระดับพื้นที่เท่านั้น ไม่ใช่พิกัดจุดแปลงที่แน่นอน — ทักไลน์เพื่อขอนัดดูที่จริงกับทีมงาน</p>'+
+    '</section>';
+  }
+
   function tier1Html(L){
     var known=[];
     if(L.deedArea) known.push(['เนื้อที่ตามหน้าโฉนด','อ่านจากเอกสารสิทธิ์ที่เจ้าของแสดง',L.deedArea]);
@@ -116,13 +130,55 @@
     '</section>';
   }
 
+  // สไลด์โชว์ภาพแนบ — เลื่อนอัตโนมัติเมื่อมีมากกว่า 1 รูป กดปุ่มหยุด/เล่นหรือแตะจุด/ลูกศรได้เอง
+  function galleryHtml(photos, altBase){
+    if(!photos.length) return '<div class="ld-noimg"></div>';
+    var slides=photos.map(function(src,i){
+      return '<img class="ld-slide'+(i===0?' active':'')+'" data-i="'+i+'" src="'+esc(src)+'" alt="'+esc(altBase)+(photos.length>1?' (รูปที่ '+(i+1)+' จาก '+photos.length+')':'')+'">';
+    }).join('');
+    if(photos.length<2) return slides;
+    var dots=photos.map(function(_,i){return '<button type="button" class="ld-dot'+(i===0?' active':'')+'" data-i="'+i+'" aria-label="ไปที่รูปที่ '+(i+1)+'"></button>';}).join('');
+    return slides+
+      '<div class="ld-gal-ctrl">'+
+        '<button type="button" class="ld-gal-prev" aria-label="รูปก่อนหน้า">‹</button>'+
+        '<span class="ld-gal-counter">1/'+photos.length+'</span>'+
+        '<button type="button" class="ld-gal-pause" aria-label="หยุดสไลด์">⏸</button>'+
+        '<button type="button" class="ld-gal-next" aria-label="รูปถัดไป">›</button>'+
+      '</div>'+
+      '<div class="ld-dots">'+dots+'</div>';
+  }
+
+  function initGallery(root, count){
+    if(count<2) return;
+    var slides=[].slice.call(root.querySelectorAll('.ld-slide'));
+    var dots=[].slice.call(root.querySelectorAll('.ld-dot'));
+    var counter=root.querySelector('.ld-gal-counter');
+    var pauseBtn=root.querySelector('.ld-gal-pause');
+    var idx=0, timer=null, playing=false;
+    var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function show(i){
+      idx=(i+slides.length)%slides.length;
+      slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
+      dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
+      if(counter) counter.textContent=(idx+1)+'/'+slides.length;
+    }
+    function updateBtn(){ if(!pauseBtn) return; pauseBtn.textContent=playing?'⏸':'▶'; pauseBtn.setAttribute('aria-label',playing?'หยุดสไลด์':'เล่นสไลด์ต่อ'); }
+    function stop(){ if(timer){ clearInterval(timer); timer=null; } playing=false; updateBtn(); }
+    function play(){ if(reduceMotion) return; stop(); playing=true; timer=setInterval(function(){ show(idx+1); },4200); updateBtn(); }
+    root.addEventListener('click',function(e){
+      var dot=e.target.closest('.ld-dot'); if(dot){ show(Number(dot.dataset.i)); stop(); return; }
+      if(e.target.closest('.ld-gal-prev')){ show(idx-1); stop(); return; }
+      if(e.target.closest('.ld-gal-next')){ show(idx+1); stop(); return; }
+      if(e.target.closest('.ld-gal-pause')){ playing?stop():play(); return; }
+    });
+    show(0);
+    play();
+  }
+
   function render(l){
     var L=l.land||{};
     var tier=l.tier===2?2:1;
-    var photo=(l.photos&&l.photos[0])
-      ? '<img src="'+esc(l.photos[0])+'" alt="'+esc(l.parcelInfo||'แปลงที่ดิน')+'">'
-      : '<div class="ld-noimg"></div>';
-    var count=(l.photos||[]).length>1?'<span class="ld-count">▣ '+l.photos.length+'</span>':'';
+    var photos=l.photos||[];
     var badge = tier===2
       ? '<span class="ld-badge ok">✓ รังวัดยืนยันแล้ว</span>'
       : '<span class="ld-badge basic">◐ ข้อมูลเบื้องต้น</span>';
@@ -130,17 +186,18 @@
     var pw=perWa(l.estValue, areaForWa);
 
     document.getElementById('ld-root').innerHTML=
-      '<div class="ld-gal">'+photo+
+      '<div class="ld-gal">'+galleryHtml(photos, l.parcelInfo||'แปลงที่ดิน')+
         '<div class="ld-badges"><span class="ld-badge type">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+badge+'</div>'+
-        count+
         '<div class="ld-wm"><span>ที่ดินชัวร์</span><small>njteedinsure.com</small></div>'+
       '</div>'+
       '<div class="ld-body">'+
         '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
         (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
+        '<div id="ld-fee"></div>'+
         '<h1 class="ld-title">'+esc(l.parcelInfo||'แปลงที่ดิน')+'</h1>'+
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+
+        mapHtml(L)+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
         (tier===2?tier2Html(L):tier1Html(L))+
         '<div class="ld-cta">'+
@@ -148,12 +205,16 @@
           '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
           '<a class="ld-btn tel" href="'+TEL+'" data-contact="tel">📞 '+TEL_TXT+'</a>'+
         '</div>'+
-        '<div id="ld-fee"></div>'+
+        '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
       '</div>';
 
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
     // ⚠️ ห้ามเติมราคาประเมินราชการให้ (ดูเหตุผลใน feecalc.js) — ผู้ซื้อต้องกรอกเอง
     if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue});
+
+    initGallery(document.querySelector('.ld-gal'), photos.length);
+    var pdfBtn=document.getElementById('ld-pdf-btn');
+    if(pdfBtn) pdfBtn.addEventListener('click', function(){ window.print(); });
 
     document.title=(l.parcelInfo||'แปลงที่ดิน')+' | ที่ดินชัวร์';
     if(window.njTrack) njTrack('ViewContent',{content_name:'land_detail',content_ids:[l.id],content_category:'tier'+tier});
