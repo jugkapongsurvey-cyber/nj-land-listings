@@ -1,0 +1,107 @@
+/* เครื่องมือประเมินหลักการราคาที่ดินเบื้องต้น — guides.html */
+
+.vc{
+  background:#fff;border:1px solid #E3EAF1;border-radius:16px;
+  padding:20px 22px;margin-top:22px;
+}
+.vc-head{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.vc-head b{font-size:16px;font-weight:700;color:#0B1F3A}
+.vc-head span{font-size:13px;color:#5A6B7D;line-height:1.7}
+
+.vc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vc-grid label{
+  display:flex;flex-direction:column;gap:5px;
+  font-size:12px;font-weight:600;color:#5A6B7D;
+}
+.vc-grid input,.vc-grid select{
+  height:42px;border:1px solid #E3EAF1;border-radius:10px;padding:0 12px;
+  font-size:14.5px;font-family:inherit;color:#0B1F3A;background:#F4F7FA;
+  outline:none;width:100%;box-sizing:border-box;
+}
+.vc-grid input:focus,.vc-grid select:focus{border-color:#1B4B7A;background:#fff}
+
+[hidden]{display:none !important}
+
+.vc-sub{
+  margin-top:16px;padding:15px 16px 4px;
+  background:#F4F7FA;border:1px solid #E3EAF1;border-radius:12px;
+}
+.vc-sub-h{font-size:12px;font-weight:700;color:#0B1F3A;letter-spacing:.04em;margin-bottom:11px}
+.vc-sub .vc-grid{grid-template-columns:repeat(4,1fr)}
+
+.vc-check{
+  display:flex;align-items:flex-start;gap:9px;
+  font-size:12.5px;line-height:1.7;color:#213A57;font-weight:600;
+  margin-top:14px;cursor:pointer;
+}
+.vc-check input{margin:2px 0 0;flex:none;width:16px;height:16px;accent-color:#1B4B7A;cursor:pointer}
+
+.vc-out{margin-top:18px}
+
+/* มาตรวัดคะแนนรวม 1–5 */
+.vc-gauge{margin-bottom:14px}
+.vc-gauge-track{
+  position:relative;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,#FCA5A5,#FDE68A,#86EFAC);
+}
+.vc-gauge-mark{
+  position:absolute;top:-4px;width:16px;height:16px;margin-left:-8px;
+  border-radius:50%;background:#0B1F3A;border:2px solid #fff;
+  box-shadow:0 1px 4px rgba(11,31,58,.35);
+}
+.vc-gauge-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:#8798A9}
+
+.vc-badge{
+  display:flex;align-items:baseline;gap:9px;
+  padding:11px 14px;border-radius:11px;margin-bottom:14px;
+}
+.vc-badge b{font-family:Manrope,system-ui,sans-serif;font-size:19px;font-weight:800}
+.vc-badge span{font-size:12.5px;font-weight:600}
+.vc-badge-up{background:#ECFDF5;color:#0B7A43}
+.vc-badge-up b{color:#0B7A43}
+.vc-badge-down{background:#FEF2F2;color:#B42318}
+.vc-badge-down b{color:#B42318}
+.vc-badge-flat{background:#E7EEF5;color:#213A57}
+.vc-badge-flat b{color:#213A57}
+
+.vc-notes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.vc-note-col b{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
+.vc-note-col ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.vc-note-col li{font-size:12px;line-height:1.6;color:#5A6B7D}
+.vc-up b{color:#0B7A43}
+.vc-down b{color:#B42318}
+
+.vc-hint{font-size:13px;color:#8798A9;margin:2px 0 14px;line-height:1.8}
+
+.vc-break{
+  margin-top:0;margin-bottom:14px;padding:11px 13px;border-radius:11px;
+  background:#E7EEF5;border:1px solid #E3EAF1;
+}
+.vc-break b{display:block;font-size:13px;font-weight:700;color:#0B1F3A}
+.vc-break span{display:block;font-size:11.5px;color:#5A6B7D;line-height:1.75;margin-top:3px}
+
+.vc-row.total{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  border-top:2px solid #E3EAF1;padding-top:13px;margin-bottom:14px;
+}
+.vc-row.total b{font-size:15px;font-weight:700;color:#0B1F3A}
+.vc-row.total em{
+  flex:none;font-style:normal;font-family:Manrope,system-ui,sans-serif;
+  font-size:19px;font-weight:700;color:#0B1F3A;white-space:nowrap;
+}
+
+.vc-warn{
+  background:#FFFBEB;border:1px solid #FDE68A;border-radius:11px;
+  padding:11px 13px;margin:2px 0 0;
+  font-size:12.5px;line-height:1.85;color:#8A6516;
+}
+.vc-warn a{display:inline-block;margin-top:3px;color:#B45309;font-weight:700;text-decoration:none}
+.vc-warn a:hover{text-decoration:underline}
+
+@media (max-width:560px){
+  .vc{padding:17px 16px;border-radius:14px}
+  .vc-grid{grid-template-columns:1fr}
+  .vc-sub{padding:13px 13px 4px}
+  .vc-sub .vc-grid{grid-template-columns:1fr}
+  .vc-notes{grid-template-columns:1fr}
+}

@@ -137,6 +137,7 @@
       '</div>'+
       '<div class="ld-body">'+
         '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
+        (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
         '<h1 class="ld-title">'+esc(l.parcelInfo||'แปลงที่ดิน')+'</h1>'+
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+

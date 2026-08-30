@@ -43,6 +43,7 @@
   // โหลดไม่สำเร็จ = ตัวช่วยประมาณใช้ไม่ได้ ให้กรอกราคาประเมินเองแทน ห้าม fallback เป็นตัวเลขที่เดา
   var BUILDING_URL = 'https://nj-survey-system.onrender.com/buildingprice.json';
   var BP = null;
+  var bpPromise = null;                            // โหลดครั้งเดียว แชร์กับ valuecalc.js
 
   // จับคู่ตัวเลือกที่ผู้ใช้เข้าใจง่าย กับรหัสประเภทจริงในบัญชีกรมธนารักษ์
   //   code  = รหัสในบัญชี · ใช้ดึงราคาต่อ ตร.ม. ตามจังหวัด
@@ -285,17 +286,13 @@
 
     // โหลดบัญชีราคาสิ่งปลูกสร้างของกรมธนารักษ์ — ล้มเหลวก็ยังใช้เครื่องคำนวณได้
     // แค่ตัวช่วยประมาณจะใช้ไม่ได้ ต้องกรอกราคาประเมินเองแทน ห้าม fallback เป็นตัวเลขที่เดา
-    fetch(BUILDING_URL).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function (d) {
-        BP = d; BP.typeIndex = {}; BP.typeName = {};
-        d.types.forEach(function (t, i) { BP.typeIndex[t[0]] = i; BP.typeName[t[0]] = t[1]; });
-        if (provSel) d.provinces.forEach(function (pv) {
-          var o = document.createElement('option');
-          o.value = pv[0]; o.textContent = pv[1]; provSel.appendChild(o);
-        });
-        update();
-      })
-      .catch(function () { BP = null; update(); });
+    loadBuildingPrices().then(function () {
+      if (provSel) provinces().forEach(function (pv) {
+        var o = document.createElement('option');
+        o.value = pv[0]; o.textContent = pv[1]; provSel.appendChild(o);
+      });
+      update();
+    });
 
     function read(){
       var v = {};
@@ -337,6 +334,23 @@
     (d.types || []).forEach(function (t, i) { BP.typeIndex[t[0]] = i; BP.typeName[t[0]] = t[1]; });
   }
 
+  // โหลดบัญชีราคาจากเซิร์ฟเวอร์ครั้งเดียว แล้วแชร์ผลให้ทุกเครื่องมือที่เรียก
+  // (valuecalc.js ก็ใช้ตัวนี้ จะได้ไม่ยิงซ้ำสองรอบเมื่ออยู่หน้าเดียวกัน)
+  // ล้มเหลว = คืน null ผู้เรียกต้องให้ผู้ใช้กรอกราคาเอง ห้าม fallback เป็นตัวเลขที่เดา
+  function loadBuildingPrices() {
+    if (!bpPromise) {
+      bpPromise = fetch(BUILDING_URL)
+        .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+        .then(function (d) { setBuildingPrices(d); return BP; })
+        .catch(function () { BP = null; return null; });
+    }
+    return bpPromise;
+  }
+
+  // รายชื่อจังหวัดในบัญชี — ว่างถ้ายังโหลดไม่เสร็จหรือโหลดไม่ได้
+  function provinces() { return (BP && BP.provinces) || []; }
+
   window.NJFeeCalc = { calc:calc, estimateBuilding:estimateBuilding, TYPES:TYPES,
-                       mount:mount, setBuildingPrices:setBuildingPrices };
+                       mount:mount, setBuildingPrices:setBuildingPrices,
+                       loadBuildingPrices:loadBuildingPrices, provinces:provinces };
 })();

@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="guides.css">
   <link rel="stylesheet" href="feecalc.css">
+  <link rel="stylesheet" href="valuecalc.css">
 </head>
 <body>
 
@@ -54,6 +55,18 @@
           <p>เนื้อที่ในโฉนดอาจคลาดเคลื่อนจากพื้นที่จริง หรือแนวเขตทับซ้อนกับที่ดินข้างเคียงโดยไม่รู้ตัว การรังวัดสอบเขตโดยช่างรังวัดที่ได้รับอนุญาตจะยืนยันตำแหน่งหลักเขตจริงในสนาม ป้องกันปัญหาซื้อที่ดินผิดขนาดหรือมีข้อพิพาทแนวเขตภายหลัง</p>
         </div>
       </article>
+
+      <article class="gd-item" id="valuation">
+        <div class="gd-ico">📊</div>
+        <div>
+          <h2>ราคาประเมินคำนวณอย่างไร</h2>
+          <p>ไทยมีราคาที่ดิน 2 ชุดที่ไม่เท่ากัน — <b>ราคาประเมินราชการ</b> (กรมธนารักษ์) ใช้คำนวณค่าธรรมเนียมโอนและภาษี ปรับรอบละหลายปีจึงมักต่ำกว่าตลาด กับ <b>ราคาตลาด/ราคาประเมินอิสระ</b> ที่บริษัทประเมินซึ่งมีใบอนุญาตจากสภาวิชาชีพการประเมินมูลค่าทรัพย์สินเป็นผู้ประเมิน ที่ดินเปล่าส่วนใหญ่ประเมินด้วย "วิธีเปรียบเทียบราคาตลาด" ถ่วงน้ำหนักปัจจัยทำเล รูปร่าง สาธารณูปโภค ส่วนที่มีสิ่งปลูกสร้างอาจใช้ "วิธีต้นทุน" คือราคาสร้างใหม่หักค่าเสื่อมราคาแล้วบวกมูลค่าที่ดิน</p>
+        </div>
+      </article>
+
+      <div id="valuecalc" class="gd-calc">
+        <div id="gd-value"></div>
+      </div>
 
       <article class="gd-item" id="transfer">
         <div class="gd-ico">🏛️</div>
@@ -109,10 +122,12 @@
 
   <script src="analytics.js"></script>
   <script src="feecalc.js"></script>
+  <script src="valuecalc.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
     // เครื่องคำนวณบนหน้าคู่มือไม่ผูกกับแปลงใด จึงไม่เติมตัวเลขใดให้เลย
     NJFeeCalc.mount(document.getElementById('gd-fee'), {});
+    NJValueCalc.mount(document.getElementById('gd-value'), {});
     if (window.njTrackInternal) njTrackInternal('pageview');
   </script>
 </body>
