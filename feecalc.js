@@ -37,16 +37,38 @@
   //   rate/decay = ค่าตั้งต้นของ "ตัวช่วยประมาณ" เท่านั้น ไม่ใช่บัญชีราคาจริง
   //                ผู้ใช้แก้ตัวเลขได้ และผลลัพธ์ติดป้ายว่าเป็นค่าประมาณเสมอ
   // ---------------------------------------------------------------------------
+  // ราคาต่อ ตร.ม. ไม่ได้ฝังไว้ในโค้ดแล้ว — โหลดบัญชีจริงของกรมธนารักษ์จากเซิร์ฟเวอร์ njsurvey
+  // (สร้างด้วย landprice/refresh-building.js จากคลังข้อมูลเปิด ชุด "ราคาประเมินสิ่งปลูกสร้าง")
+  // ราคาต่างกันตามจังหวัด จึงต้องให้ผู้ใช้เลือกจังหวัดด้วย ใช้ค่ากลางทั้งประเทศไม่ได้
+  // โหลดไม่สำเร็จ = ตัวช่วยประมาณใช้ไม่ได้ ให้กรอกราคาประเมินเองแทน ห้าม fallback เป็นตัวเลขที่เดา
+  var BUILDING_URL = 'https://nj-survey-system.onrender.com/buildingprice.json';
+  var BP = null;
+
+  // จับคู่ตัวเลือกที่ผู้ใช้เข้าใจง่าย กับรหัสประเภทจริงในบัญชีกรมธนารักษ์
+  //   code  = รหัสในบัญชี · ใช้ดึงราคาต่อ ตร.ม. ตามจังหวัด
+  //   decay = อัตราค่าเสื่อมต่อปี และ cap = เพดาน — สองค่านี้ยัง "ประมาณเอง"
+  //           เพราะคลังข้อมูลเปิดของกรมธนารักษ์มีแต่ราคา ไม่มีตารางหักค่าเสื่อม
+  //           จึงยังต้องติดป้ายเตือนว่าเป็นค่าประมาณอยู่ แม้ราคาต่อ ตร.ม. จะเป็นตัวเลขจริงแล้ว
   var TYPES = {
-    land:       { label:'ที่ดินเปล่า',                  build:false, home:false },
-    house:      { label:'บ้านเดี่ยว (ตึก/คอนกรีต)',      build:true,  home:true,  rate:9000,  decay:.01, cap:.40 },
-    halfwood:   { label:'บ้านครึ่งตึกครึ่งไม้',           build:true,  home:true,  rate:6000,  decay:.02, cap:.60 },
-    wood:       { label:'บ้านไม้',                      build:true,  home:true,  rate:4500,  decay:.03, cap:.70 },
-    townhouse:  { label:'ทาวน์เฮาส์ / บ้านแถว',          build:true,  home:true,  rate:7500,  decay:.01, cap:.40 },
-    commercial: { label:'อาคารพาณิชย์ / ตึกแถว',        build:true,  home:true,  rate:8500,  decay:.01, cap:.40 },
-    condo:      { label:'ห้องชุด / คอนโด',              build:true,  home:true,  rate:10000, decay:.01, cap:.40 },
-    other:      { label:'สิ่งปลูกสร้างอื่น ๆ (โรงเรือน โกดัง)', build:true, home:false, rate:5000, decay:.02, cap:.60 }
+    land:       { label:'ที่ดินเปล่า', build:false, home:false },
+    house:      { label:'บ้านเดี่ยว ตึก 2 ชั้น',        build:true, home:true,  code:'105',   decay:.01, cap:.40 },
+    house1:     { label:'บ้านเดี่ยว ตึกชั้นเดียว',       build:true, home:true,  code:'103',   decay:.01, cap:.40 },
+    halfwood:   { label:'บ้านครึ่งตึกครึ่งไม้ 2 ชั้น',   build:true, home:true,  code:'106',   decay:.02, cap:.60 },
+    wood:       { label:'บ้านไม้ 2 ชั้น',                build:true, home:true,  code:'104',   decay:.03, cap:.70 },
+    townhouse:  { label:'ทาวน์เฮาส์ / บ้านแถว 2 ชั้น',   build:true, home:true,  code:'202',   decay:.01, cap:.40 },
+    commercial: { label:'ตึกแถว / อาคารพาณิชย์ 2 ชั้น',  build:true, home:true,  code:'402',   decay:.01, cap:.40 },
+    condo:      { label:'อาคารอยู่อาศัยรวม ไม่เกิน 5 ชั้น', build:true, home:true, code:'520/1', decay:.01, cap:.40 },
+    warehouse:  { label:'คลังสินค้า ไม่เกิน 300 ตร.ม.',  build:true, home:false, code:'501',   decay:.02, cap:.60 }
   };
+
+  // ราคาต่อ ตร.ม. ของประเภทนี้ ในจังหวัดนี้ — คืน 0 ถ้ายังโหลดบัญชีไม่เสร็จหรือไม่มีข้อมูล
+  function rateOf(typeKey, provCode) {
+    var t = TYPES[typeKey];
+    if (!BP || !t || !t.code || !provCode) return 0;
+    var i = BP.typeIndex[t.code];
+    var row = BP.prices[provCode];
+    return (i == null || !row) ? 0 : (Number(row[i]) || 0);
+  }
 
   function progressive(income){
     var left = Math.max(0, income), tax = 0;
@@ -63,15 +85,17 @@
 
   // ประมาณราคาประเมินสิ่งปลูกสร้าง = พื้นที่ × ราคาต่อ ตร.ม. − ค่าเสื่อมตามอายุ
   // คืน null ถ้าข้อมูลไม่พอ — ผู้เรียกต้องไม่แสดงตัวเลขมั่ว
-  function estimateBuilding(typeKey, area, age, rateOverride){
+  function estimateBuilding(typeKey, area, age, rateOverride, provCode){
     var t = TYPES[typeKey];
     if (!t || !t.build) return null;
     var a = num(area);
     if (!(a > 0)) return null;
-    var rate = num(rateOverride) > 0 ? num(rateOverride) : t.rate;
+    var rate = num(rateOverride) > 0 ? num(rateOverride) : rateOf(typeKey, provCode);
+    if (!(rate > 0)) return null;                  // ไม่รู้ราคาต่อ ตร.ม. = ประมาณไม่ได้ ห้ามเดา
     var yrs = Math.max(0, Math.min(60, num(age)));
     var dep = Math.min(t.cap, yrs * t.decay);      // ค่าเสื่อมมีเพดาน ไม่หักจนเหลือศูนย์
-    return { value: a * rate * (1 - dep), rate: rate, dep: dep, area: a, age: yrs };
+    return { value: a * rate * (1 - dep), rate: rate, dep: dep, area: a, age: yrs,
+             typeName: (BP && BP.typeName[t.code]) || t.label };
   }
 
   // ---------------------------------------------------------------------------
@@ -91,7 +115,7 @@
     if (type.build){
       if (buildGiven) building = num(b.buildingAppraisal);
       else {
-        est = estimateBuilding(typeKey, b.buildingArea, b.buildingAge, b.buildingRate);
+        est = estimateBuilding(typeKey, b.buildingArea, b.buildingAge, b.buildingRate, b.province);
         building = est ? est.value : 0;
       }
     }
@@ -189,8 +213,8 @@
         '<a href="' + LINE + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมเราตรวจราคาประเมินให้ฟรี →</a></p>';
     }
     if (r.estimated){
-      warns += '<p class="fc-warn">ราคาสิ่งปลูกสร้างเป็น <b>ค่าประมาณจากตัวช่วย</b> ไม่ใช่บัญชีราคาประเมินจริงของกรมธนารักษ์ ' +
-        'ตัวเลขจริงต่างกันตามพื้นที่และปีบัญชี ใช้ดูคร่าว ๆ ได้ แต่อย่าใช้แทนตัวเลขจากสำนักงานที่ดิน</p>';
+      warns += '<p class="fc-warn">ราคาต่อ ตร.ม. เป็น<b>ตัวเลขจริงจากบัญชีกรมธนารักษ์</b> แต่ <b>ค่าเสื่อมตามอายุยังเป็นค่าประมาณ</b> ' +
+        'เพราะกรมธนารักษ์ไม่ได้เปิดตารางหักค่าเสื่อมเป็นข้อมูลเปิด ยอดจริงเจ้าหน้าที่คำนวณให้ในวันโอน</p>';
     }
     if (r.discountOn){
       warns += '<p class="fc-warn">คุณเลือกใช้อัตราลดตามมาตรการรัฐเอง — <b>เว็บนี้ไม่ได้ตรวจสอบให้ว่าเข้าเงื่อนไขจริงหรือไม่</b> ' +
@@ -232,6 +256,10 @@
           '<label>หรือประมาณจากพื้นที่ (ตร.ม.)<input type="text" inputmode="numeric" data-fc="buildingArea" placeholder="เช่น 150"></label>' +
           '<label>อายุอาคาร (ปี)<input type="number" min="0" max="60" step="1" data-fc="buildingAge" value="10"></label>' +
         '</div>' +
+          '<div class="fc-grid">' +
+            '<label>จังหวัดที่ตั้ง<select data-fc="province"><option value="">— เลือกจังหวัด —</option></select></label>' +
+            '<label>ราคาต่อ ตร.ม. ที่ใช้<input type="text" data-fc-rateshow readonly tabindex="-1"></label>' +
+          '</div>' +
         '<p class="fc-note">กรอกราคาประเมินสิ่งปลูกสร้างเองจะแม่นที่สุด — ค้นได้ที่ ' +
           '<a href="https://assessprice.treasury.go.th/" target="_blank" rel="noopener">ระบบค้นหาราคาประเมินของกรมธนารักษ์</a> ' +
           'หรือถามเจ้าหน้าที่สำนักงานที่ดิน ถ้ากรอกแค่พื้นที่กับอายุ ระบบจะประมาณให้แบบคร่าว ๆ</p>' +
@@ -252,6 +280,22 @@
     var out = el.querySelector('[data-fc-out]');
     var buildBox = el.querySelector('[data-fc-building]');
     var rateBox = el.querySelector('[data-fc-rate]');
+    var provSel = el.querySelector('[data-fc="province"]');
+    var rateShow = el.querySelector('[data-fc-rateshow]');
+
+    // โหลดบัญชีราคาสิ่งปลูกสร้างของกรมธนารักษ์ — ล้มเหลวก็ยังใช้เครื่องคำนวณได้
+    // แค่ตัวช่วยประมาณจะใช้ไม่ได้ ต้องกรอกราคาประเมินเองแทน ห้าม fallback เป็นตัวเลขที่เดา
+    fetch(BUILDING_URL).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (d) {
+        BP = d; BP.typeIndex = {}; BP.typeName = {};
+        d.types.forEach(function (t, i) { BP.typeIndex[t[0]] = i; BP.typeName[t[0]] = t[1]; });
+        if (provSel) d.provinces.forEach(function (pv) {
+          var o = document.createElement('option');
+          o.value = pv[0]; o.textContent = pv[1]; provSel.appendChild(o);
+        });
+        update();
+      })
+      .catch(function () { BP = null; update(); });
 
     function read(){
       var v = {};
@@ -265,6 +309,12 @@
       var t = TYPES[v.propertyType] || TYPES.land;
       buildBox.hidden = !t.build;
       rateBox.hidden = !(t.home && v.govDiscount);
+      if (rateShow) {
+        var rt = rateOf(v.propertyType, v.province);
+        rateShow.value = !BP ? 'โหลดบัญชีราคาไม่ได้'
+          : !v.province ? 'เลือกจังหวัดก่อน'
+          : rt > 0 ? baht(rt) + ' บาท/ตร.ม.' : 'จังหวัดนี้ไม่มีข้อมูลประเภทนี้';
+      }
       out.innerHTML = resultHtml(calc(v));
     }
     el.addEventListener('input', function(e){
@@ -279,5 +329,14 @@
     update();
   }
 
-  window.NJFeeCalc = { calc:calc, estimateBuilding:estimateBuilding, TYPES:TYPES, mount:mount };
+  // ใส่บัญชีราคาเองได้ ใช้ตอนทดสอบเพื่อไม่ต้องพึ่งเครือข่าย
+  // และเผื่ออนาคตอยากโหลดบัญชีจากที่อื่นโดยไม่ต้องแก้ไฟล์นี้
+  function setBuildingPrices(d) {
+    if (!d) { BP = null; return; }
+    BP = d; BP.typeIndex = {}; BP.typeName = {};
+    (d.types || []).forEach(function (t, i) { BP.typeIndex[t[0]] = i; BP.typeName[t[0]] = t[1]; });
+  }
+
+  window.NJFeeCalc = { calc:calc, estimateBuilding:estimateBuilding, TYPES:TYPES,
+                       mount:mount, setBuildingPrices:setBuildingPrices };
 })();

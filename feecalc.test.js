@@ -3,7 +3,20 @@
 const fs = require('fs');
 global.window = {};
 new Function(fs.readFileSync(__dirname + '/feecalc.js', 'utf8'))();
-const { calc, estimateBuilding } = global.window.NJFeeCalc;
+const { calc, estimateBuilding, setBuildingPrices } = global.window.NJFeeCalc;
+
+// ตารางราคาจำลอง — ตัวเลขคัดมาจากบัญชีจริงของกรมธนารักษ์ เฉพาะ กทม.(10) และเชียงใหม่(50)
+// ใส่เองแบบนี้เพื่อให้เทสต์ไม่ต้องต่อเน็ต และผลไม่เปลี่ยนตามรอบบัญชีที่กรมประกาศใหม่
+// (ของจริงโหลดจาก buildingprice.json ตอน mount)
+setBuildingPrices({
+  types: [['103','บ้านพักอาศัยตึกชั้นเดียว'], ['104','บ้านพักอาศัยไม้สองชั้น'],
+          ['105','บ้านพักอาศัยตึกสองชั้น'], ['106','บ้านพักอาศัยครึ่งตึกครึ่งไม้สองชั้น'],
+          ['202','บ้านแถว (ทาวน์เฮาส์) สองชั้น'], ['402','ตึกแถวสองชั้น'],
+          ['501','คลังสินค้า พื้นที่ไม่เกิน 300 ตารางเมตร'], ['520/1','อาคารอยู่อาศัยรวม ความสูงไม่เกิน 5 ชั้น']],
+  provinces: [['10','กรุงเทพมหานคร'], ['50','เชียงใหม่']],
+  prices: { '10':[8750,8300,8550,8600,7850,8450,5800,8150],
+            '50':[9050,7700,8800,7950,7950,8450,6050,8500] }
+});
 
 let pass = 0, fail = 0;
 function eq(label, got, want, tol) {
@@ -54,24 +67,25 @@ ok('ต้องไม่ติดธง assumed', r.assumed === false);
 // ตัวช่วยประมาณ: บ้านเดี่ยวตึก 150 ตร.ม. อายุ 10 ปี
 //   9,000 × 150 = 1,350,000 · ค่าเสื่อม 10 ปี × 1% = 10% → 1,350,000 × .9 = 1,215,000
 console.log('เคส 5 — ตัวช่วยประมาณราคาสิ่งปลูกสร้าง');
-let e = estimateBuilding('house', 150, 10);
-eq('ประมาณสิ่งปลูกสร้าง', e.value, 1215000);
+let e = estimateBuilding('house', 150, 10, null, '10');
+// กทม. บ้านตึกสองชั้น 8,550 บาท/ตร.ม. x 150 = 1,282,500 หักค่าเสื่อม 10 ปี x 1% = 10%
+eq('ประมาณสิ่งปลูกสร้าง', e.value, 1282500 * 0.9);
 eq('ค่าเสื่อม 10%', e.dep, 0.10, 0.0001);
 r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
-           buildingArea:150, buildingAge:10, sellerType:'person', years:6 });
-eq('ราคาประเมินรวมจากตัวช่วย', r.appraisal, 3215000);
+           buildingArea:150, buildingAge:10, province:'10', sellerType:'person', years:6 });
+eq('ราคาประเมินรวมจากตัวช่วย', r.appraisal, 2000000 + 1282500 * 0.9);
 ok('ต้องติดธง estimated เพื่อให้หน้าเว็บเตือน', r.estimated === true);
 
 // เพดานค่าเสื่อม — บ้านไม้ 3%/ปี เพดาน 70%  ต่อให้ 90 ปีก็ต้องหยุดที่ 70%
 console.log('เคส 6 — เพดานค่าเสื่อม');
-e = estimateBuilding('wood', 100, 90);
+e = estimateBuilding('wood', 100, 90, null, '10');
 eq('ค่าเสื่อมต้องตันที่ 70%', e.dep, 0.70, 0.0001);
-eq('มูลค่าเหลือ 30%', e.value, 100 * 4500 * 0.30, 1);
+eq('มูลค่าเหลือ 30%', e.value, 100 * 8300 * 0.30, 1);
 
 // กรอกราคาประเมินสิ่งปลูกสร้างเองต้องชนะตัวช่วยประมาณเสมอ
 console.log('เคส 7 — กรอกเองต้องชนะค่าประมาณ');
 r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
-           buildingAppraisal:900000, buildingArea:150, buildingAge:10,
+           buildingAppraisal:900000, buildingArea:150, buildingAge:10, province:'10',
            sellerType:'person', years:6 });
 eq('ต้องใช้ 900,000 ที่กรอกเอง ไม่ใช่ 1,215,000 ที่ประมาณได้', r.appraisal, 2900000);
 ok('กรอกเองแล้วต้องไม่ติดธง estimated', r.estimated === false);
@@ -123,8 +137,8 @@ r = calc({ propertyType:'land', salePrice:3000000, landAppraisal:2000000,
 eq('ต้องยังเป็น 2% ของ 2,000,000', row(r,'transfer').v, 40000);
 ok('ธง discountOn ต้องเป็น false', r.discountOn === false);
 
-console.log('เคส 15 — โรงเรือน/โกดัง ไม่ใช่ที่อยู่อาศัย ติ๊กมาตรการต้องไม่มีผล');
-r = calc({ propertyType:'other', salePrice:3000000, landAppraisal:1000000, buildingAppraisal:1000000,
+console.log('เคส 15 — คลังสินค้า ไม่ใช่ที่อยู่อาศัย ติ๊กมาตรการต้องไม่มีผล');
+r = calc({ propertyType:'warehouse', salePrice:3000000, landAppraisal:1000000, buildingAppraisal:1000000,
            sellerType:'person', years:6, govDiscount:true, govRate:0.01 });
 eq('ต้องยังเป็น 2%', row(r,'transfer').v, 40000);
 ok('ธง discountOn ต้องเป็น false', r.discountOn === false);
@@ -137,13 +151,16 @@ ok('ไม่กรอกอะไรเลยต้องคืน null', calc(
 r = calc({ propertyType:'house', salePrice:5000000, sellerType:'person', years:6 });
 ok('ไม่กรอกราคาประเมินเลยต้องติดธง assumed', r.assumed === true);
 eq('ต้องใช้ราคาขายแทน', r.appraisal, 5000000);
-ok('พื้นที่ 0 ต้องประมาณไม่ได้ ไม่ใช่ได้ 0', estimateBuilding('house', 0, 5) === null);
-ok('ที่ดินเปล่าต้องประมาณสิ่งปลูกสร้างไม่ได้', estimateBuilding('land', 100, 5) === null);
+ok('พื้นที่ 0 ต้องประมาณไม่ได้ ไม่ใช่ได้ 0', estimateBuilding('house', 0, 5, null, '10') === null);
+ok('ไม่เลือกจังหวัด ต้องประมาณไม่ได้ ไม่ใช่เดาเรตให้', estimateBuilding('house', 150, 5, null, '') === null);
+ok('จังหวัดที่ไม่มีในบัญชี ต้องประมาณไม่ได้', estimateBuilding('house', 150, 5, null, '99') === null);
+eq('เรตต่างจังหวัดต้องต่างกันจริง', estimateBuilding('house', 100, 0, null, '50').rate, 8800);
+ok('ที่ดินเปล่าต้องประมาณสิ่งปลูกสร้างไม่ได้', estimateBuilding('land', 100, 5, null, '10') === null);
 eq('ค่ามีคอมมาต้องอ่านได้', calc({ propertyType:'house', salePrice:'5,000,000',
      landAppraisal:'2,000,000', buildingAppraisal:'1,500,000', years:6 }).appraisal, 3500000);
 eq('ถือครอง 30 ปีต้องถูกจำกัดที่ 10', calc({ propertyType:'land', salePrice:1000000, years:30 }).years, 10);
 r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
-           buildingAppraisal:1000000, buildingRate:99999, sellerType:'person', years:6 });
+           buildingAppraisal:1000000, buildingRate:99999, province:'10', sellerType:'person', years:6 });
 eq('กรอกราคาเองแล้ว buildingRate ต้องไม่ถูกใช้', r.appraisal, 3000000);
 
 console.log('\n' + (fail ? '✗ ไม่ผ่าน ' + fail + ' ข้อ · ผ่าน ' + pass : '✓ ผ่านทั้งหมด ' + pass + ' ข้อ'));
