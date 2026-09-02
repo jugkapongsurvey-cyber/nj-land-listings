@@ -203,16 +203,26 @@
         </div>
       </form>
 
-      <!-- แสดงแทนฟอร์มเมื่อส่งสำเร็จ -->
+      <!-- ---------- ขั้นตอนที่ 2: ตรวจทาน แนบรูป แล้วค่อยส่งให้ทีมงาน ----------
+           ฟอร์มด้านบน "ไม่ถูกซ่อน" หลังบันทึกแล้ว — เจ้าของที่ดินยังแก้ข้อความในช่องเดิมได้
+           แล้วกด "บันทึกการแก้ไข" ซ้ำได้เรื่อยๆ จนกว่าจะกดส่งให้ทีมงานตรวจสอบ
+           (เดิมกดส่งครั้งเดียวแล้วจบ พิมพ์ผิดคือต้องทักไลน์มาบอกทีมงานให้แก้ให้) -->
       <div class="cs-done" id="cs-done" hidden>
-        <div class="cs-done-icon">✓</div>
-        <div class="cs-done-title">ได้รับข้อมูลแล้ว ขอบคุณครับ</div>
+        <!-- ยกเลิกไปแล้ว: ขึ้นแถบนี้แทนทุกปุ่มด้านล่าง (ปิดฟอร์ม · ปิดช่องแนบไฟล์ · ปิดปุ่มส่ง) -->
+        <div class="cs-cancelled" id="cs-cancelled" hidden>
+          <b>ยกเลิกการฝากขายแล้ว</b>
+          <span id="cs-cancelled-when"></span>
+          <span>ประกาศถูกถอดออกจากเว็บเรียบร้อยแล้ว และทีมงานได้รับแจ้งแล้ว —
+            ถ้าเปลี่ยนใจอยากกลับมาฝากขายใหม่ ทักไลน์บอกทีมงานได้เลย</span>
+        </div>
+        <div class="cs-done-icon" id="cs-done-icon">💾</div>
+        <div class="cs-done-title" id="cs-done-title">บันทึกข้อมูลไว้แล้ว</div>
         <div class="cs-done-text">
           รหัสของคุณคือ <b id="cs-ref">—</b><br>
-          ทีมงานจะโทรกลับภายใน 1 วันทำการ
+          <span id="cs-done-sub">ตรวจทานข้อมูลด้านบนและแนบรูปให้ครบ แล้วกด “ส่งให้ทีมงานตรวจสอบ”</span>
         </div>
 
-        <!-- ---------- แนบไฟล์ต่อ (ทำได้เฉพาะหลังส่งฟอร์มสำเร็จ ผูกกับรหัสด้านบน) ---------- -->
+        <!-- ---------- แนบไฟล์ (ทำได้เฉพาะหลังบันทึกฟอร์มสำเร็จ ผูกกับรหัสด้านบน) ---------- -->
         <div class="cs-up" id="cs-up">
           <div class="cs-up-head">
             <b>ส่งรูปที่ดินให้เราดูเลยไหม</b>
@@ -222,33 +232,64 @@
           <label class="cs-up-box" for="cs-up-photo">
             <span class="cs-up-ico" aria-hidden="true">📷</span>
             <span class="cs-up-txt">
-              <b>รูปที่ดิน</b>
+              <b>รูปที่ดิน <span class="cs-up-count" id="cs-up-photo-count"></span></b>
               <span>ทางเข้า · หน้ากว้างติดถนน · กลางแปลง · วิวรอบ — เลือกได้หลายรูปพร้อมกัน</span>
             </span>
             <input type="file" id="cs-up-photo" accept="image/*" multiple hidden>
           </label>
-          <div class="cs-up-list" id="cs-up-photo-list"></div>
+          <div class="cs-up-list" id="cs-up-photo-status"></div>
+          <div class="cs-thumbs" id="cs-up-photo-list"></div>
 
           <label class="cs-up-box" for="cs-up-doc">
             <span class="cs-up-ico" aria-hidden="true">📄</span>
             <span class="cs-up-txt">
-              <b>เอกสารที่ดิน</b>
+              <b>เอกสารที่ดิน <span class="cs-up-count" id="cs-up-doc-count"></span></b>
               <span>โฉนด หรือเอกสารสิทธิ์อื่น (รูปหรือ PDF) — <b>ทีมงานเห็นเท่านั้น ไม่ขึ้นเว็บ</b></span>
             </span>
             <input type="file" id="cs-up-doc" accept="image/*,application/pdf" multiple hidden>
           </label>
-          <div class="cs-up-list" id="cs-up-doc-list"></div>
+          <div class="cs-up-list" id="cs-up-doc-status"></div>
+          <div class="cs-thumbs" id="cs-up-doc-list"></div>
 
           <div class="cs-up-note">
             ทุกไฟล์ที่ส่งมาจะถูก<b>ทีมงาน เอ็นเจ กรุ๊ป ตรวจสอบก่อน</b> ไม่ได้ขึ้นเว็บทันที
-            · ถ้ายังไม่สะดวกตอนนี้ ส่งทางไลน์ทีหลังก็ได้
+            · ลบออกเองได้ตราบใดที่ทีมงานยังไม่ได้ตรวจ · ถ้ายังไม่สะดวกตอนนี้ ส่งทางไลน์ทีหลังก็ได้
           </div>
+        </div>
+
+        <button type="button" class="cs-submit cs-send" id="cs-send">📨 ส่งให้ทีมงานตรวจสอบ</button>
+        <div class="cs-send-note" id="cs-send-note">
+          กดแล้วทีมงานจะได้รับแจ้งเตือนทันที และโทรกลับภายใน 1 วันทำการ
+        </div>
+
+        <div class="cs-keep" id="cs-keep" hidden>
+          เครื่องนี้จำรหัส <b id="cs-keep-ref">—</b> ไว้ให้แล้ว — เปิดหน้านี้ใหม่ภายใน 14 วันเพื่อกลับมาแก้ไขหรือแนบรูปเพิ่มได้
+          <button type="button" class="cs-keep-btn" id="cs-keep-copy">คัดลอกลิงก์แก้ไข</button>
         </div>
 
         <div class="cs-done-btns">
           <a href="#" id="cs-done-line" class="cs-done-btn line" target="_blank" rel="noopener">💬 ทักไลน์</a>
           <a href="#" id="cs-done-fb" class="cs-done-btn fb" target="_blank" rel="noopener">💬 เมสเซนเจอร์</a>
           <a href="#" id="cs-done-tel" class="cs-done-btn tel">📞 โทรเลย</a>
+        </div>
+
+        <!-- ---------- ยกเลิกการฝากขายด้วยตัวเอง ----------
+             ทำได้ทุกเมื่อ แม้ประกาศขึ้นเว็บไปแล้ว (ช่วงที่ต้องใช้จริงคือ "ขายได้เองแล้ว")
+             วางไว้ท้ายสุดและใช้สีอ่อน — ต้องหาเจอเมื่อต้องการ แต่ไม่ใช่ปุ่มที่เผลอกดระหว่างกรอกฟอร์ม -->
+        <div class="cs-cancel" id="cs-cancel" hidden>
+          <button type="button" class="cs-cancel-link" id="cs-cancel-open">ต้องการยกเลิกการฝากขายแปลงนี้</button>
+          <div class="cs-cancel-box" id="cs-cancel-box" hidden>
+            <b>ยืนยันยกเลิกการฝากขาย</b>
+            <span>ประกาศจะถูกถอดออกจากเว็บทันที และทีมงานจะหยุดดำเนินการให้ ·
+              ข้อมูลกับไฟล์ที่ส่งมาแล้วยังเก็บไว้เป็นหลักฐานตามปกติ ไม่ได้ถูกลบทิ้ง</span>
+            <label class="cs-label" for="cs-cancel-reason">เหตุผล (ไม่บังคับ — ช่วยให้เราปรับปรุงบริการ)</label>
+            <input type="text" id="cs-cancel-reason" maxlength="300" placeholder="เช่น ขายได้เองแล้ว / ยังไม่พร้อมขาย / ราคาไม่ตรงที่คิดไว้">
+            <div class="cs-cancel-acts">
+              <button type="button" class="cs-cancel-no" id="cs-cancel-no">ไม่ยกเลิกแล้ว</button>
+              <button type="button" class="cs-cancel-yes" id="cs-cancel-yes">ยืนยันยกเลิกฝากขาย</button>
+            </div>
+            <div class="cs-cancel-err" id="cs-cancel-err" hidden></div>
+          </div>
         </div>
       </div>
     </div>
