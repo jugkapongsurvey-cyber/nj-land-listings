@@ -1,0 +1,45 @@
+/* หน้ารวมประกาศ — เฉพาะแผงตัวกรอง · การ์ดแปลงใช้สไตล์เดิมจาก marketplace.css
+   (ห้ามเขียนสไตล์การ์ดซ้ำที่นี่ ไม่งั้นการ์ดหน้านี้กับหน้าอื่นจะค่อยๆ เพี้ยนจากกัน) */
+
+.ls-head{background:var(--navy);color:#fff;padding:34px 0 30px}
+.ls-head h1{margin:0 0 8px;font-size:27px;font-weight:700;line-height:1.35}
+.ls-head p{margin:0;font-size:15px;line-height:1.7;color:#CFE0F7;max-width:58ch}
+
+.ls-wrap{padding:22px 0 60px}
+
+.ls-filters{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:18px}
+.ls-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.ls-field{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:0 1 auto}
+.ls-field.ls-grow{flex:1 1 240px}
+.ls-field>span{font-size:12px;font-weight:600;color:var(--sub)}
+.ls-field input,.ls-field select{
+  height:40px;border:1px solid var(--line);border-radius:10px;padding:0 11px;
+  font-size:14px;font-family:inherit;color:var(--ink);background:#F9FBFC;outline:none;width:100%
+}
+.ls-field input:focus,.ls-field select:focus{border-color:var(--blue);background:#fff}
+
+.ls-feats{border:0;border-top:1px dashed var(--line);padding:12px 0 0;margin:0 0 12px}
+.ls-feats legend{font-size:12px;font-weight:600;color:var(--sub);padding:0}
+.ls-feats>div{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:8px}
+.ls-feats label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);cursor:pointer}
+
+.ls-actions{display:flex;gap:10px;flex-wrap:wrap}
+.ls-actions .post-btn,.ls-actions .outline-btn{cursor:pointer;font-family:inherit;font-size:14px}
+.ls-actions .outline-btn{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;color:var(--sub)}
+
+.ls-note{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--ink)}
+/* แปลงที่ถูกซ่อนเพราะยังไม่ได้กรอกข้อมูล — ต้องเห็นชัด ไม่ใช่ข้อความจางที่คนมองข้าม
+   (แปลงหายเงียบ = ผู้ซื้อคิดว่าไม่มีของ ทั้งที่ของมีแต่ข้อมูลยังไม่ครบ) */
+.ls-unknown{margin:0 0 12px;font-size:13.5px;line-height:1.7;color:#8A5A00;background:#FFF8E6;
+  border:1px solid #F5E4BE;border-radius:12px;padding:10px 13px}
+.ls-loading{color:var(--muted);font-size:14px;padding:20px 2px}
+
+@media (max-width:760px){
+  .ls-head{padding:26px 0 22px}
+  .ls-head h1{font-size:22px}
+  .ls-filters{padding:14px}
+  /* จอแคบ: ช่องกรองเรียงสองคอลัมน์ ไม่ใช่บีบให้เตี้ยจนกดยาก */
+  .ls-field{min-width:0;flex:1 1 calc(50% - 6px)}
+  .ls-field.ls-grow{flex:1 1 100%}
+  .ls-actions .post-btn,.ls-actions .outline-btn{flex:1 1 auto;text-align:center}
+}

@@ -2,78 +2,14 @@
   'use strict';
   // หน้าแรก "ที่ดินชัวร์" — ดึงแปลงที่ดินสดจาก nj-survey-system
   //
-  // ⚠️ กติกาข้อเดียวที่ห้ามผ่อนในไฟล์นี้: แสดงได้เฉพาะสิ่งที่ API ส่งมาจริงเท่านั้น
-  // ห้ามมีแปลงตัวอย่าง ห้ามเติมข้อความแทนช่องที่ไม่มีข้อมูล (เช่น "มีทางเข้าออก",
-  // "โฉนด", จำนวนรูปขั้นต่ำ) เพราะทุกบรรทัดบนการ์ดนี้ผู้ซื้อเข้าใจว่าเป็นข้อเท็จจริง
-  // ที่ผ่านการรังวัดมาแล้ว — ซึ่งเป็นสิ่งเดียวที่แบรนด์นี้ขาย
-  //
-  // /api/public/listings ส่งมาเท่านี้: id · type · parcelInfo · estValue · blurb · photos · updatedAt
-  // ช่องไหนไม่มี = ไม่แสดงบรรทัดนั้น ไม่ใช่เติมข้อความกลางๆ ลงไปแทน
+  // ⚠️ ตัวเรนเดอร์การ์ด · ตัวดึงข้อมูล · ข้อความตอนไม่มีแปลง ย้ายไปอยู่ที่ listingcard.js แล้ว
+  // ใช้ร่วมกับหน้ารวมประกาศ (listings.js) — กติกา "แสดงเฉพาะสิ่งที่ API ส่งมาจริง" อยู่ในไฟล์นั้น
+  // ห้ามก๊อปตัวเรนเดอร์กลับมาไว้ที่นี่อีก ไม่งั้นกติกาข้อนั้นจะมีสองที่ให้ลืมแก้
+  // ไฟล์นี้เหลือเฉพาะเรื่องของหน้าแรก: ตัวกรองด่วน · ฟอร์มค้นหา · การผูกกับ DOM ของ index.html
+  var NJL = window.NJListing;
+  var card = NJL.card;   // ตัวเรนเดอร์การ์ดตัวเดียวกับหน้ารวมประกาศ
 
-  var LINE='https://line.me/R/ti/p/@716lffzt';
-  var FB=window.NJ_MESSENGER_URL||'https://m.me/NJTeeDinSure';   // ตั้งค่าไว้ใน analytics.js
-  var TEL='tel:021620405';
   var state={listings:[],loaded:false,query:'',price:'all',type:'all'};
-
-  function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
-  function money(value){if(!Number(value))return 'ราคาติดต่อสอบถาม';return '฿'+Number(value).toLocaleString('th-TH');}
-  function ago(iso){
-    var d=new Date(iso),days=Math.floor((Date.now()-d.getTime())/86400000);
-    if(!iso||isNaN(d))return '';
-    if(days<=0)return 'อัปเดตวันนี้';
-    if(days===1)return 'อัปเดตเมื่อวาน';
-    if(days<31)return 'อัปเดต '+days+' วันที่แล้ว';
-    return 'อัปเดต '+d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
-  }
-
-  function normalize(item,index){
-    return {
-      id:item.id||('land-'+index),
-      type:item.type==='rent'?'rent':'sell',
-      parcelInfo:item.parcelInfo||'',
-      estValue:Number(item.estValue||0),
-      blurb:item.blurb||'',
-      photos:Array.isArray(item.photos)?item.photos:[],
-      updatedAt:item.updatedAt||'',
-      // ระดับความน่าเชื่อถือจาก API — ไม่มีข้อมูล = ระดับ 1 เสมอ ห้ามเดาเป็น 2
-      tier:item.tier===2?2:1
-    };
-  }
-
-  function card(item){
-    var media=item.photos[0]
-      ? '<img src="'+esc(item.photos[0])+'" alt="'+esc(item.parcelInfo||'แปลงที่ดิน')+'" loading="lazy">'
-      : '<div class="fallback-land" aria-hidden="true"></div>';
-    // นับรูปตามจริง ไม่มีรูปก็ไม่ต้องขึ้นตัวเลข
-    var count=item.photos.length>1?'<span class="photo-count">▣ '+item.photos.length+'</span>':'';
-    // คำโปรยมาจากที่ทีมงานเขียนเองในระบบ ไม่มีก็เว้นไว้
-    var facts=item.blurb?'<div class="card-facts"><span>'+esc(item.blurb)+'</span></div>':'';
-    var when=ago(item.updatedAt);
-    var href='land.html?id='+encodeURIComponent(item.id);
-    return '<article class="land-card" data-href="'+esc(href)+'" data-id="'+esc(item.id)+'">'+
-      '<div class="card-media">'+media+
-        '<div class="card-tags"><span>'+(item.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+
-          (item.tier===2
-            ? '<span class="verified">✓ รังวัดยืนยันแล้ว</span>'
-            : '<span class="basic">◐ ข้อมูลเบื้องต้น</span>')+'</div>'+
-        count+
-      '</div>'+
-      '<div class="card-body">'+
-        '<div><span class="card-price">'+money(item.estValue)+'</span></div>'+
-        '<h3 class="card-title"><a href="'+esc(href)+'">'+esc(item.parcelInfo||'แปลงที่ดิน')+'</a></h3>'+
-        facts+
-        '<div class="card-agent">'+
-          '<span class="agent-avatar">NJ</span>'+
-          '<div><b>ทีมที่ดินชัวร์</b>'+(when?'<small>'+esc(when)+'</small>':'')+'</div>'+
-          '<span class="contact-mini">'+
-            '<a href="'+LINE+'" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์">●</a>'+
-            '<a href="'+FB+'" target="_blank" rel="noopener" class="fb" data-contact="messenger" aria-label="ติดต่อทางเมสเซนเจอร์">f</a>'+
-            '<a href="'+TEL+'" data-contact="tel" aria-label="โทรสอบถาม">☎</a>'+
-          '</span>'+
-        '</div>'+
-      '</div>'+
-    '</article>';
-  }
 
   function filtered(){
     return state.listings.filter(function(item){
@@ -88,29 +24,6 @@
 
   // ยังไม่มีแปลงประกาศ = คนที่เข้ามาถึงตรงนี้จะเจอทางตัน
   // เปลี่ยนเป็นข้อเสนอที่ใช้ได้จริงแทน — คนที่สนใจตลาดที่ดินจำนวนมากคือเจ้าของที่ดินเอง
-  function emptyHtml(isFilter){
-    if(isFilter){
-      // ค้นแล้วไม่เจอ = จังหวะที่รู้โจทย์ของผู้ซื้อชัดที่สุดในทั้งเว็บ
-      // ปล่อยให้จบแค่ "ลองเปลี่ยนคำค้น" คือทิ้งลีดที่บอกความต้องการมาแล้วเต็มๆ
-      return '<div class="empty-result"><b>ยังไม่พบแปลงที่ตรงกับการค้นหา</b>'+
-        'ลองเปลี่ยนทำเลหรือช่วงราคา แล้วค้นหาอีกครั้ง — หรือฝากโจทย์ไว้ให้ทีมช่างรังวัดของเราหาให้ฟรี'+
-        '<span class="empty-actions">'+
-          '<a class="post-btn" href="wanted.html">ฝากหาที่ดินฟรี →</a>'+
-        '</span>'+
-      '</div>';
-    }
-    return '<div class="empty-result">'+
-      '<b>แปลงชุดแรกกำลังอยู่ระหว่างรังวัดยืนยันเขต</b>'+
-      'เราจะไม่ลงประกาศแปลงใดจนกว่าจะรังวัดยืนยันเขตจริงเสร็จ และได้รับความยินยอมจากเจ้าของที่ดินแล้ว '+
-      'ระหว่างนี้บอกโจทย์ที่คุณกำลังหาไว้ได้เลย ทีมช่างรังวัดของเราจะหาแปลงที่ตรงเงื่อนไขให้'+
-      '<span class="empty-actions">'+
-        '<a class="post-btn" href="wanted.html">ฝากหาที่ดินฟรี →</a>'+
-        '<a class="outline-btn" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">แจ้งเตือนแปลงใหม่ทางไลน์</a>'+
-        '<a class="outline-btn" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">ทักทางเมสเซนเจอร์</a>'+
-        '<a class="outline-btn" href="consign.html">มีที่ดินอยากขาย?</a>'+
-      '</span>'+
-    '</div>';
-  }
 
   function render(message){
     var grid=document.getElementById('listing-grid');
@@ -120,25 +33,20 @@
       note.hidden=false;
       note.textContent=message+' — พบ '+list.length+' รายการ';
     }
-    if(!list.length){ grid.innerHTML=emptyHtml(state.loaded&&state.listings.length>0); return; }
+    if(!list.length){ grid.innerHTML=NJL.emptyHtml(state.loaded&&state.listings.length>0); return; }
     grid.innerHTML=list.map(card).join('');
   }
 
   function load(){
-    var base=window.NJ_API_BASE||'https://nj-survey-system.onrender.com';
-    fetch(base+'/api/public/listings')
-      .then(function(r){if(!r.ok)throw new Error();return r.json();})
-      .then(function(data){
-        state.listings=(data.listings||[]).map(normalize);
+    NJL.fetchListings()
+      .then(function(list){
+        state.listings=list;
         state.loaded=true;
         render();
       })
       .catch(function(){
         // โหลดไม่ได้ ≠ ไม่มีแปลง — ต้องบอกตามจริงและให้ช่องทางติดต่อ ไม่ใช่แสดงว่าว่างเปล่า
-        document.getElementById('listing-grid').innerHTML=
-          '<div class="empty-result"><b>ตอนนี้โหลดรายการที่ดินไม่สำเร็จ</b>'+
-          'กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ 02-162-0405'+
-          '<span class="empty-actions"><a class="outline-btn" href="'+TEL+'" data-contact="tel">โทร 02-162-0405</a></span></div>';
+        document.getElementById('listing-grid').innerHTML=NJL.loadFailedHtml();
       });
   }
 
@@ -178,23 +86,8 @@
     });
   });
 
-  // แมปช่องทาง → ชื่อเหตุการณ์ที่จะนับ · เพิ่มช่องทางใหม่ = เพิ่มบรรทัดเดียวตรงนี้
-  var CONTACT_TRACK={line:['line_click','line'],messenger:['messenger_click','messenger'],tel:['tel_click','phone']};
-  // ปุ่มติดต่อบนการ์ด สร้างหลังโหลดข้อมูล จึงผูกที่ container ทีเดียว
-  document.getElementById('listing-grid').addEventListener('click',function(e){
-    var a=e.target.closest('[data-contact]');
-    if(!a){
-      // คลิกที่ตัวการ์ด (ไม่ใช่ปุ่มติดต่อ) = เข้าหน้ารายละเอียด
-      if(e.target.closest('a')) return;   // ลิงก์ชื่อแปลงทำงานเองอยู่แล้ว
-      var cardEl=e.target.closest('.land-card[data-href]');
-      if(cardEl) location.href=cardEl.dataset.href;
-      return;
-    }
-    var t=CONTACT_TRACK[a.getAttribute('data-contact')];
-    if(!t) return;
-    if(window.njTrackInternal)window.njTrackInternal(t[0]);
-    if(window.njTrack)window.njTrack('Contact',{method:t[1],from:'listing_card'});
-  });
+  // ผูกปุ่มติดต่อ + คลิกการ์ด (ตัวเดียวกับหน้ารวมประกาศ — ดู listingcard.js)
+  NJL.bindGrid(document.getElementById('listing-grid'),'listing_card');
 
   document.getElementById('year').textContent=new Date().getFullYear()+543;   // ปี พ.ศ.
   load();

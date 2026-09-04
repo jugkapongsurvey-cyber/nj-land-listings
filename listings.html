@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>ประกาศขายที่ดินทั้งหมด — กรองตามทำเล ราคา เนื้อที่ ผังสี | ที่ดินชัวร์</title>
+  <meta name="description" content="ค้นหาที่ดินจากประกาศทั้งหมดของที่ดินชัวร์ — กรองตามจังหวัด ช่วงราคา เนื้อที่ เอกสารสิทธิ์ ผังสี และสิ่งที่แปลงมี ทุกแปลงผ่านการรังวัดยืนยันเขตโดยสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351">
+  <link rel="icon" href="brand/logo-favicon.svg">
+  <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="ที่ดินชัวร์">
+  <meta property="og:title" content="ประกาศขายที่ดินทั้งหมด — กรองตามทำเล ราคา เนื้อที่">
+  <meta property="og:description" content="ค้นหาที่ดินจากประกาศทั้งหมด กรองได้ละเอียดทั้งทำเล ราคา เนื้อที่ เอกสารสิทธิ์ และผังสี">
+  <meta property="og:url" content="https://njteedinsure.com/listings.html">
+  <meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="marketplace.css">
+  <link rel="stylesheet" href="warm.css">
+  <link rel="stylesheet" href="listings.css">
+</head>
+<body>
+
+  <header class="topbar"><div class="shell topbar-inner">
+    <a class="logo" href="index.html" aria-label="ที่ดินชัวร์ หน้าแรก"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a>
+    <nav aria-label="เมนูหลัก"><a class="active" href="listings.html">ซื้อที่ดิน</a><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ขายที่ดิน</a><a href="index.html#team">ทีมเรา</a><a href="guides.html">คู่มือที่ดิน</a><a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a><a href="videos.html">วิดีโอ</a></nav>
+    <div class="top-actions"><a class="post-btn" href="consign.html">＋ ฝากขายฟรี</a></div>
+  </div></header>
+
+  <main>
+    <section class="ls-head"><div class="shell">
+      <h1>ประกาศขายที่ดินทั้งหมด</h1>
+      <p>ทุกแปลงในหน้านี้ผ่านการตรวจสอบโดยทีมช่างรังวัดของเราก่อนขึ้นประกาศ — ไม่มีแปลงที่เราไม่ได้ลงไปดูเอง</p>
+    </div></section>
+
+    <section class="shell ls-wrap">
+      <!-- ตัวกรอง — ทุกช่องเริ่มที่ "ทั้งหมด" เสมอ ไม่ตั้งค่าเริ่มต้นที่กรองอะไรไว้ก่อน
+           เพราะผู้ซื้อที่เพิ่งเข้ามาต้องเห็นของทั้งหมดที่มีจริงก่อน แล้วค่อยแคบลงเอง -->
+      <form class="ls-filters" id="ls-form" aria-label="ตัวกรองประกาศ">
+        <div class="ls-row">
+          <label class="ls-field ls-grow">
+            <span>คำค้น</span>
+            <input type="search" id="f-q" placeholder="เช่น บางบ่อ · ติดถนน · ผังเหลือง" autocomplete="off">
+          </label>
+          <label class="ls-field">
+            <span>ประเภท</span>
+            <select id="f-type"><option value="all">ทั้งหมด</option><option value="sell">ขาย</option><option value="rent">ให้เช่า</option></select>
+          </label>
+          <label class="ls-field">
+            <span>จังหวัด</span>
+            <select id="f-province"><option value="all">ทุกจังหวัด</option></select>
+          </label>
+        </div>
+
+        <div class="ls-row">
+          <label class="ls-field"><span>ราคาต่ำสุด (บาท)</span><input type="number" id="f-pmin" min="0" step="100000" placeholder="ไม่จำกัด" inputmode="numeric"></label>
+          <label class="ls-field"><span>ราคาสูงสุด (บาท)</span><input type="number" id="f-pmax" min="0" step="100000" placeholder="ไม่จำกัด" inputmode="numeric"></label>
+          <label class="ls-field"><span>เนื้อที่ต่ำสุด (ไร่)</span><input type="number" id="f-amin" min="0" step="0.5" placeholder="ไม่จำกัด" inputmode="decimal"></label>
+          <label class="ls-field"><span>เนื้อที่สูงสุด (ไร่)</span><input type="number" id="f-amax" min="0" step="0.5" placeholder="ไม่จำกัด" inputmode="decimal"></label>
+        </div>
+
+        <div class="ls-row">
+          <label class="ls-field"><span>เอกสารสิทธิ์</span><select id="f-deed"><option value="all">ไม่เกี่ยง</option></select></label>
+          <label class="ls-field ls-grow"><span>ผังสี (ผังเมืองรวม)</span><select id="f-zone"><option value="all">ไม่เกี่ยง</option></select></label>
+          <label class="ls-field"><span>เรียงลำดับ</span>
+            <select id="f-sort">
+              <option value="new">อัปเดตล่าสุด</option>
+              <option value="price_asc">ราคารวม ต่ำ → สูง</option>
+              <option value="price_desc">ราคารวม สูง → ต่ำ</option>
+              <option value="wa_asc">ราคาต่อ ตร.ว. ต่ำ → สูง</option>
+              <option value="area_desc">เนื้อที่ มาก → น้อย</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="ls-feats">
+          <legend>ต้องมี</legend>
+          <div id="f-features"></div>
+        </fieldset>
+
+        <div class="ls-actions">
+          <button type="submit" class="post-btn">ค้นหา</button>
+          <button type="button" class="outline-btn" id="f-reset">ล้างตัวกรอง</button>
+        </div>
+      </form>
+
+      <p class="ls-note" id="result-note" role="status" aria-live="polite"></p>
+      <!-- แปลงที่ถูกซ่อนเพราะ "ยังไม่ได้ระบุข้อมูลช่องนั้น" ต้องบอกให้รู้ ไม่ใช่หายเงียบ
+           ผู้ซื้อจะได้รู้ว่ายังมีของอยู่ และทีมงานจะได้รู้ว่าต้องไปกรอกอะไรเพิ่ม -->
+      <p class="ls-unknown" id="unknown-note" hidden></p>
+      <div class="land-grid" id="listing-grid" aria-live="polite"><p class="ls-loading">กำลังโหลดประกาศ…</p></div>
+    </section>
+  </main>
+
+  <footer id="contact"><div class="shell footer-grid"><div><a class="logo footer-logo" href="index.html"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a><p>แพลตฟอร์มซื้อขายที่ดินโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</p></div><div><b>ค้นหาที่ดิน</b><a href="listings.html">ประกาศทั้งหมด</a><a href="index.html#team">ทีมเรา</a></div><div><b>บริการ</b><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ฝากขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a><a href="videos.html">วิดีโอให้ความรู้</a></div><div><b>ติดต่อทีมงาน</b><a href="tel:021620405">02-162-0405</a><a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener">LINE @716lffzt</a><a href="https://m.me/NJTeeDinSure" target="_blank" rel="noopener" data-contact="messenger">Messenger</a><span>จ.–ส. 08:30–17:30 น.</span></div></div><div class="shell footer-bottom"><span>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด</span><span>สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</span></div></footer>
+
+  <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a class="active" href="listings.html"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
+
+  <script src="analytics.js"></script>
+  <script src="listingcard.js"></script>
+  <script src="listings.js"></script>
+</body>
+</html>
