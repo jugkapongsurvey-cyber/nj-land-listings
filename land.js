@@ -252,7 +252,10 @@
         '<div class="ld-cta">'+
           '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
           '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
-          '<a class="ld-btn tel" href="'+TEL+'" data-contact="tel">📞 '+TEL_TXT+'</a>'+
+          // "คลิกดูเบอร์" — ซ่อนเบอร์ไว้จนกว่าจะกด แล้วค่อยกลายเป็นลิงก์โทรจริง
+          // ⚠️ ปุ่มนี้ยิง phone_reveal **แทน** tel_click ไม่ใช่ยิงทั้งคู่ (ดู PUBLIC_EVENT_TYPES ใน server.js)
+          // ยิงทั้งคู่เมื่อไหร่ = นับคนเดิมสองครั้ง แล้วตัวเลขลีดจะสูงกว่าความจริง
+          '<button type="button" class="ld-btn tel" id="ld-tel" data-reveal="'+esc(l.id)+'">📞 คลิกดูเบอร์โทร</button>'+
         '</div>'+
         '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
       '</div>';
@@ -302,6 +305,21 @@
   // แมปช่องทาง → ชื่อเหตุการณ์ · ห้ามใช้ if/else สองทาง ไม่งั้นช่องทางที่ 3 จะถูกนับเป็นกดโทร
   var TRACK={line:['line_click','line'],messenger:['messenger_click','messenger'],tel:['tel_click','phone']};
   document.getElementById('ld-root').addEventListener('click',function(e){
+    // ---- ปุ่ม "คลิกดูเบอร์" ----
+    // กดครั้งแรก = เผยเบอร์ + นับ phone_reveal · หลังจากนั้นปุ่มกลายเป็นลิงก์โทรธรรมดา
+    // ⚠️ ลิงก์ที่เผยออกมา **ไม่มี data-contact** โดยตั้งใจ — กดโทรต่อจะไม่ยิง tel_click ซ้ำ
+    // เพราะความตั้งใจจะติดต่อถูกนับไปแล้วตอนกดดูเบอร์ (ดูเหตุผลเต็มที่ PUBLIC_EVENT_TYPES ใน server.js)
+    var rv=e.target.closest('[data-reveal]');
+    if(rv){
+      var wrap=document.createElement('a');
+      wrap.className='ld-btn tel'; wrap.href=TEL; wrap.textContent='📞 '+TEL_TXT;
+      rv.parentNode.replaceChild(wrap,rv);
+      // ส่งรหัสแปลงไปด้วยเสมอ — สถิติรายแปลง (listingStats) นับ "กดดูเบอร์" จากค่านี้
+      // ไม่ส่ง = ช่องนั้นขึ้น 0 ตลอดทั้งที่มีคนกดจริง โดยไม่มีอะไรเตือน
+      if(window.njTrackInternal) njTrackInternal('phone_reveal', rv.getAttribute('data-reveal'));
+      if(window.njTrack) njTrack('Contact',{method:'phone',from:'land_detail'});
+      return;
+    }
     var a=e.target.closest('[data-contact]');
     if(!a) return;
     var t=TRACK[a.getAttribute('data-contact')];
