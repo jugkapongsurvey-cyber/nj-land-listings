@@ -181,8 +181,73 @@ function renderFiles() {
 function setLead(d) {
   LEAD.data = d;
   renderFiles();
+  renderReport(d);
   if (d && d.submittedAt) markSent();
   applyCancelled(d);
+}
+
+// ---------- รายงาน "แปลงของคุณบนเว็บเป็นยังไงบ้าง" (ระลอก 2) ----------
+//
+// เดิมเจ้าของที่ฝากขายแล้วไม่มีทางรู้เลยว่าประกาศตัวเองขึ้นหรือยัง มีคนดูไหม ต้องโทรถามอย่างเดียว
+// ตัวเลขมาจากเซิร์ฟเวอร์ทั้งหมด (`d.listing`) — หน้านี้ไม่คำนวณอะไรเอง
+//
+// ⚠️ **ยังไม่ขึ้นเว็บ ห้ามใช้โทนเตือน/สีแดง** — เป็นขั้นตอนปกติของทุกใบ ไม่ใช่ปัญหาของเจ้าของ
+// ใช้โทนฟ้าและบอกว่ากำลังอยู่ขั้นไหน พร้อมบอกว่าเขาทำอะไรได้เพื่อให้เร็วขึ้น
+var REPORT_WAIT = {
+  consent: ['ทีมงานกำลังจัดทำเอกสารให้',
+            'ประกาศจะขึ้นเว็บหลังได้รับหนังสือยินยอมเผยแพร่ข้อมูลที่เซ็นกลับมาแล้ว — ทีมงานจะติดต่อไปเรื่องเอกสารนี้ ถ้าอยากให้เร็วขึ้น ทักไลน์บอกได้เลย'],
+  review:  ['ทีมงานกำลังตรวจข้อมูลแปลง',
+            'เราจะไม่ลงประกาศจนกว่าจะตรวจข้อมูลและรูปเรียบร้อย — แนบรูปแปลงเพิ่มด้านล่างจะช่วยให้ตรวจได้เร็วขึ้น']
+};
+function renderReport(d) {
+  var box = $('cs-report');
+  if (!box) return;
+  var L = d && d.listing;
+  // ไม่มีข้อมูล หรือถูกยกเลิกไปแล้ว = ไม่ต้องแสดงกล่องนี้เลย (แถบ "ยกเลิกแล้ว" พูดแทนอยู่แล้ว)
+  if (!L || (L.live === false && L.waiting === 'cancelled')) { box.hidden = true; return; }
+  var head = $('cs-report-head'), body = $('cs-report-body');
+  box.hidden = false;
+
+  if (!L.live) {
+    box.className = 'cs-report wait';
+    var w = REPORT_WAIT[L.waiting] || REPORT_WAIT.review;
+    head.textContent = '⏳ ' + w[0];
+    body.textContent = w[1];
+    return;
+  }
+
+  box.className = 'cs-report live';
+  head.textContent = '✓ ประกาศของคุณขึ้นเว็บแล้ว';
+  // ประกอบด้วย DOM ไม่ใช่ innerHTML — ค่าที่มาจากเซิร์ฟเวอร์ไม่ควรถูกต่อเป็นสตริง HTML
+  body.textContent = '';
+  var nums = document.createElement('div');
+  nums.className = 'cs-report-nums';
+  [['👁', L.views, L.views30d, 'คนเปิดดูแปลงคุณ'],
+   ['📞', L.reveals, L.reveals30d, 'กดดูเบอร์ติดต่อ']].forEach(function (c) {
+    var el = document.createElement('div');
+    el.className = 'cs-report-num';
+    var b = document.createElement('b'); b.textContent = String(c[1] || 0);
+    var s2 = document.createElement('span'); s2.textContent = c[0] + ' ' + c[3];
+    var s3 = document.createElement('small'); s3.textContent = '30 วันล่าสุด ' + (c[2] || 0);
+    el.appendChild(b); el.appendChild(s2); el.appendChild(s3);
+    nums.appendChild(el);
+  });
+  body.appendChild(nums);
+
+  // อ่านตัวเลขให้ฟัง — เจ้าของส่วนใหญ่ไม่รู้ว่าตัวเลขเท่าไหร่ถึงเรียกว่าดี
+  // และต้องไม่จบด้วยการโทษเจ้าของ ทุกกรณีลงท้ายด้วยสิ่งที่เขาทำต่อได้
+  var msg = document.createElement('div');
+  if (!L.views) msg.textContent = 'ประกาศเพิ่งขึ้น ยังไม่มีคนเปิดดู — ปกติต้องใช้เวลาสักพัก ถ้าอยากให้เร็วขึ้น แนบรูปแปลงเพิ่มจะช่วยได้มาก';
+  else if (!L.reveals) msg.textContent = 'มีคนเปิดดูแล้ว แต่ยังไม่มีใครกดดูเบอร์ — มักแปลว่าราคาหรือข้อมูลยังไม่พอให้ตัดสินใจ ทักไลน์คุยกับทีมงานได้';
+  else msg.textContent = 'มีคนกดดูเบอร์ติดต่อแล้ว ' + L.reveals + ' ครั้ง — ทีมงานจะติดต่อกลับถ้ามีผู้สนใจจริง';
+  body.appendChild(msg);
+
+  var a = document.createElement('a');
+  a.className = 'cs-report-link';
+  a.href = 'land.html?id=' + encodeURIComponent(LEAD.id);
+  a.target = '_blank'; a.rel = 'noopener';
+  a.textContent = 'เปิดดูหน้าประกาศของคุณ →';
+  body.appendChild(a);
 }
 
 // ---------- สลับหน้าเข้า/ออกจากสถานะ "ยกเลิกฝากขายแล้ว" ----------
