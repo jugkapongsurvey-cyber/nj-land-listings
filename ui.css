@@ -37,7 +37,7 @@
 /* ===========================================================================
    หน้าฝากขาย — HERO + ฟอร์ม
    =========================================================================== */
-.page-consign,.page-verify{background:var(--bg)}
+.page-consign,.page-verify,.page-wanted{background:var(--bg)}
 
 .cs-hero{
   background:
@@ -124,6 +124,36 @@
   border-color:var(--green);background:var(--green-light);color:#15803D;font-weight:700;
 }
 .cs-seg input:focus-visible + span{box-shadow:0 0 0 3.5px rgba(22,163,74,.18)}
+.cs-seg-2{grid-template-columns:repeat(2,1fr)}
+/* ตัวเลือก 5 ข้อ (วัตถุประสงค์ · ความพร้อม) — ไหลตามความกว้างแทนการล็อกจำนวนคอลัมน์
+   ล็อกไว้ 5 ช่องบนจอแคบ = ตัวหนังสือหักบรรทัดกลางคำจนอ่านไม่ออก */
+.cs-seg-auto{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+
+/* ---------- หน้าฝากหาที่ดิน ---------- */
+/* ทำเลที่ 2-3 ที่กดเพิ่มเอง — ต้องดูเป็นก้อนแยกจากทำเลแรกอย่างชัดเจน
+   ไม่งั้นสามชุดจังหวัด-อำเภอ-ตำบลเรียงติดกันจะอ่านไม่ออกว่าอันไหนเป็นของย่านไหน */
+.wt-area-extra{
+  margin-top:14px;padding-top:13px;border-top:1px dashed var(--border);
+}
+.wt-area-head{font-size:11.5px;font-weight:700;color:var(--sub);margin-bottom:9px}
+.wt-addarea{
+  display:block;width:100%;margin-top:12px;border:1px dashed var(--border);
+  background:#fff;color:var(--teal);font-family:inherit;font-size:12.5px;font-weight:700;
+  border-radius:10px;padding:10px;cursor:pointer;
+}
+.wt-addarea:hover{border-color:var(--teal);background:var(--bg)}
+/* ตัวเลือก "สิ่งที่แปลงต้องมี" — ติ๊กได้หลายข้อ จึงเป็นชิปไม่ใช่แถบเลือกอย่างเดียว */
+.wt-chips{display:flex;flex-wrap:wrap;gap:7px}
+.wt-chips label{position:relative;display:block}
+.wt-chips input{position:absolute;opacity:0;width:0;height:0}
+.wt-chips span{
+  display:block;border:1px solid var(--border);background:#fff;color:var(--sub);
+  border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;
+}
+.wt-chips input:checked + span{
+  border-color:var(--green);background:rgba(28,164,92,.09);color:var(--green);
+}
+.wt-chips input:focus-visible + span{box-shadow:0 0 0 3.5px rgba(22,163,74,.18)}
 
 /* ---------- กลุ่มช่องกรอก (ที่ตั้ง · เนื้อที่ · ราคา) ---------- */
 /* ฟอร์มยาวขึ้นมากหลังแยกช่อง จึงต้องมีหัวข้อคั่นให้กวาดตาเจอว่ากำลังกรอกเรื่องอะไร */
@@ -408,8 +438,8 @@
 }
 .cs-bar-btn.line{background:var(--line);color:#fff;border-color:transparent}
 .cs-bar-btn.primary{flex:1.5;background:var(--green);color:#fff;border-color:transparent}
-.page-consign,.page-verify{padding-bottom:74px}          /* กันแถบล่างทับเนื้อหาท้ายหน้า */
-.page-consign #nj-consent,.page-verify #nj-consent{bottom:78px}      /* แบนเนอร์ยินยอมต้องไม่ทับแถบติดต่อ */
+.page-consign,.page-verify,.page-wanted{padding-bottom:74px}          /* กันแถบล่างทับเนื้อหาท้ายหน้า */
+.page-consign #nj-consent,.page-verify #nj-consent,.page-wanted #nj-consent{bottom:78px}      /* แบนเนอร์ยินยอมต้องไม่ทับแถบติดต่อ */
 
 /* ===========================================================================
    จอใหญ่ขึ้น
@@ -427,8 +457,8 @@
 
   /* จอใหญ่ไม่ต้องมีแถบล่าง — มีปุ่มติดต่อในฟอร์มและเมนูบนอยู่แล้ว */
   .cs-bottombar{display:none}
-  .page-consign,.page-verify{padding-bottom:0}
-  .page-consign #nj-consent,.page-verify #nj-consent{bottom:12px}
+  .page-consign,.page-verify,.page-wanted{padding-bottom:0}
+  .page-consign #nj-consent,.page-verify #nj-consent,.page-wanted #nj-consent{bottom:12px}
 }
 
 @media (max-width:560px){
@@ -437,6 +467,11 @@
   .cs-trow > div{padding:11px 9px}
   .cs-seg{grid-template-columns:1fr;gap:7px}
   .cs-seg span{text-align:left;padding:12px 15px}
+  /* สองแบบนี้ข้อความสั้นพอที่จะเรียงหลายช่องบนจอแคบได้ ไม่ต้องกินความสูงข้อละบรรทัด */
+  .cs-seg-2{grid-template-columns:repeat(2,1fr);gap:6px}
+  .cs-seg-2 span{text-align:center;padding:11px 6px}
+  .cs-seg-auto{grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
+  .cs-seg-auto span{text-align:center;padding:11px 6px;font-size:12.5px}
   /* หน่วยราคาเป็นคำสั้น ๆ 3 คำ — เรียงเป็นแถวเดียวยังอ่านออกและกดถูก ไม่ต้องกินความสูง 3 บรรทัด */
   .cs-seg-tight{grid-template-columns:repeat(3,1fr);gap:6px}
   .cs-seg-tight span{text-align:center;padding:11px 4px;font-size:12.5px}
