@@ -146,12 +146,19 @@ function njTrack(name, params) {
 //    เหตุการณ์ที่ไม่มีชื่ออยู่ในนี้จะถูกทิ้งเงียบๆ ตั้งแต่ฝั่งเบราว์เซอร์ ไม่มี error ให้เห็น
 //    (messenger_click เคยตกหล่นตรงนี้มาก่อน ทั้งที่ server.js รับอยู่แล้ว — คลิก Messenger ทุกครั้งจึงหายไปเฉยๆ)
 var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_click', 'consign_view', 'consign_submit', 'consign_files',
-                          'share_view', 'video_75', 'propcheck_view', 'buyer_request_view'];
-function njTrackInternal(type) {
+                          'share_view', 'video_75', 'propcheck_view', 'buyer_request_view',
+                          'listing_view', 'phone_reveal'];
+// listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
+// เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
+// เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)
+function njTrackInternal(type, listingId) {
   if (NJ_INTERNAL_EVENTS.indexOf(type) < 0) return;
   try {
     var ref = njRef();
-    var body = JSON.stringify(ref ? { type: type, ref: ref } : { type: type });
+    var payload = { type: type };
+    if (ref) payload.ref = ref;
+    if (listingId) payload.listingId = String(listingId).slice(0, 20);
+    var body = JSON.stringify(payload);
     if (navigator.sendBeacon) {
       navigator.sendBeacon(NJ_API_BASE + '/api/public/track', new Blob([body], { type: 'application/json' }));
     } else {
