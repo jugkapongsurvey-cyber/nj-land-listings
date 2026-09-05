@@ -47,6 +47,10 @@
       <p class="vd-secsub">ตามทีมงานตั้งแต่ออกเดินทาง จนปักหมุดหลักเขตเสร็จ แบ่งเป็น 4 ตอน ตอนละ 30 วินาที</p>
       <div class="vd-grid" id="gridteam"></div>
 
+      <h2 class="vd-sec">พาดูสำนักงาน — ทีมงานทุกฝ่าย ตั้งแต่รับงานจนส่งลูกค้า</h2>
+      <p class="vd-secsub">คุยกับทีมงานทีละฝ่าย ว่างานรังวัดหนึ่งงานผ่านมือใครมาบ้าง แบ่งเป็น 10 ตอน ตอนละ 1 นาที</p>
+      <div class="vd-grid" id="gridoffice"></div>
+
       <section id="ytsec" class="vd-yt" hidden>
         <h2 class="vd-sec">คลิปใหม่จากช่อง YouTube</h2>
         <p class="vd-secsub">อัปคลิปขึ้นช่อง <a href="https://www.youtube.com/@njandconsulting" target="_blank" rel="noopener">รังวัดเอกชน เอ็นเจกรุ๊ป</a> แล้วคลิปจะมาขึ้นตรงนี้เองภายในไม่กี่นาที ไม่ต้องแก้เว็บ</p>
@@ -85,6 +89,38 @@
       { id: 'team4', dir: 'video/team/', who: 'ตอนที่ 4',
         title: 'เก็บค่าพิกัดทีละหมุด',
         desc: 'บันทึกค่าทุกจุดลงเครื่อง ตรวจย้อนหลังได้ — แนวเขตที่ถูกต้องมาจากค่าที่วัดจริง ไม่ใช่การกะจากภาพถ่าย' }
+    ];
+    var OFFICE = [
+      { id: 'office1', dir: 'video/office/', who: 'ตอนที่ 1',
+        title: 'สำนักงานรังวัดเอกชน ที่มีช่างขึ้นทะเบียน 13 ท่าน',
+        desc: 'พาเดินดูสำนักงานทั้งออฟฟิศ ว่าใครทำอะไรบ้าง ตั้งแต่รับเรื่องจนส่งรายงานถึงมือลูกค้า' },
+      { id: 'office2', dir: 'video/office/', who: 'ตอนที่ 2',
+        title: 'จะสร้างกำแพงทั้งที ต้องรู้ก่อนว่าเขตอยู่ตรงไหน',
+        desc: 'หัวหน้าทีมรังวัดเล่าวิธีเตรียมข้อมูลก่อนออกหน้างาน — สอบแนวเขตให้ชัดก่อน ค่อยลงเสาเข็ม' },
+      { id: 'office3', dir: 'video/office/', who: 'ตอนที่ 3',
+        title: 'แปลง 207 ไร่ ที่ไม่เหลือหลักฐานรังวัดเดิมเลย',
+        desc: 'งานที่ชลบุรี 207 ไร่ ที่ไม่มีหลักฐานรังวัดเดิมให้อ้างอิงสักชิ้น ช่างรังวัดเริ่มต้นจากอะไร' },
+      { id: 'office4', dir: 'video/office/', who: 'ตอนที่ 4',
+        title: 'ทุกงานรังวัดอยู่ในระบบ ไม่ได้จดใส่กระดาษ',
+        desc: 'ตารางงานที่บอกได้ทุกแปลงว่าวันไหนรังวัด วันไหนยื่นเรื่อง วันไหนรับเอกสาร ตรวจย้อนหลังได้' },
+      { id: 'office5', dir: 'video/office/', who: 'ตอนที่ 5',
+        title: 'ใบเสนอราคากับสัญญาว่าจ้าง ออกจากระบบ ไม่ใช่เขียนมือ',
+        desc: 'เจ้าหน้าที่ที่ดูแลใบเสนอราคาและสัญญาว่าจ้าง เล่าว่าเอกสารของลูกค้าออกมาจากไหน' },
+      { id: 'office6', dir: 'video/office/', who: 'ตอนที่ 6',
+        title: 'รังวัดเสร็จแล้ว งานเอกสารเพิ่งเริ่ม',
+        desc: 'ฝ่ายประสานงานราชการ — ตามเซ็นเอกสาร ตามเรื่องที่สำนักงานที่ดิน งานที่ลูกค้าไม่ค่อยเห็น' },
+      { id: 'office7', dir: 'video/office/', who: 'ตอนที่ 7',
+        title: 'รังวัดเสร็จแล้ว ลูกค้าได้อะไรกลับไปบ้าง',
+        desc: 'รายงานที่ส่งให้ลูกค้ามีอะไรอยู่ในนั้นบ้าง และทำไมถึงเอาไปก่อสร้างต่อได้เลย' },
+      { id: 'office8', dir: 'video/office/', who: 'ตอนที่ 8',
+        title: 'รายการรังวัดเก่า ที่หลักฐานไม่ครบ',
+        desc: 'ก่อนยื่นเรื่องต้องตรวจอะไรบ้าง — เอกสารครบไหม รายการรังวัดเดิมมีอะไรติดค้างอยู่หรือเปล่า' },
+      { id: 'office9', dir: 'video/office/', who: 'ตอนที่ 9',
+        title: 'ที่ดินหน้าแปลง ถูกถนนกินไปโดยไม่รู้ตัว',
+        desc: 'เคสที่ตั้งใจมาสอบเขต แต่พบว่าที่ดินหน้าแปลงกลายเป็นทางสาธารณะไปแล้ว จึงต้องเปลี่ยนเป็นแบ่งหัก' },
+      { id: 'office10', dir: 'video/office/', who: 'ตอนที่ 10',
+        title: 'มีที่ดินว่างเปล่า ฝากขายกับเราได้ฟรี',
+        desc: 'ที่ดินว่างเปล่าที่ยังไม่ได้ใช้ประโยชน์ ฝากขายกับเราได้ ไม่มีค่าใช้จ่ายในการฝาก' }
     ];
     var VIDEOS = [
       { id: 'clip1', who: 'เจ้าของที่ดิน',
@@ -128,6 +164,7 @@
     }
     document.getElementById('grid').innerHTML = VIDEOS.map(card).join('');
     document.getElementById('gridteam').innerHTML = TEAM.map(card).join('');
+    document.getElementById('gridoffice').innerHTML = OFFICE.map(card).join('');
 
     // คัดลอกลิงก์ — มี fallback ให้เบราว์เซอร์ที่ไม่รองรับ clipboard API
     document.body.addEventListener('click', function (e) {
@@ -142,7 +179,7 @@
     });
 
     // เล่นได้ทีละคลิป — กันเสียงซ้อนกันเวลาผู้ใช้กดหลายอัน
-    var vids = document.querySelectorAll('#grid video, #gridteam video');
+    var vids = document.querySelectorAll('#grid video, #gridteam video, #gridoffice video');
     vids.forEach(function (v) {
       v.addEventListener('play', function () {
         vids.forEach(function (o) { if (o !== v) o.pause(); });
