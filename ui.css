@@ -510,6 +510,46 @@
   #nj-consent button{flex:1}
 }
 
+/* ===========================================================================
+   แปลงที่ฝากไว้จากเครื่องนี้ + ปุ่มฝากแปลงถัดไป (6 ก.ย. 2569)
+   เจ้าของที่มีหลายแปลงต้องเห็นว่าตัวเองมีกี่แปลง และสลับไปมาได้โดยไม่กรอกทับกัน
+   =========================================================================== */
+.cs-mine{
+  margin:0 0 18px;padding:14px 16px;
+  background:var(--blue-light);border:1px solid #CFE0F0;border-radius:var(--r-md);
+}
+.cs-mine-head{font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.cs-mine-list{display:flex;flex-direction:column;gap:8px}
+.cs-mine-item{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  width:100%;text-align:left;font-family:inherit;cursor:pointer;
+  padding:11px 13px;border:1px solid var(--border);border-radius:11px;background:#fff;
+}
+.cs-mine-item:hover{border-color:var(--blue);box-shadow:var(--shadow-soft)}
+.cs-mine-item.on{border-color:var(--green);background:var(--green-light)}
+.cs-mine-id{font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap}
+.cs-mine-label{font-size:12.5px;color:var(--ink);line-height:1.5}
+.cs-mine-st{font-size:10.5px;font-weight:700;white-space:nowrap;padding:3px 9px;border-radius:20px;background:#EEF2F7;color:var(--sub)}
+.cs-mine-st.draft{background:#FFF3D6;color:#8A5A00}
+.cs-mine-st.sent{background:var(--green-light);color:#15803D}
+.cs-mine-st.lock{background:var(--blue-light);color:var(--blue)}
+.cs-mine-st.off{background:#F3F4F6;color:var(--muted)}
+.cs-mine-note{margin-top:10px;font-size:11.5px;color:var(--sub);line-height:1.6}
+
+.cs-again{
+  display:block;width:100%;margin-top:14px;padding:13px;
+  font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  border:1px solid var(--green);border-radius:11px;background:#fff;color:#15803D;
+}
+.cs-again:hover{background:var(--green-light)}
+.cs-again-note{margin-top:8px;font-size:11.5px;color:var(--sub);line-height:1.65;text-align:center}
+.cs-keep-btn.ghost{background:transparent;color:var(--muted);text-decoration:underline}
+
+@media (max-width:560px){
+  .cs-mine-item{grid-template-columns:auto 1fr;row-gap:4px}
+  .cs-mine-st{grid-column:2;justify-self:start}
+}
+
 /* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — ปิดทรานซิชันทั้งหมด */
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}

@@ -78,23 +78,82 @@ function locationText(a, detail) {
 // ไม่มีรหัสผ่าน · เก็บไว้ใน localStorage ของเครื่องนั้นเพื่อให้เปิดหน้านี้ใหม่แล้วกลับมาแก้ต่อได้
 // ภายในอายุตั๋ว 14 วัน (ฝั่งเซิร์ฟเวอร์เป็นคนบังคับอายุ ไม่ใช่ฝั่งนี้)
 var UPLOAD_MAX_MB = 8;
-var TICKET_KEY = 'njConsignTicket';
 var LEAD = { id: '', token: '', data: null };
+
+// ---------- ตั๋วของแปลงที่ฝากไว้จากเครื่องนี้ ----------
+//
+// เดิมเก็บตั๋วไว้ "ใบเดียวต่อเครื่อง" ซึ่งพังเมื่อเจ้าของอยากฝากแปลงที่สอง:
+// เปิดหน้ามาเจอตั๋วเดิม → ฟอร์มเข้าโหมดแก้ไข → กดบันทึกกลายเป็น PATCH ทับใบเดิม
+// แปลงแรกหายทั้งใบ และรูปของแปลงแรกยังค้างติดอยู่กับข้อมูลแปลงที่สอง
+// (พิสูจน์ด้วยการรันจริงเมื่อ 6 ก.ย. 2569 — ฝาก 2 แปลงแล้วเหลือใบเดียว)
+//
+// ตอนนี้เก็บเป็น "รายการ" หนึ่งรายการต่อหนึ่งแปลง · ตั๋วก้อนเดียวแบบเก่าที่ยังค้าง
+// อยู่ในเครื่องลูกค้าถูกย้ายขึ้นรายการให้อัตโนมัติครั้งแรกที่เปิดหน้า ไม่มีใครหลุด
+var TICKETS_KEY = 'njConsignTickets';
+var TICKET_KEY  = 'njConsignTicket';    // รูปแบบเดิม (ก้อนเดียว) — อ่านเพื่อย้ายขึ้นรายการเท่านั้น
+var OWNER_KEY   = 'njConsignOwner';     // ชื่อ+เบอร์ของเจ้าของ เพื่อไม่ต้องพิมพ์ซ้ำตอนฝากแปลงถัดไป
+var TICKETS_MAX = 12;
 
 // localStorage โยน exception ได้จริงในโหมดส่วนตัว/เบราว์เซอร์ที่ปิดการเก็บข้อมูลเว็บไซต์
 // พังตรงนี้ต้องไม่ทำให้ฟอร์มทั้งหน้าตาย — จำไม่ได้ก็แค่กลับมาแก้ทีหลังไม่ได้เท่านั้น
-function saveTicket() {
-  try { localStorage.setItem(TICKET_KEY, JSON.stringify({ id: LEAD.id, t: LEAD.token, at: Date.now() })); } catch (e) {}
-}
-function readTicket() {
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+function readTickets() {
+  var list = [];
   try {
-    var raw = localStorage.getItem(TICKET_KEY);
-    if (!raw) return null;
-    var o = JSON.parse(raw);
-    return (o && o.id && o.t) ? o : null;
+    var arr = JSON.parse(lsGet(TICKETS_KEY) || '[]');
+    if (Array.isArray(arr)) list = arr.filter(function (o) { return o && o.id && o.t; });
+  } catch (e) {}
+  // ย้ายตั๋วรูปแบบเก่าขึ้นรายการ (ทำครั้งเดียว แล้วลบคีย์เดิมทิ้ง)
+  var raw = lsGet(TICKET_KEY);
+  if (raw) {
+    try {
+      var o = JSON.parse(raw);
+      if (o && o.id && o.t && !list.some(function (x) { return x.id === o.id; })) {
+        list.unshift({ id: o.id, t: o.t, at: o.at || Date.now(), label: '' });
+      }
+    } catch (e) {}
+    lsDel(TICKET_KEY);
+    writeTickets(list);
+  }
+  return list;
+}
+function writeTickets(list) { lsSet(TICKETS_KEY, JSON.stringify((list || []).slice(0, TICKETS_MAX))); }
+
+// บันทึก/อัปเดตตั๋วของแปลงที่กำลังทำอยู่ — เรียกได้ซ้ำ ไม่สร้างรายการซ้ำ
+function saveTicket(label) {
+  if (!LEAD.id || !LEAD.token) return;
+  var list = readTickets();
+  var i = -1;
+  list.forEach(function (x, n) { if (x.id === LEAD.id) i = n; });
+  var item = { id: LEAD.id, t: LEAD.token, at: Date.now(), label: label || (i >= 0 ? list[i].label : '') || '' };
+  if (i >= 0) list.splice(i, 1);
+  list.unshift(item);
+  writeTickets(list);
+}
+// ลืมเฉพาะแปลงที่กำลังทำอยู่ (ตั๋วหมดอายุ/ใช้ไม่ได้) — แปลงอื่นในเครื่องต้องไม่กระทบ
+function clearTicket() {
+  if (!LEAD.id) return;
+  var id = LEAD.id;
+  writeTickets(readTickets().filter(function (x) { return x.id !== id; }));
+}
+function clearAllTickets() { lsDel(TICKETS_KEY); lsDel(TICKET_KEY); lsDel(OWNER_KEY); }
+
+// ---------- จำชื่อ+เบอร์เจ้าของ ----------
+// คนเดิมฝากหลายแปลงจากเครื่องเดียวกันคือเคสปกติ ไม่ควรให้พิมพ์ชื่อกับเบอร์ใหม่ทุกแปลง
+// แต่ต้องมีทางออกให้เครื่องที่ใช้ร่วมกัน (คอมออฟฟิศ) — ดูปุ่ม "ไม่ใช่ฉัน" ใน renderMine()
+function saveOwner(name, phone) {
+  if (!name && !phone) return;
+  lsSet(OWNER_KEY, JSON.stringify({ name: name || '', phone: phone || '' }));
+}
+function readOwner() {
+  try {
+    var o = JSON.parse(lsGet(OWNER_KEY) || 'null');
+    return (o && (o.name || o.phone)) ? o : null;
   } catch (e) { return null; }
 }
-function clearTicket() { try { localStorage.removeItem(TICKET_KEY); } catch (e) {} }
 
 function leadUrl(suffix, extra) {
   return NJ_API_BASE + '/api/public/consign/' + encodeURIComponent(LEAD.id) + (suffix || '') +
@@ -105,7 +164,11 @@ function leadUrl(suffix, extra) {
 function leadFetch(url, opt) {
   return fetch(url, opt || {}).then(function (r) {
     return r.json().catch(function () { return {}; }).then(function (d) {
-      if (!r.ok) throw new Error(d.error || 'ทำรายการไม่สำเร็จ');
+      if (!r.ok) {
+        var err = new Error(d.error || 'ทำรายการไม่สำเร็จ');
+        err.status = r.status;   // ผู้เรียกต้องแยกได้ว่าตั๋วใช้ไม่ได้จริง หรือแค่เน็ต/เซิร์ฟเวอร์มีปัญหาชั่วคราว
+        throw err;
+      }
       return d;
     });
   });
@@ -180,6 +243,9 @@ function renderFiles() {
 }
 function setLead(d) {
   LEAD.data = d;
+  // อัปเดตรายการแปลงจากข้อมูลจริงที่เพิ่งได้มา แล้ววาดใหม่ — ทางเดียวที่ป้ายสถานะจะไม่เพี้ยน
+  var m = MINE.filter(function (x) { return x.id === LEAD.id; })[0];
+  if (m) { m.data = d; renderMine(); }
   renderFiles();
   renderReport(d);
   renderKeep(d);
@@ -529,33 +595,198 @@ function fillForm(d) {
 }
 
 // ---------- เปิดใบเดิมกลับมา (จากลิงก์ ?id=&t= หรือจากตั๋วที่เครื่องนี้จำไว้) ----------
-function restoreLead(areaPrice) {
-  var qs = new URLSearchParams(location.search);
-  var id = qs.get('id'), t = qs.get('t');
-  if (!id || !t) {
-    var saved = readTicket();
-    if (!saved) return;
-    id = saved.id; t = saved.t;
-  }
-  LEAD.id = id; LEAD.token = t;
-  leadFetch(leadUrl(''))
+// ---------- ป้ายชื่อแปลงในรายการ ----------
+function parcelLabel(d) {
+  var t = String((d && d.parcelInfo) || '').trim();
+  return t || 'แปลงที่ยังไม่ได้ระบุที่ตั้ง';
+}
+function parcelStatus(d) {
+  if (!d) return { text: 'เปิดดู', cls: '' };
+  if (d.cancelled) return { text: 'ยกเลิกแล้ว', cls: 'off' };
+  if (!d.editable) return { text: 'ทีมงานรับเรื่องแล้ว', cls: 'lock' };
+  if (d.submittedAt) return { text: 'ส่งให้ทีมงานแล้ว', cls: 'sent' };
+  return { text: 'ยังไม่ได้ส่ง', cls: 'draft' };
+}
+
+// ---------- รายการ "แปลงที่คุณฝากไว้จากเครื่องนี้" ----------
+//
+// โผล่เมื่อเครื่องนี้มีตั๋วตั้งแต่ 2 แปลงขึ้นไปเท่านั้น
+// มีแปลงเดียว = เปิดแปลงนั้นให้เลยเหมือนเดิมทุกประการ (ไม่เพิ่มคลิกให้คนส่วนใหญ่)
+var MINE = [];
+// ตัวช่วยเนื้อที่/ราคาจาก NJLandForm — ตั้งค่าครั้งเดียวใน setupForm()
+// เก็บไว้ระดับไฟล์เพราะ setLead() ก็ต้องสั่งวาดรายการใหม่ แต่ไม่มีพารามิเตอร์ตัวนี้ใน scope
+var AP = null;
+function renderMine() {
+  var box = $('cs-mine'), list = $('cs-mine-list');
+  if (!box || !list) return;
+  if (MINE.length < 2) { box.hidden = true; return; }
+  box.hidden = false;
+  list.innerHTML = '';
+  MINE.forEach(function (it) {
+    var st = parcelStatus(it.data);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cs-mine-item' + (it.id === LEAD.id ? ' on' : '');
+    b.innerHTML = '<span class="cs-mine-id"></span><span class="cs-mine-label"></span>' +
+                  '<span class="cs-mine-st ' + st.cls + '"></span>';
+    // ข้อความทั้งหมดมาจากสิ่งที่ผู้ใช้กรอกเอง — ใส่ผ่าน textContent เท่านั้น ห้ามต่อเป็น HTML
+    b.querySelector('.cs-mine-id').textContent = it.id;
+    b.querySelector('.cs-mine-label').textContent = it.data ? parcelLabel(it.data) : (it.label || 'กำลังโหลด...');
+    b.querySelector('.cs-mine-st').textContent = st.text;
+    b.addEventListener('click', function () { openParcel(it.id, it.t); });
+    list.appendChild(b);
+  });
+}
+
+// ---------- เปิดแปลงหนึ่งขึ้นมาแก้ ----------
+function openParcel(id, token) {
+  LEAD.id = id; LEAD.token = token;
+  return leadFetch(leadUrl(''))
     .then(function (d) {
       fillForm(d);
-      if (areaPrice) areaPrice.render();
-      saveTicket();
+      if (AP) AP.render();
+      saveTicket(parcelLabel(d));
+      var m = MINE.filter(function (x) { return x.id === id; })[0];
+      if (m) m.data = d;
       enterSavedMode();
       setLead(d);
+      renderMine();
       // ทีมงานหยิบไปทำต่อแล้ว = แก้เองไม่ได้ ต้องบอกตรงๆ ไม่ใช่ปล่อยให้กดบันทึกแล้วเจอ error
       // ยกเลิกแล้วเป็นคนละเรื่องกับ "ทีมรับเรื่องไปแล้ว" — applyCancelled (ผ่าน setLead) พูดเรื่องนั้นไปแล้ว
       if (!d.editable && !d.cancelled) {
         var sub = $('cs-done-sub');
         if (sub) sub.textContent = 'ทีมงานรับเรื่องนี้ไปดำเนินการแล้ว — ถ้าต้องแก้ไขข้อมูลหรือถอดรูปออก ทักไลน์แจ้งทีมงานได้เลย';
       }
+      return d;
     })
-    .catch(function () {
-      // ตั๋วหมดอายุ/ไม่ถูกต้อง = ล้างทิ้งเงียบๆ แล้วปล่อยให้กรอกใหม่ตามปกติ
-      LEAD.id = ''; LEAD.token = ''; clearTicket();
+    .catch(function (e) {
+      // ลบตั๋วเฉพาะตอนเซิร์ฟเวอร์ยืนยันว่าใช้ไม่ได้จริง (403 ตั๋วผิด/หมดอายุ · 404 ไม่มีใบนี้แล้ว)
+      // เน็ตสะดุดหรือเซิร์ฟเวอร์ล่มชั่วคราวห้ามลบเด็ดขาด — ตั๋วคือทางเดียวที่เจ้าของจะกลับเข้ามาแก้ได้
+      // ไม่มีระบบสมาชิก ลบแล้วกู้เองไม่ได้ ต้องทักไลน์ให้ทีมงานออกลิงก์ใหม่
+      var gone = e && (e.status === 403 || e.status === 404);
+      if (gone) {
+        clearTicket();
+        MINE = MINE.filter(function (x) { return x.id !== id; });
+      }
+      LEAD.id = ''; LEAD.token = '';
+      renderMine();
+      return null;
     });
+}
+
+// ---------- ฝากขายแปลงถัดไป ----------
+//
+// หัวใจของการแก้บั๊ก: ต้อง "ปลดตั๋ว" ออกจากฟอร์ม ไม่งั้นการกดบันทึกครั้งถัดไป
+// จะกลายเป็น PATCH ทับแปลงเดิม (ดูตัวแปร editing ในตัวจัดการ submit)
+// คงชื่อ+เบอร์ไว้เพราะเป็นคนเดิม แต่ล้างที่ตั้ง/เนื้อที่/ราคา/บันทึก และซ่อนกล่องแนบรูป
+// ของแปลงก่อนหน้า — รูปผูกกับรหัสแปลง แนบเพิ่มได้ก็ต่อเมื่อกลับเข้าไปเปิดแปลงนั้น
+var DONE_DEFAULTS = null;
+function captureDoneDefaults() {
+  if (DONE_DEFAULTS) return;
+  function txt(id, fb) { var el = $(id); return el ? el.textContent : fb; }
+  DONE_DEFAULTS = {
+    'cs-done-icon': txt('cs-done-icon', '💾'),
+    'cs-done-title': txt('cs-done-title', 'บันทึกข้อมูลไว้แล้ว'),
+    'cs-done-sub': txt('cs-done-sub', ''),
+    'cs-send': txt('cs-send', '📨 ส่งให้ทีมงานตรวจสอบ'),
+    'cs-send-note': txt('cs-send-note', ''),
+    'cs-submit': txt('cs-submit', 'ส่งข้อมูล — ให้ทีมงานติดต่อกลับ')
+  };
+}
+function startNewParcel() {
+  var form = $('consign-form');
+  if (!form) return;
+  var n = form.querySelector('[name="name"]'), ph = form.querySelector('[name="phone"]');
+  var keepName = n ? n.value : '', keepPhone = ph ? ph.value : '';
+
+  // ปลดตั๋ว — ครั้งต่อไปที่กดบันทึกจะเป็นการสร้างใบใหม่ (POST) ไม่ใช่แก้ใบเดิม
+  LEAD.id = ''; LEAD.token = ''; LEAD.data = null;
+
+  form.reset();
+  if (n) n.value = keepName;
+  if (ph) ph.value = keepPhone;
+  var pdpa = form.querySelector('[name="pdpa"]');
+  if (pdpa) pdpa.checked = true;                     // ยินยอมไปแล้วในแปลงก่อนหน้า ไม่ต้องให้ติ๊กซ้ำ
+  ['#cs-province', '#cs-amphoe', '#cs-tambon'].forEach(function (sel) { setVal(sel, ''); });
+  var zip = $('cs-zip'); if (zip) zip.value = '';
+  setRadio('type', 'sell');
+  setRadio('priceUnit', 'wa');
+  if (AP) AP.render();
+
+  // กล่องหลังบันทึกทั้งกล่องเป็นของแปลงก่อนหน้า — ต้องซ่อนและคืนข้อความเริ่มต้น
+  captureDoneDefaults();
+  ['cs-done', 'cs-keep', 'cs-report', 'cs-cancelled'].forEach(function (id) {
+    var el = $(id); if (el) el.hidden = true;
+  });
+  Object.keys(DONE_DEFAULTS).forEach(function (id) {
+    var el = $(id); if (el) el.textContent = DONE_DEFAULTS[id];
+  });
+  var btn = $('cs-submit'); if (btn) btn.disabled = false;
+  var send = $('cs-send'); if (send) send.disabled = false;
+  showErr('');
+  renderMine();
+  var card = $('form');
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---------- เปิดหน้ามาแล้วทำอะไรต่อ ----------
+function bootConsign() {
+  captureDoneDefaults();
+  var qs = new URLSearchParams(location.search);
+  var id = qs.get('id'), t = qs.get('t');
+
+  MINE = readTickets().map(function (x) { return { id: x.id, t: x.t, label: x.label, data: null }; });
+
+  // ลิงก์แก้ไขที่เคยส่งให้ลูกค้าทางไลน์ไปแล้ว ต้องเปิดได้เหมือนเดิมเสมอ และเก็บเข้ารายการให้ด้วย
+  if (id && t) {
+    if (!MINE.some(function (x) { return x.id === id; })) MINE.unshift({ id: id, t: t, label: '', data: null });
+    openParcel(id, t).then(function () { loadMineStatus(); });
+    return;
+  }
+  if (!MINE.length) return;
+
+  var owner = readOwner();
+  if (owner) {
+    setVal('#consign-form [name="name"]', owner.name);
+    setVal('#consign-form [name="phone"]', owner.phone);
+  }
+
+  // แปลงเดียว = เปิดให้เลย (พฤติกรรมเดิมทุกประการ) · หลายแปลง = โชว์รายการ ฟอร์มเริ่มว่าง
+  if (MINE.length === 1) {
+    openParcel(MINE[0].id, MINE[0].t);
+    return;
+  }
+  renderMine();
+  loadMineStatus();
+}
+
+// ดึงสถานะจริงของทุกแปลงในรายการ — ป้ายในรายการต้องบอกความจริงวันนี้ ไม่ใช่วันที่บันทึกไว้
+// และเป็นการคัดตั๋วที่หมดอายุ/ถูกลบทิ้งออกจากเครื่องไปในตัว
+function loadMineStatus() {
+  if (MINE.length < 2) return;
+  MINE.slice().forEach(function (it) {
+    if (it.data) return;
+    var url = NJ_API_BASE + '/api/public/consign/' + encodeURIComponent(it.id) + '?t=' + encodeURIComponent(it.t);
+    fetch(url).then(function (r) {
+      if (r.ok) return r.json();
+      var e = new Error('bad'); e.status = r.status; return Promise.reject(e);
+    })
+      .then(function (d) {
+        it.data = d;
+        var list = readTickets();
+        list.forEach(function (x) { if (x.id === it.id) x.label = parcelLabel(d); });
+        writeTickets(list);
+      })
+      .catch(function (e) {
+        // เหมือน openParcel: ลบเฉพาะตอนตั๋วใช้ไม่ได้จริง · เน็ตมีปัญหาให้คงรายการไว้
+        // แล้วโชว์ป้ายที่บันทึกไว้ล่าสุดแทน ดีกว่าทำให้แปลงหายไปจากสายตาเจ้าของ
+        if (e && (e.status === 403 || e.status === 404)) {
+          MINE = MINE.filter(function (x) { return x.id !== it.id; });
+          writeTickets(readTickets().filter(function (x) { return x.id !== it.id; }));
+        }
+      })
+      .then(function () { renderMine(); });
+  });
 }
 
 function setupForm() {
@@ -613,6 +844,14 @@ function setupForm() {
       ref: location.search ? location.search.slice(1, 60) : 'consign_page'   // เก็บ utm ที่ติดมากับลิงก์โฆษณา
     };
 
+    // ฝากแปลงถัดไป = แนบตั๋วของแปลงก่อนหน้าไปด้วย เพื่อบอกเซิร์ฟเวอร์ว่าเป็นเจ้าของคนเดิม
+    // ไม่ใช่บอท — เพดานกันบอท 5 ใบ/10 นาทีจะถูกยกให้ (ดู consignThrottled ใน server.js)
+    // ไม่มีตั๋วก็ส่งได้ตามปกติ แค่ใช้เพดานของคนแปลกหน้า
+    if (!LEAD.id) {
+      var last = readTickets()[0];
+      if (last) v.prev = { id: last.id, t: last.t };
+    }
+
     var err = validate(v);
     if (err) { showErr(err); return; }
     showErr('');
@@ -634,6 +873,11 @@ function setupForm() {
       if (editing) {
         btn.textContent = '💾 บันทึกการแก้ไข';
         setLead(res);
+        saveTicket(parcelLabel(res));
+        saveOwner(v.name, v.phone);
+        var mine = MINE.filter(function (x) { return x.id === LEAD.id; })[0];
+        if (mine) mine.data = res;
+        renderMine();
         status('cs-up-photo-status', 'ok', '✓ บันทึกข้อมูลที่แก้ไขแล้ว');
         return;
       }
@@ -648,7 +892,13 @@ function setupForm() {
         $('cs-done').hidden = false;
         return;
       }
-      saveTicket();
+      saveTicket(res.parcelInfo || v.parcelInfo || '');
+      saveOwner(v.name, v.phone);
+      // เพิ่มแปลงใหม่เข้ารายการทันที เจ้าของจะได้เห็นว่าตอนนี้ตัวเองมีกี่แปลงในเครื่องนี้
+      if (!MINE.some(function (x) { return x.id === LEAD.id; })) {
+        MINE.unshift({ id: LEAD.id, t: LEAD.token, label: res.parcelInfo || v.parcelInfo || '', data: null });
+      }
+      renderMine();
       enterSavedMode();
       refreshLead();
       $('cs-done').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -661,7 +911,25 @@ function setupForm() {
     });
   });
 
-  restoreLead(areaPrice);
+  // ปุ่ม "ฝากขายแปลงถัดไป" — ปลดตั๋วแล้วเริ่มใบใหม่ (ดู startNewParcel)
+  var again = $('cs-again');
+  if (again) again.addEventListener('click', function () { startNewParcel(); });
+
+  // เครื่องที่ใช้ร่วมกัน (คอมออฟฟิศ) ต้องมีทางลบร่องรอยของคนก่อนหน้า
+  var forget = $('cs-forget');
+  if (forget) forget.addEventListener('click', function () {
+    if (!window.confirm('ลบรายการแปลงและชื่อ–เบอร์ที่จำไว้ในเครื่องนี้ทั้งหมด?\n\nข้อมูลที่ฝากไว้กับทีมงานไม่ได้ถูกลบ — แต่เครื่องนี้จะเปิดกลับมาแก้เองไม่ได้อีก')) return;
+    clearAllTickets();
+    MINE = [];
+    LEAD.id = ''; LEAD.token = ''; LEAD.data = null;
+    startNewParcel();
+    var nn = form.querySelector('[name="name"]'); if (nn) nn.value = '';
+    var pp = form.querySelector('[name="phone"]'); if (pp) pp.value = '';
+    var pd = form.querySelector('[name="pdpa"]'); if (pd) pd.checked = false;
+  });
+
+  AP = areaPrice;
+  bootConsign();
 }
 
 document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
