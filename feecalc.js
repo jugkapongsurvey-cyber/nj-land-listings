@@ -41,7 +41,7 @@
   // (สร้างด้วย landprice/refresh-building.js จากคลังข้อมูลเปิด ชุด "ราคาประเมินสิ่งปลูกสร้าง")
   // ราคาต่างกันตามจังหวัด จึงต้องให้ผู้ใช้เลือกจังหวัดด้วย ใช้ค่ากลางทั้งประเทศไม่ได้
   // โหลดไม่สำเร็จ = ตัวช่วยประมาณใช้ไม่ได้ ให้กรอกราคาประเมินเองแทน ห้าม fallback เป็นตัวเลขที่เดา
-  var BUILDING_URL = 'https://nj-survey-system.onrender.com/buildingprice.json';
+  var BUILDING_URL = 'https://app.njteedinsure.com/buildingprice.json';
   var BP = null;
   var bpPromise = null;                            // โหลดครั้งเดียว แชร์กับ valuecalc.js
 

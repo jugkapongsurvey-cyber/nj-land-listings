@@ -284,7 +284,7 @@
 
   function load(){
     var id=qs('id');
-    var base=window.NJ_API_BASE||'https://nj-survey-system.onrender.com';
+    var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
     if(!id){ fail('ไม่พบรหัสแปลงที่ดิน','ลิงก์อาจไม่สมบูรณ์ ลองเลือกแปลงจากหน้ารายการอีกครั้ง'); return; }
     fetch(base+'/api/public/listings')
       .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })

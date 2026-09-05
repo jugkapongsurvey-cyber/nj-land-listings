@@ -141,7 +141,7 @@
 
   // ดึงรายการสด · ผู้เรียกต้องจัดการทั้งกรณีสำเร็จและล้มเหลว (สองกรณีนี้ห้ามแสดงเหมือนกัน)
   function fetchListings() {
-    var base = window.NJ_API_BASE || 'https://nj-survey-system.onrender.com';
+    var base = window.NJ_API_BASE || 'https://app.njteedinsure.com';
     return fetch(base + '/api/public/listings')
       .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
       .then(function (data) { return (data.listings || []).map(normalize); });

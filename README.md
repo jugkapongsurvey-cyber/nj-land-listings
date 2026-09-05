@@ -3,7 +3,7 @@
 > หน้าแรกได้รับการปรับเป็น marketplace แบบ responsive แล้ว ดูแนวทางสำหรับ Claude Code ใน `CLAUDE.md` และระบบภาพใน `DESIGN-SYSTEM.md`
 
 เว็บสถิต (static site) ล้วนๆ — ไม่มี build step, ไม่มี backend ของตัวเอง ดึงข้อมูลแปลงที่ดินสดทุกครั้งที่มีคนเปิดเว็บจาก
-`https://nj-survey-system.onrender.com/api/public/listings` (endpoint สาธารณะ ไม่ต้อง login)
+`https://app.njteedinsure.com/api/public/listings` (endpoint สาธารณะ ไม่ต้อง login)
 
 ตามแผน Phase 2 ("Landing Page นำร่อง") ของ `nj-survey-system/docs/nj-roadmap-survey-to-realestate.md`
 
@@ -47,5 +47,5 @@
 ## ทดสอบก่อน deploy
 
 เปิด `index.html` ตรงๆ ในเบราว์เซอร์ได้เลย (ไม่ต้องมี local server ก็ได้ เพราะดึงข้อมูลจาก
-nj-survey-system.onrender.com โดยตรงผ่าน CORS) แต่ browser บางตัวบล็อก `fetch()` จากไฟล์ `file://`
+app.njteedinsure.com โดยตรงผ่าน CORS) แต่ browser บางตัวบล็อก `fetch()` จากไฟล์ `file://`
 ถ้าเจอปัญหานี้ให้รันเว็บเซิร์ฟเวอร์เล็กๆ ในโฟลเดอร์นี้แทน เช่น `npx serve .` หรือ `python -m http.server`

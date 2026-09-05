@@ -13,7 +13,7 @@ var META_PIXEL_ID = '2478386206003868';   // ชุดข้อมูล 'ที
 var GA4_ID        = '';        // เช่น 'G-XXXXXXXXXX'
 
 // ระบบงานรังวัดของเราเอง — เก็บสถิติแบบไม่มีคุกกี้ ไม่มี PII ใช้ตัดสินเกณฑ์ผ่าน Phase 2
-var NJ_API_BASE = 'https://nj-survey-system.onrender.com';
+var NJ_API_BASE = 'https://app.njteedinsure.com';
 
 // ---------------------------------------------------------------------------
 // ช่องทางติดต่อ — ประกาศไว้ที่เดียว ทุกหน้าโหลด analytics.js อยู่แล้ว

@@ -13,7 +13,7 @@
   //    ราคาจริงขึ้นกับหน้างาน (ระยะทาง สภาพพื้นที่ จำนวนหมุด ฯลฯ) ซึ่งเว็บไม่รู้
   //    จึงต้องเขียนกำกับไว้ทุกครั้ง และให้ทีมขายเป็นคนยืนยัน
 
-  var PRICING_URL = 'https://nj-survey-system.onrender.com/pricing.js';
+  var PRICING_URL = 'https://app.njteedinsure.com/pricing.js';
   var LINE = 'https://line.me/R/ti/p/@716lffzt';
 
   // ตัวเลือกเสริมที่ "ไม่ได้อยู่ในตารางราคาหลัก" — ส่งเข้า computeQuote ทาง fees
@@ -239,7 +239,7 @@
     btn.textContent = 'กำลังส่ง…';
     sent.hidden = true;
 
-    var base = window.NJ_API_BASE || 'https://nj-survey-system.onrender.com';
+    var base = window.NJ_API_BASE || 'https://app.njteedinsure.com';
     fetch(base + '/api/public/consign', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
