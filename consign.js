@@ -182,8 +182,34 @@ function setLead(d) {
   LEAD.data = d;
   renderFiles();
   renderReport(d);
+  renderKeep(d);
   if (d && d.submittedAt) markSent();
   applyCancelled(d);
+}
+
+// ---------- บอกวันหมดอายุจริงของลิงก์แก้ไข ----------
+//
+// เดิมเขียนตายตัวว่า "ภายใน 14 วัน" ซึ่งเจ้าของนับเองไม่ถูกว่าหมดวันไหน
+// ทั้งที่เซิร์ฟเวอร์ส่งวันหมดอายุจริงมาให้อยู่แล้ว (d.expiresAt)
+//
+// อายุลิงก์ถูกต่อให้อัตโนมัติทุกครั้งที่เปิดหน้านี้ (ฝั่งเซิร์ฟเวอร์) — คนที่กลับมาดูเรื่อยๆ
+// จึงไม่มีทางโดนตัด · ข้อความจึงต้องไม่ทำให้ตกใจ แต่ต้องบอกทางออกไว้ให้คนที่หายไปนาน
+var TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+function thaiDateShort(ms) {
+  var d = new Date(ms);
+  if (isNaN(d.getTime())) return '';
+  return d.getDate() + ' ' + TH_MONTHS[d.getMonth()] + ' ' + (d.getFullYear() + 543);
+}
+function renderKeep(d) {
+  var box = $('cs-keep-exp');
+  if (!box) return;
+  var exp = d && Number(d.expiresAt);
+  if (!exp) { box.textContent = ''; return; }
+  var left = Math.ceil((exp - Date.now()) / 86400000);
+  box.textContent = 'ลิงก์นี้ใช้ได้ถึง ' + thaiDateShort(exp) +
+    (left <= 3 ? ' — เหลืออีก ' + Math.max(0, left) + ' วัน ถ้าต้องใช้ต่อ ทักไลน์ขอลิงก์ใหม่ได้เลย' : '');
+  // เหลือน้อยกว่า 3 วันค่อยเปลี่ยนเป็นสีเตือน — ปกติแล้วเปิดหน้านี้ครั้งเดียวก็ต่ออายุให้แล้ว
+  box.className = 'cs-keep-exp' + (left <= 3 ? ' warn' : '');
 }
 
 // ---------- รายงาน "แปลงของคุณบนเว็บเป็นยังไงบ้าง" (ระลอก 2) ----------
