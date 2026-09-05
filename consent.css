@@ -1,0 +1,47 @@
+/* ===========================================================================
+   แบนเนอร์ขอความยินยอมคุกกี้ (PDPA) — สร้างโดย initConsent() ใน analytics.js
+
+   ⚠ หน้าไหนโหลด analytics.js ต้องมีสไตล์แบนเนอร์ด้วยเสมอ ไม่มีข้อยกเว้น
+   แบนเนอร์นี้คือประตูขอความยินยอมก่อนโหลด Meta Pixel ตัวจริง — ถ้าไม่มีสไตล์
+   มันจะขึ้นเป็นข้อความเปล่ากับปุ่มเปลือยท้ายหน้า ลูกค้าไม่รู้ว่าต้องตอบอะไร
+
+   ไฟล์นี้มีไว้สำหรับ 4 หน้าที่โหลด marketplace.css (guides · land · listings · videos)
+   ซึ่งไม่มีสไตล์แบนเนอร์อยู่เลย — เคยขึ้นเปลือยจริงบนเว็บ แก้เมื่อ 5 ก.ย. 2569
+   อีกสองกลุ่มมีสไตล์ของตัวเองอยู่แล้ว อย่าโหลดไฟล์นี้ทับ:
+     · index.html            → home.css (ดีไซน์ทอง-กรมท่า ชุดเดียวกับไฟล์นี้)
+     · consign/verify/wanted → ui.css   (ปุ่มยอมรับเป็นเขียว ตามสีปุ่มหลักของหน้านั้น)
+   (ยังซ้ำกัน 3 ที่ ถ้าจะยุบให้เหลือชุดเดียวควรทำทีเดียวทั้งเว็บ ไม่ใช่แก้ทีละหน้า)
+
+   ทุกค่าเขียนตรงๆ ไม่ใช้ var() เพราะ marketplace.css/warm.css ไม่ได้นิยาม
+   --gold --ink --green ไว้เลย (--green มีอยู่ใน style.css ไฟล์เดียว ซึ่ง 4 หน้านี้ไม่โหลด)
+   =========================================================================== */
+
+#nj-consent{
+  position:fixed;left:12px;right:12px;bottom:12px;z-index:900;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:#0B1F3A;color:#BFCAD6;border:1px solid rgba(216,185,107,.32);
+  padding:16px 20px;
+  font-size:13px;font-weight:300;line-height:1.7;
+}
+.nj-consent-text{flex:1;min-width:220px}
+.nj-consent-btns{display:flex;gap:9px;flex:none}
+#nj-consent button{
+  font-family:inherit;border:0;padding:11px 22px;
+  font-size:13px;font-weight:500;letter-spacing:.1em;cursor:pointer;white-space:nowrap;
+}
+.nj-consent-no{background:transparent;color:#8798A9;border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-yes{background:#D8B96B;color:#0B1F3A}
+
+/* มือถือ: 4 หน้านี้มีแถบเมนูล่าง .mobile-nav ลอยอยู่ที่ bottom:0 (z-index 200 ใน marketplace.css)
+   แบนเนอร์ z-index 900 จะทับพอดี เมนูหลักกดไม่ได้เลยจนกว่าจะตอบแบนเนอร์
+   จึงต้องยกแบนเนอร์ให้พ้นความสูงจริงของแถบ แล้วเว้น 12px เท่าขอบอื่น
+   ใช้ 50px คือความสูงที่วัดจากเบราว์เซอร์จริงที่ 375px ไม่ใช่ 69px ที่ body{padding-bottom} จองไว้ (เผื่อเกิน) */
+@media (max-width:640px){
+  #nj-consent{bottom:calc(50px + env(safe-area-inset-bottom) + 12px)}
+}
+
+@media (max-width:560px){
+  #nj-consent{font-size:12.5px;padding:13px 15px}
+  .nj-consent-btns{width:100%}
+  #nj-consent button{flex:1;padding:11px 6px}
+}
