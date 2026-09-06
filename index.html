@@ -275,6 +275,46 @@
     </div>
   </section>
 
+  <!-- แนะนำระบบทำงานของ เอ็นเจ กรุ๊ป — คลิปแนวตั้ง 9:16 พรีเซนเตอร์พูดกับกล้อง
+       วางคั่นระหว่างแถบ "บริการ" (ฟ้าอ่อน) กับ "ขั้นตอน" (ขาว) เพื่อให้จังหวะสีของหน้าไม่ราบ
+       และให้คนที่เพิ่งเข้ามาได้ภาพรวมก่อนอ่านขั้นตอนละเอียดที่อยู่ถัดลงไป
+       ⚠️ preload="none" + ต้องกดเล่นเอง — ไฟล์ 11 MB และคลิปมีเสียงพูด
+          เล่นเองอัตโนมัติจะกินเน็ตมือถือลูกค้าฟรีๆ และเสียงดังขึ้นมาเองกลางหน้าเว็บ -->
+  <section class="nj-intro" id="แนะนำระบบ" aria-labelledby="nj-intro-h">
+    <div class="nj-intro-bg" aria-hidden="true"></div>
+    <div class="nj-intro-in">
+      <div class="nj-intro-player">
+        <div class="nj-intro-frame">
+          <video id="nj-intro-video" src="video/nj-intro.mp4" poster="video/nj-intro-poster.jpg"
+                 playsinline preload="none" controls
+                 width="1080" height="1920"
+                 aria-label="วิดีโอแนะนำระบบทำงานของ เอ็นเจ กรุ๊ป ความยาว 1 นาที 18 วินาที"></video>
+          <button type="button" class="nj-intro-play" id="nj-intro-play" aria-label="เล่นวิดีโอแนะนำระบบทำงาน">
+            <span class="nj-intro-play-ring" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+            </span>
+            <span class="nj-intro-play-txt">เล่นวิดีโอแนะนำ<b>1:18 นาที · มีเสียง</b></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="nj-intro-copy">
+        <div class="nj-intro-eyebrow">แนะนำระบบทำงาน</div>
+        <h2 id="nj-intro-h">เอ็นเจ ทำงานยังไง ดูจบใน 1 คลิป</h2>
+        <p class="nj-intro-lede">
+          เราไม่ใช่เว็บรวมประกาศ และไม่ใช่นายหน้าที่รับประกาศต่อ — ทีมงานเป็นช่างรังวัดเอกชน
+          ที่มีใบอนุญาตตามกฎหมาย ทุกแปลงจึงผ่านการตรวจแนวเขตและเนื้อที่จริงก่อนขึ้นประกาศ
+        </p>
+        <ul class="nj-intro-points">
+          <li><b>รังวัดยืนยันก่อนประกาศ</b><span>แนวเขตและเนื้อที่จริง ไม่ใช่ตัวเลขที่คัดลอกจากหน้าโฉนด</span></li>
+          <li><b>ติดตามงานออนไลน์ทุกขั้น</b><span>ตั้งแต่วันยื่นเรื่องถึงวันโอน รู้คิวและวันนัดตลอดทาง</span></li>
+          <li><b>ตรวจให้ก่อนตัดสินใจซื้อ</b><span>แนวเขต ทางเข้าออก ผังเมือง และค่าใช้จ่ายวันโอน</span></li>
+        </ul>
+        <a class="nj-intro-cta" href="#ขั้นตอน">อ่านขั้นตอนแบบละเอียด</a>
+      </div>
+    </div>
+  </section>
+
   <section id="ขั้นตอน" style="max-width:1280px;margin:0 auto;padding:52px 32px 0">
     <div data-r="steps" style="display:grid;grid-template-columns:1fr 1.1fr;gap:52px;align-items:start">
       <div data-r="sticky" style="position:sticky;top:40px">
@@ -514,6 +554,7 @@
 <script src="marketplace.js"></script>
 <script src="surveyquote.js"></script>
 <script src="feecalc.js"></script>
+<script src="njintro.js"></script>
 
 
 </body>
