@@ -63,15 +63,28 @@
     });
     syncMarks(root);
   }
+  // ⚠️ **ห้ามเขียนทับ textContent โดยไม่เทียบค่าเดิมก่อนเด็ดขาด**
+  //
+  // เคยทำให้หน้าแรกและหน้ารวมประกาศ **ค้างทั้งแท็บ** มาแล้ว (เจอ 2026-09-06 ตอนรันหน้าจริงใน DOM จำลอง):
+  //   decorate() แปะปุ่มลงในตะแกรง → MutationObserver ที่เฝ้า childList+subtree ยิง →
+  //   decorate() → syncMarks() เขียน textContent ทับด้วยค่าเดิม → การเขียนทับสร้าง text node ใหม่
+  //   ซึ่งนับเป็น childList mutation → observer ยิงอีก → วนไม่รู้จบ กินซีพียู 100% ทันทีที่ประกาศโหลดเสร็จ
+  // การเขียนค่าเดิมทับ "ไม่ใช่การไม่เปลี่ยนอะไร" ในสายตาของ MutationObserver — มันคือการลบแล้วสร้างใหม่
+  //
+  // (setAttribute/classList ไม่เป็นปัญหาเพราะเราไม่ได้เฝ้า attributes แต่ก็เทียบก่อนเขียนไว้ด้วย
+  //  เผื่อวันหนึ่งมีคนเพิ่ม attributes:true เข้าไปในตัวเฝ้า)
   function syncMarks(root) {
     (root || document).querySelectorAll('[data-njcmp]').forEach(function (b) {
       var on = has(b.getAttribute('data-njcmp'));
-      b.setAttribute('aria-pressed', on ? 'true' : 'false');
-      b.classList.toggle('on', on);
+      var pressed = on ? 'true' : 'false';
+      if (b.getAttribute('aria-pressed') !== pressed) b.setAttribute('aria-pressed', pressed);
+      if (b.classList.contains('on') !== on) b.classList.toggle('on', on);
       // ป้ายบนปุ่มต่างกันตามที่ที่มันอยู่ (การ์ดมีที่แคบ · หน้ารายละเอียดมีที่พอเขียนเต็มประโยค)
       // จึงให้แต่ละปุ่มบอกข้อความของตัวเองมาได้ แล้วค่อยถอยไปใช้ข้อความสั้นของการ์ดเป็นค่าตั้งต้น
       var t = b.querySelector('.njcmp-txt');
-      if (t) t.textContent = on ? (b.getAttribute('data-on') || 'เลือกแล้ว') : (b.getAttribute('data-off') || 'เทียบ');
+      if (!t) return;
+      var label = on ? (b.getAttribute('data-on') || 'เลือกแล้ว') : (b.getAttribute('data-off') || 'เทียบ');
+      if (t.textContent !== label) t.textContent = label;
     });
   }
 
@@ -121,12 +134,21 @@
   }, true);
 
   // การ์ดมาจาก fetch จึงโผล่ทีหลังเสมอ — เฝ้าตะแกรงไว้แทนการเดาเวลาโหลดเสร็จ
+  //
+  // ⚠️ **ปลดตัวเฝ้าออกก่อนแปะปุ่มทุกครั้ง แล้วค่อยเฝ้าใหม่** — decorate() แก้ DOM ในตะแกรงที่ตัวเองเฝ้าอยู่
+  // ซึ่งแปลว่าทุกครั้งที่แปะปุ่ม ตัวเฝ้าจะยิงเรียกตัวเองซ้ำเสมอ · syncMarks มีด่านเทียบค่าเดิมกันลูปไว้แล้ว
+  // แต่สองชั้นดีกว่าชั้นเดียว: ชั้นนี้ตัดวงจรที่ต้นทาง ส่วนชั้นนั้นกันคนที่มาแก้ทีหลังเผลอเปิดวงจรใหม่
   function watch() {
     var grid = document.getElementById('listing-grid');
     decorate(document);
     renderBar();
     if (!grid || !window.MutationObserver) return;
-    new MutationObserver(function () { decorate(grid); }).observe(grid, { childList: true, subtree: true });
+    var mo = new MutationObserver(function () {
+      mo.disconnect();
+      decorate(grid);
+      mo.observe(grid, { childList: true, subtree: true });
+    });
+    mo.observe(grid, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
   else watch();
