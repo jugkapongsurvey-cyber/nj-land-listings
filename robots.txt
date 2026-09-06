@@ -1,0 +1,10 @@
+# ที่ดินชัวร์ — njteedinsure.com
+# เปิดให้เก็บข้อมูลได้ทุกหน้า เว็บนี้ไม่มีหน้าที่ต้องซ่อนจากเสิร์ชเอนจิน
+User-agent: *
+Allow: /
+
+# ลิงก์แก้ไขใบฝากขายของเจ้าของที่ดิน (consign.html?id=..&t=..)
+# ไม่ควรถูกเก็บเข้าดัชนี ถ้าวันไหนลิงก์หลุดไปโผล่ที่ไหน
+Disallow: /consign.html?*t=
+
+Sitemap: https://njteedinsure.com/sitemap.xml

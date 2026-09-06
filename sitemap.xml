@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ที่ดินชัวร์ — แผนผังเว็บไซต์
+     หน้าแปลงรายแปลง (land.html?id=OP-xxx) ไม่อยู่ในไฟล์นี้ เพราะเปลี่ยนไปมาตลอด
+     Google ตามเจอเองจากลิงก์ในหน้ารวมประกาศ (listingcard.js สร้าง <a href> จริง) -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- หน้าแรก -->
+  <url>
+    <loc>https://njteedinsure.com/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <!-- รวมประกาศขายที่ดิน -->
+  <url>
+    <loc>https://njteedinsure.com/listings.html</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- ฝากขายที่ดิน -->
+  <url>
+    <loc>https://njteedinsure.com/consign.html</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- ฝากหาที่ดิน -->
+  <url>
+    <loc>https://njteedinsure.com/wanted.html</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- ตรวจสอบทรัพย์ก่อนซื้อ -->
+  <url>
+    <loc>https://njteedinsure.com/verify.html</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- คู่มือที่ดิน + เครื่องคำนวณค่าโอน -->
+  <url>
+    <loc>https://njteedinsure.com/guides.html</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <!-- คลังวิดีโอ -->
+  <url>
+    <loc>https://njteedinsure.com/videos.html</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
