@@ -1,0 +1,96 @@
+/* เมนูมือถือ (ลิ้นชัก) — ใช้ร่วมกันทั้ง 9 หน้า ทั้งสามชุดสไตล์
+ *
+ * ⚠️ เว็บมีชุดสีอยู่ 3 ชุด (home.css โทนน้ำเงินเข้ม–ทอง · marketplace.css โทน navy–เขียว · ui.css)
+ * ลิ้นชักจึงประกาศสีของตัวเองครบทุกค่า ไม่ยืมตัวแปรของหน้าใดหน้าหนึ่ง — วางบนหน้าไหนก็หน้าตาเหมือนกัน
+ * (เขียนสไตล์แยกตามชุดสี = กับดักเดิมของโปรเจกต์ที่เพิ่มคลาสแล้วลืมแก้อีกไฟล์)
+ *
+ * ⚠️ ปุ่มถูกซ่อนด้วย display:none ตั้งแต่ต้น แล้ว menu.js เป็นคนเปิดให้เมื่อเมนูเดสก์ท็อปถูกซ่อนจริง
+ * ถ้าเขียนให้ปุ่มโชว์ตั้งแต่แรกแล้วให้ JS ซ่อน จะเห็นปุ่มกะพริบบนเดสก์ท็อปทุกครั้งที่โหลดหน้า
+ */
+.njmenu-btn{
+  display:none;                     /* menu.js เปิดให้เอง */
+  flex:none; width:44px; height:44px; padding:0; cursor:pointer;
+  background:transparent; border:1px solid rgba(140,160,185,.45); border-radius:10px;
+  align-items:center; justify-content:center;
+}
+.njmenu-bars, .njmenu-bars::before, .njmenu-bars::after{
+  display:block; width:19px; height:2px; background:currentColor; border-radius:2px;
+}
+.njmenu-bars{ position:relative; color:inherit; }
+.njmenu-bars::before, .njmenu-bars::after{ content:""; position:absolute; left:0; }
+.njmenu-bars::before{ top:-6px; }
+.njmenu-bars::after{ top:6px; }
+/* หัวเว็บหน้าแรกเป็นพื้นเข้ม ตัวอักษรขาว — ปุ่มยืมสีตัวอักษรของหัวเว็บมาใช้อยู่แล้ว (currentColor)
+   ส่วนหน้าอื่นหัวเว็บพื้นขาว จึงต้องบังคับสีเข้มไม่ให้ปุ่มจางจนมองไม่เห็น */
+.topbar .njmenu-btn, .header-nav ~ .njmenu-btn{ color:#0B2549; border-color:#DCE3EF; }
+header .njmenu-btn{ color:#fff; }
+.topbar .njmenu-btn{ color:#0B2549; }
+
+/* ---------- ฉากหลัง + ลิ้นชัก ---------- */
+.njmenu-backdrop{
+  /* ⚠️ ต้องสูงกว่าทุกอย่างที่ position:fixed ในเว็บนี้ — ค่าสูงสุดที่มีคือ 900
+     (.cs-bottombar 800 · แบนเนอร์คุกกี้ 900) · ต่ำกว่านั้นเมื่อไหร่ แถบล่างจะทับลิ้นชัก
+     แล้วดูเหมือนเมนูพัง (เจอจริงตอนพรีวิวหน้าฝากขาย) */
+  position:fixed; inset:0; z-index:960; background:rgba(6,17,33,.55);
+  -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
+}
+.njmenu-panel{
+  position:fixed; top:0; right:0; bottom:0; z-index:961;
+  width:min(84vw,340px); background:#0B2549; color:#fff;
+  display:flex; flex-direction:column; overflow-y:auto;
+  padding:0 0 calc(22px + env(safe-area-inset-bottom));
+  box-shadow:-14px 0 40px rgba(6,17,33,.42);
+  animation:njmenu-in .22s ease;
+}
+@keyframes njmenu-in{ from{ transform:translateX(100%) } to{ transform:none } }
+/* กติกาข้อ 7 ของโปรเจกต์ — คนที่ตั้งค่าปิดภาพเคลื่อนไหวต้องไม่เจอลิ้นชักเลื่อน */
+@media (prefers-reduced-motion:reduce){ .njmenu-panel{ animation:none } }
+/* [hidden] ต้องชนะ display:flex ข้างบน — กับดักเดิมของโปรเจกต์ (ดู ui.css) */
+.njmenu-panel[hidden], .njmenu-backdrop[hidden]{ display:none !important; }
+/* ล็อกไม่ให้หน้าข้างหลังเลื่อนตามขณะลิ้นชักเปิด */
+html.njmenu-open, html.njmenu-open body{ overflow:hidden; }
+
+.njmenu-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.14);
+}
+.njmenu-title{ font-size:13px; letter-spacing:.14em; color:#D8B96B; }
+.njmenu-close{
+  width:38px; height:38px; border-radius:9px; cursor:pointer;
+  background:rgba(255,255,255,.08); border:none; color:#fff; font-size:17px; line-height:1;
+}
+.njmenu-close:hover{ background:rgba(255,255,255,.16); }
+
+.njmenu-list{ display:flex; flex-direction:column; padding:6px 0; }
+.njmenu-list a{
+  display:block; padding:15px 18px; font-size:16px; font-weight:500;
+  color:#EAF1FA; text-decoration:none; border-bottom:1px solid rgba(255,255,255,.07);
+}
+.njmenu-list a:hover, .njmenu-list a:focus-visible{ background:rgba(216,185,107,.14); color:#fff; }
+.njmenu-list a.on{ color:#D8B96B; }
+
+.njmenu-cta{
+  margin:18px; padding:15px 18px; text-align:center; text-decoration:none;
+  background:#D8B96B; color:#0B2549; font-size:15.5px; font-weight:700; border-radius:11px;
+}
+.njmenu-cta:hover{ background:#E8CE8B; }
+
+/* โฟกัสต้องเห็นชัดบนพื้นเข้ม — ค่าเริ่มต้นของเบราว์เซอร์จมหายไปกับพื้น #0B2549 */
+.njmenu-panel :focus-visible, .njmenu-btn:focus-visible{
+  outline:2px solid #D8B96B; outline-offset:2px;
+}
+
+/* ---------- จัดที่ให้ปุ่มเมนูบนหัวเว็บจอเล็ก ----------
+ * หัวเว็บหน้าแรกมี โลโก้ + ปุ่ม "ฝากขายฟรี" อยู่แล้ว พอเพิ่มปุ่มเมนูเข้าไปที่ 390px
+ * ทั้งชื่อแบรนด์และปุ่มถูกบีบจนตัดบรรทัดกลางคำ (เห็นจริงตอนพรีวิว 390px)
+ *
+ * ตัดปุ่ม "ฝากขายฟรี" ออกจากหัวเว็บเฉพาะจอเล็ก — ไม่ได้ทำให้ทางเข้าหายไปไหนเลย
+ * เพราะยังมีอีก 3 ทางบนจอเดียวกัน: ปุ่มทองในแถบล่าง · ปุ่มใหญ่ใน hero · ปุ่มท้ายลิ้นชัก
+ * (หน้าที่ใช้ marketplace.css ซ่อน .post-btn ที่ 640px อยู่ก่อนแล้ว กติกานี้จึงตรงกันทั้งเว็บ)
+ */
+@media (max-width:640px){
+  header > div > a[href="consign.html"]{ display:none; }
+  .header-cta{ display:none; }
+  /* ชื่อแบรนด์ห้ามตัดบรรทัดกลางคำ — อ่านแล้วเหมือนเว็บพัง */
+  header .njmenu-btn{ margin-left:auto; }
+}
