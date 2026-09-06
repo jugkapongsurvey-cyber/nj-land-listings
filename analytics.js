@@ -147,7 +147,13 @@ function njTrack(name, params) {
 //    (messenger_click เคยตกหล่นตรงนี้มาก่อน ทั้งที่ server.js รับอยู่แล้ว — คลิก Messenger ทุกครั้งจึงหายไปเฉยๆ)
 var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_click', 'consign_view', 'consign_submit', 'consign_files',
                           'share_view', 'video_75', 'propcheck_view', 'buyer_request_view',
-                          'listing_view', 'phone_reveal'];
+                          'listing_view', 'phone_reveal',
+                          // ⚠️ ต้องตรงกับ PUBLIC_EVENT_TYPES ใน server.js เป๊ะ — เคยมีเคสที่ชนิดหนึ่ง
+                          // มีฝั่งเซิร์ฟเวอร์แต่ไม่มีในรายการนี้ แล้วเหตุการณ์ถูกทิ้งตั้งแต่เบราว์เซอร์โดยไม่มี error
+                          // inquiry_view = เปิดฟอร์มสนใจซื้อ · compare_open = เปิดตารางเปรียบเทียบ
+                          // ทั้งคู่ **ไม่ใช่ลีด** (การดูไม่ใช่การติดต่อ) ห้ามบวกเข้า leads ใน track/summary
+                          // ส่วน inquiry_submit เซิร์ฟเวอร์บันทึกเองตอนสร้างใบ ฝั่งนี้จึงไม่ต้องยิงซ้ำ
+                          'inquiry_view', 'compare_open'];
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)

@@ -186,6 +186,43 @@
 }
 .cs-calc-wait{color:#8A5A00;background:#FFF8E6;border-color:#FDE68A;font-weight:600}
 
+/* ---------- ตัวเลือก "รังวัดยืนยันเขตก่อนประกาศ" ในฟอร์มฝากขาย ----------
+   ⚠️ อย่าตั้ง display ให้ #cs-survey ที่นี่ — กล่องนี้ถูกซ่อน/เปิดด้วยแอตทริบิวต์ hidden
+   และกฎ [hidden]{display:none !important} ท้ายไฟล์นี้เป็นตัวเดียวที่กันกับดักเดิมไว้ */
+.cs-sv-flag{ font-size:13.5px; line-height:1.65; border-radius:10px; padding:10px 12px; margin-bottom:12px; }
+.cs-sv-flag.must{ background:#FFF4E5; border:1px solid #F0C07A; color:#8A5200; }
+.cs-sv-flag.free{ background:#EEF6FF; border:1px solid #BFD9F5; color:#14508F; }
+.cs-sv-opts{ display:grid; gap:8px; }
+.cs-sv-opt{ display:flex; gap:10px; align-items:flex-start; border:1px solid #DCE3EF; border-radius:10px;
+            padding:11px 12px; cursor:pointer; background:#fff; }
+.cs-sv-opt:hover{ border-color:#9FC0E8; }
+.cs-sv-opt input{ margin-top:3px; flex:none; width:17px; height:17px; accent-color:#1E6FE0; }
+.cs-sv-opt span{ display:block; }
+.cs-sv-opt b{ display:block; font-size:14px; font-weight:600; color:#12315F; }
+.cs-sv-opt i{ display:block; font-style:normal; font-size:12.5px; line-height:1.6; color:#6C7F99; margin-top:2px; }
+.cs-sv-opt input:checked ~ span b{ color:#0B4FA8; }
+.cs-sv-opt:has(input:checked){ border-color:#1E6FE0; background:#F6FAFF; }
+/* ตัวเลือกที่ถูกล็อกเพราะอยู่ในเขตบังคับ — ต้องอ่านออกว่า "เลือกไม่ได้" ไม่ใช่ดูเหมือนกดพลาด */
+.cs-sv-opt input:disabled ~ span{ opacity:.45; }
+.cs-sv-opt:has(input:disabled){ cursor:not-allowed; background:#F7F9FC; }
+.cs-sv-quote{ margin-top:12px; }
+.cs-sv-quote:empty{ display:none; }
+.cs-sv-box{ background:#F7F9FC; border:1px solid #DCE3EF; border-radius:10px; padding:11px 13px; }
+.cs-sv-price{ font-size:20px; font-weight:700; color:#12315F; font-family:Manrope,system-ui,sans-serif; }
+.cs-sv-price small{ font-size:13px; font-weight:500; color:#6C7F99; font-family:inherit; margin-left:6px; }
+.cs-sv-cut{ font-size:12.5px; color:#0F8A4F; font-weight:600; margin-top:3px; }
+.cs-sv-sub{ font-size:12.5px; line-height:1.65; color:#6C7F99; margin-top:6px; }
+.cs-sv-sub b{ color:#3D5470; }
+.cs-sv-pros{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.cs-sv-col{ border-radius:10px; padding:11px 13px; font-size:12.5px; line-height:1.7; }
+.cs-sv-col.good{ background:#F1F9F4; border:1px solid #C6E6D2; color:#1B5334; }
+.cs-sv-col.cost{ background:#FBF7F1; border:1px solid #E5D8C4; color:#6B5330; }
+.cs-sv-col b{ display:block; font-size:13px; margin-bottom:5px; }
+.cs-sv-col ul{ margin:0; padding-left:17px; }
+.cs-sv-col li{ margin-bottom:4px; }
+.cs-sv-col li:last-child{ margin-bottom:0; }
+@media (max-width:640px){ .cs-sv-pros{ grid-template-columns:1fr; } }
+
 /* ---------- ยินยอม PDPA ---------- */
 .cs-check{
   display:flex;gap:10px;align-items:flex-start;

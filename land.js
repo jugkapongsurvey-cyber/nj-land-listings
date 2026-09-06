@@ -223,6 +223,46 @@
     play();
   }
 
+  // ---------- รหัสทรัพย์ ----------
+  //
+  // ทำไมต้องเด่นขนาดนี้: ผู้ซื้อส่วนใหญ่ทักไลน์เข้ามาว่า "สนใจที่แปลงนึงในเว็บ" โดยไม่บอกว่าแปลงไหน
+  // ทีมงานต้องไล่ถามย้อน และบ่อยครั้งจับคู่กลับไม่ได้เลยว่าเป็นแปลงของผู้ฝากขายรายใด
+  // แปลว่า **เจ้าของที่ดินไม่เคยรู้ว่ามีคนสนใจแปลงของตัวเอง** ซึ่งเป็นสิ่งที่เราสัญญากับเขาไว้
+  // รหัสนี้คือกุญแจดอกเดียวที่ทำให้แอดมินเปิดใบที่ถูกต้องแล้วโทรแจ้งเจ้าของได้ทันที
+  //
+  // ⚠️ ปุ่มคัดลอกต้องมี fallback เสมอ — navigator.clipboard ใช้ไม่ได้บน http:// และในเว็บวิวบางตัว
+  // ล้มเหลวแล้วเงียบ = ผู้ซื้อคิดว่าคัดลอกแล้ว วางในไลน์ไม่ติด แล้วก็ไม่แจ้งรหัสอยู่ดี
+  function codeHtml(l){
+    return '<div class="ld-code">'+
+      '<div class="ld-code-main">'+
+        '<span class="ld-code-label">รหัสทรัพย์</span>'+
+        '<b class="ld-code-val" id="ld-code-val">'+esc(l.id)+'</b>'+
+      '</div>'+
+      '<div class="ld-code-acts">'+
+        '<button type="button" class="ld-code-btn" id="ld-code-copy" data-code="'+esc(l.id)+'">⧉ คัดลอกรหัส</button>'+
+        // ปุ่มนี้ให้ compare.js เป็นคนสลับข้อความ (data-on/data-off) — บนการ์ดใช้คำสั้นว่า "เทียบ"
+        // แต่บนหน้านี้มีที่พอเขียนเต็มประโยค จึงบอกข้อความของตัวเองไปให้
+        '<button type="button" class="ld-code-btn njcmp-inline" data-njcmp="'+esc(l.id)+'" '+
+          'data-off="＋ เทียบกับแปลงอื่น" data-on="✓ อยู่ในรายการเทียบแล้ว">'+
+          '<span class="njcmp-txt">＋ เทียบกับแปลงอื่น</span></button>'+
+      '</div>'+
+      '<p class="ld-code-note">แจ้งรหัสนี้ทุกครั้งที่ทักไลน์ โทร หรือส่งข้อความเข้ามา — ทีมงานจะเปิดแปลงที่ถูกใบได้ทันที '+
+        'และแจ้งเจ้าของที่ดินให้ทราบว่ามีผู้สนใจ</p>'+
+    '</div>';
+  }
+
+  // ---------- สนใจแปลงนี้ + บริการเพิ่มเติม ----------
+  // เนื้อในฟอร์มมาจาก njservices.js (รายการบริการชุดเดียวกับหน้าแรก) — ห้ามเขียนรายการซ้ำที่นี่
+  function inquiryHtml(){
+    if(!window.NJServices) return '';
+    return '<section class="njsv ld-inq" id="ld-inq" aria-labelledby="ld-inq-h">'+
+      '<h2 id="ld-inq-h">สนใจแปลงนี้ — ให้ทีมงานติดต่อกลับ</h2>'+
+      '<p class="ld-inq-lede">ระบบแนบรหัสทรัพย์ให้อัตโนมัติแล้ว ทีมงานจะรู้ทันทีว่าคุณสนใจแปลงไหน '+
+        'และถ้าซื้อแล้วอยากให้ดูแลเรื่องโอน ขออนุญาตก่อสร้าง หรือหาผู้รับเหมาต่อ ติ๊กบอกไว้ได้เลย</p>'+
+      '<div id="ld-inq-form"></div>'+
+    '</section>';
+  }
+
   function render(l){
     var L=l.land||{};
     var tier=l.tier===2?2:1;
@@ -243,6 +283,7 @@
         (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
         '<div id="ld-fee"></div>'+
         '<h1 class="ld-title">'+esc(l.parcelInfo||'แปลงที่ดิน')+'</h1>'+
+        codeHtml(l)+
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+
         mapHtml(L)+
@@ -257,6 +298,7 @@
           // ยิงทั้งคู่เมื่อไหร่ = นับคนเดิมสองครั้ง แล้วตัวเลขลีดจะสูงกว่าความจริง
           '<button type="button" class="ld-btn tel" id="ld-tel" data-reveal="'+esc(l.id)+'">📞 คลิกดูเบอร์โทร</button>'+
         '</div>'+
+        inquiryHtml()+
         '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
       '</div>';
 
@@ -267,6 +309,25 @@
     initGallery(document.querySelector('.ld-gal'), photos.length);
     var pdfBtn=document.getElementById('ld-pdf-btn');
     if(pdfBtn) pdfBtn.addEventListener('click', function(){ window.print(); });
+
+    // ปุ่มคัดลอกรหัสทรัพย์ — มีทางถอย 2 ชั้น เพราะ clipboard API ใช้ไม่ได้ทุกที่
+    var copyBtn=document.getElementById('ld-code-copy');
+    if(copyBtn) copyBtn.addEventListener('click', function(){
+      var code=copyBtn.getAttribute('data-code');
+      var ok=function(){ copyBtn.textContent='✓ คัดลอกแล้ว'; setTimeout(function(){ copyBtn.textContent='⧉ คัดลอกรหัส'; },2000); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(ok, function(){ prompt('คัดลอกรหัสนี้ไว้', code); });
+      } else { prompt('คัดลอกรหัสนี้ไว้', code); }
+    });
+
+    // ฟอร์มสนใจแปลง — ส่งรหัสแปลงเข้าไปให้ล็อกไว้ ผู้ซื้อจึงไม่มีทางพิมพ์รหัสผิด
+    var inqHost=document.getElementById('ld-inq-form');
+    if(inqHost&&window.NJServices){
+      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail' });
+      if(window.njTrackInternal) njTrackInternal('inquiry_view', l.id);
+    }
+    // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน
+    if(window.NJCompare){ NJCompare.sync(); NJCompare.renderBar(); }
 
     document.title=(l.parcelInfo||'แปลงที่ดิน')+' | ที่ดินชัวร์';
     if(window.njTrack) njTrack('ViewContent',{content_name:'land_detail',content_ids:[l.id],content_category:'tier'+tier});

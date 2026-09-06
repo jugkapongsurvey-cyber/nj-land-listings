@@ -1,0 +1,108 @@
+/* เปรียบเทียบแปลงที่ดิน — ปุ่มบนการ์ด · แถบลอยด้านล่าง · ตารางเทียบ
+ *
+ * ⚠️ สไตล์การ์ดในเว็บนี้แยกสองชุดตามชุดสี (home.css หน้าแรก · marketplace.css หน้าอื่น)
+ * ปุ่ม "เทียบ" จึงเขียนไว้ที่นี่ที่เดียว ไม่ใช่เพิ่มเข้าไปในสองไฟล์นั้น —
+ * ไม่งั้นจะเข้ากับดักเดิมของโปรเจกต์ที่เพิ่มคลาสใหม่แล้วลืมแก้อีกไฟล์จนอีกหน้าไม่มีสไตล์โดยไม่มี error
+ */
+
+/* ---------- ปุ่มบนการ์ด ---------- */
+.land-card .card-media{ position:relative; }
+.njcmp-btn{
+  position:absolute; right:8px; bottom:8px; z-index:3;
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font-family:inherit; font-size:12px; font-weight:700; color:#12315F;
+  background:rgba(255,255,255,.94); border:1px solid rgba(11,37,73,.14);
+  border-radius:20px; padding:6px 11px 6px 8px; backdrop-filter:blur(2px);
+}
+.njcmp-btn:hover{ background:#fff; border-color:#1E6FE0; }
+.njcmp-box{
+  width:14px; height:14px; border-radius:4px; border:1.5px solid #8598B4; background:#fff;
+  display:inline-block; flex:none; position:relative;
+}
+.njcmp-btn.on{ background:#1E6FE0; color:#fff; border-color:#1E6FE0; }
+.njcmp-btn.on .njcmp-box{ background:#fff; border-color:#fff; }
+.njcmp-btn.on .njcmp-box::after{
+  content:""; position:absolute; left:4px; top:0; width:4px; height:9px;
+  border:solid #1E6FE0; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+
+/* ---------- แถบลอยด้านล่าง ---------- */
+.njcmp-bar{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:16px; z-index:60;
+  display:flex; align-items:center; gap:14px; max-width:calc(100vw - 24px);
+  background:#0B2549; color:#fff; border-radius:14px; padding:11px 14px;
+  box-shadow:0 10px 30px rgba(11,37,73,.28); font-family:inherit; font-size:13.5px;
+}
+.njcmp-bar[hidden]{ display:none !important; }
+.njcmp-count b{ font-size:17px; margin-right:3px; }
+.njcmp-need{ color:#9DBBE0; font-size:12.5px; }
+.njcmp-go{
+  background:#D8B96B; color:#0B2549; font-weight:800; text-decoration:none;
+  border-radius:10px; padding:9px 14px; white-space:nowrap;
+}
+.njcmp-go:hover{ background:#E8CE8B; }
+.njcmp-clear{
+  background:none; border:none; color:#9DBBE0; font-family:inherit; font-size:12.5px;
+  cursor:pointer; text-decoration:underline; padding:4px;
+}
+/* เว็บมีแถบเมนูล่างบนมือถืออยู่แล้ว — ต้องยกแถบนี้ขึ้นไม่ให้ทับกัน */
+@media (max-width:860px){
+  .njcmp-bar{ bottom:76px; left:12px; right:12px; transform:none; max-width:none; justify-content:space-between; }
+  .njcmp-need{ display:none; }
+}
+
+/* ---------- หน้าเปรียบเทียบ ---------- */
+.njcmp-main{ max-width:1280px; margin:0 auto; padding:22px 20px 90px; font-family:inherit; }
+.njcmp-h1{ font-family:inherit; font-size:26px; font-weight:700; color:#0B2549; margin:0 0 6px; }
+.njcmp-lede{ font-size:14px; line-height:1.7; color:#5A7091; margin:0 0 20px; max-width:760px; }
+.njcmp-back{ display:inline-block; font-size:13.5px; color:#1552B0; text-decoration:none; margin-bottom:14px; }
+
+/* ตารางกว้างเกินจอเป็นเรื่องปกติเมื่อเทียบ 4 แปลง — ให้เลื่อนในกล่องของตัวเอง
+   ห้ามปล่อยให้ body เลื่อนแนวนอน (กติกา responsive ของโปรเจกต์) */
+.njcmp-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid #DCE3EF; border-radius:14px; background:#fff; }
+.njcmp-table{ border-collapse:collapse; width:100%; min-width:640px; font-size:13.5px; }
+.njcmp-table th, .njcmp-table td{
+  border-bottom:1px solid #EEF2F8; padding:11px 13px; text-align:left; vertical-align:top; color:#1B2536;
+}
+.njcmp-table tr:last-child th, .njcmp-table tr:last-child td{ border-bottom:none; }
+/* หัวแถวตรึงไว้ซ้าย เลื่อนตารางแล้วยังรู้ว่ากำลังอ่านบรรทัดอะไรอยู่ */
+.njcmp-table th[scope="row"]{
+  position:sticky; left:0; background:#F7F9FC; z-index:2; width:150px; min-width:150px;
+  font-weight:600; color:#5A7091; font-size:12.5px;
+}
+.njcmp-table td{ min-width:190px; }
+.njcmp-th-card{ background:#fff; padding:0 !important; }
+.njcmp-card{ display:block; text-decoration:none; color:inherit; padding:12px 13px; }
+.njcmp-card img{ width:100%; height:120px; object-fit:cover; border-radius:9px; display:block; background:#EEF2F8; }
+.njcmp-noimg{ width:100%; height:120px; border-radius:9px; background:#EEF2F8; }
+.njcmp-card-id{ display:block; font-size:11px; letter-spacing:.05em; color:#8598B4; margin-top:9px; }
+.njcmp-card-title{ display:block; font-size:14px; font-weight:700; line-height:1.5; color:#0B2549; margin-top:2px; }
+.njcmp-card-price{ display:block; font-size:17px; font-weight:800; color:#0B2549; margin-top:6px; }
+.njcmp-drop{
+  display:inline-block; margin-top:8px; font-size:12px; color:#B91C1C; background:#FEF2F2;
+  border:1px solid #FCA5A5; border-radius:8px; padding:5px 10px; cursor:pointer; font-family:inherit;
+}
+/* ป้ายจุดแข็ง — มอบให้เฉพาะแปลงที่มีข้อมูลช่องนั้นจริง (ไม่รู้ ≠ ชนะ และไม่รู้ ≠ แพ้) */
+.njcmp-wins{ display:flex; flex-wrap:wrap; gap:5px; }
+.njcmp-win{
+  font-size:11.5px; font-weight:700; border-radius:20px; padding:4px 9px;
+  background:#E8F5EE; color:#0F8A4F;
+}
+.njcmp-win.verified{ background:#E8F5EE; color:#0F8A4F; }
+.njcmp-win.price{ background:#EEF4FF; color:#1552B0; }
+.njcmp-win.size{ background:#FBF3E4; color:#8A6A2E; }
+.njcmp-none{ color:#9AABC2; }
+.njcmp-best{ background:#F4FBF6; }
+.njcmp-note{
+  font-size:12.5px; line-height:1.7; color:#5A7091; background:#F7F9FC;
+  border:1px solid #DCE3EF; border-radius:12px; padding:13px 15px; margin-top:16px;
+}
+.njcmp-empty{
+  background:#fff; border:1px solid #DCE3EF; border-radius:14px; padding:28px 24px; text-align:center;
+}
+.njcmp-empty b{ display:block; font-size:17px; color:#0B2549; margin-bottom:6px; }
+.njcmp-empty span{ display:block; font-size:14px; line-height:1.7; color:#5A7091; margin-bottom:14px; }
+.njcmp-empty a{
+  display:inline-block; background:#1E6FE0; color:#fff; text-decoration:none; font-weight:700;
+  border-radius:11px; padding:12px 20px;
+}

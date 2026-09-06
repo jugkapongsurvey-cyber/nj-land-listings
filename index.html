@@ -16,6 +16,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500&family=Trirong:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="njservices.css">
+  <link rel="stylesheet" href="compare.css">
   <link rel="stylesheet" href="surveyquote.css">
   <link rel="stylesheet" href="feecalc.css">
 </head>
@@ -39,6 +41,7 @@
           <a href="#มาตรฐาน" style="color:rgba(255,255,255,0.86)" class="hv-gold">มาตรฐาน</a>
           <a href="#ทีมเรา" style="color:rgba(255,255,255,0.86)" class="hv-gold">ทีมเรา</a>
           <a href="#บริการ" style="color:rgba(255,255,255,0.86)" class="hv-gold">บริการ</a>
+          <a href="#บริการเพิ่มเติม" style="color:rgba(255,255,255,0.86)" class="hv-gold">บริการหลังซื้อที่ดิน</a>
           <a href="#ขั้นตอน" style="color:rgba(255,255,255,0.86)" class="hv-gold">ขั้นตอน</a>
           <a href="wanted.html" style="color:rgba(255,255,255,0.86)" class="hv-gold">ฝากหาที่ดิน</a>
           <a href="guides.html" style="color:rgba(255,255,255,0.86)" class="hv-gold">คู่มือที่ดิน</a>
@@ -273,6 +276,30 @@
           <p style="font-size:15px;font-weight:300;line-height:1.7;color:#3D5470;margin:0">ปรึกษาเรื่องหลักเขต ข้อพิพาทแนวเขต และแนวทางไกล่เกลี่ยกับที่ดินข้างเคียง</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= บริการเพิ่มเติมหลังซื้อที่ดิน =================
+       จุดต่างที่เว็บประกาศทั่วไปไม่มี: ผู้ซื้อบอกได้ตั้งแต่วันแรกว่าหลังซื้อแล้วอยากให้ดูแลอะไรต่อ
+       (โอนกรรมสิทธิ์ · ขออนุญาตก่อสร้าง · ผู้รับเหมา) แทนที่จะต้องไปหาคนใหม่ทีละเจ้าเอง
+
+       ⚠️ รายการบริการอยู่ใน njservices.js ที่เดียว **ห้ามเขียนรายการซ้ำในหน้านี้**
+          หน้ารายละเอียดแปลงใช้รายการชุดเดียวกัน ไม่ตรงกันเมื่อไหร่ สถิติ "คนสนใจบริการไหน" อ่านไม่ได้
+       ⚠️ ชื่อบริษัทพันธมิตรยังไม่มีในระบบโดยตั้งใจ — ป้ายจะขึ้นว่า "ทีมงานจัดหาบริษัทพันธมิตรให้"
+          จนกว่าจะเติมชื่อจริงลง PARTNERS ใน njservices.js (กติกาข้อ 4/9 ห้ามชื่อบริษัทสมมติบนเว็บจริง) -->
+  <section class="njsv njsv-sec" id="บริการเพิ่มเติม" aria-labelledby="njsv-h">
+    <div class="njsv-in">
+      <div class="njsv-head">
+        <div class="njsv-eyebrow">ซื้อที่ดินแล้วไปต่อยังไง</div>
+        <h2 id="njsv-h">ซื้อที่ดินจบแล้ว งานที่เหลือเราต่อให้ได้ทั้งเส้น</h2>
+        <p class="njsv-lede">
+          เว็บประกาศทั่วไปจบที่ “ติดต่อผู้ขาย” — แต่หลังจากนั้นยังมีโอนกรรมสิทธิ์ ขออนุญาตก่อสร้าง
+          และหาผู้รับเหมา ซึ่งคนซื้อที่ดินครั้งแรกต้องไปหาเองทีละเจ้า
+          ที่ดินชัวร์ให้คุณ<b>ติ๊กบอกไว้ตั้งแต่วันแรก</b>ว่าอยากให้ดูแลอะไรต่อ
+          แล้วทีมงานจะจัดคนที่รับงานนั้นได้จริงมาคุยกับคุณ — ยังไม่ต้องมีแปลงในใจก็บอกไว้ได้
+        </p>
+      </div>
+      <div id="njsv-home-form" data-njsv-form data-njsv-wide data-njsv-ref="home"></div>
     </div>
   </section>
 
@@ -556,6 +583,10 @@
 <script src="surveyquote.js"></script>
 <script src="feecalc.js"></script>
 <script src="njintro.js"></script>
+<!-- บริการเพิ่มเติม + เปรียบเทียบแปลง — ต้องมาหลัง listingcard.js เพราะ compare.js
+     แปะปุ่ม "เทียบ" ลงบนการ์ดที่ listingcard.js เป็นคนวาด -->
+<script src="njservices.js"></script>
+<script src="compare.js"></script>
 
 
 </body>

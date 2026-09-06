@@ -7,6 +7,13 @@ var COMPANY_TEL = '02-162-0405';
 var COMPANY_TEL_ALT = '084-915-8601';
 
 function telHref(t) { return 'tel:' + String(t).replace(/[^0-9+]/g, ''); }
+// ค่าที่เอามาต่อเป็น HTML ในไฟล์นี้มาจากตารางราคาของระบบหลังบ้านเรา ไม่ใช่จากผู้ใช้ —
+// แต่ยังหนีอักขระเสมอ เพราะกติกาของโปรเจกต์คือชื่อไฟล์/ข้อความจากภายนอกห้ามต่อเป็นสตริง HTML ดิบ
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
 function $(id) { return document.getElementById(id); }
 
 // ---------- ลิงก์ติดต่อทุกจุดในหน้า ----------
@@ -48,6 +55,20 @@ function showErr(msg) {
 
 // จังหวัดที่บริษัทให้บริการอยู่จริง — ยกขึ้นบนสุดของ dropdown เพราะคนส่วนใหญ่ที่เข้าฟอร์มนี้อยู่ในกลุ่มนี้
 var SERVICE_PROVINCES = ['สมุทรปราการ', 'กรุงเทพมหานคร', 'ฉะเชิงเทรา', 'ชลบุรี', 'ระยอง', 'ปทุมธานี', 'นครนายก'];
+
+// ---------- "รังวัดยืนยันเขตก่อนประกาศ" — บังคับเฉพาะ กทม. และปริมณฑล ----------
+//
+// ⚠️ **รายชื่อนี้ต้องตรงกับ SURVEY_REQUIRED_PROVINCES ใน server.js เป๊ะ** — เซิร์ฟเวอร์เป็นผู้ตัดสินจริง
+// ตัวนี้มีไว้วาดหน้าจอให้ทันทีขณะพิมพ์เท่านั้น (ไม่ต้องรอยิงเน็ตทุกครั้งที่เปลี่ยนจังหวัด)
+// ไม่ตรงกันเมื่อไหร่ = หน้าเว็บบอกว่าเลือกได้ แต่พอบันทึกแล้วค่ากลับกลายเป็น "ต้องรังวัด" โดยไม่มีคำอธิบาย
+// (ตอนเปิดใบเดิมกลับมา เราใช้ค่า surveyRequired ที่เซิร์ฟเวอร์ส่งมาแทนเสมอ — ดู applySurveyFromLead)
+//
+// ⚠️ **บังคับ = บังคับก่อนขึ้นประกาศ ไม่ใช่บังคับก่อนส่งฟอร์ม** — ห้ามเอาไปบล็อกปุ่มบันทึกเด็ดขาด
+// คนที่ยังไม่พร้อมจ่ายค่ารังวัดก็ยังเป็นลีดที่ทีมขายคุยต่อได้ (กติกาเดียวกับหน้าฝากหาที่ดิน)
+var SURVEY_REQUIRED_PROVINCES = ['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'สมุทรสาคร', 'นครปฐม'];
+function surveyRequiredFor(province) {
+  return SURVEY_REQUIRED_PROVINCES.indexOf(String(province == null ? '' : province).trim()) >= 0;
+}
 
 // ประกอบข้อความที่ตั้งจากช่องที่เลือกไว้ ให้ทีมขายอ่านรวดเดียวจบในการ์ดโอกาสทางธุรกิจ
 // กรุงเทพฯ ใช้ "แขวง/เขต" ต่างจังหวัดใช้ "ต./อ." — ชื่ออำเภอในกรุงเทพฯ มีคำว่า "เขต" นำมาอยู่แล้ว
@@ -589,6 +610,9 @@ function fillForm(d) {
   setRadio('priceUnit', d.priceUnit || 'wa');
   setVal('#cs-price', d.unitPrice || '');
   setVal('#consign-form [name="note"]', d.note);
+  // ตัวเลือกรังวัดต้องเติมหลังที่ตั้ง เพราะสถานะ "บังคับ" คำนวณจากจังหวัด
+  // และต้องใช้ธง surveyRequired ที่เซิร์ฟเวอร์ส่งมา ไม่ใช่คำนวณเองซ้ำ (เซิร์ฟเวอร์เป็นผู้ตัดสินจริง)
+  if (SV) SV.applyFromLead(d);
   // เคยยินยอมไปแล้วตอนบันทึกครั้งแรก — ติ๊กคืนให้ ไม่ต้องให้ติ๊กซ้ำทุกครั้งที่กลับมาแก้
   var pdpa = document.querySelector('#consign-form [name="pdpa"]');
   if (pdpa) pdpa.checked = true;
@@ -616,6 +640,7 @@ var MINE = [];
 // ตัวช่วยเนื้อที่/ราคาจาก NJLandForm — ตั้งค่าครั้งเดียวใน setupForm()
 // เก็บไว้ระดับไฟล์เพราะ setLead() ก็ต้องสั่งวาดรายการใหม่ แต่ไม่มีพารามิเตอร์ตัวนี้ใน scope
 var AP = null;
+var SV = null;   // ตัวคุมกล่องรังวัด (ดู setupSurvey)
 function renderMine() {
   var box = $('cs-mine'), list = $('cs-mine-list');
   if (!box || !list) return;
@@ -711,6 +736,9 @@ function startNewParcel() {
   var zip = $('cs-zip'); if (zip) zip.value = '';
   setRadio('type', 'sell');
   setRadio('priceUnit', 'wa');
+  // form.reset() คืนค่า radio ให้แล้วก็จริง แต่ธง "บังคับ" ที่เซิร์ฟเวอร์ส่งมาของแปลงก่อนหน้ายังค้างอยู่
+  // ไม่ล้าง = แปลงใหม่ในต่างจังหวัดจะขึ้นว่าบังคับรังวัด เพราะแปลงก่อนหน้าอยู่ในกรุงเทพฯ
+  if (SV) SV.reset();
   if (AP) AP.render();
 
   // กล่องหลังบันทึกทั้งกล่องเป็นของแปลงก่อนหน้า — ต้องซ่อนและคืนข้อความเริ่มต้น
@@ -789,6 +817,130 @@ function loadMineStatus() {
   });
 }
 
+// ---------- กล่อง "รังวัดยืนยันเขตก่อนประกาศ" ----------
+//
+// ทำ 3 อย่าง แล้วเกาะอยู่กับช่องที่มีอยู่แล้วในฟอร์ม ไม่ได้เพิ่มช่องให้กรอกใหม่:
+//   1. อ่าน "จังหวัด" → ตัดสินว่าแปลงนี้อยู่ในเขตบังคับรังวัดไหม แล้วล็อก/ปลดล็อกตัวเลือกให้
+//   2. อ่าน "เนื้อที่" → ยิงเข้าตารางราคางานรังวัดจริงของบริษัท ได้ค่ารังวัดประมาณการทันที
+//   3. เขียนข้อดี–ข้อแลกเปลี่ยนให้อ่าน เฉพาะตอนที่ "เลือกได้จริง" เท่านั้น
+//      (เขตบังคับไม่ต้องโน้มน้าว — บอกเหตุผลว่าทำไมถึงบังคับก็พอ ไม่งั้นอ่านเหมือนขายของทั้งที่ไม่มีทางเลือก)
+//
+// ⚠️ **ตารางราคาไม่ได้อยู่ในไฟล์นี้** เรียกผ่าน NJSurveyQuote ซึ่งโหลด pricing.js จากระบบหลังบ้าน
+// โหลดไม่ได้ = ไม่แสดงราคาเลย แล้วให้ทักไลน์แทน **ห้าม fallback เป็นตัวเลขที่เดาเอง**
+function setupSurvey(getProvince, getTotalWa) {
+  var box = $('cs-survey');
+  if (!box) return null;
+  var flag = $('cs-sv-flag'), quote = $('cs-sv-quote'), pros = $('cs-sv-pros');
+  var radios = Array.prototype.slice.call(box.querySelectorAll('input[name="surveyOpt"]'));
+  if (!radios.length) return null;
+  box.hidden = false;                 // HTML ซ่อนไว้ ให้ไฟล์นี้เป็นคนเปิด (ดูคอมเมนต์ใน consign.html)
+
+  // ธงบังคับที่เซิร์ฟเวอร์ยืนยันมา — มีค่าเฉพาะตอนเปิดใบเดิมกลับมา (null = ยังไม่เคยคุยกับเซิร์ฟเวอร์)
+  var serverRequired = null;
+  var lastWa = -1, lastRequired = null;
+
+  function required() {
+    return serverRequired == null ? surveyRequiredFor(getProvince()) : serverRequired;
+  }
+  function pick(v) {
+    var r = radios.filter(function (x) { return x.value === v; })[0];
+    if (r) r.checked = true;
+  }
+  function value() {
+    var r = radios.filter(function (x) { return x.checked; })[0];
+    // เขตบังคับส่ง 'yes' เสมอ ไม่ว่าหน้าจอจะเป็นยังไง (เซิร์ฟเวอร์ทับให้อยู่แล้ว แต่ส่งให้ตรงกันตั้งแต่ต้นทาง
+    // จะได้ไม่มีจังหวะที่หน้าจอกับข้อมูลที่ส่งไปพูดคนละเรื่อง)
+    return required() ? 'yes' : (r ? r.value : 'undecided');
+  }
+
+  function drawFlag() {
+    var must = required();
+    if (must) {
+      flag.className = 'cs-sv-flag must';
+      flag.innerHTML = '<b>⚠ แปลงนี้อยู่ในกรุงเทพฯ/ปริมณฑล — ต้องรังวัดยืนยันเขตก่อนขึ้นประกาศ</b><br>' +
+        'ราคาที่ดินย่านนี้สูงจนแนวเขตคลาดไปหนึ่งเมตรมีผลเป็นเงินหลักแสน และแปลงส่วนใหญ่ติดกันหมด ' +
+        'เราจึงไม่ประกาศขายแปลงในเขตนี้โดยยังไม่ได้ยืนยันแนวเขตและเนื้อที่จริง — ' +
+        '<b>ส่งข้อมูลไว้ก่อนได้เลย</b> ทีมช่างรังวัดจะโทรกลับไปนัดวันและแจ้งค่าใช้จ่ายที่แน่นอนให้';
+    } else {
+      flag.className = 'cs-sv-flag free';
+      flag.innerHTML = getProvince()
+        ? '<b>แปลงนี้เลือกได้ — จะรังวัดก่อนหรือประกาศไปก่อนก็ได้</b><br>' +
+          'นอกกรุงเทพฯ และปริมณฑล เราไม่บังคับ แต่ป้ายบนประกาศจะต่างกันคนละแบบ อ่านข้อดี–ข้อแลกเปลี่ยนด้านล่างก่อนตัดสินใจ'
+        : '<b>เลือกจังหวัดด้านบนก่อน</b> แล้วระบบจะบอกว่าแปลงของคุณต้องรังวัดก่อนประกาศไหม ' +
+          'และค่ารังวัดโดยประมาณเท่าไหร่';
+    }
+  }
+
+  function drawOpts() {
+    var must = required();
+    radios.forEach(function (r) {
+      // เขตบังคับ: ล็อกให้เหลือ "ต้องการรังวัด" ทางเดียว — แต่ยังแสดงตัวเลือกอื่นแบบจางไว้
+      // ให้เห็นว่าเป็นข้อจำกัดของพื้นที่ ไม่ใช่ฟอร์มพัง หรือเราตัดตัวเลือกทิ้งเงียบๆ
+      r.disabled = must && r.value !== 'yes';
+    });
+    if (must) pick('yes');
+    pros.hidden = must;    // ไม่ต้องโน้มน้าวคนที่ไม่มีทางเลือก
+  }
+
+  // ---------- ค่ารังวัดประมาณการ ----------
+  function drawQuote() {
+    var wa = getTotalWa();
+    if (!(wa > 0)) {
+      quote.innerHTML = '<div class="cs-sv-box"><div class="cs-sv-sub">' +
+        'กรอก<b>เนื้อที่</b>ด้านบน แล้วระบบจะคำนวณค่ารังวัดโดยประมาณให้ทันที</div></div>';
+      return;
+    }
+    if (!window.NJSurveyQuote) { quote.innerHTML = ''; return; }
+    NJSurveyQuote.load().then(function () {
+      // ราคาคิดแบบ "รังวัดสอบเขต" ซึ่งเป็นงานที่ตรงกับคำว่ายืนยันแนวเขต
+      // งานแบ่งแยก/รวมโฉนดคิดคนละราคา — บอกไว้ในบรรทัดล่าง ไม่ใช่เดาแทนเจ้าของ
+      var r = NJSurveyQuote.quoteFromWa(wa, 'สอบเขต', { combo: true });
+      if (!r) { quote.innerHTML = ''; return; }
+      var baht = function (x) { return Math.round(Number(x) || 0).toLocaleString('en-US'); };
+      quote.innerHTML = '<div class="cs-sv-box">' +
+        '<div class="cs-sv-price">≈ ฿' + baht(r.subtotal) + '<small>ค่ารังวัดสอบเขตโดยประมาณ</small></div>' +
+        (r.combo ? '<div class="cs-sv-cut">รวมส่วนลด “รังวัด + ฝากขาย” 5% แล้ว (จาก ฿' + baht(r.beforeCombo) + ')</div>' : '') +
+        '<div class="cs-sv-sub">ราคานี้รวม <b>' + esc(r.includedService) + '</b> · ช่วงพื้นที่ ' + esc(r.rangeLabel) + '<br>' +
+          '<b>เป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา</b> — ราคาจริงขึ้นกับหน้างาน เช่น ระยะทาง สภาพพื้นที่ จำนวนหมุด ' +
+          'และคิวสำนักงานที่ดิน ซึ่งต้องให้ทีมช่างรังวัดประเมินก่อน ยังไม่รวม VAT และค่าธรรมเนียมของสำนักงานที่ดิน<br>' +
+          'งานแบ่งแยกโฉนดหรือรวมโฉนดคิดคนละราคา — แจ้งทีมงานตอนโทรกลับได้เลย</div>' +
+      '</div>';
+    }, function () {
+      // โหลดตารางราคาไม่ได้ — ห้ามเดาตัวเลข ให้ทางไปคุยกับคนแทน
+      quote.innerHTML = '<div class="cs-sv-box"><div class="cs-sv-sub">' +
+        'ตอนนี้ยังโหลดตารางราคางานรังวัดไม่ได้ — ' +
+        '<a href="' + LINE_OA_URL + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมงานตีราคาให้ →</a>' +
+        '</div></div>';
+    });
+  }
+
+  function sync() {
+    var must = required(), wa = getTotalWa();
+    // วาดใหม่เฉพาะตอนที่ค่าที่เกี่ยวข้องเปลี่ยนจริง — ฟังก์ชันนี้ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว
+    // วาดทุกครั้ง = ยิง NJSurveyQuote.load() ซ้ำ และกล่องราคากะพริบขณะพิมพ์เนื้อที่
+    if (must !== lastRequired) { lastRequired = must; drawFlag(); drawOpts(); }
+    if (wa !== lastWa) { lastWa = wa; drawQuote(); }
+  }
+
+  // เปิดใบเดิมกลับมา — เชื่อค่าจากเซิร์ฟเวอร์ก่อนเสมอ (มันคือค่าที่ถูกบันทึกไว้จริง)
+  function applyFromLead(d) {
+    serverRequired = (d && typeof d.surveyRequired === 'boolean') ? d.surveyRequired : null;
+    lastRequired = null;
+    if (d && d.surveyOpt) pick(d.surveyOpt);
+    sync();
+  }
+  function reset() {
+    serverRequired = null;
+    lastRequired = null; lastWa = -1;
+    pick('undecided');
+    sync();
+  }
+
+  box.addEventListener('change', function () { drawOpts(); });
+  sync();
+  return { value: value, sync: sync, applyFromLead: applyFromLead, reset: reset };
+}
+
 function setupForm() {
   var form = $('consign-form');
   if (!form) return;
@@ -798,13 +950,22 @@ function setupForm() {
   var addr = NJLandForm.initAddress({
     province: 'cs-province', amphoe: 'cs-amphoe', tambon: 'cs-tambon',
     provinceList: 'cs-province-list', amphoeList: 'cs-amphoe-list', tambonList: 'cs-tambon-list',
-    zip: 'cs-zip', note: 'cs-loc-note', pinned: SERVICE_PROVINCES
+    zip: 'cs-zip', note: 'cs-loc-note', pinned: SERVICE_PROVINCES,
+    // เปลี่ยนจังหวัด = สถานะบังคับรังวัดอาจเปลี่ยนตาม ต้องวาดกล่องรังวัดใหม่ทันที
+    onChange: function () { if (SV) SV.sync(); }
   });
   var areaPrice = NJLandForm.initAreaPrice({
     rai: 'cs-rai', ngan: 'cs-ngan', wa: 'cs-wa',
     price: 'cs-price', unitName: 'priceUnit',
-    areaOut: 'cs-area-out', priceOut: 'cs-price-out', priceLabel: 'cs-price-label'
+    areaOut: 'cs-area-out', priceOut: 'cs-price-out', priceLabel: 'cs-price-label',
+    // เปลี่ยนเนื้อที่ = ค่ารังวัดประมาณการเปลี่ยนตาม
+    onChange: function () { if (SV) SV.sync(); }
   });
+  // สร้างหลังสองตัวบน เพราะต้องอ่านค่าจากทั้งคู่ (และทั้งคู่จะเรียก SV.sync กลับมา)
+  SV = setupSurvey(
+    function () { return addr ? addr.value().province : ''; },
+    function () { return areaPrice ? areaPrice.value().totalWa : 0; }
+  );
 
   // แตะช่องแรก = แสดงว่าเริ่มสนใจจริง ใช้เป็นสัญญาณกลางทางให้ Meta เรียนรู้กลุ่มเป้าหมายเร็วขึ้น
   var startedOnce = false;
@@ -839,6 +1000,8 @@ function setupForm() {
       // ราคารวมที่คำนวณได้ — เซิร์ฟเวอร์คำนวณซ้ำจาก unitPrice × เนื้อที่เสมอ ไม่เชื่อค่านี้อย่างเดียว
       estValue: ap.estValue,
       note: String(fd.get('note') || '').trim(),
+      // ตัวเลือกรังวัด — เซิร์ฟเวอร์ทับเป็น 'yes' เองเมื่อจังหวัดอยู่ในเขตบังคับ (ไม่เชื่อค่านี้อย่างเดียว)
+      surveyOpt: SV ? SV.value() : 'undecided',
       pdpa: !!fd.get('pdpa'),
       website: String(fd.get('website') || ''),        // honeypot — คนจริงมองไม่เห็นช่องนี้
       ref: location.search ? location.search.slice(1, 60) : 'consign_page'   // เก็บ utm ที่ติดมากับลิงก์โฆษณา

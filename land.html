@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="land.css">
   <link rel="stylesheet" href="feecalc.css">
+  <link rel="stylesheet" href="njservices.css">
+  <link rel="stylesheet" href="compare.css">
   <link rel="stylesheet" href="consent.css">
 </head>
 <body>
@@ -43,6 +45,9 @@
 
   <script src="analytics.js"></script>
   <script src="feecalc.js"></script>
+  <!-- ต้องมาก่อน land.js — land.js เรียก NJServices.mount() และ NJCompare.sync() ตอนวาดหน้าเสร็จ -->
+  <script src="njservices.js"></script>
+  <script src="compare.js"></script>
   <script src="land.js"></script>
 </body>
 </html>

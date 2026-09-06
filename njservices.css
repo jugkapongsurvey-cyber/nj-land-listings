@@ -1,0 +1,121 @@
+/* บริการเพิ่มเติม (njservices.js) — สไตล์ชุดเดียวที่ใช้ได้ทั้งหน้าแรกและหน้ารายละเอียดแปลง
+ *
+ * ⚠️ เว็บมีชุดสีอยู่ 2 ชุด (home.css โทนน้ำเงินเข้ม–ทอง · marketplace.css โทน navy–เขียว)
+ * ไฟล์นี้จึงประกาศตัวแปรของตัวเองไว้ครบทุกค่า และ **ใช้ font-family:inherit ทุกที่**
+ * เพื่อให้แต่ละหน้ายืมฟอนต์ของตัวเองไป — วางบนหน้าไหนก็ไม่ตีกับชุดสีของหน้านั้น
+ * (คนละวิธีกับการเขียนสไตล์การ์ดซ้ำสองไฟล์ ซึ่งเคยทำให้ลืมแก้ที่ใดที่หนึ่งมาแล้ว)
+ */
+.njsv{
+  --njsv-ink:#12315F; --njsv-sub:#5A7091; --njsv-line:#DCE3EF;
+  --njsv-bg:#fff; --njsv-soft:#F5F8FC; --njsv-accent:#1E6FE0; --njsv-gold:#8A6A2E;
+  --njsv-ok:#0F8A4F;
+  font-family:inherit; color:var(--njsv-ink);
+}
+
+/* ---------- รายการบริการ ---------- */
+.njsv-list{ display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+.njsv-compact{ grid-template-columns:1fr; gap:6px; }
+@media (max-width:760px){ .njsv-list{ grid-template-columns:1fr; } }
+
+.njsv-item{
+  display:flex; gap:10px; align-items:flex-start; cursor:pointer;
+  background:var(--njsv-bg); border:1px solid var(--njsv-line); border-radius:11px; padding:12px 13px;
+}
+.njsv-item:hover{ border-color:#9FC0E8; }
+.njsv-item input{ flex:none; width:18px; height:18px; margin-top:2px; accent-color:var(--njsv-accent); cursor:pointer; }
+.njsv-body{ display:block; min-width:0; }
+.njsv-name{ display:block; font-size:14.5px; font-weight:600; line-height:1.45; color:var(--njsv-ink); }
+.njsv-icon{ font-style:normal; margin-right:7px; }
+.njsv-desc{ display:block; font-style:normal; font-size:12.5px; line-height:1.65; color:var(--njsv-sub); margin-top:3px; }
+/* ป้ายผู้ให้บริการ — ต้องอ่านออกทันทีว่าอันไหนบริษัททำเอง อันไหนต้องหาพันธมิตรมาให้ */
+.njsv-by{
+  display:inline-block; font-style:normal; font-size:11px; font-weight:700; line-height:1;
+  border-radius:20px; padding:5px 9px; margin-top:7px;
+}
+.njsv-by.own{ background:#E8F5EE; color:var(--njsv-ok); }
+.njsv-by.partner{ background:#F3EFE4; color:var(--njsv-gold); }
+.njsv-item:has(input:checked){ border-color:var(--njsv-accent); background:#F6FAFF; }
+.njsv-compact .njsv-item{ padding:9px 11px; }
+.njsv-compact .njsv-name{ font-size:13.5px; }
+
+/* ---------- ฟอร์ม ---------- */
+.njsv-form{ display:grid; gap:13px; }
+.njsv-contact{ display:grid; gap:13px; }
+/* แบบเต็มความกว้าง (หน้าแรก) — รายการบริการกาง 3 คอลัมน์ ช่องกรอกยุบเป็นการ์ดกลางหน้า */
+.njsv-wide .njsv-list{ grid-template-columns:repeat(3,1fr); }
+.njsv-wide .njsv-contact{
+  max-width:760px; margin:6px auto 0; background:#fff; border-radius:14px; padding:20px 22px;
+}
+@media (max-width:1080px){ .njsv-wide .njsv-list{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:760px){ .njsv-wide .njsv-list{ grid-template-columns:1fr; } }
+.njsv-fieldset{ display:grid; gap:8px; }
+.njsv-legend{ font-size:13px; font-weight:700; color:var(--njsv-ink); }
+.njsv-legend i{ font-style:normal; font-weight:400; color:var(--njsv-sub); }
+.njsv-field{ display:grid; gap:5px; }
+.njsv-field > span{ font-size:12.5px; font-weight:600; color:var(--njsv-sub); }
+.njsv-field > span i{ font-style:normal; font-weight:400; }
+.njsv-field input, .njsv-field textarea{
+  width:100%; box-sizing:border-box; font-family:inherit; font-size:15px; color:var(--njsv-ink);
+  background:var(--njsv-soft); border:1px solid var(--njsv-line); border-radius:10px; padding:11px 13px;
+}
+.njsv-field textarea{ resize:vertical; line-height:1.6; }
+.njsv-field input:focus, .njsv-field textarea:focus{ outline:2px solid var(--njsv-accent); outline-offset:-1px; background:#fff; }
+.njsv-hint{ font-style:normal; font-size:12px; line-height:1.6; color:var(--njsv-sub); }
+.njsv-row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:560px){ .njsv-row2{ grid-template-columns:1fr; } }
+
+/* รหัสทรัพย์ที่ล็อกไว้ — เป็นพระเอกของกล่องนี้ ต้องเด่นพอที่ผู้ซื้อจะจดไปแจ้งทางไลน์ได้ */
+.njsv-code.locked{
+  background:#0B2549; color:#fff; border-radius:12px; padding:13px 15px;
+}
+.njsv-code-label{ display:block; font-size:11.5px; letter-spacing:.04em; color:#9DBBE0; }
+.njsv-code-val{
+  display:block; font-size:24px; font-weight:800; letter-spacing:.06em; margin:2px 0 5px;
+  font-family:Manrope,ui-monospace,system-ui,sans-serif;
+}
+.njsv-code-note{ display:block; font-size:12px; line-height:1.65; color:#C7DAF2; }
+
+.njsv-hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+.njsv-submit{
+  font-family:inherit; font-size:15.5px; font-weight:700; color:#fff; cursor:pointer;
+  background:var(--njsv-accent); border:none; border-radius:11px; padding:14px 18px; width:100%;
+}
+.njsv-submit:hover{ background:#1558B8; }
+.njsv-submit:disabled{ opacity:.6; cursor:default; }
+.njsv-pdpa{ font-size:11.5px; line-height:1.65; color:var(--njsv-sub); margin:0; }
+
+.njsv-msg{ font-size:13px; line-height:1.6; border-radius:10px; padding:10px 13px; }
+.njsv-msg.bad{ background:#FEF2F2; border:1px solid #FCA5A5; color:#B91C1C; }
+.njsv-msg.wait{ background:#FFF8E6; border:1px solid #FDE68A; color:#8A5A00; }
+
+.njsv-done{
+  display:grid; gap:6px; background:#F1F9F4; border:1px solid #C6E6D2; border-radius:12px; padding:16px 17px;
+}
+.njsv-done b{ font-size:16px; color:#15803D; }
+.njsv-done span{ font-size:13.5px; line-height:1.7; color:#1B5334; }
+.njsv-done-sub{ font-size:12.5px !important; color:#3F6B52 !important; }
+.njsv-done a{ color:#0F8A4F; font-weight:700; }
+
+/* ---------- แถบบนหน้าแรก ----------
+ * ⚠️ **แถบนี้ต้องเป็นพื้นสว่าง ห้ามทำเป็นพื้นเข้ม** — มันวางต่อจากแถบ "บริการ" (#E7EEF5 ฟ้าอ่อน)
+ * และก่อนแถบ "แนะนำระบบทำงาน" (.nj-intro พื้น #050F1D เกือบดำ) ซึ่งตั้งใจไว้ให้เป็นจังหวะเข้ม
+ * ทำแถบนี้เข้มด้วยเมื่อไหร่ = พื้นเข้มสองแถบติดกัน จังหวะสีของหน้าแรกที่วางไว้จะพังทันที
+ * เส้นขอบบนมีไว้กันไม่ให้กลืนเป็นแถบเดียวกับ "บริการ" ที่อยู่เหนือขึ้นไป
+ */
+.njsv-sec{ background:var(--paper,#F4F7FA); color:#0B1F3A; border-top:1px solid #CFDBE6; }
+.njsv-sec .njsv-in{ max-width:1280px; margin:0 auto; padding:52px 32px; }
+.njsv-sec .njsv-eyebrow{ font-size:13px; letter-spacing:.06em; color:#1B4B7A; margin-bottom:16px; }
+/* หัวข้อบนหน้าแรกใช้ Trirong ตามดีไซน์ของหน้านั้น (หน้าอื่นที่ใช้ไฟล์นี้ไม่มีคลาส .njsv-sec) */
+.njsv-sec h2{
+  font-family:Trirong,serif; font-weight:500; font-size:38px; line-height:1.38;
+  letter-spacing:-0.01em; margin:0 0 14px; color:#0B1F3A;
+}
+.njsv-sec .njsv-lede{ font-size:16px; font-weight:300; line-height:1.75; color:#3D5470; max-width:720px; margin:0; }
+.njsv-sec .njsv-head{ margin-bottom:30px; }
+.njsv-sec .njsv-item{ border-color:#CFDBE6; }
+.njsv-sec .njsv-contact{ border:1px solid #CFDBE6; }
+@media (max-width:980px){
+  .njsv-sec h2{ font-size:29px; }
+  .njsv-sec .njsv-in{ padding:40px 20px; }
+}

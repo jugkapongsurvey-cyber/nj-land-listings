@@ -207,7 +207,16 @@
 
     function totalWa() { return toWa(raiEl.value, nganEl && nganEl.value, waEl && waEl.value); }
 
+    // ⚠️ **แจ้ง opt.onChange ต้องอยู่ในตัวห่อ ไม่ใช่ต่อท้าย paint()** — paint() มี early return
+    // หลายทาง (ยังไม่ใส่เนื้อที่ · ยังไม่ใส่ราคา) ซึ่งเป็นทางที่ผู้เรียกต้องรู้พอๆ กับทางที่คำนวณได้
+    // เอาไปต่อท้ายเมื่อไหร่ ค่ารังวัดบนหน้าฝากขายจะค้างตัวเลขเก่าตอนผู้ใช้ลบเนื้อที่ทิ้ง
     function render() {
+      paint();
+      // ห้ามให้ข้อผิดพลาดของผู้เรียกลามมาทำให้ฟอร์มเนื้อที่/ราคาตาย — สองอย่างนี้ไม่ควรผูกชะตากัน
+      if (opt.onChange) { try { opt.onChange(); } catch (e) {} }
+    }
+
+    function paint() {
       var w = totalWa();
       var u = unit();
 

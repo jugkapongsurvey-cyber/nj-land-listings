@@ -51,6 +51,54 @@
   var P = null;            // NJPricing เมื่อโหลดสำเร็จ
   var root, out, form;
 
+  // ---------------------------------------------------------------------------
+  // ตัวโหลดตารางราคา — แยกออกมาเป็นของกลาง เพราะตอนนี้มีสองหน้าที่ต้องใช้:
+  //   1. กล่อง "เช็กราคางานรังวัด" บนหน้าแรก (ของเดิม)
+  //   2. หน้าฝากขาย — ประเมินค่ารังวัดจากเนื้อที่ที่เจ้าของกรอกไว้แล้ว
+  //
+  // ⚠️ **แคช promise ไว้ตัวเดียว** (กติกาเดียวกับ NJFeeCalc.loadBuildingPrices)
+  // สองส่วนบนหน้าเดียวกันเรียกพร้อมกันต้องยิงเน็ตครั้งเดียว ไม่ใช่โหลด pricing.js สองรอบ
+  //
+  // ⚠️ โหลดไม่สำเร็จต้อง reject **ห้าม fallback เป็นตัวเลขที่เดาเอง** — ตารางราคาอยู่ที่เดียว
+  // คือระบบหลังบ้าน (ดูเหตุผลเต็มหัวไฟล์) ผู้เรียกต้องซ่อนราคาแล้วให้ทักไลน์แทน
+  var pricingPromise = null;
+  function loadPricing() {
+    if (window.NJPricing) { P = window.NJPricing; return Promise.resolve(P); }
+    if (pricingPromise) return pricingPromise;
+    pricingPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = PRICING_URL;
+      s.async = true;
+      s.onload = function () {
+        P = window.NJPricing || null;
+        if (P) resolve(P); else reject(new Error('โหลดตารางราคาไม่สำเร็จ'));
+      };
+      s.onerror = function () { P = null; reject(new Error('โหลดตารางราคาไม่สำเร็จ')); };
+      document.head.appendChild(s);
+    });
+    return pricingPromise;
+  }
+  // ประเมินค่ารังวัดจาก "เนื้อที่รวมเป็นตารางวา" — รูปแบบเดียวกับที่ฟอร์มฝากขายเก็บไว้แล้ว
+  // คืน null เมื่อยังไม่มีตารางราคา หรือยังไม่รู้เนื้อที่ — ผู้เรียกต้องซ่อนราคา ห้ามเดา
+  function quoteFromWa(totalWa, jobType, opt) {
+    if (!P) return null;
+    var rai = Number(totalWa || 0) / WA_PER_RAI;
+    if (!(rai > 0)) return null;
+    var args = {
+      jobType: JOBS.some(function (j) { return j.v === jobType; }) ? jobType : JOBS[0].v,
+      rai: rai, deeds: 1, splitPlots: 0, vatRate: 0, fees: []
+    };
+    if (!(opt && opt.combo)) return P.computeQuote(args);
+    // คิดราคาก่อนส่วนลดเพื่อเอายอดมาคูณ 5% — ขั้นตอนเดียวกับกล่องเช็กราคาบนหน้าแรกเป๊ะ
+    // (ผ่าน adjust ของ pricing.js ไม่ใช่ลบเอาเองทีหลัง ไม่งั้นบรรทัดแจกแจงจะไม่มีส่วนลดโผล่)
+    var pre = P.computeQuote(args);
+    var combo = -Math.round(pre.subtotal * COMBO_RATE);
+    var r = P.computeQuote(Object.assign({}, args, { adjust: combo }));
+    r.combo = combo;
+    r.beforeCombo = pre.subtotal;
+    return r;
+  }
+
   function baht(n) { return Math.round(Number(n) || 0).toLocaleString('en-US'); }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -315,13 +363,19 @@
     });
 
     // โหลดตารางราคาจากระบบหลังบ้าน — ล้มเหลวก็ยังเปิดกล่องได้ แค่ไม่มีราคาให้ดู
-    var s = document.createElement('script');
-    s.src = PRICING_URL;
-    s.async = true;
-    s.onload = function () { P = window.NJPricing || null; render(); };
-    s.onerror = function () { P = null; render(); };
-    document.head.appendChild(s);
+    loadPricing().then(render, render);
   }
+
+  // ของกลางให้หน้าอื่นเรียก — หน้าฝากขาย (consign.js) ใช้ตัวนี้ประเมินค่ารังวัดจากเนื้อที่
+  // **ห้ามก๊อปตารางราคามาไว้ฝั่งนั้นเด็ดขาด** เหตุผลเดียวกับที่เขียนไว้หัวไฟล์
+  window.NJSurveyQuote = {
+    load: loadPricing,
+    quoteFromWa: quoteFromWa,
+    waFromArea: waFromArea,
+    raiTxt: raiTxt,
+    jobs: JOBS,
+    ready: function () { return !!P; }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

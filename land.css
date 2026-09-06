@@ -106,6 +106,35 @@
 }
 .ld-vlink{display:inline-block;font-size:12.5px;font-weight:600;color:var(--sub);text-decoration:none;margin-top:4px}
 .ld-vlink:hover{color:var(--navy);text-decoration:underline}
+/* ---------- รหัสทรัพย์ ----------
+   กุญแจที่ทำให้แอดมินจับคู่ "ผู้ซื้อที่ทักเข้ามา ↔ เจ้าของที่ดิน" ได้ จึงต้องเด่นพอให้จดไปแจ้งจริง
+   ⚠️ ซ่อนตอนสั่งพิมพ์ไม่ได้ — คนที่พิมพ์ประกาศออกมาอ่านคือคนที่ต้องใช้รหัสนี้ตอนโทรมาที่สุด */
+.ld-code{
+  background:#0B2549;color:#fff;border-radius:14px;padding:15px 17px;margin:14px 0 4px;
+}
+.ld-code-main{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.ld-code-label{font-size:12px;letter-spacing:.05em;color:#9DBBE0}
+.ld-code-val{
+  font-size:26px;font-weight:800;letter-spacing:.06em;
+  font-family:Manrope,ui-monospace,system-ui,sans-serif;
+}
+.ld-code-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ld-code-btn{
+  font-family:inherit;font-size:13px;font-weight:700;color:#0B2549;cursor:pointer;
+  background:#fff;border:none;border-radius:9px;padding:9px 13px;
+}
+.ld-code-btn:hover{background:#E8EEF7}
+.ld-code-btn.on{background:#D8B96B}
+.ld-code-note{font-size:12.5px;line-height:1.7;color:#C7DAF2;margin:10px 0 0}
+
+/* ---------- สนใจแปลงนี้ + บริการเพิ่มเติม ---------- */
+.ld-inq{
+  background:#F7F9FC;border:1px solid #DCE3EF;border-radius:16px;padding:20px 20px 22px;margin:22px 0;
+}
+.ld-inq h2{font-size:19px;font-weight:700;color:#0B2549;margin:0 0 5px;line-height:1.45}
+.ld-inq-lede{font-size:13.5px;line-height:1.75;color:#5A7091;margin:0 0 16px}
+@media print{ .ld-inq{display:none} }
+
 .ld-title{font-size:clamp(18px,3.4vw,23px);font-weight:600;line-height:1.5;margin:10px 0 6px;color:var(--ink)}
 .ld-loc{font-size:13.5px;color:var(--sub);margin-bottom:18px}
 .ld-blurb{font-size:14.5px;line-height:1.9;color:var(--sub);margin:0 0 20px}
