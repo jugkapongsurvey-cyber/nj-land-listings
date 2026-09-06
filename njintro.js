@@ -21,7 +21,7 @@
   sec.classList.add('js-ready');
   vid.removeAttribute('controls');
 
-  btn.addEventListener('click', function(){
+  function start(){
     btn.style.display = 'none';
     vid.setAttribute('controls', '');
     // เบราว์เซอร์บางตัวปฏิเสธการเล่น (นโยบายสื่อ/โหมดประหยัดข้อมูล) — คืนปุ่มให้กดใหม่
@@ -30,5 +30,18 @@
     if (p && typeof p.catch === 'function') {
       p.catch(function(){ vid.removeAttribute('controls'); btn.style.display = ''; });
     }
+  }
+
+  btn.addEventListener('click', start);
+
+  // ปุ่ม "ดูคลิปแนะนำระบบ" ที่ hero (และที่อื่นที่ติด data-nj-intro-play)
+  // ⚠️ ต้องเรียก start() ในจังหวะคลิกทันที ห้ามรอให้เลื่อนจอถึงก่อน — นโยบายสื่อของเบราว์เซอร์
+  // อนุญาตให้เล่นคลิปที่มีเสียงเฉพาะตอนที่ผู้ใช้เพิ่งกดเท่านั้น หน่วงเมื่อไหร่ play() ถูกปฏิเสธ
+  // แล้วผู้ใช้จะเลื่อนไปเจอจอนิ่งๆ ที่ต้องกดซ้ำอีกที
+  //
+  // ปล่อยให้ href พาไปที่แถบคลิปตามปกติ ไม่ preventDefault — ถ้าไฟล์นี้ไม่ทำงาน
+  // ลิงก์ยังต้องพาไปดูคลิปได้เหมือนลิงก์ธรรมดา
+  Array.prototype.forEach.call(document.querySelectorAll('[data-nj-intro-play]'), function(a){
+    a.addEventListener('click', start);
   });
 })();
