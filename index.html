@@ -160,32 +160,40 @@
     <a href="verify.html"><span class="quick-icon">06</span><b>ตรวจทรัพย์ก่อนซื้อ</b><small>บังคับคดี · ธนาคาร · BAM/SAM</small></a>
   </nav>
 
-  <!-- โรงฉายระบบ njsurvey — แถบเต็มจอสีเข้มคั่นระหว่างแถบค้นหากับรายการแปลง
-       ย้ายมาจากการ์ดวิดีโอมุมขวาบนของ hero (2026-08-30) การ์ดเดิมทับเมนูจนอ่านไม่ออก
-       และเล็กเกินกว่าจะดูรู้เรื่อง · ที่นี่เป็นจุดเดียวบนหน้าที่พื้นเข้ม สายตาจึงหยุดเอง
-       ปุ่มควบคุม/การเล่นอยู่ใน surveyquote.js (เล่นเมื่อเลื่อนถึง หยุดเมื่อเลื่อนพ้น) -->
-  <section class="nj-stage" id="ระบบ" aria-labelledby="nj-stage-h">
-    <div class="nj-stage-bg" aria-hidden="true"></div>
-    <div class="nj-stage-in">
-      <div class="nj-stage-eyebrow">ระบบติดตามงาน njsurvey</div>
-      <h2 id="nj-stage-h">ติดตามงานรังวัดออนไลน์ได้ทุกขั้น</h2>
-      <p class="nj-stage-lede">ตั้งแต่วันยื่นเรื่องถึงวันโอน เปิดดูสถานะงานและคิวสำนักงานที่ดินของแปลงตัวเองได้ตลอด ไม่ต้องโทรถาม</p>
-
-      <div class="nj-screen">
-        <div class="nj-screen-frame">
-          <video src="video/njsurvey.mp4" poster="video/njsurvey-poster.jpg" muted loop playsinline preload="none"
-                 aria-label="ภาพเคลื่อนไหวประกอบระบบติดตามงานรังวัด njsurvey"></video>
-          <div class="nj-screen-sheen" aria-hidden="true"></div>
+  <!-- แถบคลิปโฆษณา "ตรวจก่อนโอน" — แทนที่โรงฉาย .nj-stage เดิม (2026-09-07)
+       ของเดิมเป็นโมชั่นกราฟิก 3D ลอย 8 วิ เจ้าของสั่งให้เอาออก แล้วใช้คลิปพรีเซนเตอร์แทน
+       · ใช้คลาสชุด .nj-intro ร่วมกับแถบ "แนะนำระบบทำงาน" ด้านล่าง — คลิปแนวตั้ง 9:16 เหมือนกัน
+         ยัดลงกรอบ 16:9 ของ .nj-screen เดิมไม่ได้ จะเหลือแถบดำสองข้างกินพื้นที่กว่าครึ่งจอ
+       · มีเสียงพูด จึงห้ามเล่นเอง — กติกาเดียวกับแถบล่าง (ตัวจัดการอยู่ใน njintro.js) -->
+  <section class="nj-intro" id="ตรวจก่อนโอน" aria-labelledby="nj-ad-h">
+    <div class="nj-intro-bg" aria-hidden="true"></div>
+    <div class="nj-intro-in">
+      <div class="nj-intro-player">
+        <div class="nj-intro-frame">
+          <video id="nj-ad-video" src="video/teedinsure-ad.mp4" poster="video/teedinsure-ad-poster.jpg"
+                 playsinline preload="none" controls
+                 width="1080" height="1920"
+                 aria-label="วิดีโอแนะนำที่ดินชัวร์ ตรวจข้อมูลแปลงก่อนโอน ความยาว 30 วินาที"></video>
+          <button type="button" class="nj-intro-play" id="nj-ad-play" aria-label="เล่นวิดีโอแนะนำที่ดินชัวร์">
+            <span class="nj-intro-play-ring" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+            </span>
+            <span class="nj-intro-play-txt">ดูคลิป 30 วินาที<b>ตรวจก่อนโอน ชัวร์ก่อนจ่าย</b></span>
+          </button>
         </div>
       </div>
 
-      <div class="nj-stage-points">
-        <div><b>ยื่นเรื่อง</b><i>รู้เลขคำขอและคิวสำนักงานที่ดิน</i></div>
-        <div><b>วันรังวัด</b><i>รู้วันนัดและทีมช่างที่ลงพื้นที่</i></div>
-        <div><b>ส่งมอบ</b><i>รับผลงานและเอกสารครบก่อนวันโอน</i></div>
+      <div>
+        <div class="nj-intro-eyebrow">ตรวจก่อนโอน ชัวร์ก่อนจ่าย</div>
+        <h2 id="nj-ad-h">รู้ให้ครบก่อนจ่ายเงิน<br>ว่าแปลงนั้นมีอะไรซ่อนอยู่</h2>
+        <p class="nj-intro-lede">ติดจำนองอยู่รึเปล่า อยู่ในผังเมืองที่สร้างไม่ได้ไหม มีทางเข้าออกจริงมั้ย — คำถามพวกนี้ควรได้คำตอบตั้งแต่ก่อนวางมัดจำ ไม่ใช่หลังโอน</p>
+        <ul class="nj-intro-points">
+          <li><b>ข้อมูลโฉนด</b><span>ประเภทเอกสารสิทธิ์และเนื้อที่ตามที่ระบุในเอกสาร</span></li>
+          <li><b>ผังเมืองและภาระผูกพัน</b><span>ผังสีของแปลง และประเด็นที่ควรตรวจเพิ่มก่อนตัดสินใจ</span></li>
+          <li><b>ทางเข้าออก</b><span>แปลงติดถนนจริงไหม เข้าออกทางไหนได้บ้าง</span></li>
+        </ul>
+        <a class="nj-intro-cta" href="verify.html">ให้เราตรวจแปลงให้ →</a>
       </div>
-
-      <a class="nj-stage-cta" href="videos.html">ดูวิดีโอทั้งหมด →</a>
     </div>
   </section>
 
