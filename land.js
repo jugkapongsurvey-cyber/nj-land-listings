@@ -13,6 +13,114 @@
   var TEL='tel:021620405';
   var TEL_TXT='02-162-0405';
 
+  // ---------- บอก Google ว่าหน้านี้คือแปลงไหน ----------
+  //
+  // หน้านี้เป็นหน้าเดียว (land.html) ที่เปลี่ยนเนื้อหาตาม ?id= จึงตั้ง canonical แบบคงที่ในไฟล์ HTML ไม่ได้
+  // ถ้าตั้งเป็น /land.html เฉยๆ ทุกแปลงจะถูกยุบรวมเป็นหน้าเดียวในสายตา Google เหลือแปลงเดียวในดัชนี
+  // ไม่ตั้งเลยดีกว่าตั้งผิด — ที่นี่จึงตั้งจาก JS หลังรู้แล้วว่าเป็นแปลงไหน
+  //
+  // ⚠️ ใส่เฉพาะข้อมูลที่มีจริงในแปลงนั้น ช่องไหนว่างให้ข้ามไป ห้ามเติมค่าแทน
+  // การประกาศราคา/รูป/พื้นที่ที่ไม่ตรงกับหน้าจอ ถือเป็นข้อมูลหลอกลวงตามเกณฑ์ของ Google
+  // และโดนตัดสิทธิ์แสดงผลพิเศษทั้งเว็บ ไม่ใช่แค่หน้านี้หน้าเดียว
+  var SITE_URL='https://njteedinsure.com';
+
+  // ---------- ชื่อสั้นของแปลง สำหรับชื่อหน้าและผลค้นหา ----------
+  //
+  // ห้ามใช้ parcelInfo เป็นชื่อหน้าตรงๆ — มันคือ "ที่ตั้ง · รายละเอียดที่เจ้าของพิมพ์ · เนื้อที่"
+  // ต่อกันเป็นก้อนเดียว และเจ้าของหลายรายพิมพ์ข้อความโฆษณาทั้งชุดลงในช่องรายละเอียด
+  // (เจอจริง: OP-025 ยาว 200+ ตัวอักษร) Google ตัดชื่อที่ยาวเกินราว 60 ตัวอักษรทิ้ง
+  // คนที่ค้นเจอจะเห็นชื่อขาดกลางประโยค อ่านไม่รู้เรื่อง และไม่รู้ว่าแปลงอยู่ที่ไหน
+  //
+  // จึงประกอบเองจากช่องที่แยกไว้แล้ว: ขาย/เช่า + ตำบล อำเภอ จังหวัด + เนื้อที่
+  // ช่องไหนไม่มีก็ข้าม ไม่เติมแทน · ถ้าไม่มีข้อมูลโครงสร้างเลยค่อยถอยไปตัดคำแรกของ parcelInfo
+  function localityOf(l){
+    var d=(l&&l.land)||{};
+    var p=[];
+    if(d.tambon)   p.push('ต.'+d.tambon);
+    if(d.amphoe)   p.push('อ.'+d.amphoe);
+    if(d.province) p.push('จ.'+d.province);
+    return p.join(' ');
+  }
+  function shortLabel(l){
+    var head=(l&&l.type==='rent')?'ให้เช่าที่ดิน':'ขายที่ดิน';
+    var loc=localityOf(l);
+    if(!loc){
+      // ไม่มีช่องแยก — ใช้ท่อนแรกของ parcelInfo (ท่อนที่ตั้ง) แล้วตัดความยาว
+      var first=String((l&&l.parcelInfo)||'').split(' · ')[0].trim();
+      loc=first.length>60?first.slice(0,60).trim()+'…':first;
+    }
+    var area=(l&&l.land&&l.land.deedArea)?String(l.land.deedArea).trim():'';
+    // ข้อมูลเก่าบางแปลงเก็บเนื้อที่เป็น "14-3-48" เฉยๆ ไม่มีหน่วย — เติมให้อ่านออกในผลค้นหา
+    // เติมเฉพาะรูปแบบ ไร่-งาน-วา ที่ชัดเจนเท่านั้น ข้อความอื่นปล่อยไว้ตามที่ทีมกรอก
+    if(/^\d+-\d+-\d+(\.\d+)?$/.test(area)) area+=' ไร่';
+    return [head, loc, area].filter(Boolean).join(' · ');
+  }
+  function setSeo(l, photos){
+    try{
+      var url=SITE_URL+'/land.html?id='+encodeURIComponent(l.id);
+      var link=document.querySelector('link[rel="canonical"]');
+      if(!link){ link=document.createElement('link'); link.rel='canonical'; document.head.appendChild(link); }
+      link.href=url;
+
+      var d={
+        '@context':'https://schema.org',
+        '@type':'RealEstateListing',
+        url:url,
+        name:shortLabel(l),
+        inLanguage:'th-TH',
+        isPartOf:{'@id':SITE_URL+'/#website'},
+        provider:{'@id':SITE_URL+'/#org'}
+      };
+      if(l.blurb) d.description=String(l.blurb).slice(0,600);
+      if(l.updatedAt) d.datePosted=l.updatedAt;
+      // รูปต้องเป็นลิงก์เต็มและเป็น https เท่านั้น — Google ไม่ดึงรูปที่เป็น http บนหน้า https
+      var imgs=(photos||[]).filter(function(u){ return /^https:\/\//.test(u); });
+      if(imgs.length) d.image=imgs.slice(0,8);
+
+      var land=l.land||{};
+      var place={'@type':'Place', name:localityOf(l)||shortLabel(l)};
+      if(land.province){
+        // ไทยมี 3 ชั้น (ตำบล/อำเภอ/จังหวัด) แต่ PostalAddress มีช่องให้ 2 ชั้น
+        // จับคู่แบบที่ใช้กันทั่วไป: ตำบล→streetAddress · อำเภอ→addressLocality · จังหวัด→addressRegion
+        // ไม่ใส่เลขที่/พิกัดจริง — API สาธารณะตัดออกโดยตั้งใจอยู่แล้ว (ดู publicLand ใน server.js)
+        place.address={'@type':'PostalAddress', addressCountry:'TH', addressRegion:land.province};
+        if(land.amphoe) place.address.addressLocality=land.amphoe;
+        if(land.tambon) place.address.streetAddress=land.tambon;
+      }
+      // เนื้อที่: ตารางวาไม่ใช่หน่วยสากล จึงแปลงเป็นตารางเมตร (1 ตร.ว. = 4 ตร.ม. ตรงตัว ไม่ใช่ค่าประมาณ)
+      if(Number(l.totalWa)>0){
+        place.additionalProperty=[
+          {'@type':'PropertyValue', name:'เนื้อที่', value:l.land&&l.land.deedArea?l.land.deedArea:(l.totalWa+' ตร.ว.')},
+          {'@type':'QuantitativeValue', name:'เนื้อที่ (ตารางเมตร)', value:Math.round(Number(l.totalWa)*4), unitCode:'MTK'}
+        ];
+      }
+      d.about=place;
+
+      if(Number(l.estValue)>0){
+        d.offers={
+          '@type':'Offer',
+          price:Number(l.estValue),
+          priceCurrency:'THB',
+          availability:'https://schema.org/InStock',
+          // 'sell' = ขายขาด · 'rent' = ให้เช่า — บอกให้ตรงกับที่หน้าจอแสดง
+          businessFunction: l.type==='rent' ? 'http://purl.org/goodrelations/v1#LeaseOut'
+                                            : 'http://purl.org/goodrelations/v1#Sell',
+          url:url,
+          seller:{'@id':SITE_URL+'/#org'}
+        };
+      }
+
+      var old=document.getElementById('ld-schema');
+      if(old) old.remove();
+      var sc=document.createElement('script');
+      sc.type='application/ld+json';
+      sc.id='ld-schema';
+      sc.textContent=JSON.stringify(d);
+      document.head.appendChild(sc);
+    }catch(e){ /* ข้อมูลให้เสิร์ชเอนจินพังห้ามทำให้หน้าแปลงพังตาม */ }
+  }
+
+
   // 7 หัวข้อตรวจ เรียงตามลำดับที่ผู้ซื้อสนใจ — ทางเข้า-ออกกับภาระจำยอมคือสิ่งที่คนกลัวที่สุด
   var CHECKS=[
     {k:'area',      t:'เนื้อที่วัดจริงในสนาม'},
@@ -329,7 +437,8 @@
     // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน
     if(window.NJCompare){ NJCompare.sync(); NJCompare.renderBar(); }
 
-    document.title=(l.parcelInfo||'แปลงที่ดิน')+' | ที่ดินชัวร์';
+    document.title=shortLabel(l)+' | ที่ดินชัวร์';
+    setSeo(l, photos);
     if(window.njTrack) njTrack('ViewContent',{content_name:'land_detail',content_ids:[l.id],content_category:'tier'+tier});
   }
 
