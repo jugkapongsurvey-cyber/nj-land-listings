@@ -45,6 +45,15 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <!-- ระบบติดตามงานรังวัด (หน้าอธิบาย + ทางเข้าพอร์ทัลลูกค้า)
+       ตัวระบบจริงอยู่ที่ app.njteedinsure.com ซึ่งต้องล็อกอิน จึงไม่ใส่ในแผนผังนี้
+       (หน้าที่บอตเข้าไม่ถึงแต่ประกาศไว้ = บอกกูเกิลถึงหน้าที่มันจะเจอแต่ประตูล็อก) -->
+  <url>
+    <loc>https://njteedinsure.com/portal.html</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
   <!-- คลังวิดีโอ -->
   <url>
     <loc>https://njteedinsure.com/videos.html</loc>

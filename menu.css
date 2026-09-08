@@ -80,6 +80,53 @@ html.njmenu-open, html.njmenu-open body{ overflow:hidden; }
   outline:2px solid #D8B96B; outline-offset:2px;
 }
 
+/* ===========================================================================
+   ทางเข้า "ระบบติดตามงานรังวัด" (พอร์ทัลลูกค้า) บนหัวเว็บ — อยู่ทุกหน้า
+   ประกาศไว้ในไฟล์นี้เพราะ menu.css เป็นไฟล์เดียวที่ทั้ง 9 หน้าโหลดครบ
+   (ชุดสไตล์หลักมี 3 ชุด · เขียนแยกตามชุดเมื่อไหร่ = ลืมแก้ไฟล์ใดไฟล์หนึ่งแน่นอน)
+
+   ⚠️ ลิงก์นี้ตั้งใจวางไว้ "นอก <nav>" ไม่ใช่เป็นเมนูข้อที่ 8 เพราะทางเข้าสำหรับ "ลูกค้าเดิม"
+      เป็นคนละหมวดกับเมนูเนื้อหาสำหรับคนที่เพิ่งเข้าเว็บ
+      แลกมาด้วยการที่ menu.js ต้องหยิบลิงก์นี้เข้าลิ้นชักเอง (ดู PORTAL_SELECTOR ที่นั่น)
+      — ยังเป็นการอ่านจากลิงก์จริงบนหน้า ไม่ได้พิมพ์รายการเมนูซ้ำในไฟล์ JS
+
+   ⚠️ **หน้าแรกไม่มีลิงก์นี้บนหัวเว็บ และห้ามใส่** — วัดแล้วแถวหัวเว็บของ index.html
+      เต็มพอดีจนโลโก้ต้องยอมถูกบีบ เติมปุ่มเข้าไปอีกอันเมนูตัดสองบรรทัดตั้งแต่จอ 1440
+      หน้าแรกใช้ทางเข้าที่การ์ด 04 ในแถบบริการ + ฟุตเตอร์แทน (ตัวที่ถือ data-njportal
+      คือลิงก์บนการ์ด — ลิ้นชักมือถือจึงยังได้ทางเข้านี้ครบเหมือนหน้าอื่น)
+   =========================================================================== */
+.nj-portal-link{
+  display:inline-flex; align-items:center; gap:7px; flex:none;
+  padding:10px 15px; border-radius:9px; text-decoration:none;
+  font-size:13.5px; font-weight:600; line-height:1; white-space:nowrap;
+  /* ค่าตั้งต้น = หัวเว็บพื้นเข้มของหน้าแรก */
+  color:#D8B96B; background:transparent; border:1px solid rgba(216,185,107,.45);
+}
+.nj-portal-link:hover{ background:rgba(216,185,107,.14); }
+/* หน้ารองทั้งสองชุด หัวเว็บพื้นขาว */
+.topbar .nj-portal-link, .site-header .nj-portal-link{
+  color:#0B2549; background:#fff; border-color:#DCE3EF;
+}
+.topbar .nj-portal-link:hover, .site-header .nj-portal-link:hover{
+  background:#F4F7FA; border-color:#0B2549;
+}
+/* หน้าพอร์ทัลเอง */
+.nj-portal-link.on,
+.topbar .nj-portal-link.on, .site-header .nj-portal-link.on{
+  color:#0B7A42; background:#E9F7EF; border-color:#9DDCBA;
+}
+.nj-portal-link:focus-visible{ outline:2px solid #1CA45C; outline-offset:2px; }
+
+/* ปุ่มรองท้ายลิ้นชัก (มือถือ) — menu.js สร้างจากลิงก์จริงบนหัวเว็บของหน้านั้น */
+.njmenu-portal{
+  margin:0 18px 18px; padding:14px 18px; text-align:center; text-decoration:none;
+  background:transparent; color:#EAF1FA; border:1px solid rgba(255,255,255,.35);
+  font-size:15px; font-weight:600; border-radius:11px;
+}
+.njmenu-portal:hover{ background:rgba(255,255,255,.1); color:#fff; }
+/* ไม่มีปุ่ม CTA หลักบนหน้านั้น = ปุ่มนี้เป็นก้อนแรกต่อจากรายการเมนู ต้องมีระยะห่างด้านบนเอง */
+.njmenu-list + .njmenu-portal{ margin-top:18px; }
+
 /* ---------- จัดที่ให้ปุ่มเมนูบนหัวเว็บจอเล็ก ----------
  * หัวเว็บหน้าแรกมี โลโก้ + ปุ่ม "ฝากขายฟรี" อยู่แล้ว พอเพิ่มปุ่มเมนูเข้าไปที่ 390px
  * ทั้งชื่อแบรนด์และปุ่มถูกบีบจนตัดบรรทัดกลางคำ (เห็นจริงตอนพรีวิว 390px)
@@ -91,6 +138,9 @@ html.njmenu-open, html.njmenu-open body{ overflow:hidden; }
 @media (max-width:640px){
   header > div > a[href="consign.html"]{ display:none; }
   .header-cta{ display:none; }
+  /* ทางเข้าพอร์ทัลก็ถูกตัดออกจากหัวเว็บด้วยเหตุผลเดียวกัน — ไม่ได้หายไปไหน
+     menu.js ย้ายไปไว้ท้ายลิ้นชักให้แล้ว (.njmenu-portal) */
+  .nj-portal-link{ display:none; }
   /* ชื่อแบรนด์ห้ามตัดบรรทัดกลางคำ — อ่านแล้วเหมือนเว็บพัง */
   header .njmenu-btn{ margin-left:auto; }
 }

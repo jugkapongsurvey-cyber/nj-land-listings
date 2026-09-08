@@ -27,6 +27,10 @@
   var NAV_SELECTORS = ['header nav', '.topbar nav', 'nav.header-nav', '.header-nav'];
   // ปุ่มหลักบนหัวเว็บ (ฝากขายฟรี) — ชุดสไตล์ต่างกันใช้คลาสคนละแบบ
   var CTA_SELECTORS = ['.top-actions .post-btn', 'header a[href="consign.html"]', '.header-cta'];
+  // ทางเข้าพอร์ทัลลูกค้า — วางไว้นอก <nav> โดยตั้งใจ (เหตุผลอยู่ใน menu.css)
+  // จอเล็กซ่อนลิงก์ตัวจริงไว้ ลิ้นชักจึงต้องหยิบมาแสดงแทน ไม่งั้นทางเข้านี้หายไปทั้งบนมือถือ
+  // อ่านทั้ง href และข้อความจากลิงก์จริง — ห้ามพิมพ์ค่าซ้ำไว้ในไฟล์นี้ (กติกาเดียวกับรายการเมนู)
+  var PORTAL_SELECTOR = '[data-njportal]';
 
   var nav = null, panel = null, backdrop = null, btn = null, lastFocus = null;
 
@@ -122,6 +126,20 @@
       b.href = cta.getAttribute('href') || 'consign.html';
       b.textContent = (cta.textContent || 'ฝากขายฟรี').replace(/^＋\s*/, '').trim();
       panel.appendChild(b);
+    }
+
+    // ทางเข้าพอร์ทัลลูกค้า — วางท้ายสุด เพราะเป็นของ "ลูกค้าเดิม" ไม่ใช่ปุ่มหลักของหน้า
+    // หน้าไหนยังไม่มีลิงก์นี้ก็ข้ามไปเงียบๆ ลิ้นชักที่เหลือทำงานเหมือนเดิมทุกประการ
+    var portal = document.querySelector(PORTAL_SELECTOR);
+    if (portal) {
+      var p = document.createElement('a');
+      p.className = 'njmenu-portal';
+      p.href = portal.getAttribute('href') || 'portal.html';
+      // ตัดลูกศรท้ายข้อความออก (หน้าแรกใช้ปุ่มแบบ "... →") — ในลิ้นชักทุกข้อเป็นรายการเมนู
+      // ไม่ใช่ปุ่มบนการ์ด ลูกศรจึงไม่ได้สื่ออะไรและทำให้ดูไม่เข้าชุดกับข้ออื่น
+      p.textContent = (portal.textContent || '').replace(/\s*[→›»]\s*$/, '').trim();
+      if (portal.classList.contains('on')) p.setAttribute('aria-current', 'page');
+      panel.appendChild(p);
     }
 
     backdrop = document.createElement('div');
