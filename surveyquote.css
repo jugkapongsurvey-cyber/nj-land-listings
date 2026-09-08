@@ -41,11 +41,15 @@
 
 .sq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .sq-field{display:flex;flex-direction:column;gap:6px;font-size:12px;letter-spacing:.06em;color:#1B4B7A;margin-bottom:14px}
-.sq-field input{
+.sq-field input,.sq-field select{
   height:44px;border:1px solid #D8E1EA;background:#FFFFFF;padding:0 13px;
   font-family:inherit;font-size:15px;font-weight:300;color:#0B1F3A;width:100%;
 }
-.sq-field input:focus{outline:0;border-color:#1B4B7A}
+.sq-field input:focus,.sq-field select:focus{outline:0;border-color:#1B4B7A}
+/* ช่องจังหวัดกินความกว้างเต็มแถวเสมอ — ชื่อจังหวัดยาว (“พระนครศรีอยุธยา”) และหัวกลุ่มโซน
+   ยาวกว่านั้นอีก บีบลงครึ่งแถวเมื่อไหร่ ข้อความในรายการจะถูกตัดจนอ่านค่าโซนไม่ออก */
+.sq-prov{margin-top:4px}
+.sq-prov select{cursor:pointer}
 .sq-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 
 /* ตัวเลือกเสริม */
@@ -68,6 +72,12 @@
 .sq-total em{font-family:Trirong,serif;font-size:26px;color:#0B1F3A}
 .sq-inc{margin-top:10px;padding:10px 13px;background:#E7EEF5;font-size:13px;font-weight:300;color:#31465E}
 .sq-inc b{font-weight:500;color:#0B1F3A}
+/* คำเตือน "ยังไม่ได้เลือกจังหวัด" — ต้องเด่นกว่าหมายเหตุทั่วไป เพราะบอกว่ายอดข้างบนยังไม่ครบ */
+.sq-warn{
+  margin-top:10px;padding:11px 14px;background:#FDF6E7;border:1px solid #E8D3A0;
+  font-size:13px;font-weight:300;line-height:1.75;color:#6B5A2E;
+}
+.sq-warn b{font-weight:500;color:#4A3D18}
 .sq-note{margin:12px 0 0;font-size:12.5px;font-weight:300;line-height:1.8;color:#5A6B7D}
 .sq-note b{font-weight:500;color:#31465E}
 .sq-msg{padding:26px 0;font-size:14px;font-weight:300;color:#5A6B7D}

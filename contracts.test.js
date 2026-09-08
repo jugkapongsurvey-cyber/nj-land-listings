@@ -113,5 +113,54 @@ const lsFeat = listAfter(listings, 'var FEATURES =');
 check('รายการ "สิ่งที่แปลงมี" ของหน้าเปรียบเทียบตรงกับหน้ารวมประกาศ',
       same(lsFeat || [], listAfter(cmp, 'var FEATURES =') || []));
 
+console.log('\n6) ค่าดำเนินการนอกพื้นที่ (โซนเดินทาง) — เว็บต้องคิดเท่ากับใบเสนอราคาจริง');
+// เพิ่ม 2026-09-08 · โซนเดินทาง 7 ขั้น (12,000–75,000) ขึ้นระบบหลังบ้านเมื่อ 8 ก.ย. แต่เครื่อง
+// ประเมินราคาบนเว็บไม่ได้บวกให้เลยจนถึงวันนั้น = ลูกค้าต่างจังหวัดเห็นราคาที่ขาดไปหลักหมื่น
+// ข้อนี้ล็อกไว้ไม่ให้หลุดซ้ำ — และ pricing.js require ได้ (UMD) จึงพิสูจน์ด้วยตัวเลขจริงได้ ไม่ใช่แค่ regex
+const quoteJs = read(path.join(WEB, 'surveyquote.js'));
+let NJP = null;
+try { NJP = require(path.join(SRV, 'public', 'pricing.js')); } catch (e) { NJP = null; }
+check('require pricing.js ของระบบหลังบ้านได้', !!(NJP && NJP.computeQuote));
+
+if (NJP && NJP.computeQuote) {
+  check('pricing.js ยังส่งออก zoneOf · TRAVEL_ZONES · ZONE_PROVINCES ครบ (เว็บเรียกใช้ทั้งสามตัว)',
+        typeof NJP.zoneOf === 'function' && Array.isArray(NJP.TRAVEL_ZONES) && !!NJP.ZONE_PROVINCES);
+
+  // เว็บต้องส่ง travel เข้า computeQuote — ทั้งกล่องหน้าแรกและตัวที่หน้าฝากขายเรียกใช้
+  check('surveyquote.js ส่ง travel เข้า computeQuote ครบทั้ง 2 จุด',
+        (quoteJs.match(/travel:\s*travelInput\(/g) || []).length >= 2);
+  check('หน้าฝากขายส่งจังหวัดเข้าไปด้วย (ไม่งั้นกล่องราคาบนหน้าฝากขายยังขาดค่าเดินทาง)',
+        /quoteFromWa\([^)]*province:\s*getProvince\(\)/.test(consign));
+
+  // คืนพักต้องใช้ค่าเริ่มต้นเดียวกับฟอร์มใบเสนอราคาในระบบ (travelNightsDefault → zone.nights)
+  const appJs = read(path.join(SRV, 'public', 'app.js'));
+  check('ระบบหลังบ้านยังตั้งคืนพักเริ่มต้น = คืนที่แนะนำของโซน (travelNightsDefault)',
+        /function travelNightsDefault[\s\S]{0,240}zi\s*\?\s*zi\.nights/.test(appJs));
+  check('เว็บก็ส่งคืนพักไปด้วย (ไม่ส่ง = ต่ำกว่าใบเสนอราคาจริง)',
+        /nights:\s*zi\s*\?\s*zi\.nights/.test(quoteJs));
+
+  // พิสูจน์เป็นตัวเลข: โซนที่ต้องค้างคืน ถ้าไม่ส่ง nights ยอดจะต่ำกว่าจริง
+  const zoneWithNights = NJP.TRAVEL_ZONES.filter(z => z.nights > 0)[0];
+  const provOfZone = zoneWithNights ? (NJP.ZONE_PROVINCES[zoneWithNights.code] || [])[0] : '';
+  const noNights = NJP.computeTravel({ province: provOfZone });
+  const withNights = NJP.computeTravel({ province: provOfZone, nights: zoneWithNights.nights });
+  check('ตัวอย่างจริง (' + provOfZone + '): ส่ง nights แล้วยอดสูงกว่าไม่ส่ง — เหตุผลที่เว็บต้องส่ง',
+        !!(noNights && withNights && withNights.total > noNights.total),
+        (noNights && noNights.total) + ' → ' + (withNights && withNights.total));
+
+  // ส่วนลดคอมโบ 5% ห้ามกินค่าเดินทาง (กติกาเดียวกับส่วนลดลูกค้าเดิม 40% ใน pricing.js)
+  check('ส่วนลดคอมโบคิดจากฐานที่หักค่าเดินทางออกแล้ว (comboBase)',
+        (quoteJs.match(/comboBase\(pre\)\s*\*\s*COMBO_RATE/g) || []).length >= 2 &&
+        /function comboBase[\s\S]{0,160}travelTotal/.test(quoteJs));
+
+  // ห้ามก๊อปตารางโซนมาไว้ฝั่งเว็บ — เหตุผลเดียวกับตารางราคา (ดูหัวไฟล์ surveyquote.js)
+  const zoneFees = NJP.TRAVEL_ZONES.map(z => z.fee).filter(f => f > 0);
+  const hardcoded = zoneFees.filter(f => new RegExp('[^0-9]' + f + '[^0-9]').test(quoteJs));
+  check('surveyquote.js ไม่มีค่าโซนฝังไว้เอง (ต้องอ่านจาก pricing.js เท่านั้น)',
+        hardcoded.length === 0, hardcoded.join(', '));
+  check('surveyquote.js ไม่มีรายชื่อจังหวัดฝังไว้เอง',
+        !/กรุงเทพมหานคร|เชียงใหม่|สงขลา/.test(quoteJs));
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

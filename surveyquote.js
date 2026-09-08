@@ -78,7 +78,49 @@
     });
     return pricingPromise;
   }
+  // ---------------------------------------------------------------------------
+  // ค่าดำเนินการนอกพื้นที่ (โซนเดินทาง) — เพิ่ม 2026-09-08
+  //
+  // ⚠️ **ตารางโซนไม่ได้อยู่ที่นี่** เหมือนตารางราคา — อ่านจาก pricing.js ที่โหลดมาแล้วเท่านั้น
+  //    (P.zoneOf · P.TRAVEL_ZONES · P.ZONE_PROVINCES) ก๊อปรายชื่อจังหวัดหรือค่าโซนมาไว้ฝั่งเว็บ
+  //    เมื่อไหร่ = วันหนึ่งบริษัทขยับราคาโซนแล้วเว็บยังบอกราคาเก่า ซึ่งเป็นเงินหลักหมื่น
+  //
+  // ⚠️ **คืนพักต้องใช้ค่าเริ่มต้นชุดเดียวกับฟอร์มใบเสนอราคาในระบบหลังบ้าน**
+  //    (travelNightsDefault() ใน nj-survey-system/public/app.js ตั้งคืนพัก = คืนที่แนะนำของโซนนั้น)
+  //    ไม่ส่ง nights ไป computeTravel จะได้ 0 → เว็บบอกราคาต่ำกว่าใบเสนอราคาจริง 4,000–16,000 บาท
+  //    แล้วลูกค้าจะมาเถียงกับเซลส์ด้วยตัวเลขที่เว็บของเราเองบอกไว้
+  //
+  // คืน null เมื่อยังไม่รู้จังหวัด หรือจังหวัดนั้นอยู่โซน A (ในพื้นที่ ไม่มีค่าเดินทาง)
+  // — ห้ามเดาโซนให้ (เดาผิดคือคิดเงินลูกค้าผิดตั้งแต่ตัวเลขแรกที่เขาเห็น)
+  function travelInput(province) {
+    if (!P || !P.zoneOf) return null;
+    var p = String(province == null ? '' : province).trim();
+    if (!p) return null;
+    var code = P.zoneOf(p);
+    if (!code) return null;
+    var zi = null;
+    (P.TRAVEL_ZONES || []).forEach(function (z) { if (z.code === code) zi = z; });
+    return { province: p, zone: code, nights: zi ? zi.nights : 0 };
+  }
+
+  // ช่วงค่าเดินทาง "ต่ำสุด–สูงสุด" ไว้เขียนในคำเตือนตอนลูกค้ายังไม่เลือกจังหวัด
+  // ⚠️ อ่านจากตารางจริงเสมอ ห้ามพิมพ์ตัวเลขลงในข้อความ — บริษัทขยับค่าโซนเมื่อไหร่
+  //    ข้อความที่พิมพ์ไว้จะกลายเป็นคำโฆษณาที่ผิดโดยไม่มีใครสังเกต (กับดักเดิมของโปรเจกต์นี้)
+  function travelRangeText() {
+    if (!P || !P.TRAVEL_ZONES) return '';
+    var fees = P.TRAVEL_ZONES.map(function (z) { return Number(z.fee) || 0; }).filter(function (f) { return f > 0; });
+    if (!fees.length) return '';
+    return baht(Math.min.apply(null, fees)) + '–' + baht(Math.max.apply(null, fees)) + ' บาท';
+  }
+
+  // ⚠️ ส่วนลดคอมโบ 5% คิดจากยอดที่ **ไม่รวมค่าเดินทาง**
+  //    กติกาเดียวกับส่วนลดลูกค้าเดิม 40% ใน pricing.js ที่จงใจกันค่าเดินทางออกจากฐานส่วนลด
+  //    เพราะค่าโซนคือค่าน้ำมัน ค่าที่พัก และค่าเสียเวลาทีมบนถนน = เงินสดที่จ่ายออกจริง
+  //    ลดจากยอดที่รวมค่าเดินทาง = แจกส่วนลดจากต้นทุนที่บริษัทจ่ายเอง (โซน G หายไป ~3,750/งาน)
+  function comboBase(r) { return (Number(r.subtotal) || 0) - (Number(r.travelTotal) || 0); }
+
   // ประเมินค่ารังวัดจาก "เนื้อที่รวมเป็นตารางวา" — รูปแบบเดียวกับที่ฟอร์มฝากขายเก็บไว้แล้ว
+  // opt.province = จังหวัดที่ตั้งแปลง (ไม่ส่งมา = ไม่คิดค่าเดินทาง ผู้เรียกต้องบอกผู้ใช้ว่ายังไม่รวม)
   // คืน null เมื่อยังไม่มีตารางราคา หรือยังไม่รู้เนื้อที่ — ผู้เรียกต้องซ่อนราคา ห้ามเดา
   function quoteFromWa(totalWa, jobType, opt) {
     if (!P) return null;
@@ -86,13 +128,14 @@
     if (!(rai > 0)) return null;
     var args = {
       jobType: JOBS.some(function (j) { return j.v === jobType; }) ? jobType : JOBS[0].v,
-      rai: rai, deeds: 1, splitPlots: 0, vatRate: 0, fees: []
+      rai: rai, deeds: 1, splitPlots: 0, vatRate: 0, fees: [],
+      travel: travelInput(opt && opt.province)
     };
     if (!(opt && opt.combo)) return P.computeQuote(args);
     // คิดราคาก่อนส่วนลดเพื่อเอายอดมาคูณ 5% — ขั้นตอนเดียวกับกล่องเช็กราคาบนหน้าแรกเป๊ะ
     // (ผ่าน adjust ของ pricing.js ไม่ใช่ลบเอาเองทีหลัง ไม่งั้นบรรทัดแจกแจงจะไม่มีส่วนลดโผล่)
     var pre = P.computeQuote(args);
-    var combo = -Math.round(pre.subtotal * COMBO_RATE);
+    var combo = -Math.round(comboBase(pre) * COMBO_RATE);
     var r = P.computeQuote(Object.assign({}, args, { adjust: combo }));
     r.combo = combo;
     r.beforeCombo = pre.subtotal;
@@ -131,15 +174,40 @@
     var fees = [];
     ADDONS.forEach(function (a) { if (v[a.key]) fees.push({ label: a.label, amount: a.price }); });
 
-    var args = { jobType: v.jobType, rai: rai, deeds: deeds, splitPlots: splitPlots, vatRate: 0, fees: fees };
-    // คิดราคาก่อนส่วนลดคอมโบ เพื่อเอายอดมาคำนวณ 5%
+    var args = {
+      jobType: v.jobType, rai: rai, deeds: deeds, splitPlots: splitPlots, vatRate: 0, fees: fees,
+      travel: travelInput(v.province)
+    };
+    // คิดราคาก่อนส่วนลดคอมโบ เพื่อเอายอดมาคำนวณ 5% (ฐานส่วนลดไม่รวมค่าเดินทาง — ดู comboBase)
     var pre = P.computeQuote(args);
-    var combo = v.combo ? -Math.round(pre.subtotal * COMBO_RATE) : 0;
+    var combo = v.combo ? -Math.round(comboBase(pre) * COMBO_RATE) : 0;
     var r = P.computeQuote(Object.assign({}, args, { adjust: combo }));
     r.combo = combo;
     r.addons = fees;
     r.totalWa = totalWa;
     return r;
+  }
+
+  // ---------------------------------------------------------------------------
+  // เติมรายชื่อจังหวัดลงช่องเลือก — ทำได้หลัง pricing.js โหลดเสร็จเท่านั้น
+  // จัดกลุ่มตามโซนพร้อมบอกค่าโซนไว้ในหัวกลุ่ม เพื่อให้คำถาม "ทำไมของผมแพงกว่า" ตอบตัวเองได้
+  // ไม่มีตารางราคา = ปล่อยช่องว่างไว้ ห้ามพิมพ์รายชื่อจังหวัดสำรองไว้ในไฟล์นี้
+  var provincesFilled = false;
+  function fillProvinces() {
+    if (provincesFilled || !P || !P.ZONE_PROVINCES) return;
+    var sel = root && root.querySelector('[data-sq="province"]');
+    if (!sel) return;
+    var html = '<option value="">— เลือกจังหวัดที่ตั้งแปลง —</option>';
+    (P.TRAVEL_ZONES || []).forEach(function (z) {
+      var list = (P.ZONE_PROVINCES[z.code] || []).slice().sort(function (a, b) { return a.localeCompare(b, 'th'); });
+      if (!list.length) return;
+      html += '<optgroup label="' + esc(z.label + ' · ' + z.km + ' · ' +
+        (z.fee > 0 ? 'ค่าเดินทาง ' + baht(z.fee) : 'ไม่มีค่าเดินทาง')) + '">' +
+        list.map(function (p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join('') +
+        '</optgroup>';
+    });
+    sel.innerHTML = html;
+    provincesFilled = true;
   }
 
   function resultHtml(r) {
@@ -158,18 +226,32 @@
         (b.amount < 0 ? '−' : '') + baht(Math.abs(b.amount)) + '</em></div>';
     }).join('');
 
+    // ⚠️ ยังไม่เลือกจังหวัด = ยอดนี้ยังขาดค่าเดินทาง ต้องบอกตรงๆ ห้ามปล่อยให้อ่านเหมือนราคาครบแล้ว
+    //    (ลูกค้าต่างจังหวัดที่เชื่อตัวเลขนี้แล้วมาเจอราคาจริง คือดีลที่พังตั้งแต่ยังไม่เริ่ม)
+    var tv = r.travel;
+    var travelNote = !tv
+      ? '<div class="sq-warn"><b>ยังไม่ได้เลือกจังหวัด</b> — ราคานี้<b>ยังไม่รวมค่าดำเนินการนอกพื้นที่</b>' +
+        (travelRangeText() ? ' ซึ่งอยู่ระหว่าง ' + travelRangeText() + 'ตามระยะทางจากสำนักงาน' : '') +
+        ' เลือกจังหวัดด้านซ้ายเพื่อดูราคาที่ใกล้เคียงของจริง</div>'
+      : '';
+
     return rows +
       '<div class="sq-row sq-total"><span>ราคาประมาณการ</span><em>' + baht(r.subtotal) + '</em></div>' +
+      travelNote +
       '<div class="sq-inc">ราคานี้รวม <b>' + esc(r.includedService) + '</b> · ช่วงพื้นที่ ' + esc(r.rangeLabel) +
         (/Service/.test(r.includedService)
-          ? '<br><i>งานขนาดนี้มีบริการดูแลหลังรังวัด 1 ปีรวมอยู่แล้ว ไม่ต้องซื้อเพิ่ม</i>' : '') + '</div>' +
+          ? '<br><i>งานขนาดนี้มีบริการดูแลหลังรังวัด 1 ปีรวมอยู่แล้ว ไม่ต้องซื้อเพิ่ม</i>' : '') +
+        (tv && tv.nights > 0
+          ? '<br><i>โซนนี้ทีมงานต้องค้างคืน ' + tv.nights + ' คืน ค่าที่พักและเบี้ยเลี้ยงทีมงานรวมอยู่ในยอดข้างบนแล้ว</i>' : '') + '</div>' +
       '<p class="sq-note"><b>เป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา</b> — ราคาจริงขึ้นกับหน้างาน ' +
-      'เช่น ระยะทาง สภาพพื้นที่ จำนวนหมุด และคิวสำนักงานที่ดิน ซึ่งต้องให้ทีมช่างรังวัดประเมินก่อน ' +
+      'เช่น สภาพพื้นที่ จำนวนหมุด จำนวนเที่ยวที่ต้องลงพื้นที่ และคิวสำนักงานที่ดิน ซึ่งต้องให้ทีมช่างรังวัดประเมินก่อน ' +
+      (tv ? 'ค่าดำเนินการนอกพื้นที่คิดเป็นขั้นตามระยะทางของจังหวัด ไม่ได้วัดจากที่ตั้งแปลงจริง จึงอาจปรับได้ตอนประเมิน · ' : '') +
       'ยังไม่รวม VAT และค่าธรรมเนียมที่ต้องจ่ายให้สำนักงานที่ดิน</p>';
   }
 
   // ---------------------------------------------------------------------------
   function render() {
+    fillProvinces();          // ต้องมาก่อน vals() ไม่งั้นรอบแรกหลังโหลดตารางราคาจะยังอ่านจังหวัดไม่ได้
     var v = vals();
     var r = compute(v);
     out.innerHTML = resultHtml(r);
@@ -217,6 +299,12 @@
             '<label class="sq-field">ตร.ว.<input type="text" inputmode="decimal" data-sq="wa" placeholder="0"></label>' +
           '</div>' +
           '<div class="sq-sum" data-sq-sum></div>' +
+          // ⚠️ จังหวัดไม่ใช่ช่องเสริม — ค่าดำเนินการนอกพื้นที่สูงถึง 75,000 บาท
+          //    ไม่ถามจังหวัด = เว็บบอกราคาที่ขาดค่าเดินทางทั้งก้อนให้ลูกค้าต่างจังหวัด
+          //    (เป็นอาการที่เกิดจริงตั้งแต่ 8 ก.ย. 2569 ที่โซนเดินทางขึ้นระบบหลังบ้าน)
+          //    ตัวเลือกถูกเติมโดย fillProvinces() หลัง pricing.js โหลดเสร็จ
+          '<label class="sq-field sq-prov">จังหวัดที่ตั้งแปลง' +
+            '<select data-sq="province"><option value="">กำลังโหลดรายชื่อจังหวัด…</option></select></label>' +
           '<div class="sq-grid">' +
             '<label class="sq-field">จำนวนโฉนด' +
               '<input type="number" min="0" max="50" step="1" data-sq="deeds" value="1"></label>' +
@@ -280,6 +368,17 @@
     }
     ADDONS.forEach(function (a) { if (v[a.key]) lines.push('เลือกเพิ่ม: ' + a.label + ' (+' + baht(a.price) + ')'); });
     if (v.combo) lines.push('เลือก: รังวัด + ฝากขาย (ลด 5%)');
+    // โซนเดินทางที่ลูกค้าเห็นตอนกดคำนวณ — เซลส์ต้องรู้ว่าเขาเห็นตัวเลขไหนไปแล้ว
+    // ไม่งั้นออกใบเสนอราคาด้วยโซนอื่นแล้วลูกค้าถามว่าทำไมไม่ตรงกับที่เว็บบอก
+    if (r && r.travel) {
+      lines.push('โซนเดินทางที่เว็บคิดให้: ' + (r.travel.zoneLabel || r.travel.zone) +
+                 ' (จ.' + (r.travel.province || '-') + ') = ' + baht(r.travel.total) + ' บาท' +
+                 (r.travel.nights > 0 ? ' · รวมค่าที่พัก ' + r.travel.nights + ' คืนแล้ว' : ''));
+    } else if (v.province) {
+      lines.push('จังหวัดที่ตั้งแปลง: ' + v.province + ' (ในพื้นที่ ไม่มีค่าเดินทาง)');
+    } else {
+      lines.push('ลูกค้ายังไม่ได้เลือกจังหวัด — ราคาที่เว็บแสดงยังไม่รวมค่าดำเนินการนอกพื้นที่');
+    }
     if (r) lines.push('ราคาประมาณการที่เว็บแสดง: ' + baht(r.subtotal) + ' บาท (ยังไม่รวม VAT · ไม่ใช่ใบเสนอราคา)');
     if (!r) lines.push('(ลูกค้ายังไม่ได้กรอกเนื้อที่ ราคายังคำนวณไม่ได้)');
 
@@ -374,6 +473,8 @@
     waFromArea: waFromArea,
     raiTxt: raiTxt,
     jobs: JOBS,
+    // ช่วงค่าดำเนินการนอกพื้นที่ ไว้เขียนคำเตือนตอนยังไม่รู้จังหวัด — อ่านจากตารางจริง ห้ามพิมพ์เอง
+    travelRangeText: travelRangeText,
     ready: function () { return !!P; }
   };
 

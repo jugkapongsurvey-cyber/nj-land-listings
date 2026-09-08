@@ -837,7 +837,9 @@ function setupSurvey(getProvince, getTotalWa) {
 
   // ธงบังคับที่เซิร์ฟเวอร์ยืนยันมา — มีค่าเฉพาะตอนเปิดใบเดิมกลับมา (null = ยังไม่เคยคุยกับเซิร์ฟเวอร์)
   var serverRequired = null;
-  var lastWa = -1, lastRequired = null;
+  // lastProvince เพิ่ม 2026-09-08 — ค่ารังวัดประมาณการขึ้นกับจังหวัดแล้ว (ค่าดำเนินการนอกพื้นที่)
+  // ไม่เฝ้าค่านี้ = เปลี่ยนจังหวัดแล้วราคาค้างอยู่ที่โซนเดิม ทั้งที่ตัวเลขเปลี่ยนไปหลักหมื่น
+  var lastWa = -1, lastRequired = null, lastProvince = null;
 
   function required() {
     return serverRequired == null ? surveyRequiredFor(getProvince()) : serverRequired;
@@ -894,15 +896,27 @@ function setupSurvey(getProvince, getTotalWa) {
     NJSurveyQuote.load().then(function () {
       // ราคาคิดแบบ "รังวัดสอบเขต" ซึ่งเป็นงานที่ตรงกับคำว่ายืนยันแนวเขต
       // งานแบ่งแยก/รวมโฉนดคิดคนละราคา — บอกไว้ในบรรทัดล่าง ไม่ใช่เดาแทนเจ้าของ
-      var r = NJSurveyQuote.quoteFromWa(wa, 'สอบเขต', { combo: true });
+      // ส่งจังหวัดที่เจ้าของกรอกไว้แล้วเข้าไปด้วย — ค่าดำเนินการนอกพื้นที่สูงถึง 75,000 บาท
+      // ไม่ส่ง = กล่องนี้บอกราคาที่ขาดค่าเดินทางทั้งก้อนให้เจ้าของที่ดินต่างจังหวัด (แก้ 2026-09-08)
+      var r = NJSurveyQuote.quoteFromWa(wa, 'สอบเขต', { combo: true, province: getProvince() });
       if (!r) { quote.innerHTML = ''; return; }
       var baht = function (x) { return Math.round(Number(x) || 0).toLocaleString('en-US'); };
+      var tv = r.travel;
       quote.innerHTML = '<div class="cs-sv-box">' +
         '<div class="cs-sv-price">≈ ฿' + baht(r.subtotal) + '<small>ค่ารังวัดสอบเขตโดยประมาณ</small></div>' +
         (r.combo ? '<div class="cs-sv-cut">รวมส่วนลด “รังวัด + ฝากขาย” 5% แล้ว (จาก ฿' + baht(r.beforeCombo) + ')</div>' : '') +
+        (tv ? '<div class="cs-sv-sub">รวมค่าดำเนินการนอกพื้นที่ <b>' + esc(tv.zoneLabel || tv.zone) + '</b> แล้ว ' +
+              '(฿' + baht(tv.total) + (tv.nights > 0 ? ' · รวมค่าที่พักทีมงาน ' + tv.nights + ' คืน' : '') + ')</div>'
+            : (getProvince()
+              ? ''
+              : '<div class="cs-sv-sub"><b>ยังไม่ได้เลือกจังหวัด</b> — ราคานี้ยังไม่รวมค่าดำเนินการนอกพื้นที่' +
+                // ช่วงราคาอ่านจากตารางจริงผ่าน NJSurveyQuote ห้ามพิมพ์ตัวเลขไว้ที่นี่
+                (NJSurveyQuote.travelRangeText() ? ' ซึ่งอยู่ระหว่าง ' + esc(NJSurveyQuote.travelRangeText()) + 'ตามระยะทาง' : '') +
+                '</div>')) +
         '<div class="cs-sv-sub">ราคานี้รวม <b>' + esc(r.includedService) + '</b> · ช่วงพื้นที่ ' + esc(r.rangeLabel) + '<br>' +
-          '<b>เป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา</b> — ราคาจริงขึ้นกับหน้างาน เช่น ระยะทาง สภาพพื้นที่ จำนวนหมุด ' +
-          'และคิวสำนักงานที่ดิน ซึ่งต้องให้ทีมช่างรังวัดประเมินก่อน ยังไม่รวม VAT และค่าธรรมเนียมของสำนักงานที่ดิน<br>' +
+          '<b>เป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา</b> — ราคาจริงขึ้นกับหน้างาน เช่น สภาพพื้นที่ จำนวนหมุด ' +
+          'จำนวนเที่ยวที่ต้องลงพื้นที่ และคิวสำนักงานที่ดิน ซึ่งต้องให้ทีมช่างรังวัดประเมินก่อน ' +
+          'ยังไม่รวม VAT และค่าธรรมเนียมของสำนักงานที่ดิน<br>' +
           'งานแบ่งแยกโฉนดหรือรวมโฉนดคิดคนละราคา — แจ้งทีมงานตอนโทรกลับได้เลย</div>' +
       '</div>';
     }, function () {
@@ -919,7 +933,8 @@ function setupSurvey(getProvince, getTotalWa) {
     // วาดใหม่เฉพาะตอนที่ค่าที่เกี่ยวข้องเปลี่ยนจริง — ฟังก์ชันนี้ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว
     // วาดทุกครั้ง = ยิง NJSurveyQuote.load() ซ้ำ และกล่องราคากะพริบขณะพิมพ์เนื้อที่
     if (must !== lastRequired) { lastRequired = must; drawFlag(); drawOpts(); }
-    if (wa !== lastWa) { lastWa = wa; drawQuote(); }
+    var prov = getProvince();
+    if (wa !== lastWa || prov !== lastProvince) { lastWa = wa; lastProvince = prov; drawQuote(); }
   }
 
   // เปิดใบเดิมกลับมา — เชื่อค่าจากเซิร์ฟเวอร์ก่อนเสมอ (มันคือค่าที่ถูกบันทึกไว้จริง)
@@ -931,7 +946,7 @@ function setupSurvey(getProvince, getTotalWa) {
   }
   function reset() {
     serverRequired = null;
-    lastRequired = null; lastWa = -1;
+    lastRequired = null; lastWa = -1; lastProvince = null;
     pick('undecided');
     sync();
   }
