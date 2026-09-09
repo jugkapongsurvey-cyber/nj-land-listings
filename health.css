@@ -1,0 +1,85 @@
+/* ===========================================================================
+   Land Health Check — รายงานสุขภาพแปลง (health.js)
+   ต่อจาก marketplace.css (ใช้ --navy --green --ink --sub --line --mist --blue)
+
+   ⚠️ สี่สถานะต้องแยกกันด้วย "ไอคอน + ข้อความ" เป็นหลัก สีเป็นตัวช่วยเท่านั้น
+      ถอดสีออกทั้งหมดแล้วตารางนี้ต้องยังอ่านรู้เรื่องครบทุกแถว
+   =========================================================================== */
+
+.njh{
+  border:1px solid var(--line);border-radius:14px;background:#fff;
+  padding:18px 20px 16px;margin-bottom:22px;
+}
+.njh-head{padding-bottom:12px;border-bottom:1px solid var(--line)}
+.njh-head h2{font-size:17px;line-height:1.4;color:var(--navy);margin:0 0 3px}
+.njh-head p{font-size:12.5px;color:var(--sub);margin:0;line-height:1.65}
+
+/* ---------- คำอธิบายสัญลักษณ์ ----------
+   วางไว้บนสุดโดยตั้งใจ ผู้ซื้อต้องรู้ว่าสีแต่ละสีแปลว่าอะไรก่อนอ่านตาราง */
+.njh-legend{
+  display:flex;flex-wrap:wrap;gap:7px 14px;padding:12px 0 4px;
+  font-size:11.5px;color:var(--sub);
+}
+.njh-lg{display:inline-flex;align-items:center;gap:6px}
+.njh-lg i{
+  width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+  font-style:normal;font-size:10px;font-weight:700;color:#fff;flex:none;
+}
+.njh-lg.ok i{background:var(--green)}
+.njh-lg.warn i{background:#B08D57}
+.njh-lg.bad i{background:#B03A2B}
+.njh-lg.none i{background:#C3CFDB;color:#41556B}
+
+/* ---------- แถว ---------- */
+.njh-row{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:12px 0;border-top:1px solid #EFF3F7;
+}
+.njh-row:first-of-type{border-top:0}
+.njh-ico{
+  flex:none;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;
+  font-size:12.5px;font-weight:700;color:#fff;margin-top:1px;
+}
+.njh-row.ok   .njh-ico{background:var(--green)}
+.njh-row.warn .njh-ico{background:#B08D57}
+.njh-row.bad  .njh-ico{background:#B03A2B}
+.njh-row.none .njh-ico{background:#C3CFDB;color:#41556B}
+
+/* แถบสีบางๆ ด้านซ้ายของแถวที่มีประเด็น — ช่วยให้กวาดตาหาเจอเร็วบนมือถือ */
+.njh-row.bad{background:#FDF4F2;border-radius:0 8px 8px 0;box-shadow:inset 3px 0 0 #B03A2B;padding-left:9px}
+.njh-row.warn{background:#FCF8EE;border-radius:0 8px 8px 0;box-shadow:inset 3px 0 0 #B08D57;padding-left:9px}
+
+.njh-c{flex:1;min-width:0}
+.njh-c b{display:block;font-size:13.5px;line-height:1.55;color:var(--ink);font-weight:600}
+.njh-v{
+  display:block;font-size:13px;line-height:1.7;color:var(--navy);font-weight:600;margin-top:2px;
+}
+/* ข้อความสถานะ — ตัวนี้คือสิ่งที่ทำให้ตารางอ่านได้โดยไม่ต้องพึ่งสี ห้ามซ่อนบนจอใดๆ */
+.njh-st{
+  display:inline-block;font-size:10.5px;font-weight:600;line-height:1.7;
+  padding:1px 8px;border-radius:20px;margin-top:4px;
+}
+.njh-row.ok   .njh-st{color:#12764A;background:#E4F3EA}
+.njh-row.warn .njh-st{color:#7A5D1E;background:#F7EDD8}
+.njh-row.bad  .njh-st{color:#8C2A1A;background:#FAE3DE}
+.njh-row.none .njh-st{color:#41556B;background:#EAF0F6}
+.njh-note{
+  display:block;font-size:12px;line-height:1.8;color:var(--sub);margin-top:5px;
+}
+
+.njh-foot{
+  margin:12px 0 0;padding-top:13px;border-top:1px solid var(--line);
+  font-size:11.5px;line-height:1.85;color:#6D8095;
+}
+.njh-foot b{color:var(--ink)}
+
+@media print{
+  .njh{break-inside:avoid;border-color:#999}
+  .njh-row.bad,.njh-row.warn{box-shadow:none;background:none;padding-left:0}
+}
+
+@media(max-width:640px){
+  .njh{padding:15px 14px 13px;border-radius:12px}
+  .njh-head h2{font-size:16px}
+  .njh-legend{gap:6px 11px;font-size:11px}
+}
