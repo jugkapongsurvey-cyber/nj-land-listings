@@ -21,6 +21,9 @@
   <link rel="stylesheet" href="njservices.css">
   <link rel="stylesheet" href="compare.css">
   <link rel="stylesheet" href="menu.css">
+  <link rel="stylesheet" href="verified.css">
+  <link rel="stylesheet" href="health.css">
+  <link rel="stylesheet" href="parcelmap.css">
   <link rel="stylesheet" href="consent.css">
 </head>
 <body>
@@ -49,6 +52,12 @@
   <!-- ต้องมาก่อน land.js — land.js เรียก NJServices.mount() และ NJCompare.sync() ตอนวาดหน้าเสร็จ -->
   <script src="njservices.js"></script>
   <script src="compare.js"></script>
+  <!-- ต้องมาก่อน land.js — land.js เรียก NJVerified/NJHealth/NJParcelMap ตอนวาดหน้า
+       และ health.js อ่านคำศัพท์จาก landvocab.js จึงต้องโหลด landvocab ก่อน health -->
+  <script src="landvocab.js"></script>
+  <script src="verified.js"></script>
+  <script src="health.js"></script>
+  <script src="parcelmap.js"></script>
   <script src="land.js"></script>
   <script src="menu.js"></script>
 </body>

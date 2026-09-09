@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="compare.css">
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="consent.css">
+  <link rel="stylesheet" href="verified.css">
 </head>
 <body>
 
@@ -101,6 +102,8 @@
   <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a class="active" href="listings.html"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
 
   <script src="analytics.js"></script>
+  <!-- ต้องมาก่อน listingcard.js — card() อ่าน window.NJVerified ตอนวาดป้ายระดับตรวจสอบ -->
+  <script src="verified.js"></script>
   <script src="listingcard.js"></script>
   <script src="listings.js"></script>
   <!-- ปุ่ม "เทียบ" บนการ์ด — ต้องมาหลัง listingcard.js/listings.js เพราะไปแปะบนการ์ดที่สองไฟล์นั้นวาด

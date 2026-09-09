@@ -162,5 +162,82 @@ if (NJP && NJP.computeQuote) {
         !/กรุงเทพมหานคร|เชียงใหม่|สงขลา/.test(quoteJs));
 }
 
+
+console.log('\n7) ระลอก Teedin Sure Verified — บันได 5 ระดับ · รายงานสุขภาพแปลง · คำศัพท์ชุดกลาง');
+{
+  const lvPath = path.join(SRV, 'lib', 'landverify.js');
+  if (!fs.existsSync(lvPath)) {
+    check('พบ lib/landverify.js ฝั่งเซิร์ฟเวอร์', false, lvPath);
+  } else {
+    const lv = read(lvPath);
+    const vocab = read(path.join(WEB, 'landvocab.js'));
+    const verified = read(path.join(WEB, 'verified.js'));
+    const health = read(path.join(WEB, 'health.js'));
+    const parcelmap = read(path.join(WEB, 'parcelmap.js'));
+
+    // 5 ระดับ ต้องตรงกันทั้งคีย์และ **ลำดับ** — ลำดับคือบันไดที่ผู้ซื้อเห็น สลับเมื่อไหร่ความหมายเปลี่ยนทันที
+    const srvLevels = listAfter(lv, 'const VERIFY_LEVELS');
+    const webLevels = (verified.match(/\{ k: '([a-z]+)'/g) || []).map(s => s.slice(6, -1));
+    check('ระดับตรงกันทั้งคีย์และลำดับ', same(srvLevels || [], webLevels),
+      JSON.stringify(srvLevels) + ' vs ' + JSON.stringify(webLevels));
+    check('มีครบ 5 ระดับ', (srvLevels || []).length === 5, String((srvLevels || []).length));
+
+    // สถานะที่เซิร์ฟเวอร์ส่งออกได้ ฝั่งเว็บต้องรู้จักครบ
+    // ไม่รู้จักเมื่อไหร่ = ระดับที่ "พบประเด็น" จะถูกวาดเป็น "ยังไม่ได้ตรวจ" เงียบๆ ซึ่งเป็นการปิดบัง
+    ['passed', 'issue'].forEach(function (s) {
+      check('verified.js รู้จักสถานะ ' + s, verified.indexOf("'" + s + "'") >= 0);
+    });
+    check('verified.js รู้จักสถานะหมดอายุ (expired)', verified.indexOf('expired') >= 0);
+
+    // คำศัพท์ชุดใหม่ — คีย์ต้องตรงกันเป๊ะ ไม่งั้นหน้าเว็บขึ้นคีย์ดิบแทนชื่อไทย
+    [['const LAND_SHAPES', 'var SHAPE_TH'],
+     ['const LAND_ACCESS', 'var ACCESS_TH'],
+     ['const LAND_STRUCTURES', 'var STRUCTURE_TH']].forEach(function (pair) {
+      const srvKeys = (listAfter(lv, pair[0]) || []).slice().sort();
+      const i = vocab.indexOf(pair[1]);
+      const seg = i < 0 ? '' : vocab.slice(i, vocab.indexOf('};', i));
+      const webKeys = (seg.match(/[{,\s]([a-z_]+):/g) || [])
+        .map(function (s) { return s.replace(/[^a-z_]/g, ''); }).sort();
+      check(pair[0].replace('const ', '') + ' ตรงกันทุกคีย์', same(srvKeys, webKeys),
+        JSON.stringify(srvKeys) + ' vs ' + JSON.stringify(webKeys));
+    });
+
+    // ⚠️ ที่ตาบอดและแนวรุกล้ำ = ข้อมูลที่ผู้ซื้อต้องรู้ที่สุดในรายงานสุขภาพแปลง
+    // ถอดออกจากฝั่งใดฝั่งหนึ่งเมื่อไหร่ = ปิดบังสิ่งที่กระทบการตัดสินใจซื้อโดยตรง
+    check('ทั้งสองฝั่งยังมีตัวเลือก "ที่ตาบอด"',
+      lv.indexOf('ที่ตาบอด') >= 0 && vocab.indexOf('ที่ตาบอด') >= 0);
+    check('ทั้งสองฝั่งยังมีตัวเลือก "พบแนวรุกล้ำ"',
+      lv.indexOf('encroach') >= 0 && vocab.indexOf('encroach') >= 0);
+    check('health.js ขึ้นสถานะแดงให้ที่ตาบอด', /access === 'none'[\s\S]{0,200}'bad'/.test(health));
+    check('health.js ขึ้นสถานะแดงให้แนวรุกล้ำ', /structures === 'encroach'[\s\S]{0,200}'bad'/.test(health));
+
+    // สำเนาคำศัพท์ชุดเดิมที่ยังกระจายอยู่ 3 ที่ (landvocab.js · listings.js · comparepage.js)
+    const cmp = read(path.join(WEB, 'comparepage.js'));
+    ['chanote', 'nor3gor', 'nor3', 'other'].forEach(function (k) {
+      check('DEED_TH มี ' + k + ' ครบทั้ง 3 สำเนา',
+        vocab.indexOf(k + ':') >= 0 && listings.indexOf(k + ':') >= 0 && cmp.indexOf(k + ':') >= 0);
+    });
+
+    // ⚠️ กติกาที่ห้ามผ่อน — ไฟล์ที่ผู้ซื้ออ่านห้ามมีคำรับประกัน
+    [['verified.js', verified], ['health.js', health], ['parcelmap.js', parcelmap]].forEach(function (pair) {
+      check(pair[0] + ' ไม่มีคำรับประกัน',
+        !/ปลอดภัย 100|รับประกันกรรมสิทธิ์|ปลอดภัยแน่นอน|การันตี/.test(pair[1]));
+    });
+
+    // ⚠️ รูปแปลงต้องไม่มีทางส่งพิกัดเต็มความละเอียดออกไป
+    const pg = read(path.join(SRV, 'lib', 'plotgeo.js'));
+    check('plotgeo ปัดพิกัดก่อนส่งออกเสมอ', /GEO_DECIMALS\s*=\s*5/.test(pg));
+    check('plotgeo คืน null เมื่อยังไม่กดเปิดเผย', /!P\.published\)\s*return null/.test(pg));
+    // ความยาวด้านและพื้นที่ต้องมาจากเซิร์ฟเวอร์เท่านั้น คิดซ้ำที่ฝั่งเว็บ = ปัดเศษคนละแบบ
+    // แล้วตัวเลขบนรูปแปลงกับในตารางจะไม่ตรงกันโดยไม่มีอะไรเตือน
+    check('parcelmap.js อ่านความยาวด้านจาก plot.sides ที่เซิร์ฟเวอร์คิดมา',
+      /plot.sides/.test(parcelmap));
+    check('parcelmap.js อ่านพื้นที่จาก plot.areaWa ที่เซิร์ฟเวอร์คิดมา',
+      /plot.areaWa/.test(parcelmap));
+    check('parcelmap.js ไม่มีสูตรพื้นที่ (shoelace) ของตัวเอง',
+      !/areaOf|shoelace/.test(parcelmap));
+  }
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

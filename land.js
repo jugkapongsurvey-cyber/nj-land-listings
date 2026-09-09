@@ -394,6 +394,13 @@
         codeHtml(l)+
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+
+        // ---- ระลอก Teedin Sure Verified (2026-09-09) ----
+        // ⚠️ ทั้งสามตัวคืนสตริงว่างเมื่อ API ไม่ได้ส่งข้อมูลมา → แปลงเก่าทุกแปลงหน้าตาเหมือนเดิมเป๊ะ
+        // ห้ามเปลี่ยนเป็นวาดกล่องว่างพร้อมข้อความ "ยังไม่มีข้อมูล" — บันไดว่าง 5 ขีดสีเทา
+        // อ่านแล้วเหมือนแปลงถูกตัดสินไปแล้ว ทั้งที่ความจริงคือยังไม่มีใครไปตรวจ (กติกาข้อ 5)
+        (window.NJVerified?NJVerified.ladderHtml(L.verify):'')+
+        (window.NJHealth?NJHealth.tableHtml(L):'')+
+        (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):'')+
         mapHtml(L)+
         nearbyHtml(L)+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
@@ -415,6 +422,8 @@
     if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue});
 
     initGallery(document.querySelector('.ld-gal'), photos.length);
+    // ปุ่มหมุดบนแผนที่แนวเขต — ต้องต่อหลังวาด HTML เสร็จ (ผูก listener ที่กล่อง ไม่ผูกรายปุ่ม)
+    if(window.NJParcelMap&&L.plot) NJParcelMap.init(document.getElementById('ld-root'), L.plot);
     var pdfBtn=document.getElementById('ld-pdf-btn');
     if(pdfBtn) pdfBtn.addEventListener('click', function(){ window.print(); });
 
@@ -456,10 +465,20 @@
     var id=qs('id');
     var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
     if(!id){ fail('ไม่พบรหัสแปลงที่ดิน','ลิงก์อาจไม่สมบูรณ์ ลองเลือกแปลงจากหน้ารายการอีกครั้ง'); return; }
-    fetch(base+'/api/public/listings')
-      .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+    // ⚠️ ดึงเฉพาะแปลงนี้แปลงเดียว (เพิ่ม 2026-09-09)
+    // เดิมหน้านี้โหลด `/api/public/listings` ทั้งก้อน = ดาวน์โหลดข้อมูลของ **ทุกแปลงทั้งเว็บ**
+    // แล้วค่อยคัดเอาแปลงเดียวที่ต้องการ · พอบันได 5 ระดับ รายงานสุขภาพ และรูปแปลง
+    // (หมุดได้ถึง 200 จุด) เข้ามา ข้อมูลต่อแปลงโตขึ้นหลายเท่า คนที่เปิดหน้าเดียว
+    // จะต้องโหลดของทุกแปลงตามไปด้วย · ห้ามกลับไปโหลดทั้งก้อนอีก
+    // 404 = แปลงถูกถอด/ขายแล้ว ซึ่งคนละเรื่องกับ "โหลดไม่สำเร็จ" ต้องขึ้นคนละข้อความ
+    fetch(base+'/api/public/listings/'+encodeURIComponent(id))
+      .then(function(r){
+        if(r.status===404) return null;
+        if(!r.ok) throw new Error();
+        return r.json();
+      })
       .then(function(d){
-        var l=(d.listings||[]).filter(function(x){ return x.id===id; })[0];
+        var l=d&&d.listing;
         // ไม่เจอ = อาจขายไปแล้วหรือเจ้าของถอนประกาศ ต้องบอกตามจริง ไม่ใช่บอกว่าเว็บพัง
         if(!l){ fail('ไม่พบแปลงที่ดินนี้แล้ว','แปลงนี้อาจขายไปแล้ว หรือเจ้าของขอถอนประกาศ — ทักไลน์มาสอบถามแปลงอื่นที่ใกล้เคียงได้'); return; }
         render(l);

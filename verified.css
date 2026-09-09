@@ -1,0 +1,141 @@
+/* ===========================================================================
+   Teedin Sure Verified — บันไดระดับการตรวจสอบ (verified.js)
+   ต่อจาก marketplace.css (ใช้ตัวแปรสี --navy --green --ink --sub --line --mist)
+
+   ⚠️ สี่สถานะต้องแยกกันออกตั้งแต่แวบแรก และทุกสถานะมีข้อความกำกับเสมอ
+      ok    เขียว  ตรวจแล้ว
+      issue แดง    ตรวจแล้ว พบประเด็นที่ควรทราบ
+      stale ทอง    ถึงกำหนดตรวจใหม่
+      none  เทา    ยังไม่ได้ตรวจ
+   ⚠️ สีเทาของ none ต้องไม่จางจนอ่านไม่ออก — "ยังไม่ได้ตรวจ" คือข้อมูลที่ผู้ซื้อต้องอ่าน
+      ไม่ใช่แถวที่จงใจทำให้มองข้าม (คอนทราสต์ของข้อความอยู่ที่ 4.6:1 บนพื้นขาว)
+   =========================================================================== */
+
+.njv{
+  border:1px solid var(--line);border-radius:14px;background:#fff;
+  padding:18px 20px 16px;margin-bottom:22px;
+}
+.njv-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line);
+}
+.njv-head h2{
+  font-size:17px;line-height:1.4;color:var(--navy);margin:0 0 3px;
+  display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+}
+.njv-head h2 span{
+  font:700 9.5px/1 Manrope,sans-serif;letter-spacing:1.6px;text-transform:uppercase;
+  color:#fff;background:var(--navy);padding:5px 8px;border-radius:4px;
+}
+.njv-head p{font-size:12.5px;color:var(--sub);margin:0;line-height:1.65}
+
+/* แถบความคืบหน้า 5 ขีด */
+.njv-pips{display:flex;gap:5px;flex:none;padding-top:5px}
+.njv-pips i{
+  display:block;width:26px;height:7px;border-radius:4px;background:#DEE7EF;
+}
+.njv-pips i.on{background:var(--green)}
+@media(max-width:520px){ .njv-pips i{width:100%;min-width:20px} .njv-pips{flex:1 0 100%} }
+
+/* ---------- แต่ละขั้น ---------- */
+.njv-row{border-bottom:1px solid #EFF3F7}
+.njv-row:last-of-type{border-bottom:0}
+.njv-row > summary{
+  display:flex;align-items:flex-start;gap:11px;padding:13px 2px;
+  cursor:pointer;list-style:none;
+}
+.njv-row > summary::-webkit-details-marker{display:none}
+/* ⚠️ ต้องมีสถานะโฟกัสที่มองเห็นได้ — หน้านี้เดินด้วยคีย์บอร์ดได้ทั้งหน้า
+   (land.css เดิมไม่มีกฎ :focus เลยสักข้อ ซึ่งเป็นสิ่งที่รอบนี้แก้ไปพร้อมกัน) */
+.njv-row > summary:focus-visible{
+  outline:3px solid var(--blue);outline-offset:2px;border-radius:8px;
+}
+.njv-row > summary:hover .njv-t b{color:var(--blue)}
+
+.njv-ico{
+  flex:none;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;
+  font-size:12.5px;font-weight:700;color:#fff;margin-top:1px;
+}
+.njv-row.ok    .njv-ico{background:var(--green)}
+.njv-row.issue .njv-ico{background:#B03A2B}
+.njv-row.stale .njv-ico{background:#B08D57}
+.njv-row.none  .njv-ico{background:#C3CFDB;color:#41556B}
+
+.njv-t{flex:1;min-width:0}
+.njv-t b{display:block;font-size:13.5px;line-height:1.55;color:var(--ink);font-weight:600}
+.njv-t em{
+  display:block;font-style:normal;font-size:11.5px;line-height:1.7;margin-top:1px;color:var(--sub);
+}
+.njv-row.ok    .njv-t em{color:#12764A}
+.njv-row.issue .njv-t em{color:#93301F}
+.njv-row.stale .njv-t em{color:#7A5D1E}
+.njv-row.none  .njv-t em{color:#5F7286}
+
+.njv-more{
+  flex:none;font-size:11px;color:var(--blue);font-weight:600;align-self:center;
+  white-space:nowrap;
+}
+.njv-row[open] .njv-more{color:var(--sub)}
+.njv-row[open] .njv-more:after{content:" ▴"}
+.njv-row:not([open]) .njv-more:after{content:" ▾"}
+
+/* ---------- รายละเอียดที่กางออก ---------- */
+.njv-body{padding:0 0 15px 34px;font-size:12.5px;line-height:1.8;color:var(--sub)}
+.njv-body p{margin:0 0 8px}
+.njv-hint{color:#6D8095}
+.njv-note{
+  background:#FBEEEB;border-left:3px solid #B03A2B;padding:9px 12px;
+  border-radius:0 7px 7px 0;color:#7E2A1B;
+}
+.njv-exp{
+  background:#FBF4E4;border-left:3px solid #B08D57;padding:9px 12px;
+  border-radius:0 7px 7px 0;color:#6B531A;
+}
+.njv-list{margin:0 0 9px}
+.njv-list b{display:block;font-size:11.5px;color:var(--ink);margin-bottom:3px;font-weight:600}
+.njv-list ul{margin:0;padding-left:19px}
+.njv-list li{margin-bottom:2px}
+.njv-list.done li::marker{color:var(--green)}
+/* "ยังไม่ได้ตรวจ" ใช้จุดสีทอง ไม่ใช่สีเทาจาง — ต้องอ่านออกว่าเป็นสิ่งที่ยังค้างอยู่ */
+.njv-list.todo li::marker{color:#B08D57}
+
+.njv-ev{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:9px}
+.njv-ev b{font-size:11.5px;color:var(--ink);font-weight:600;width:100%}
+.njv-ev a,.njv-ev span{
+  font-size:11.5px;padding:5px 10px;border-radius:6px;background:var(--mist);
+  border:1px solid var(--line);color:var(--navy);font-weight:600;
+}
+.njv-ev a:hover{border-color:var(--blue);color:var(--blue)}
+.njv-ev a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.njv-foot{
+  margin:12px 0 0;padding-top:13px;border-top:1px solid var(--line);
+  font-size:11.5px;line-height:1.85;color:#6D8095;
+}
+.njv-foot b{color:var(--ink)}
+
+/* ---------- ป้ายย่อบนการ์ดแปลง ---------- */
+.njv-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10.5px;font-weight:600;color:#12764A;background:#E4F3EA;
+  border:1px solid #BFE4CE;border-radius:20px;padding:3px 9px;line-height:1.6;
+}
+.njv-badge b{font:800 11px/1 Manrope,sans-serif}
+
+/* ---------- พิมพ์ ----------
+   บันไดต้องติดไปกับกระดาษ เพราะคนที่พิมพ์ประกาศออกมาอ่านคือคนที่กำลังตัดสินใจ
+   กางทุกขั้นให้เห็นครบ ไม่ใช่พิมพ์ออกมาแล้วเหลือแต่หัวข้อ */
+@media print{
+  .njv{break-inside:avoid;border-color:#999}
+  .njv-body{display:block !important}
+  .njv-more{display:none}
+  .njv-row > summary{cursor:default}
+}
+
+@media(max-width:640px){
+  .njv{padding:15px 14px 13px;border-radius:12px}
+  .njv-head{gap:10px}
+  .njv-head h2{font-size:16px}
+  .njv-body{padding-left:0}
+  .njv-more{display:none}   /* จอแคบ แตะทั้งแถวได้อยู่แล้ว ไม่ต้องเบียดคำเพิ่ม */
+}

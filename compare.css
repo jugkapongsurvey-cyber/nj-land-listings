@@ -106,3 +106,16 @@
   display:inline-block; background:#1E6FE0; color:#fff; text-decoration:none; font-weight:700;
   border-radius:11px; padding:12px 20px;
 }
+
+/* ---------- สถานะโฟกัสสำหรับการใช้คีย์บอร์ด (เพิ่ม 2026-09-09) ----------
+   ⚠️ ไฟล์นี้ไม่เคยมีกฎ :focus เลยสักข้อ ทั้งที่ปุ่ม "เทียบ" บนการ์ดและปุ่มในแถบลอย
+   เป็นปุ่มที่กดได้จริงทั้งหมด · คนที่เดินหน้าเว็บด้วยคีย์บอร์ดจึงมองไม่ออกว่าโฟกัสอยู่ที่ไหน */
+.njcmp-btn:focus-visible,
+.njcmp-go:focus-visible,
+.njcmp-clear:focus-visible,
+.njcmp-drop:focus-visible,
+.njcmp-back:focus-visible{
+  outline:3px solid #1B4B7A;
+  outline-offset:2px;
+  border-radius:8px;
+}

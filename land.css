@@ -281,3 +281,30 @@
   .ld-cta{grid-template-columns:1fr 1fr 1fr}
   .ld-btn{padding:8px 10px;font-size:12px}
 }
+
+/* ---------- สถานะโฟกัสสำหรับการใช้คีย์บอร์ด (เพิ่ม 2026-09-09) ----------
+   ⚠️ ไฟล์นี้ไม่เคยมีกฎ :focus เลยสักข้อ ทั้งที่หน้านี้มีปุ่มควบคุมสไลด์ภาพ จุดนำทาง
+   ปุ่มคัดลอกรหัสทรัพย์ ปุ่มดูเบอร์ และปุ่มดาวน์โหลด PDF — คนที่เดินหน้าเว็บด้วยคีย์บอร์ด
+   หรือใช้สวิตช์ช่วยเหลือ จึงมองไม่ออกเลยว่าตอนนี้โฟกัสอยู่ที่ปุ่มไหน
+   ใช้ :focus-visible เพื่อไม่ให้กรอบเด้งขึ้นตอนคลิกเมาส์ (ซึ่งเป็นเหตุผลที่คนมักถอดกฎนี้ทิ้ง) */
+.ld-body a:focus-visible,
+.ld-back:focus-visible,
+.ld-btn:focus-visible,
+.ld-gal-ctrl button:focus-visible,
+.ld-dots button:focus-visible,
+.ld-code-copy:focus-visible,
+#ld-code-copy:focus-visible,
+#ld-pdf-btn:focus-visible,
+#ld-tel:focus-visible{
+  outline:3px solid var(--blue);
+  outline-offset:2px;
+  border-radius:8px;
+}
+/* ปุ่มบนภาพเป็นพื้นเข้ม กรอบสีน้ำเงินเข้มจะจมหาย ใช้ขาวแทนบนบริเวณนั้น */
+.ld-gal .ld-gal-ctrl button:focus-visible,
+.ld-gal .ld-dots button:focus-visible{outline-color:#fff}
+
+/* ส่วนใหม่ของระลอก Teedin Sure Verified — ให้ break-inside เหมือนแผงผลตรวจเดิมตอนพิมพ์ */
+@media print{
+  .njv,.njh,.njp{break-inside:avoid}
+}
