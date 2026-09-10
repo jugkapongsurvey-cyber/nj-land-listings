@@ -59,7 +59,10 @@
       totalWa: Number(item.totalWa || 0),
       pricePerWa: Number(item.pricePerWa || 0),
       pricePerRai: Number(item.pricePerRai || 0),
-      land: item.land || null
+      land: item.land || null,
+      // คะแนนความพร้อมของข้อมูล (Phase 3) — เซิร์ฟเวอร์ส่ง null มาเมื่อยังไม่มีใครกรอกผลตรวจอะไรเลย
+      // ⚠️ ห้ามแปลง null เป็น 0 ที่นี่ — 0 กับ "ยังไม่มีใครไปตรวจ" คนละเรื่องกันโดยสิ้นเชิง
+      score: item.score || null
     };
   }
 
@@ -97,6 +100,10 @@
         // ⚠️ ป้ายนี้ **ไม่ได้แทนที่** ป้ายเหลือง-เขียวเดิม สองอย่างตอบคนละคำถาม
         //    ป้ายเดิม = "รังวัดแล้วหรือยัง" · ป้ายนี้ = "ตรวจไปแล้วกี่ระดับจาก 5"
         (window.NJVerified && item.land ? NJVerified.badgeHtml(item.land.verify) : '') +
+        // ป้ายคะแนนความพร้อมของข้อมูล (Phase 3) — คืนสตริงว่างเมื่อยังไม่มีคะแนน
+        // ⚠️ อยู่ข้างป้ายบันได 5 ระดับเพราะตอบคนละคำถาม: ป้ายนั้น = "ตรวจไปกี่ระดับ"
+        //    ป้ายนี้ = "ข้อมูลทั้งใบครบแค่ไหน" (รวมเอกสาร ทางเข้าออก ผังเมือง ความใหม่ ฯลฯ)
+        (window.NJScore ? NJScore.badgeHtml(item.score) : '') +
         '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(item.parcelInfo || 'แปลงที่ดิน') + '</a></h3>' +
         meta +
         facts +

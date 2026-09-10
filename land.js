@@ -401,6 +401,10 @@
         (window.NJVerified?NJVerified.ladderHtml(L.verify):'')+
         (window.NJHealth?NJHealth.tableHtml(L):'')+
         (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):'')+
+        // คะแนนความพร้อมของข้อมูล (Phase 3) — สรุปรวมของทุกอย่างข้างบน
+        // ⚠️ `l.score` อยู่ระดับบนสุดของประกาศ **ไม่ได้อยู่ใน l.land** (คิดจากทั้งใบ ไม่ใช่เฉพาะข้อมูลแปลง)
+        // ⚠️ คืนสตริงว่างเมื่อ API ไม่ส่งคะแนนมา → แปลงเก่าหน้าตาเหมือนเดิมเป๊ะ (กติกาข้อ 5)
+        (window.NJScore?NJScore.panelHtml(l.score):'')+
         mapHtml(L)+
         nearbyHtml(L)+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
