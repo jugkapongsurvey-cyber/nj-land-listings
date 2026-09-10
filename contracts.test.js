@@ -332,5 +332,86 @@ console.log('\n9) ระลอก Phase 3 — คะแนนความพร�
   }
 }
 
+console.log('\n10) ระลอก Phase 3 — ค้นหาตามวัตถุประสงค์ 8 แบบ');
+{
+  const purposeLib = path.join(SRV, 'lib', 'landpurpose.js');
+  if (!fs.existsSync(purposeLib)) {
+    console.log('  ข้าม — ยังไม่มี lib/landpurpose.js ที่ฝั่งเซิร์ฟเวอร์ (สาขา phase3 ยังไม่ถูก merge)');
+  } else {
+    const srvP = read(purposeLib);
+    const webP = read(path.join(WEB, 'landpurpose.js'));
+    const webPage = read(path.join(WEB, 'purpose.js'));
+    // ตัดคอมเมนต์ทิ้งก่อนค้นคำต้องห้าม — คำพวกนี้ปรากฏได้เฉพาะในคอมเมนต์ที่ห้ามใช้มันเอง
+    // ต้องตัดทั้งคอมเมนต์ก้อนหัวไฟล์และคอมเมนต์ท้ายบรรทัด ไม่งั้นกติกาที่เขียนกันไว้จะทำให้เทสต์แดงเอง
+    // แล้วคนจะแก้ด้วยการลบกติกาออก ซึ่งกลับหัวกลับหางกับเจตนาของเทสต์ข้อนี้
+    function bodyOf(src) {
+      return src.replace(/\/\*[\s\S]*?\*\//g, ' ')
+        .split(/\r?\n/)
+        .filter(l => l.trim().indexOf('//') !== 0)
+        .join('\n');
+    }
+
+    // ⚠️ คำต้องห้ามที่สุดของฟีเจอร์นี้ — การก่อสร้าง แบ่งแยกแปลง และจัดสรรที่ดิน
+    //    ต้องขออนุญาตจากหน่วยงานเสมอ ระบบนี้ฟันธงแทนไม่ได้ไม่ว่าข้อมูลจะครบแค่ไหน
+    ['สร้างได้แน่นอน', 'จัดสรรได้แน่นอน', 'แบ่งขายได้แน่นอน', 'รับประกัน', 'การันตี'].forEach(function (wd) {
+      check('lib ฝั่งเซิร์ฟเวอร์ไม่มีคำว่า "' + wd + '"', bodyOf(srvP).indexOf(wd) < 0);
+      check('landpurpose.js ฝั่งเว็บไม่มีคำว่า "' + wd + '"', bodyOf(webP).indexOf(wd) < 0);
+      check('purpose.js ฝั่งเว็บไม่มีคำว่า "' + wd + '"', bodyOf(webPage).indexOf(wd) < 0);
+    });
+
+    // คีย์วัตถุประสงค์ต้องมาจากเซิร์ฟเวอร์ที่เดียว ฝั่งเว็บห้ามฝังรายการไว้เอง
+    // (ฝังเมื่อไหร่ = วันหนึ่งปุ่มบนเว็บกับตัวคำนวณใช้คีย์คนละชุด แล้วกดแล้วได้ผลว่างโดยไม่มีอะไรเตือน)
+    ['home', 'warehouse', 'factory', 'shop', 'subdivide', 'allocate', 'farm', 'invest'].forEach(function (k) {
+      check('ฝั่งเซิร์ฟเวอร์ประกาศวัตถุประสงค์ ' + k, new RegExp("key: '" + k + "'").test(srvP));
+    });
+    check('ฝั่งเว็บไม่ได้ฝังรายชื่อวัตถุประสงค์ไว้เอง',
+      !/PURPOSES\s*=\s*\[/.test(webP) && !/PURPOSES\s*=\s*\[/.test(webPage));
+    check('ฝั่งเว็บดึงรายชื่อจาก /api/public/purposes', /api\/public\/purposes/.test(webP));
+    check('เซิร์ฟเวอร์เปิดเส้นทาง /api/public/purposes', /'\/api\/public\/purposes'/.test(server));
+    check('เซิร์ฟเวอร์รับตัวกรอง ?purpose= ที่หน้ารวมประกาศ', /pickPurpose\(req\.query/.test(server));
+    check('ฝั่งเว็บยิงค้นด้วย ?purpose=', /listings\?purpose=/.test(webP));
+
+    // ⚠️ ระดับผลลัพธ์ต้องรู้จักครบทั้งสองฝั่ง โดยเฉพาะ unknown ที่ห้ามถูกอ่านเป็น weak
+    //    "ยังบอกไม่ได้" = ยังไม่มีใครไปตรวจ · "ยังไม่เข้าทาง" = ตรวจแล้วข้อมูลชี้ว่าติดขัด
+    ['good', 'maybe', 'unknown', 'weak'].forEach(function (b) {
+      check('ฝั่งเว็บรู้จักระดับ ' + b, webP.indexOf("'" + b + "'") >= 0);
+      check('ฝั่งเซิร์ฟเวอร์ประกาศระดับ ' + b, new RegExp("key: '" + b + "'").test(srvP));
+    });
+    check('ฝั่งเซิร์ฟเวอร์แยก "ยังบอกไม่ได้" ออกจาก "ยังไม่เข้าทาง"',
+      /UNKNOWN_BAND/.test(srvP) && /ยังบอกไม่ได้/.test(srvP));
+
+    // ห้ามคิดเองฝั่งเว็บ (บทเรียนเดียวกับราคาต่อตารางวาและคะแนนความพร้อม)
+    check('ฝั่งเว็บไม่คำนวณความเข้ากันเอง', !/reduce\(|\+=/.test(webP));
+    check('ฝั่งเว็บอ่านค่าที่เซิร์ฟเวอร์คิดมา', /\.fit\b/.test(webP));
+    check('แผงในหน้าแปลงคืนค่าว่างเมื่อ API ไม่ส่งข้อมูลมา', /panelHtml[\s\S]{0,220}return ''/.test(webP));
+    check('ป้ายระดับคืนค่าว่างเมื่อไม่มีข้อมูล', /badgeHtml[\s\S]{0,220}return ''/.test(webP));
+
+    // คำอธิบายต้องมาจากเซิร์ฟเวอร์ที่เดียว และฝั่งเว็บต้องพิมพ์ออกมาจริง
+    check('ฝั่งเซิร์ฟเวอร์ประกาศคำอธิบายไว้', /PURPOSE_DISCLAIM/.test(srvP));
+    check('คำอธิบายบอกว่าไม่ใช่การยืนยันตามกฎหมาย', /ไม่ใช่การยืนยัน/.test(srvP));
+    check('คำอธิบายบอกว่าต้องขออนุญาตก่อน', /ขออนุญาตจากหน่วยงานที่เกี่ยวข้อง/.test(srvP));
+    check('คำอธิบายบอกว่ายังไม่มีข้อมูลไม่เท่ากับไม่เหมาะ', /ไม่เท่ากับไม่เหมาะ/.test(srvP));
+    check('แผงในหน้าแปลงพิมพ์คำอธิบายที่ได้รับมา', /disclaim/.test(webP));
+    check('หน้าค้นหาพิมพ์คำอธิบายที่ได้รับมา', /disclaim/.test(webPage));
+
+    // บริการที่แนะนำต่อ ต้องใช้คีย์ชุดเดียวกับ NJ_SERVICES ไม่งั้นผู้ซื้อกดแล้วบริการหายเงียบๆ
+    const njSvcKeys = (server.match(/key: '[a-z]+', +by: '(?:nj|partner)'/g) || [])
+      .map(s => s.match(/key: '([a-z]+)'/)[1]);
+    check('เซิร์ฟเวอร์ยังประกาศ NJ_SERVICES ครบ 7 บริการ', njSvcKeys.length === 7, njSvcKeys.join(','));
+    njSvcKeys.forEach(function (k) {
+      check('lib วัตถุประสงค์รู้จักบริการ ' + k, new RegExp('\\b' + k + ':').test(srvP));
+    });
+
+    // ⚠️ ห้ามคัดแปลงที่ยังไม่มีข้อมูลออกจากผลค้น — เซิร์ฟเวอร์เรียงลำดับให้แล้วและไม่ได้คัดใครทิ้ง
+    check('หน้าค้นหาไม่กรองแปลงออกเอง', !/\.filter\(/.test(webPage));
+    check('หน้าค้นหาบอกจำนวนของแต่ละระดับ', /counts/.test(webPage));
+    check('เซิร์ฟเวอร์เรียงลำดับแทนการกรอง', /sortByFit/.test(server));
+
+    check('เหตุการณ์ purpose_view ขึ้นทะเบียนทั้งสองฝั่ง',
+      /'purpose_view'/.test(server) && /'purpose_view'/.test(read(path.join(WEB, 'analytics.js'))));
+    check('หน้า purpose.html อยู่ในแผนผังเว็บ', /purpose\.html/.test(read(path.join(WEB, 'sitemap.xml'))));
+  }
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

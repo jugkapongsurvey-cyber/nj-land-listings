@@ -4,6 +4,9 @@
 .ls-head{background:var(--navy);color:#fff;padding:34px 0 30px}
 .ls-head h1{margin:0 0 8px;font-size:27px;font-weight:700;line-height:1.35}
 .ls-head p{margin:0;font-size:15px;line-height:1.7;color:#CFE0F7;max-width:58ch}
+/* ทางเข้าหน้าค้นตามวัตถุประสงค์ — คนที่ยังไม่รู้ว่าจะกรองอะไร ควรมีทางเริ่มจาก "จะเอาไปทำอะไร" */
+.ls-purpose-link{margin:9px 0 0;font-size:14px;line-height:1.7;color:#CFE0F7}
+.ls-purpose-link a{color:#fff;font-weight:600;text-decoration:underline}
 
 .ls-wrap{padding:22px 0 60px}
 

@@ -405,6 +405,9 @@
         // ⚠️ `l.score` อยู่ระดับบนสุดของประกาศ **ไม่ได้อยู่ใน l.land** (คิดจากทั้งใบ ไม่ใช่เฉพาะข้อมูลแปลง)
         // ⚠️ คืนสตริงว่างเมื่อ API ไม่ส่งคะแนนมา → แปลงเก่าหน้าตาเหมือนเดิมเป๊ะ (กติกาข้อ 5)
         (window.NJScore?NJScore.panelHtml(l.score):'')+
+        // แปลงนี้เข้าทางวัตถุประสงค์ไหนบ้าง (Phase 3) — ⚠️ `l.purposes` อยู่ระดับบนสุดของประกาศ
+        // เหมือน `l.score` ไม่ได้อยู่ใน l.land · คืนสตริงว่างเมื่อ API ไม่ส่งมา (แปลงเก่าหน้าตาเหมือนเดิม)
+        (window.NJPurpose?NJPurpose.panelHtml(l.purposes):'')+
         mapHtml(L)+
         nearbyHtml(L)+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
