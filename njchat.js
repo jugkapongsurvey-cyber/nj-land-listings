@@ -134,7 +134,7 @@
   // ตีความคำค้นแปลง — คืน {provinces[], places[], type, pmin, pmax, amin, amax, deed, zone, feats[], sort, building, floors}
   function parseSearch(text) {
     var q = norm(text), raw = String(text);
-    var f = { provinces: [], type: 'all', pmin: 0, pmax: 0, amin: 0, amax: 0, deed: 'all', zone: 'all', feats: [], sort: 'new', building: false, floors: 0 };
+    var f = { provinces: [], type: 'all', pmin: 0, pmax: 0, amin: 0, amax: 0, deed: 'all', zone: 'all', feats: [], sort: 'new', building: false, prop: 'all', floors: 0 };
 
     // จังหวัด — ชื่อเต็มจากตารางราคา (ถ้าโหลดแล้ว) + ชื่อย่อที่คนพิมพ์
     var seen = {};
@@ -185,11 +185,19 @@
     else if (has(q, ['ใหญ่สุด', 'ใหญ่ที่สุด', 'เนื้อที่มาก'])) f.sort = 'area_desc';
     else if (has(q, ['ต่อตารางวาถูก', 'ตร.ว.ถูก'])) f.sort = 'wa_asc';
 
-    if (has(q, ['บ้าน', 'สิ่งปลูกสร้าง', 'อาคาร', 'ตึก', 'ทาวน์', 'โกดัง', 'ชั้น'])) {
-      f.building = true;
-      var fl = raw.match(/(\d+)\s*ชั้น/) || (has(q, ['ชั้นเดียว']) ? [0, '1'] : null);
-      if (fl) f.floors = Number(fl[1]);
-    }
+    // ประเภทสิ่งปลูกสร้าง + จำนวนชั้น — API มีช่องจริงแล้ว (2026-09-11) จึงกรองได้ ไม่ต้องบอกว่าไม่รู้อีก
+    // ⚠️ กติกาข้อ 5 ยังใช้เหมือนเดิม: แปลงที่ยังไม่ได้กรอกช่องนี้ = "ยังไม่ระบุ" ต้องนับเป็นซ่อน ไม่ใช่ไม่ตรง
+    // ⚠️ ห้ามใช้คำว่า "บ้าน" โดดๆ — "ที่ดินข้างบ้าน" คือคนอยากซื้อ ไม่ได้อยากได้บ้าน (กติกาเดียวกับ "หา")
+    if (has(q, ['ทาวน์เฮาส์', 'ทาวน์โฮม', 'ทาวน์เฮ้าส์'])) f.prop = 'townhouse';
+    else if (has(q, ['ตึกแถว', 'อาคารพาณิชย์'])) f.prop = 'shophouse';
+    else if (has(q, ['โกดัง', 'โรงงาน', 'คลังสินค้า'])) f.prop = 'warehouse';
+    else if (has(q, ['อพาร์ตเมนต์', 'อพาร์ทเมนท์', 'หอพัก', 'ห้องเช่า'])) f.prop = 'apartment';
+    else if (has(q, ['ที่ดินเปล่า', 'ที่เปล่า', 'ไม่เอาสิ่งปลูกสร้าง'])) f.prop = 'land';
+    else if (has(q, ['บ้านเดี่ยว', 'หาบ้าน', 'ต้องการบ้าน', 'อยากได้บ้าน', 'ซื้อบ้าน', 'บ้านใน', 'บ้านแถว', 'บ้านที่มี'])) f.prop = 'house';
+    else if (has(q, ['สิ่งปลูกสร้าง', 'มีอาคาร', 'มีตึก', 'พร้อมอาคาร'])) f.prop = 'any_building';
+    var fl = raw.match(/(\d+)\s*ชั้น/) || (has(q, ['ชั้นเดียว']) ? [0, '1'] : null);
+    if (fl) f.floors = Number(fl[1]);
+    if (f.prop !== 'all' || f.floors) f.building = true;
     return f;
   }
 
@@ -224,6 +232,15 @@
         if (!L.deedType) { hiddenUnknown++; return false; }
         var ok = f.deed === 'nor3gor' ? (L.deedType === 'nor3gor' || L.deedType === 'chanote') : L.deedType === f.deed;
         if (!ok) return false;
+      }
+      // กติกาเดียวกับ listings.js เป๊ะ — ว่าง = ยังไม่ได้กรอก ไม่ใช่ "ที่ดินเปล่า"
+      if (f.prop !== 'all') {
+        if (!L.propertyType) { hiddenUnknown++; return false; }
+        if (f.prop === 'any_building' ? L.propertyType === 'land' : L.propertyType !== f.prop) return false;
+      }
+      if (f.floors) {
+        if (!(L.floors > 0)) { hiddenUnknown++; return false; }
+        if (L.floors !== f.floors) return false;
       }
       if (f.zone !== 'all') {
         if (!L.zoneColor) { hiddenUnknown++; return false; }
@@ -346,16 +363,14 @@
       if (f.deed !== 'all' && window.NJVocab) crit.push(window.NJVocab.DEED_TH[f.deed]);
       if (f.zone !== 'all' && window.NJVocab) crit.push('ผัง' + window.NJVocab.ZONE_TH[f.zone].split(' — ')[0]);
       if (f.feats.length && window.NJVocab) crit.push(f.feats.map(function (k) { return window.NJVocab.FEATURE_TH[k]; }).join(', '));
+      if (f.prop !== 'all') crit.push(f.prop === 'any_building' ? 'มีสิ่งปลูกสร้าง'
+        : ((window.NJVocab && window.NJVocab.PROPERTY_TH[f.prop]) || f.prop));
+      if (f.floors) crit.push(f.floors + ' ชั้น');
 
       var html = '';
-      if (f.building) {
-        // API ประกาศยังไม่มีช่อง "จำนวนชั้น/ประเภทสิ่งปลูกสร้าง" — ต้องบอกตามจริง ห้ามคัดแปลงให้เหมือนรู้
-        var mention = res.list.filter(function (x) { return /บ้าน|อาคาร|ตึก|สิ่งปลูกสร้าง|โกดัง/.test((x.parcelInfo || '') + ' ' + (x.blurb || '')); });
-        html += '<p class="njchat-note">ℹ️ ประกาศบนเว็บตอนนี้ระบุข้อมูล<b>แปลงที่ดิน</b>เป็นหลัก ยังไม่มีช่อง "จำนวนชั้น" หรือ "ประเภทสิ่งปลูกสร้าง" ให้กรอง ' +
-          'น้องจึงคัดตามทำเล/งบ/เนื้อที่ให้ก่อน' + (mention.length ? ' — มี ' + mention.length + ' แปลงที่ในประกาศเอ่ยถึงสิ่งปลูกสร้าง' : '') +
-          ' ถ้าต้องการเฉพาะแปลงที่มี' + (f.floors ? 'บ้าน ' + f.floors + ' ชั้น' : 'สิ่งปลูกสร้าง') + ' ทีมงานตรวจให้ได้ครับ</p>';
-        if (mention.length) { res.areaCount = res.list.length; lastResults = mention.slice(0, MAX_CARDS); res.list = mention; }
-      }
+      // เดิมตรงนี้เป็นคำขอโทษว่า API ไม่มีช่อง "จำนวนชั้น/ประเภทสิ่งปลูกสร้าง" แล้วคัดตามทำเลให้แทน
+      // ตั้งแต่ 2026-09-11 มีช่องจริงแล้ว จึงกรองตรงๆ ได้ · แปลงที่ทีมยังไม่ได้กรอกช่องนี้จะถูกนับเป็น
+      // hiddenUnknown แล้วบอกจำนวนตามกติกาข้อ 5 เหมือนช่องอื่นทุกช่อง ไม่ต้องมีข้อความพิเศษของตัวเอง
       if (!res.list.length) {
         html += '<b>ยังไม่พบแปลงที่ตรงกับ ' + esc(crit.join(' · ') || 'เงื่อนไขนี้') + '</b> (ประกาศทั้งหมด ' + all.length + ' แปลง)';
         if (res.hiddenUnknown) html += '<br>อีก ' + res.hiddenUnknown + ' แปลงไม่ได้แสดง เพราะยังไม่ได้ระบุข้อมูลในช่องที่คุณกรอง — ไม่ได้แปลว่าไม่ตรง ทักไลน์ถามทีมงานได้เลยครับ';

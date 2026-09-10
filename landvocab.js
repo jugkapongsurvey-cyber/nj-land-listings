@@ -54,6 +54,14 @@
     none: 'ยังไม่มีทางเข้าออกตามกฎหมาย (ที่ตาบอด)'
   };
 
+  // ประเภทสิ่งปลูกสร้างบนแปลง — คีย์ต้องตรงกับ LAND_PROPERTY_TYPES ใน server.js (contracts.test.js ล็อกไว้)
+  // ⚠️ ไม่มีคีย์สำหรับ "ยังไม่ระบุ" โดยตั้งใจ — ค่าว่างคือยังไม่ได้กรอก ไม่ใช่ตัวเลือกหนึ่ง
+  var PROPERTY_TH = {
+    land: 'ที่ดินเปล่า', house: 'บ้านเดี่ยว', townhouse: 'ทาวน์เฮาส์/ทาวน์โฮม',
+    shophouse: 'อาคารพาณิชย์/ตึกแถว', warehouse: 'โกดัง/โรงงาน',
+    apartment: 'อพาร์ตเมนต์/หอพัก', other_building: 'สิ่งปลูกสร้างอื่น'
+  };
+
   var STRUCTURE_TH = {
     none: 'ไม่พบสิ่งปลูกสร้างหรือแนวรุกล้ำ', building: 'มีสิ่งปลูกสร้างในแปลง',
     crop: 'มีพืชผลหรือการใช้ประโยชน์อยู่', encroach: 'พบแนวรุกล้ำ'
@@ -62,6 +70,7 @@
   w.NJVocab = {
     DEED_TH: DEED_TH, ZONE_TH: ZONE_TH, ROAD_TH: ROAD_TH, FACING_TH: FACING_TH,
     FEATURES: FEATURES, FEATURE_TH: FEATURE_TH,
-    SHAPE_TH: SHAPE_TH, ACCESS_TH: ACCESS_TH, STRUCTURE_TH: STRUCTURE_TH
+    SHAPE_TH: SHAPE_TH, ACCESS_TH: ACCESS_TH, STRUCTURE_TH: STRUCTURE_TH,
+    PROPERTY_TH: PROPERTY_TH
   };
 })(window);

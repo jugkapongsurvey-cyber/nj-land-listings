@@ -3,7 +3,7 @@
 //
 // สิ่งที่ล็อกไว้:
 //   · "ยังไม่ได้ระบุ" ไม่นับว่าตรง แต่ต้องนับจำนวนที่ถูกซ่อน (กติกาเดียวกับ listings.js)
-//   · โจทย์เรื่องบ้าน/จำนวนชั้น ต้องไม่ถูกแปลงเป็นตัวกรองที่ API ไม่มี (ต้องบอกตามจริง)
+//   · โจทย์เรื่องบ้าน/จำนวนชั้น กรองได้จริงตั้งแต่ 2026-09-11 (API มีช่องแล้ว) แต่แปลงที่ยังไม่ได้กรอกช่องนี้
 //   · คำถามทั่วไป ("น้ำท่วมไหม") ต้องไม่หลุดเข้าโหมดค้นแปลง → ไปให้ AI
 //   · ราคาค่ารังวัดต้องมาจาก NJPricing เท่านั้น — ไม่มีตารางราคาต้องไม่มีตัวเลขในคำตอบ
 const vm = require('vm');
@@ -28,8 +28,8 @@ let P = null;
 try { P = require(path.join(SRV, 'public', 'pricing.js')); } catch (e) { console.log('  (ไม่พบ pricing.js ที่ ' + SRV + ' — ข้ามข้อที่ต้องใช้ตารางราคา)'); }
 
 const L = [
-  { id: 'A', type: 'sell', parcelInfo: 'ที่ดินพร้อมบ้านชั้นเดียว บางบ่อ', estValue: 2500000, totalWa: 850, pricePerWa: 2941, blurb: 'บ้านชั้นเดียว', photos: [], tier: 2, updatedAt: '2026-09-08', land: { province: 'สมุทรปราการ', amphoe: 'บางบ่อ', tambon: 'บางบ่อ', deedType: 'chanote', zoneColor: 'yellow', features: ['road', 'electric'] } },
-  { id: 'B', type: 'sell', parcelInfo: 'ที่ดินเปล่า คลองหลวง', estValue: 4000000, totalWa: 400, pricePerWa: 10000, blurb: '', photos: [], tier: 1, updatedAt: '2026-09-07', land: { province: 'ปทุมธานี', amphoe: 'คลองหลวง', tambon: 'คลองสอง', deedType: '', zoneColor: '', features: [] } },
+  { id: 'A', type: 'sell', parcelInfo: 'ที่ดินพร้อมบ้านชั้นเดียว บางบ่อ', estValue: 2500000, totalWa: 850, pricePerWa: 2941, blurb: 'บ้านชั้นเดียว', photos: [], tier: 2, updatedAt: '2026-09-08', land: { province: 'สมุทรปราการ', amphoe: 'บางบ่อ', tambon: 'บางบ่อ', deedType: 'chanote', zoneColor: 'yellow', features: ['road', 'electric'], propertyType: 'house', floors: 1 } },
+  { id: 'B', type: 'sell', parcelInfo: 'ที่ดินเปล่า คลองหลวง', estValue: 4000000, totalWa: 400, pricePerWa: 10000, blurb: '', photos: [], tier: 1, updatedAt: '2026-09-07', land: { province: 'ปทุมธานี', amphoe: 'คลองหลวง', tambon: 'คลองสอง', deedType: '', zoneColor: '', features: [], propertyType: 'land', floors: null } },
   { id: 'C', type: 'rent', parcelInfo: 'ที่ดินสวน บ้านค่าย', estValue: 0, totalWa: 2000, pricePerWa: 0, blurb: '', photos: [], tier: 1, updatedAt: '2026-09-06', land: { province: 'ระยอง', amphoe: 'บ้านค่าย', tambon: 'หนองละลอก', deedType: 'nor3gor', zoneColor: 'green', features: ['road'] } }
 ];
 C._setListings(L);
@@ -43,7 +43,7 @@ check('ไม่มีเนื้อที่ = 0', C.parseAreaWa('หาที
 
 console.log('\n2) ตัวอ่านโจทย์ค้นแปลง');
 let f = C.parseSearch('ต้องการบ้านที่มีสิ่งปลูกสร้าง 1 ชั้น ในกรุงเทพฯปริมณฑล ส่งมาให้ฉันดูเปรียบเทียบ มีกี่หลัง');
-check('ปริมณฑล → 6 จังหวัดโซน A · บ้าน 1 ชั้น = ธง building (ไม่ใช่ตัวกรอง)', f.provinces.length === 6 && f.provinces.indexOf('กรุงเทพมหานคร') >= 0 && f.building === true && f.floors === 1 && f.deed === 'all', JSON.stringify(f));
+check('ปริมณฑล → 6 จังหวัดโซน A · "บ้าน...1 ชั้น" = ตัวกรองจริง (prop/floors) ไม่ใช่แค่ธง', f.provinces.length === 6 && f.provinces.indexOf('กรุงเทพมหานคร') >= 0 && f.prop === 'house' && f.floors === 1 && f.building === true && f.deed === 'all', JSON.stringify(f));
 f = C.parseSearch('หาที่ดินในปทุมธานี ไม่เกิน 5 ล้าน 2 ไร่ โฉนด ผังเหลือง ติดถนน');
 check('จังหวัด + งบ + เนื้อที่ ±20% + โฉนด + ผังเหลือง + ติดถนน', f.provinces[0] === 'ปทุมธานี' && f.pmax === 5000000 && f.amin === 1.6 && f.amax === 2.5 && f.deed === 'chanote' && f.zone === 'yellow' && f.feats[0] === 'road', JSON.stringify(f));
 f = C.parseSearch('ที่ดินเช่า ไม่เกิน 2 ไร่ ผังเขียวลายขาว ถูกสุด');
@@ -95,6 +95,14 @@ console.log('\n4) ตัวจ่ายงาน (route) — ตอบเอง�
   check('คุยกับคน → ปุ่ม 3 ช่องทาง + data-contact', (await html('ขอคุยกับคนจริง')).split('data-contact=').length === 4);
   check('ตรวจทรัพย์ขายทอดตลาด → verify.html', /verify\.html/.test(await html('ทรัพย์ขายทอดตลาด ตรวจให้ได้ไหม')));
   check('ค้นแปลง → ตอบพร้อมการ์ด', (await C.route('หาที่ดินในสมุทรปราการ')).cards.length === 1);
+  // ประเภทสิ่งปลูกสร้าง/จำนวนชั้น — กรองได้จริงแล้ว (API มีช่องตั้งแต่ 2026-09-11)
+  const rH = await C.route('หาบ้านชั้นเดียวในสมุทรปราการ');
+  check('กรองบ้าน 1 ชั้น → ได้เฉพาะแปลงที่กรอกว่าเป็นบ้าน 1 ชั้น', rH.cards.length === 1 && rH.cards[0].id === 'A', JSON.stringify((rH.cards || []).map(function (x) { return x.id; })));
+  const rL = await C.route('หาที่ดินเปล่าในปทุมธานี');
+  check('กรองที่ดินเปล่า → ไม่ติดแปลงที่มีบ้านมาด้วย', rL.cards.length === 1 && rL.cards[0].id === 'B', JSON.stringify((rL.cards || []).map(function (x) { return x.id; })));
+  // ⭐ กติกาข้อ 5 — แปลงที่ยังไม่ได้กรอกช่องนี้ต้องถูกนับว่า "ยังไม่ระบุ" แล้วบอกจำนวน ไม่ใช่เงียบหาย
+  const rU = await C.route('หาบ้านเช่าในระยอง');
+  check('⭐ แปลงที่ยังไม่ได้กรอกประเภท → นับเป็น "ยังไม่ได้ระบุ" และบอกจำนวน', !rU.cards && /ยังไม่ได้ระบุ/.test(rU.html), rU.html.slice(0, 160));
   check('ค้น + เปรียบเทียบในประโยคเดียว → มีตารางเทียบ', /njchat-table/.test(await html('หาที่ดินในกรุงเทพฯ ปริมณฑล เปรียบเทียบให้หน่อย')));
   check('เทียบต่อจากผลค้น → ตาราง 2 คอลัมน์ + "—" ช่องที่ยังไม่ระบุ', (await html('เปรียบเทียบ')).split('<td>').length > 9 && /njchat-none/.test(await html('เทียบ')));
   check('ค่ารังวัดไม่บอกเนื้อที่ → ถามเนื้อที่ ไม่มีตัวเลขเงิน', /เนื้อที่ประมาณเท่าไหร่/.test(await html('ค่ารังวัดสอบเขตเท่าไหร่')) && !/฿/.test(await html('ค่ารังวัดสอบเขตเท่าไหร่')));

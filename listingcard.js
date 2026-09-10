@@ -80,6 +80,13 @@
     var a = areaTh(item.totalWa);
     if (a) bits.push(esc(a));
     if (item.pricePerWa > 0) bits.push('฿' + num(item.pricePerWa) + '/ตร.ว.');
+    // ประเภทสิ่งปลูกสร้าง + จำนวนชั้น — แสดงเฉพาะที่กรอกแล้ว แปลงที่ยังว่างต้องไม่ขึ้นอะไรเลย
+    // (ว่าง = ยังไม่ได้กรอก ไม่ใช่ "ที่ดินเปล่า" — เขียนแทนเมื่อไหร่คือติดป้ายผิดให้แปลงที่มีบ้านจริง)
+    var LP = (item.land || {});
+    var PT = (window.NJVocab && window.NJVocab.PROPERTY_TH) || {};
+    if (LP.propertyType && PT[LP.propertyType]) {
+      bits.push(esc(PT[LP.propertyType]) + (LP.floors > 0 ? ' ' + LP.floors + ' ชั้น' : ''));
+    } else if (LP.floors > 0) { bits.push(LP.floors + ' ชั้น'); }
     var meta = bits.length ? '<div class="card-meta">' + bits.join(' · ') + '</div>' : '';
     var when = ago(item.updatedAt);
     var href = 'land.html?id=' + encodeURIComponent(item.id);

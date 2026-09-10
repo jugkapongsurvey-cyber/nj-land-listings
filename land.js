@@ -258,6 +258,10 @@
 
   function tier1Html(L){
     var known=[];
+    // ประเภทสิ่งปลูกสร้าง + จำนวนชั้น (2026-09-11) — แสดงเฉพาะที่ทีมกรอกแล้ว
+    // ว่าง = ยังไม่ได้กรอก ไม่ใช่ "ที่ดินเปล่า" · ไม่กรอกก็ไม่ต้องขึ้นแถวนี้เลย
+    var PT=(window.NJVocab&&window.NJVocab.PROPERTY_TH)||{};
+    if(L.propertyType&&PT[L.propertyType]) known.push(['ประเภททรัพย์','ทีมงานบันทึกจากข้อมูลที่เจ้าของแจ้ง',PT[L.propertyType]+(L.floors>0?' · '+L.floors+' ชั้น':'')]);
     if(L.deedArea) known.push(['เนื้อที่ตามหน้าโฉนด','อ่านจากเอกสารสิทธิ์ที่เจ้าของแสดง',L.deedArea]);
     if(L.zoning)   known.push(['ผังเมืองรวม','ตรวจจากระบบผังเมืองของหน่วยงานราชการ',L.zoning]);
     if(L.locality) known.push(['ตำแหน่งแปลงโดยประมาณ','อ้างอิงระวางจากกรมที่ดิน',L.locality]);

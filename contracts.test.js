@@ -202,6 +202,15 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 5 ร
         JSON.stringify(srvKeys) + ' vs ' + JSON.stringify(webKeys));
     });
 
+    // ประเภทสิ่งปลูกสร้าง (2026-09-11) — คีย์ต้องตรงกันเป๊ะ ไม่งั้นตัวกรองหน้ารวมประกาศกับการ์ด
+    // จะขึ้นคีย์ดิบ ("house") แทนชื่อไทย หรือกรองแล้วไม่เจอแปลงที่มีจริง
+    var propSrv = (listAfter(server, 'LAND_PROPERTY_TYPES =') || []).slice().sort();
+    var propWeb = (objKeys(vocab, 'var PROPERTY_TH') || []).slice().sort();
+    check('LAND_PROPERTY_TYPES ตรงกับ PROPERTY_TH ทุกคีย์', same(propSrv, propWeb),
+      JSON.stringify(propSrv) + ' vs ' + JSON.stringify(propWeb));
+    check('ทั้งสองฝั่งไม่มีคีย์สำหรับ "ยังไม่ระบุ" (ค่าว่างคือยังไม่ได้กรอก ไม่ใช่ตัวเลือก)',
+      propSrv.indexOf('') < 0 && propWeb.indexOf('unknown') < 0);
+
     // ⚠️ ที่ตาบอดและแนวรุกล้ำ = ข้อมูลที่ผู้ซื้อต้องรู้ที่สุดในรายงานสุขภาพแปลง
     // ถอดออกจากฝั่งใดฝั่งหนึ่งเมื่อไหร่ = ปิดบังสิ่งที่กระทบการตัดสินใจซื้อโดยตรง
     check('ทั้งสองฝั่งยังมีตัวเลือก "ที่ตาบอด"',

@@ -68,6 +68,8 @@
         </div>
 
         <div class="ls-row">
+          <label class="ls-field"><span>ประเภททรัพย์</span><select id="f-prop"><option value="all">ไม่เกี่ยง</option><option value="any_building">มีสิ่งปลูกสร้าง (ทุกแบบ)</option></select></label>
+          <label class="ls-field"><span>จำนวนชั้น</span><select id="f-floors"><option value="all">ไม่เกี่ยง</option><option value="1">ชั้นเดียว</option><option value="2">2 ชั้น</option><option value="3+">3 ชั้นขึ้นไป</option></select></label>
           <label class="ls-field"><span>เอกสารสิทธิ์</span><select id="f-deed"><option value="all">ไม่เกี่ยง</option></select></label>
           <label class="ls-field ls-grow"><span>ผังสี (ผังเมืองรวม)</span><select id="f-zone"><option value="all">ไม่เกี่ยง</option></select></label>
           <label class="ls-field"><span>เรียงลำดับ</span>
@@ -108,13 +110,15 @@
   <!-- ต้องมาก่อน listingcard.js — card() อ่าน window.NJVerified ตอนวาดป้ายระดับตรวจสอบ -->
   <script src="verified.js"></script>
   <script src="landscore.js"></script>
+  <!-- คำศัพท์ (NJVocab) ต้องมาก่อน listingcard.js/listings.js — ทั้งคู่อ่านชื่อไทยของประเภททรัพย์
+       ตอนวาดการ์ดและตอนเติมตัวเลือกในตัวกรอง ถ้ามาทีหลัง ตัวกรอง "ประเภททรัพย์" จะว่างเงียบๆ -->
+  <script src="landvocab.js"></script>
   <script src="listingcard.js"></script>
   <script src="listings.js"></script>
   <!-- ปุ่ม "เทียบ" บนการ์ด — ต้องมาหลัง listingcard.js/listings.js เพราะไปแปะบนการ์ดที่สองไฟล์นั้นวาด
        (compare.js เฝ้า #listing-grid ด้วย MutationObserver อยู่แล้ว การ์ดที่วาดใหม่ตอนกรองจึงได้ปุ่มด้วย) -->
   <script src="compare.js"></script>
   <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
-  <script src="landvocab.js"></script>
   <script src="njchat.js"></script>
   <script src="menu.js"></script>
 </body>

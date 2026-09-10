@@ -47,6 +47,8 @@
       pmin: num('f-pmin'), pmax: num('f-pmax'),
       amin: num('f-amin'), amax: num('f-amax'),
       deed: $('f-deed').value,
+      prop: $('f-prop').value,
+      floors: $('f-floors').value,
       zone: $('f-zone').value,
       feats: FEATURES.filter(function (k) { var el = $('f-feat-' + k); return el && el.checked; }),
       sort: $('f-sort').value
@@ -93,6 +95,16 @@
           : L.deedType === f.deed;
         if (!ok) return false;
       }
+      // ประเภทสิ่งปลูกสร้าง — ว่าง = ยังไม่ได้กรอก ไม่ใช่ "ที่ดินเปล่า" จึงนับเป็นซ่อน ไม่ใช่ไม่ตรง
+      // "มีสิ่งปลูกสร้าง (ทุกแบบ)" = อะไรก็ได้ที่ไม่ใช่ที่ดินเปล่า
+      if (f.prop !== 'all') {
+        if (!L.propertyType) { hiddenUnknown++; return false; }
+        if (f.prop === 'any_building' ? L.propertyType === 'land' : L.propertyType !== f.prop) return false;
+      }
+      if (f.floors !== 'all') {
+        if (!(L.floors > 0)) { hiddenUnknown++; return false; }
+        if (f.floors === '3+' ? L.floors < 3 : L.floors !== Number(f.floors)) return false;
+      }
       if (f.zone !== 'all') {
         if (!L.zoneColor) { hiddenUnknown++; return false; }
         if (L.zoneColor !== f.zone) return false;
@@ -123,7 +135,8 @@
     var r = apply(f);
     var grid = $('listing-grid');
     var anyFilter = !!(f.q || f.type !== 'all' || f.province !== 'all' || f.pmin || f.pmax ||
-      f.amin || f.amax || f.deed !== 'all' || f.zone !== 'all' || f.feats.length);
+      f.amin || f.amax || f.deed !== 'all' || f.zone !== 'all' || f.feats.length ||
+      f.prop !== 'all' || f.floors !== 'all');
 
     $('result-note').textContent = state.loaded
       ? ('พบ ' + r.list.length + ' แปลง' + (anyFilter ? ' จากทั้งหมด ' + state.listings.length + ' แปลง' : ''))
@@ -147,6 +160,12 @@
 
   function buildControls() {
     fillSelect($('f-deed'), Object.keys(DEED_TH).map(function (k) { return [k, DEED_TH[k]]; }), 'ไม่เกี่ยง');
+    // ประเภททรัพย์ — เติมต่อท้ายตัวเลือกที่มีใน HTML อยู่แล้ว (ไม่เกี่ยง / มีสิ่งปลูกสร้างทุกแบบ)
+    var PROP_TH = (window.NJVocab && window.NJVocab.PROPERTY_TH) || {};
+    Object.keys(PROP_TH).forEach(function (k) {
+      var o = document.createElement('option'); o.value = k; o.textContent = PROP_TH[k];
+      $('f-prop').appendChild(o);
+    });
     fillSelect($('f-zone'), Object.keys(ZONE_TH).map(function (k) { return [k, ZONE_TH[k]]; }), 'ไม่เกี่ยง');
     $('f-features').innerHTML = FEATURES.map(function (k) {
       return '<label><input type="checkbox" id="f-feat-' + k + '"> ' + NJL.esc(FEATURE_TH[k]) + '</label>';
@@ -186,7 +205,7 @@
     if (window.njTrack) window.njTrack('Search', { search_string: f.q, content_category: f.province });
   });
   // ช่องเลือก (ไม่ใช่ช่องพิมพ์) กรองทันทีที่เปลี่ยน — ไม่ต้องกดค้นหาซ้ำ
-  ['f-type', 'f-province', 'f-deed', 'f-zone', 'f-sort'].forEach(function (id) {
+  ['f-type', 'f-province', 'f-deed', 'f-zone', 'f-sort', 'f-prop', 'f-floors'].forEach(function (id) {
     $(id).addEventListener('change', render);
   });
   $('f-features').addEventListener('change', render);
