@@ -160,11 +160,15 @@
 
   function buildControls() {
     fillSelect($('f-deed'), Object.keys(DEED_TH).map(function (k) { return [k, DEED_TH[k]]; }), 'ไม่เกี่ยง');
-    // ประเภททรัพย์ — เติมต่อท้ายตัวเลือกที่มีใน HTML อยู่แล้ว (ไม่เกี่ยง / มีสิ่งปลูกสร้างทุกแบบ)
+    // ประเภททรัพย์ — เติมต่อท้ายตัวเลือก 2 อันแรกที่ประกาศไว้ใน HTML (ไม่เกี่ยง / มีสิ่งปลูกสร้างทุกแบบ)
+    // ⚠️ buildControls() ถูกเรียกซ้ำทุกครั้งที่กด "ล้างตัวกรอง" — ต้องล้างของเก่าก่อนเสมอ
+    // ไม่งั้นรายการจะงอกทบขึ้นเรื่อยๆ ทุกครั้งที่กด (เจอจริงบนเว็บจริง 9 → 16 ตัวเลือก)
+    var prop = $('f-prop');
+    while (prop.options.length > 2) prop.remove(2);
     var PROP_TH = (window.NJVocab && window.NJVocab.PROPERTY_TH) || {};
     Object.keys(PROP_TH).forEach(function (k) {
       var o = document.createElement('option'); o.value = k; o.textContent = PROP_TH[k];
-      $('f-prop').appendChild(o);
+      prop.appendChild(o);
     });
     fillSelect($('f-zone'), Object.keys(ZONE_TH).map(function (k) { return [k, ZONE_TH[k]]; }), 'ไม่เกี่ยง');
     $('f-features').innerHTML = FEATURES.map(function (k) {
