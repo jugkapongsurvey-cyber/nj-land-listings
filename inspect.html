@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>นัดตรวจแปลงก่อนซื้อ — ให้ช่างรังวัดไปดูให้ก่อนตัดสินใจ | ที่ดินชัวร์</title>
+<meta name="description" content="ก่อนวางมัดจำที่ดิน ให้ทีมช่างรังวัดเอกชนใบอนุญาตกรมที่ดินของที่ดินชัวร์ไปตรวจเอกสารสิทธิ์ หมุดหลักเขต ทางเข้า–ออก และประเมินค่าใช้จ่ายวันโอนให้ก่อน ส่งคำขอไม่มีค่าใช้จ่าย">
+<link rel="canonical" href="https://njteedinsure.com/inspect.html">
+<link rel="icon" href="brand/logo-favicon.svg">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ที่ดินชัวร์">
+<meta property="og:title" content="นัดตรวจแปลงก่อนซื้อ">
+<meta property="og:description" content="ให้ช่างรังวัดไปตรวจเอกสารสิทธิ์ หมุดหลักเขต และทางเข้า–ออก ก่อนคุณวางมัดจำ">
+<meta property="og:url" content="https://njteedinsure.com/inspect.html">
+<meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="menu.css">
+<link rel="stylesheet" href="inspect.css">
+</head>
+<body class="page-inspect">
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="brand">
+      <img src="brand/logo-mark.svg" alt="ที่ดินชัวร์" class="brand-logo">
+      <span class="brand-name">ที่ดินชัวร์</span>
+    </a>
+    <!-- ⚠️ รายการเดียวกับหน้าอื่นเป๊ะ — menu.js สร้างลิ้นชักมือถือจาก <nav> นี้
+         และแถวหัวเว็บเต็มพอดีอยู่แล้วที่ 1440px จึงไม่เพิ่มเมนูตัวที่ 6 (ดู CLAUDE.md) -->
+    <nav class="header-nav">
+      <a href="listings.html">แปลงที่ดิน</a>
+      <a href="wanted.html">ฝากหาที่ดิน</a>
+      <a href="consign.html">ฝากขายที่ดิน</a>
+      <a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a>
+      <a href="guides.html">ความรู้เรื่องที่ดิน</a>
+    </nav>
+    <a class="nj-portal-link" data-njportal href="portal.html">ติดตามงานรังวัด</a>
+    <a class="header-cta" href="#ins-root">นัดตรวจแปลง</a>
+  </div>
+</header>
+
+<section class="ins-hero">
+  <div class="wrap ins-hero-grid">
+    <div class="ins-hero-copy">
+      <div class="ins-eyebrow">✓ ช่างรังวัดเอกชน ใบอนุญาตกรมที่ดินเลขที่ 351</div>
+      <h1>ก่อนวางมัดจำ<br>ให้เราไปดูแปลงให้ก่อน</h1>
+      <p class="ins-lead">
+        เรื่องที่ผู้ซื้อที่ดินเจอบ่อยที่สุดคือ <strong>รู้ทีหลัง</strong> — หมุดหลักเขตหายไปแล้ว
+        เนื้อที่จริงไม่เท่าที่คุยกันไว้ หรือทางเข้าที่เดินดูวันนั้นเป็นที่ดินของคนอื่น
+        บอกเราว่าอยากให้ตรวจอะไร แล้วทีมงานจะแจ้งขอบเขตงานกับราคาให้ทราบก่อนเริ่มเสมอ
+      </p>
+      <ul class="ins-ticks">
+        <li>ส่งคำขอไม่มีค่าใช้จ่าย และยังไม่ถือเป็นการว่าจ้าง</li>
+        <li>ติดต่อกลับภายใน 1 วันทำการ</li>
+        <li>ได้ลิงก์ติดตามสถานะงานของตัวเอง ไม่ต้องสมัครสมาชิก</li>
+      </ul>
+    </div>
+
+    <div class="ins-card">
+      <div id="ins-root">
+        <!-- ⚠️ inspect.js วาดทั้งฟอร์มและหน้าติดตามลงในกล่องนี้
+             ข้อความข้างล่างคือสิ่งที่คนเห็นเมื่อ JS โหลดไม่สำเร็จ — ต้องมีทางติดต่อเสมอ
+             ห้ามเปลี่ยนเป็นกล่องเปล่าหรือตัวหมุนรอที่ค้างตลอดไป -->
+        <noscript>
+          <p>หน้านี้ต้องใช้จาวาสคริปต์ในการส่งคำขอ — ทักไลน์ <b>@716lffzt</b>
+          หรือโทร <b>02-162-0405</b> แจ้งทีมงานได้โดยตรงเลยครับ</p>
+        </noscript>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="ins-what">
+  <div class="wrap">
+    <h2>เราตรวจอะไรให้ได้บ้าง</h2>
+    <div class="ins-what-grid">
+      <div class="ins-what-item">
+        <h3>ตรวจเอกสารสิทธิ์เบื้องต้น</h3>
+        <p>อ่านหน้า–หลังโฉนด ดูประเภทเอกสารสิทธิ์ เนื้อที่ตามเอกสาร และรายการจดทะเบียนล่าสุด
+        เพื่อให้เห็นภาพก่อนว่าแปลงนี้ซื้อขายโอนได้ตามปกติหรือมีอะไรต้องเคลียร์ก่อน</p>
+      </div>
+      <div class="ins-what-item">
+        <h3>ลงพื้นที่ดูหมุดหลักเขต</h3>
+        <p>ทีมงานไปที่แปลงจริง หาหมุดหลักเขตที่ยังอยู่ ถ่ายรูปสภาพหน้างานให้
+        และบอกตรงๆ ว่าหมุดไหนหาไม่เจอ</p>
+      </div>
+      <div class="ins-what-item">
+        <h3>รังวัดสอบเขต</h3>
+        <p>งานรังวัดเต็มรูปแบบโดยช่างรังวัดเอกชนที่มีใบอนุญาต ได้แนวเขตและเนื้อที่จริงพร้อมรายงาน
+        เป็นขั้นที่ให้คำตอบชัดที่สุดเรื่องเนื้อที่</p>
+      </div>
+      <div class="ins-what-item">
+        <h3>ตรวจทางเข้า–ออก</h3>
+        <p>ดูว่าแปลงติดถนนสาธารณะจริงหรือต้องผ่านที่ดินคนอื่น
+        เป็นประเด็นที่กระทบทั้งการใช้งานจริงและการขอสินเชื่อ</p>
+      </div>
+      <div class="ins-what-item">
+        <h3>ประเมินค่าใช้จ่ายวันโอน</h3>
+        <p>คำนวณค่าธรรมเนียมและภาษีที่ต้องจ่ายจริงในวันโอน จะได้เตรียมเงินถูก
+        และรู้ว่าฝ่ายไหนควรรับส่วนไหนก่อนไปเจอกันที่สำนักงานที่ดิน</p>
+      </div>
+    </div>
+    <p class="ins-note">
+      ผลตรวจทุกข้อเป็นข้อเท็จจริง <b>ณ วันที่ตรวจ</b> และรายงานจะระบุวันที่กำกับไว้เสมอ
+      สิ่งที่เราทำคือไปดูและบันทึกตามที่พบจริง ไม่ใช่การรับประกันผลการซื้อขาย
+    </p>
+  </div>
+</section>
+
+<section class="ins-faq">
+  <div class="wrap">
+    <h2>คำถามที่พบบ่อย</h2>
+    <details><summary>ต้องเป็นแปลงที่ประกาศอยู่บนเว็บนี้เท่านั้นไหม</summary>
+      <p>ไม่จำเป็นครับ เจอแปลงจากที่อื่นหรือยังไม่เจอแปลงที่ถูกใจ ก็ส่งคำขอมาได้
+      ถ้าเป็นแปลงในเว็บนี้ ใส่รหัสทรัพย์มาด้วยจะช่วยให้ทีมงานเตรียมข้อมูลได้เร็วขึ้น</p></details>
+    <details><summary>ส่งคำขอแล้วต้องจ่ายเงินเลยไหม</summary>
+      <p>ไม่ต้องครับ การส่งคำขอไม่มีค่าใช้จ่ายและยังไม่ถือเป็นการว่าจ้าง
+      ทีมงานจะดูรายละเอียดแล้วแจ้งขอบเขตงานกับราคาให้ทราบก่อน ตกลงกันแล้วจึงเริ่มงาน</p></details>
+    <details><summary>ที่ดินอยู่ต่างจังหวัด รับไหม</summary>
+      <p>รับทั่วประเทศครับ งานที่ต้องเดินทางไกลจะมีค่าดำเนินการนอกพื้นที่เพิ่มตามระยะทาง
+      ซึ่งจะแจ้งรวมอยู่ในราคาที่เสนอก่อนเริ่มงานเสมอ</p></details>
+    <details><summary>ต้องเป็นเจ้าของที่ดินถึงจะให้ตรวจได้ไหม</summary>
+      <p>งานที่ตรวจจากเอกสารและดูสภาพหน้างานทำได้โดยผู้ซื้อ
+      ส่วนงานรังวัดสอบเขตต้องให้เจ้าของที่ดินเป็นผู้ยื่นเรื่องต่อสำนักงานที่ดิน
+      ทีมงานจะช่วยประสานกับฝั่งผู้ขายให้ตอนคุยกัน</p></details>
+    <details><summary>ข้อมูลที่กรอกไว้ถูกใช้ทำอะไรบ้าง</summary>
+      <p>ใช้ติดต่อกลับเรื่องคำขอนี้เท่านั้น และขอให้ลบเมื่อไรก็ได้
+      แจ้งทางไลน์หรือโทรหาทีมงานได้โดยตรงครับ</p></details>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
+</footer>
+
+<!-- แถบติดต่อล่างจอ เฉพาะมือถือ · href ใช้งานได้ตั้งแต่ใน HTML แล้ว (analytics.js ล่มปุ่มต้องไม่ตาย) -->
+<div class="cs-bottombar">
+  <a href="tel:021620405" class="cs-bar-btn" data-contact="tel">📞 โทร</a>
+  <a href="https://line.me/R/ti/p/@716lffzt" class="cs-bar-btn line" target="_blank" rel="noopener" data-contact="line">💬 ไลน์</a>
+  <a href="#ins-root" class="cs-bar-btn primary">นัดตรวจแปลง</a>
+</div>
+
+<script src="analytics.js"></script>
+<script src="inspect.js"></script>
+<script src="menu.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
+</body>
+</html>

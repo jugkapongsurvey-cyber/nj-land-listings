@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ติดตามการซื้อที่ดินของคุณ | ที่ดินชัวร์</title>
+<meta name="description" content="ดูความคืบหน้าการซื้อที่ดินของคุณทั้ง 11 ขั้น ตั้งแต่สนใจแปลงจนโอนกรรมสิทธิ์ เปิดด้วยลิงก์เฉพาะตัวที่ทีมงานส่งให้">
+<!-- ⚠️ noindex — เนื้อหาขึ้นกับตั๋วในลิงก์ ไม่ใช่หน้าสาธารณะที่ควรถูกจัดทำดัชนี (เหตุผลเดียวกับ compare.html) -->
+<meta name="robots" content="noindex">
+<link rel="icon" href="brand/logo-favicon.svg">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="menu.css">
+<link rel="stylesheet" href="deal.css">
+</head>
+<body class="page-deal">
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="brand">
+      <img src="brand/logo-mark.svg" alt="ที่ดินชัวร์" class="brand-logo">
+      <span class="brand-name">ที่ดินชัวร์</span>
+    </a>
+    <nav class="header-nav">
+      <a href="listings.html">แปลงที่ดิน</a>
+      <a href="wanted.html">ฝากหาที่ดิน</a>
+      <a href="consign.html">ฝากขายที่ดิน</a>
+      <a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a>
+      <a href="guides.html">ความรู้เรื่องที่ดิน</a>
+    </nav>
+    <a class="nj-portal-link" data-njportal href="portal.html">ติดตามงานรังวัด</a>
+  </div>
+</header>
+
+<main class="dl-main">
+  <div class="wrap dl-wrap">
+    <h1>ความคืบหน้าการซื้อที่ดินของคุณ</h1>
+    <p class="dl-lead">
+      เส้นทางนี้มี 11 ขั้น ตั้งแต่วันที่คุณสนใจแปลงจนถึงหลังโอนกรรมสิทธิ์
+      ทีมงานอัปเดตให้ทุกครั้งที่มีความเคลื่อนไหว
+    </p>
+
+    <div class="dl-card">
+      <div id="dl-root">
+        <!-- ⚠️ deal.js วาดเนื้อหาทั้งหมดลงในกล่องนี้
+             ข้อความข้างล่างคือสิ่งที่คนเห็นเมื่อจาวาสคริปต์โหลดไม่สำเร็จ ต้องมีทางติดต่อเสมอ -->
+        <noscript>
+          <p>หน้านี้ต้องใช้จาวาสคริปต์ในการดึงข้อมูลงานของคุณ — ทักไลน์ <b>@716lffzt</b>
+          หรือโทร <b>02-162-0405</b> แล้วแจ้งเลขงาน ทีมงานบอกความคืบหน้าให้ได้ทันทีครับ</p>
+        </noscript>
+      </div>
+    </div>
+
+    <p class="dl-privacy">
+      ลิงก์หน้านี้เป็นกุญแจของงานคุณ เปิดดูได้เฉพาะคนที่มีลิงก์ อย่าส่งต่อให้คนที่ไม่เกี่ยวข้อง
+      · ต้องการให้ยกเลิกลิงก์เดิมและออกใหม่ แจ้งทีมงานได้ตลอด
+    </p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
+</footer>
+
+<script src="analytics.js"></script>
+<script src="deal.js"></script>
+<script src="menu.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
+</body>
+</html>

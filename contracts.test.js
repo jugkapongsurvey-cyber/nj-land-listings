@@ -239,5 +239,54 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 5 ร
   }
 }
 
+console.log('\n8) ระลอก Phase 2 — นัดตรวจแปลง · ติดตามงานซื้อขาย');
+{
+  const leadsLib = path.join(SRV, 'lib', 'leads.js');
+  if (!fs.existsSync(leadsLib)) {
+    console.log('  ข้าม — ยังไม่มี lib/leads.js ที่ฝั่งเซิร์ฟเวอร์ (สาขา phase2 ยังไม่ถูก merge)');
+  } else {
+    const leads = read(leadsLib);
+    const inspect = read(path.join(WEB, 'inspect.js'));
+
+    // ⚠️ ติ๊กบริการที่เซิร์ฟเวอร์ไม่รู้จัก = ถูกทิ้งเงียบๆ เหมือนเดิมทุกรอบ
+    //    (pickList กรองคีย์แปลกออกโดยไม่มี error) — เทียบทั้งชุดและลำดับ
+    const srvLeadSvc = listAfter(leads, 'LEAD_SERVICES');
+    const webLeadSvc = (inspect.match(/\{ k: '([a-z_]+)'/g) || []).map(s => (s.match(/'([a-z_]+)'/) || [])[1]);
+    check('อ่านรายการบริการตรวจแปลงได้ทั้งสองฝั่ง',
+      !!srvLeadSvc && srvLeadSvc.length > 0 && webLeadSvc.length > 0,
+      (srvLeadSvc || []).length + ' / ' + webLeadSvc.length);
+    check('คีย์บริการตรวจแปลงตรงกันทั้งชุดและลำดับ', same(srvLeadSvc || [], webLeadSvc),
+      (srvLeadSvc || []).join(',') + '  vs  ' + webLeadSvc.join(','));
+
+    // แหล่งที่มาของลีด — เว็บส่งค่าที่ไม่รู้จักไปก็ถูกเก็บเป็น 'other' เงียบๆ
+    // แล้วสถิติ "โฆษณาลงที่ไหนได้ผล" กองรวมกันหมด
+    const srvSrc = listAfter(leads, 'LEAD_SOURCES');
+    const webSrc = listAfter(inspect, 'var SOURCES');
+    check('รายชื่อแหล่งที่มาของลีดตรงกัน', same(srvSrc || [], webSrc || []),
+      (srvSrc || []).join(',') + '  vs  ' + (webSrc || []).join(','));
+
+    check('เซิร์ฟเวอร์รู้จัก inspect_view', (srvEvents || []).indexOf('inspect_view') >= 0);
+    check('เซิร์ฟเวอร์รู้จัก inspect_submit', (srvEvents || []).indexOf('inspect_submit') >= 0);
+    check('inspect_submit ไม่อยู่ในรายการฝั่งเบราว์เซอร์ (เซิร์ฟเวอร์บันทึกเองตอนสร้างใบ)',
+      (webEvents || []).indexOf('inspect_submit') < 0);
+
+    // ⚠️ หน้าเว็บสาธารณะห้ามมีฟอร์มเข้าสู่ระบบ — เว็บนี้เป็นสแตติกบน GitHub Pages
+    //    (กติกาเดียวกับ portal.html · การรับรหัสผ่านที่โดเมนหนึ่งแล้วส่งข้ามโดเมน = สอนลูกค้าให้โดนฟิชชิ่ง)
+    check('inspect.js ไม่มีช่องรหัสผ่าน', !/type="password"|type=.password./.test(inspect));
+    // ต้องยืนยัน PDPA ก่อนส่งเสมอ ทั้งฝั่งหน้าจอและฝั่งเซิร์ฟเวอร์
+    check('inspect.js กันการส่งเมื่อยังไม่ติ๊กยินยอม', /pdpaAt/.test(inspect) && /ins-pdpa/.test(inspect));
+    check('เซิร์ฟเวอร์ปฏิเสธใบที่ยังไม่ยินยอม', /consentOk/.test(read(path.join(SRV, 'server.js'))));
+
+    const dealsLib = path.join(SRV, 'lib', 'deals.js');
+    const dealWeb = path.join(WEB, 'deal.js');
+    if (fs.existsSync(dealsLib) && fs.existsSync(dealWeb)) {
+      const srvSteps = listAfter(read(dealsLib), 'const DEAL_STEPS');
+      const webSteps = listAfter(read(dealWeb), 'var STEPS');
+      check('ขั้นตอนการซื้อ 11 ขั้นตรงกันทั้งชุดและลำดับ', same(srvSteps || [], webSteps || []),
+        (srvSteps || []).join(',') + '  vs  ' + (webSteps || []).join(','));
+    }
+  }
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

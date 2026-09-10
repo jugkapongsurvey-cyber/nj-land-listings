@@ -169,7 +169,9 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           // inquiry_view = เปิดฟอร์มสนใจซื้อ · compare_open = เปิดตารางเปรียบเทียบ
                           // ทั้งคู่ **ไม่ใช่ลีด** (การดูไม่ใช่การติดต่อ) ห้ามบวกเข้า leads ใน track/summary
                           // ส่วน inquiry_submit เซิร์ฟเวอร์บันทึกเองตอนสร้างใบ ฝั่งนี้จึงไม่ต้องยิงซ้ำ
-                          'inquiry_view', 'compare_open'];
+                          'inquiry_view', 'compare_open',
+                          // นัดตรวจแปลง (Phase 2) — inspect_submit เซิร์ฟเวอร์บันทึกเองเช่นกัน
+                          'inspect_view'];
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)

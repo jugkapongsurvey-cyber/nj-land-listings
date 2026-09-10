@@ -39,6 +39,27 @@
   function val(v) { return v ? esc(v) : DASH; }
   function landOf(x) { return x.land || {}; }
 
+  /* ---------- ข้อมูลเต็มของแปลงที่เลือกไว้ (Phase 2) ----------
+     ⚠️ หน้ารวมประกาศส่งข้อมูลมาแบบย่อ — บันได 5 ระดับเหลือแค่ {reached,total}
+        และ **ไม่ส่งรายงานสุขภาพแปลงมาเลย** (ดู slimLand ใน server.js)
+        จึงต้องดึงรายละเอียดของเฉพาะแปลงที่ผู้ใช้เลือก (สูงสุด 4 ใบ) เพิ่มอีกรอบ
+     ⚠️ แปลงใดโหลดไม่สำเร็จ ต้องไม่ทำให้ทั้งตารางพัง — ช่องของแปลงนั้นขึ้น "—" ตามกติกาข้อ 5 */
+  var DETAIL = {};
+  function fetchDetails(ids) {
+    var base = window.NJ_API_BASE || 'https://app.njteedinsure.com';
+    return Promise.all(ids.map(function (id) {
+      return fetch(base + '/api/public/listings/' + encodeURIComponent(id))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (dj) { if (dj && dj.listing) DETAIL[id] = dj.listing.land || {}; })
+        .catch(function () { /* เงียบได้ — ตารางยังวาดจากข้อมูลย่อที่มีอยู่แล้ว */ });
+    }));
+  }
+  // land ฉบับเต็มถ้าโหลดมาได้ · ไม่ได้ก็ใช้ฉบับย่อ
+  function fullLand(x) { return DETAIL[x.id] || landOf(x); }
+
+  var VOCAB = window.NJVocab || {};
+  function vocab(map, k) { return (VOCAB[map] || {})[k] || ''; }
+
   // ---------- จุดแข็ง ----------
   // คำนวณจาก "เฉพาะแปลงที่มีข้อมูลช่องนั้น" แล้วมอบให้ตัวที่ดีที่สุดในกลุ่มนั้น
   // แปลงที่ยังไม่มีข้อมูลจะไม่ถูกนับเข้าการแข่ง และไม่ถูกตัดสินว่าแพ้
@@ -95,9 +116,61 @@
           ? '<b>✓ ระดับ 2 — ตรวจสอบเชิงลึกแล้ว</b><br><span class="njcmp-none">ผลตรวจ 7 หัวข้อดูได้ในหน้าแปลง</span>'
           : '<b>◐ ระดับ 1 — ข้อมูลเบื้องต้น</b><br><span class="njcmp-none">ยังไม่ได้รังวัดยืนยันเขต</span>';
       }],
+      // ---- แถวของระลอก Phase 2 — บันได 5 ระดับ · รายงานสุขภาพแปลง ----
+      // ⚠️ ทุกแถวอ่านจากข้อมูลที่เซิร์ฟเวอร์ส่งมาเท่านั้น ไม่มีการเดาหรือให้คะแนนเอง
+      //    แปลงที่ยังไม่มีข้อมูลขึ้น "—" ซึ่งแปลว่า "ยังไม่ได้ตรวจ" ไม่ใช่ "ตรวจแล้วไม่ผ่าน"
+      ['ระดับการตรวจสอบ (จาก 5 ระดับ)', function (x) {
+        var v = fullLand(x).verify;
+        if (!v || !v.total) return DASH;
+        var passed = (v.levels || []).filter(function (l) { return l.status === 'passed' && !l.expired; })
+                       .map(function (l) { return l.th; });
+        var issues = (v.levels || []).filter(function (l) { return l.status === 'issue'; }).length;
+        return '<b>ผ่าน ' + v.reached + ' จาก ' + v.total + ' ระดับ</b>' +
+          (passed.length ? '<br><span class="njcmp-none">' + esc(passed.join(' · ')) + '</span>' : '') +
+          (issues ? '<br><span class="njcmp-warn">พบประเด็นที่ควรทราบ ' + issues + ' ระดับ</span>' : '');
+      }],
+      ['ข้อมูลตรวจล่าสุด', function (x) {
+        var L = fullLand(x), v = L.verify;
+        // วันที่ล่าสุดในบรรดาระดับที่กรอกไว้ · ไม่มีเลยค่อยถอยไปใช้วันรังวัดยืนยันเดิม
+        var days = ((v && v.levels) || []).map(function (l) { return l.at; }).filter(Boolean).sort();
+        var last = days.length ? days[days.length - 1] : (L.verifiedAt || '');
+        if (!last) return DASH;
+        var th = window.NJVerified ? NJVerified.thaiDate(last) : last;
+        return esc(th) + '<br><span class="njcmp-none">ผลตรวจเป็นข้อเท็จจริง ณ วันที่ตรวจ</span>';
+      }],
+      ['สภาพแปลงจากรายงานสุขภาพ', function (x) {
+        var h = fullLand(x).health;
+        if (!h) return DASH;
+        var bits = [];
+        if (h.access) bits.push('ทางเข้า–ออก: ' + vocab('ACCESS_TH', h.access));
+        if (h.structures) bits.push(vocab('STRUCTURE_TH', h.structures));
+        if (h.shape) bits.push('รูปร่าง: ' + vocab('SHAPE_TH', h.shape));
+        if (h.markerFound != null && h.markerTotal != null) {
+          bits.push('พบหมุดหลักเขต ' + h.markerFound + ' จาก ' + h.markerTotal + ' หมุด');
+        }
+        if (!bits.length) return DASH;
+        // ⚠️ ที่ตาบอดและแนวรุกล้ำต้องเด่นเสมอ — เป็นสองข้อที่กระทบการตัดสินใจซื้อมากที่สุด
+        var alarm = h.access === 'none' || h.structures === 'encroach';
+        return '<span class="' + (alarm ? 'njcmp-warn' : '') + '">' + esc(bits.join(' · ')) + '</span>';
+      }],
+      ['สิ่งที่ยังต้องตรวจเพิ่ม', function (x) {
+        var h = fullLand(x).health;
+        if (!h) return DASH;
+        var t = h.todos || [];
+        if (!t.length) return '<span class="njcmp-none">ไม่มีรายการค้างในรายงานฉบับล่าสุด</span>';
+        return '<b>' + t.length + ' รายการ</b><br><span class="njcmp-none">' +
+          esc(t.map(function (i) { return i.label; }).join(' · ')) + '</span>';
+      }],
       ['ราคารวม', function (x) { return x.estValue > 0 ? '<b>' + esc(money(x.estValue)) + '</b>' : DASH; }],
       ['ราคาต่อ ตร.ว.', function (x) { return x.pricePerWa > 0 ? '฿' + num(x.pricePerWa) : DASH; }],
       ['ราคาต่อไร่', function (x) { return x.pricePerRai > 0 ? '฿' + num(x.pricePerRai) : DASH; }],
+      ['ค่าใช้จ่ายวันโอน', function (x) {
+        // ⚠️ ห้ามใส่ตัวเลขให้เอง — ค่าธรรมเนียมโอนคิดจาก **ราคาประเมินราชการ** ซึ่งเว็บนี้
+        //    ตั้งใจไม่เผยแพร่ (ใครเห็นค่าโอนก็หารกลับได้ราคาประเมินทันที แล้วเจ้าของที่ดิน
+        //    ซึ่งเป็นลูกค้าเราเสียเปรียบตอนต่อรอง — ดูกติกาข้อ 12) · ยื่นเครื่องคำนวณให้แทน
+        return '<a class="njcmp-link" href="land.html?id=' + encodeURIComponent(x.id) + '#ld-fee">คำนวณของแปลงนี้ →</a>' +
+          '<br><span class="njcmp-none">กรอกราคาประเมินเองได้ที่หน้าแปลง</span>';
+      }],
       ['เนื้อที่', function (x) {
         var a = areaTh(x.totalWa);
         return a ? esc(a) + '<br><span class="njcmp-none">' + num(x.totalWa) + ' ตร.ว.</span>' : DASH;
@@ -113,6 +186,15 @@
         return bits.length ? esc(bits.join(' · ')) : DASH;
       }],
       ['หน้ากว้างโดยประมาณ', function (x) { return val(landOf(x).frontage); }],
+      ['หน้ากว้าง × ลึก (จากรายงานสุขภาพ)', function (x) {
+        var h = fullLand(x).health;
+        if (!h || (h.widthM == null && h.depthM == null)) return DASH;
+        // ⚠️ ไม่คูณเป็นพื้นที่ให้ — แปลงส่วนใหญ่ไม่ใช่สี่เหลี่ยม คูณแล้วได้ตัวเลขผิดที่ดูเหมือนตัวเลขจริง
+        //    เนื้อที่จริงมีแถวของตัวเองอยู่แล้วข้างบน
+        var w = h.widthM != null ? num(h.widthM) + ' ม.' : '—';
+        var dp = h.depthM != null ? num(h.depthM) + ' ม.' : '—';
+        return esc(w + ' × ' + dp);
+      }],
       ['ทิศหน้าแปลง', function (x) { return val(FACING_TH[landOf(x).facing]); }],
       ['สิ่งที่แปลงมี', function (x) {
         var f = landOf(x).features;
@@ -198,6 +280,11 @@
     if (!NJCompare.count()) { root.innerHTML = emptyHtml('ยังไม่ได้เลือกแปลงไว้เปรียบเทียบ'); return; }
     // fetchListings() คืนอาร์เรย์ที่ normalize() แล้ว ไม่ใช่ตัว response ดิบ
     NJL.fetchListings()
+      // ดึงรายละเอียดของเฉพาะแปลงที่เลือกไว้เพิ่ม แล้วค่อยวาดครั้งเดียว
+      // (โหลดรายละเอียดไม่สำเร็จก็ยังวาดตารางจากข้อมูลย่อได้ตามปกติ)
+      .then(function (list) {
+        return fetchDetails(NJCompare.read()).then(function () { return list; });
+      })
       .then(function (list) { render(list || []); })
       // โหลดไม่ได้ ≠ ไม่มีแปลง — ต้องบอกตามจริง ห้ามแสดงว่าว่างเปล่า (กติกาการทดสอบขั้นต่ำ)
       .catch(function () { root.innerHTML = NJL.loadFailedHtml(); });

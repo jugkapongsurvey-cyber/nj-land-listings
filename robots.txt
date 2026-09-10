@@ -7,4 +7,9 @@ Allow: /
 # ไม่ควรถูกเก็บเข้าดัชนี ถ้าวันไหนลิงก์หลุดไปโผล่ที่ไหน
 Disallow: /consign.html?*t=
 
+# ลิงก์ติดตามงานของผู้ซื้อ — เป็นกุญแจของงานนั้น ห้ามให้ถูกเก็บเข้าดัชนี
+# (deal.html ประกาศ noindex ไว้ในหน้าด้วยอีกชั้น · inspect.html เป็นหน้าสาธารณะตอนไม่มีตั๋ว จึงกันเฉพาะที่มีตั๋ว)
+Disallow: /inspect.html?*t=
+Disallow: /deal.html
+
 Sitemap: https://njteedinsure.com/sitemap.xml

@@ -1,0 +1,212 @@
+/* ============================================================
+   หน้านัดตรวจแปลงก่อนซื้อ (Phase 2 งานย่อยที่ 3)
+   โหลดต่อจาก style.css + ui.css + menu.css จึงใช้ตัวแปรสีชุดเดิมได้เลย
+
+   ⚠️ กฎของ .page-inspect อยู่ในไฟล์นี้ ไม่ได้ไปเติมชื่อคลาสใน ui.css
+      เพราะเป็นกฎของหน้าเดียว และ ui.css ถูกหลายหน้าใช้ร่วมกัน
+      (ถ้าวันหนึ่งมีหน้าที่ 5 ที่ใช้แถบติดต่อล่างจอ ค่อยย้ายไปรวมที่ ui.css ทีเดียว)
+   ============================================================ */
+.page-inspect{background:var(--bg)}
+.page-inspect{padding-bottom:74px}                    /* กันแถบติดต่อล่างจอทับเนื้อหาท้ายหน้า */
+.page-inspect #nj-consent{bottom:78px}                /* แบนเนอร์ยินยอมต้องไม่ทับแถบนั้น */
+@media (min-width:900px){
+  /* จอใหญ่ไม่มีแถบล่างแล้ว (ui.css ซ่อนให้) จึงไม่ต้องเว้นที่ */
+  .page-inspect{padding-bottom:0}
+  .page-inspect #nj-consent{bottom:12px}
+}
+
+/* ---------- ส่วนหัว + กล่องฟอร์ม ---------- */
+.ins-hero{padding:34px 0 30px}
+.ins-hero-grid{display:grid;gap:26px}
+@media (min-width:900px){
+  .ins-hero-grid{grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+}
+.ins-eyebrow{
+  display:inline-block;font-size:12.5px;font-weight:700;color:var(--blue);
+  background:var(--blue-light);border-radius:20px;padding:5px 13px;margin-bottom:14px;
+}
+.ins-hero h1{font-size:29px;line-height:1.35;color:var(--navy);margin:0 0 12px}
+@media (max-width:560px){ .ins-hero h1{font-size:24px} }
+.ins-lead{font-size:15px;color:var(--sub);margin:0 0 16px}
+.ins-ticks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ins-ticks li{position:relative;padding-left:26px;font-size:14px;color:var(--ink)}
+.ins-ticks li::before{
+  content:'✓';position:absolute;left:0;top:0;width:18px;height:18px;line-height:18px;
+  text-align:center;border-radius:50%;background:var(--green-light);color:var(--green);
+  font-size:11px;font-weight:700;
+}
+.ins-card{
+  background:#fff;border:1px solid var(--border);border-radius:16px;
+  padding:22px;box-shadow:0 8px 28px rgba(12,32,64,.07);
+}
+@media (max-width:560px){ .ins-card{padding:17px} }
+
+/* โหมดติดตามสถานะ — ผู้ใช้ส่งคำขอมาแล้ว จึงตัดข้อความขายและ FAQ ออกจากสายตา
+   เหลือเฉพาะสถานะงานของเขา (inspect.js เป็นคนใส่คลาสนี้ให้ body) */
+.ins-tracking .ins-hero-copy,
+.ins-tracking .ins-what,
+.ins-tracking .ins-faq{display:none}
+.ins-tracking .ins-hero-grid{grid-template-columns:1fr;max-width:560px}
+
+/* ---------- ฟอร์ม ---------- */
+.ins-step{display:flex;align-items:center;gap:9px;margin:22px 0 8px}
+.ins-step:first-child{margin-top:0}
+.ins-n{
+  flex:none;width:23px;height:23px;border-radius:50%;background:var(--navy);color:#fff;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.ins-step h2{font-size:15px;color:var(--navy);margin:0;font-weight:700}
+.ins-hint{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.ins-lock{
+  font-size:13px;color:var(--ink);background:var(--blue-light);
+  border-radius:10px;padding:10px 12px;margin:0 0 4px;
+}
+
+.ins-f{display:block;margin-bottom:12px}
+.ins-f > span{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.ins-f .req{color:#DC2626}
+.ins-f small{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.ins-f input,.ins-f textarea{
+  width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;
+  font:inherit;font-size:14px;color:var(--ink);background:#fff;
+}
+.ins-f textarea{resize:vertical;min-height:74px}
+.ins-grid{display:grid;gap:0}
+@media (min-width:560px){ .ins-grid{grid-template-columns:1fr 1fr;gap:0 12px} }
+
+.ins-svcs{display:grid;gap:9px;margin-bottom:4px}
+.ins-svc{
+  display:flex;gap:10px;align-items:flex-start;cursor:pointer;
+  border:1px solid var(--border);border-radius:11px;padding:11px 12px;background:#fff;
+}
+.ins-svc:hover{border-color:var(--blue)}
+.ins-svc input{margin:2px 0 0;flex:none;width:17px;height:17px;accent-color:var(--blue)}
+.ins-svc b{display:block;font-size:13.5px;color:var(--ink);font-weight:600}
+.ins-svc small{display:block;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+
+.ins-dates{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:4px}
+@media (min-width:480px){ .ins-dates{grid-template-columns:repeat(3,1fr)} }
+.ins-dates input{
+  width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 11px;
+  font:inherit;font-size:13.5px;color:var(--ink);background:#fff;
+}
+
+/* กับดักบอท — ต้องหายไปจากทั้งสายตาและคีย์บอร์ด แต่ยังอยู่ในฟอร์มจริง */
+.ins-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+.ins-pdpa{
+  display:flex;gap:10px;align-items:flex-start;margin:16px 0 12px;cursor:pointer;
+  background:var(--bg);border-radius:11px;padding:12px;
+}
+.ins-pdpa input{margin:2px 0 0;flex:none;width:17px;height:17px;accent-color:var(--blue)}
+.ins-pdpa span{font-size:12.5px;color:var(--sub);line-height:1.6}
+.ins-free{
+  font-size:12.5px;color:var(--sub);line-height:1.6;margin:0 0 14px;
+  border-left:3px solid var(--green);padding-left:11px;
+}
+.ins-free b{color:var(--ink)}
+
+.ins-send{
+  width:100%;border:none;border-radius:12px;padding:14px;cursor:pointer;
+  font:inherit;font-size:15px;font-weight:700;color:#fff;background:var(--navy);
+}
+.ins-send:hover:not(:disabled){background:var(--blue)}
+.ins-send:disabled{background:var(--muted);cursor:not-allowed}
+.ins-msg{font-size:13px;margin:10px 0 0;min-height:1px;color:var(--sub)}
+.ins-msg.err{color:#DC2626}
+
+/* ---------- หน้าจอหลังส่งสำเร็จ ---------- */
+.ins-done{text-align:center}
+.ins-done-ic{
+  width:52px;height:52px;margin:0 auto 12px;border-radius:50%;
+  background:var(--green-light);color:var(--green);
+  font-size:26px;line-height:52px;font-weight:700;
+}
+.ins-done h2{font-size:19px;color:var(--navy);margin:0 0 8px}
+.ins-done p{font-size:13.5px;color:var(--sub);margin:0 0 10px;line-height:1.65}
+.ins-no{font-size:14px;color:var(--ink)}
+.ins-no b{color:var(--navy);font-size:16px}
+.ins-dupe{
+  background:#FEF3C7;color:#7C5B00;border-radius:10px;padding:11px 12px;
+  font-size:12.5px;text-align:left;
+}
+.ins-track{
+  background:var(--bg);border-radius:12px;padding:14px;margin:14px 0;text-align:left;
+}
+.ins-track b{display:block;font-size:13px;color:var(--ink);margin-bottom:7px}
+.ins-track input{
+  width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 10px;
+  font:inherit;font-size:12px;color:var(--sub);background:#fff;margin-bottom:8px;
+}
+.ins-track small{display:block;font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.5}
+.ins-copy{
+  border:1px solid var(--border);border-radius:9px;padding:8px 14px;cursor:pointer;
+  font:inherit;font-size:12.5px;font-weight:600;color:var(--navy);background:#fff;
+}
+.ins-copy:hover{border-color:var(--blue);color:var(--blue)}
+.ins-line{
+  display:inline-block;margin-top:6px;text-decoration:none;
+  background:var(--line);color:#fff;border-radius:11px;padding:12px 20px;
+  font-size:14px;font-weight:700;
+}
+
+/* ---------- หน้าติดตามสถานะ ---------- */
+.ins-loading{font-size:13.5px;color:var(--muted);text-align:center;padding:20px 0}
+.ins-track-page{text-align:center}
+.ins-status{margin:12px 0 6px}
+.ins-status b{font-size:19px;color:var(--navy)}
+.ins-status small{display:block;font-size:12.5px;color:var(--sub);margin-top:5px}
+.ins-bar{display:flex;gap:6px;justify-content:center;margin:10px 0 18px}
+.ins-dot{width:34px;height:5px;border-radius:3px;background:var(--border)}
+.ins-dot.on{background:var(--green)}
+.ins-row{
+  display:flex;justify-content:space-between;gap:12px;text-align:left;
+  border-top:1px solid var(--border);padding:11px 0;margin:0;font-size:13.5px;
+}
+.ins-row span{color:var(--muted);flex:none}
+.ins-row b{color:var(--ink);font-weight:600;text-align:right}
+.ins-row.col{display:block}
+.ins-row.col ul{margin:6px 0 0;padding-left:19px;color:var(--ink)}
+.ins-row.col li{font-size:13.5px;margin-bottom:3px}
+.ins-deal{
+  display:block;margin:14px 0 4px;text-decoration:none;font-size:13.5px;font-weight:600;
+  color:var(--blue);
+}
+.ins-fail{text-align:center}
+.ins-fail h2{font-size:17px;color:var(--navy);margin:0 0 8px}
+.ins-fail p{font-size:13.5px;color:var(--sub);margin:0 0 12px}
+
+/* ---------- เราตรวจอะไรให้ได้บ้าง ---------- */
+.ins-what{background:#fff;padding:34px 0}
+.ins-what h2,.ins-faq h2{font-size:21px;color:var(--navy);margin:0 0 18px}
+.ins-what-grid{display:grid;gap:14px}
+@media (min-width:700px){ .ins-what-grid{grid-template-columns:repeat(2,1fr)} }
+@media (min-width:1000px){ .ins-what-grid{grid-template-columns:repeat(3,1fr)} }
+.ins-what-item{border:1px solid var(--border);border-radius:13px;padding:16px 17px}
+.ins-what-item h3{font-size:14.5px;color:var(--navy);margin:0 0 6px}
+.ins-what-item p{font-size:13px;color:var(--sub);margin:0;line-height:1.65}
+.ins-note{
+  font-size:12.5px;color:var(--sub);line-height:1.7;margin:18px 0 0;
+  background:var(--bg);border-radius:11px;padding:13px 15px;
+}
+
+/* ---------- คำถามที่พบบ่อย ---------- */
+.ins-faq{padding:34px 0}
+.ins-faq details{
+  background:#fff;border:1px solid var(--border);border-radius:11px;
+  padding:13px 15px;margin-bottom:9px;
+}
+.ins-faq summary{font-size:14px;font-weight:600;color:var(--navy);cursor:pointer}
+.ins-faq p{font-size:13px;color:var(--sub);margin:9px 0 0;line-height:1.7}
+
+/* ---------- คีย์บอร์ด ----------
+   ⚠️ ใช้ :focus-visible ไม่ใช่ :focus — กรอบจะได้ไม่เด้งตอนคลิกเมาส์
+   (เหตุผลเดียวกับที่เพิ่งเติมให้ land.css และ compare.css ใน Phase 1) */
+.ins-send:focus-visible,.ins-copy:focus-visible,.ins-line:focus-visible,
+.ins-deal:focus-visible,.ins-faq summary:focus-visible,
+.ins-f input:focus-visible,.ins-f textarea:focus-visible,
+.ins-dates input:focus-visible,.ins-svc input:focus-visible,
+.ins-pdpa input:focus-visible,.ins-track input:focus-visible{
+  outline:3px solid rgba(27,75,122,.45);outline-offset:2px;
+}
+.ins-svc:focus-within{border-color:var(--blue)}

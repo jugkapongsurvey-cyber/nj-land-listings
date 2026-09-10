@@ -363,6 +363,15 @@
 .cs-report-num b{display:block;font-size:21px;font-weight:700;color:var(--navy);line-height:1.25}
 .cs-report-num span{display:block;font-size:11px;color:var(--sub)}
 .cs-report-num small{display:block;font-size:10px;color:var(--muted);margin-top:1px}
+/* ---------- ผู้ซื้อที่ติดต่อเข้ามาผ่านระบบ (Phase 2) ----------
+   ⚠️ กล่องนี้แสดงจำนวนเท่านั้นโดยตั้งใจ ห้ามเพิ่มรายชื่อหรือเบอร์ผู้ซื้อลงมา (ดู consign.js) */
+.cs-report-sub{
+  font-size:12px;font-weight:700;color:var(--navy);margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--border);
+}
+.cs-report-priv{display:block;font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:8px}
+@media (max-width:420px){ .cs-report-nums{flex-wrap:wrap} .cs-report-num{min-width:calc(50% - 5px)} }
+
 .cs-report-link{
   display:inline-block;margin-top:2px;font-size:12px;font-weight:700;color:#15803D;text-decoration:underline;
 }
