@@ -295,7 +295,7 @@
 ## น้องเอ็นเจชัวร์ — แชท AI ผู้ช่วยลูกค้า (2026-09-09)
 
 `njchat.js` · `njchat.css` · `chat.html` (หน้าเต็ม) · `njchat.test.js` (38 ข้อ) · `njchat.e2e.js` (Playwright 55 ข้อ · รันมือ)
-วิดเจ็ตมุมจอโหลดครบทั้ง 10 หน้า (`index listings land compare guides portal consign verify wanted videos`)
+วิดเจ็ตมุมจอโหลดครบทั้ง 12 หน้า (`index listings land compare guides portal consign verify wanted videos deal inspect`)
 · ฝั่งหลังบ้าน: `POST /api/public/njchat` + `lib/njchat.js` + `test/njchat.test.js` ใน `nj-survey-system`
 
 ### ทำงานสองชั้น — กฎก่อน แล้วค่อย AI
@@ -333,8 +333,8 @@
 - `njchat.js` ต้องมาหลัง `analytics.js` · `listingcard.js` (+`verified.js` ก่อนหน้า) · `landvocab.js` · `compare.js` และก่อน `menu.js`
   · `njchat.css` โหลดคู่ `compare.css` + `verified.css` ทุกหน้า (หน้าที่ไม่เคยมีการ์ดถูกเติมให้แล้ว)
 - **ลิงก์ "แชทกับน้อง" ในเมนู `<nav>`** อยู่ครบ 12 หน้า (7 หน้าชุด `marketplace.css` ใน `<nav aria-label="เมนูหลัก">` ·
-  5 หน้าชุด `ui.css` ใน `<nav class="header-nav">` รวม `deal.html` กับ `inspect.html` ที่ยังไม่มีวิดเจ็ตแชท
-  มีแค่ทางเข้าไปหน้า `chat.html`) — ลิ้นชักจอเล็กได้ตามไปเองเพราะ `menu.js` สร้างรายการจาก `<nav>` จริง
+  5 หน้าชุด `ui.css` ใน `<nav class="header-nav">` รวม `deal.html` กับ `inspect.html` ที่ได้วิดเจ็ตแชทครบแล้ว
+  เช่นกัน) — ลิ้นชักจอเล็กได้ตามไปเองเพราะ `menu.js` สร้างรายการจาก `<nav>` จริง
   · **ยกเว้น `index.html`** ที่แถวหัวเว็บเต็มความกว้างพอดีแล้ว (มีคำเตือนไว้ในไฟล์) — วัดจริงที่ 1440 แล้วเติมลิงก์เดียว
   โลโก้ถูกบีบจาก 153 เหลือ 97px และเมนูทั้ง 10 ข้อขึ้นสองบรรทัด จึงวางลิงก์ไว้ในฟุตเตอร์พร้อม `data-njchat`
   แล้วให้ `menu.js` หยิบเข้าลิ้นชักแทน (กติกาเดียวกับ `data-njportal` · เช็ก href ซ้ำกับใน `<nav>` ก่อนเติม)
