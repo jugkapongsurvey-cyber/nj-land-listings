@@ -110,7 +110,7 @@
       '<ol class="dl-steps">' + steps.map(stepHtml).join('') + '</ol>' +
       '<p class="dl-foot">ทุกขั้นบันทึกตามที่เกิดขึ้นจริง ขั้นที่ยังว่างคือยังไม่ถึงคิว ไม่ใช่ตกหล่น ' +
         'มีอะไรไม่ตรงกับที่คุยกันไว้ ทักทีมงานได้เลย</p>' +
-      '<a class="dl-line" href="' + esc(LINE) + '" target="_blank" rel="noopener" data-contact="line">' +
+      '<a class="dl-line" href="' + esc(LINE) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-contact="line">' +
         'สอบถามทีมงานทางไลน์</a>';
   }
 
@@ -120,7 +120,7 @@
       '<p>หน้าติดตามงานเปิดได้จากลิงก์เฉพาะตัวที่ทีมงานส่งให้ในไลน์ หรือลิงก์ที่ได้ตอนส่งคำขอนัดตรวจแปลง ' +
       'ลิงก์นั้นเป็นกุญแจของงานคุณ จึงไม่มีการเข้าสู่ระบบด้วยรหัสผ่านที่หน้านี้</p>' +
       '<p>หาลิงก์ไม่เจอ ทักทีมงานแล้วแจ้งเลขงานหรือเบอร์โทรที่ใช้ตอนส่งคำขอ ทีมงานส่งลิงก์ให้ใหม่ได้</p>' +
-      '<a class="dl-line" href="' + esc(LINE) + '" target="_blank" rel="noopener" data-contact="line">' +
+      '<a class="dl-line" href="' + esc(LINE) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-contact="line">' +
         'ทักไลน์ขอลิงก์ติดตามงาน</a>' +
     '</div>';
   }
@@ -135,7 +135,7 @@
       })
       .catch(function (err) {
         root.innerHTML = '<div class="dl-empty"><h2>เปิดลิงก์นี้ไม่ได้</h2><p>' + esc(err.message) + '</p>' +
-          '<a class="dl-line" href="' + esc(LINE) + '" target="_blank" rel="noopener" data-contact="line">' +
+          '<a class="dl-line" href="' + esc(LINE) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-contact="line">' +
           'ทักไลน์หาทีมงาน</a></div>';
       });
   }

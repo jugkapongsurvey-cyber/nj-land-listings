@@ -147,7 +147,7 @@
           '<button type="button" id="ins-copy" class="ins-copy">คัดลอกลิงก์</button>' +
           '<small>ลิงก์นี้เปิดดูได้เฉพาะคุณ · อย่าส่งต่อให้คนที่ไม่เกี่ยวข้อง</small>' +
         '</div>' +
-        '<a class="ins-line" href="' + esc(LINE) + '" target="_blank" rel="noopener" data-contact="line">' +
+        '<a class="ins-line" href="' + esc(LINE) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-contact="line">' +
           'ทักไลน์คุยกับทีมงานเลย</a>' +
       '</div>';
 
@@ -234,7 +234,7 @@
         ? '<a class="ins-deal" href="deal.html?id=' + encodeURIComponent(l.deal.id) +
           '&t=' + encodeURIComponent(l.deal.ticket) + '">ดูความคืบหน้าการซื้อทั้งหมด →</a>'
         : '') +
-      '<a class="ins-line" href="' + esc(LINE) + '" target="_blank" rel="noopener" data-contact="line">' +
+      '<a class="ins-line" href="' + esc(LINE) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-contact="line">' +
         'สอบถามทีมงานทางไลน์</a>' +
     '</div>';
   }
@@ -252,7 +252,7 @@
       })
       .catch(function (err) {
         root.innerHTML = '<div class="ins-fail"><h2>เปิดลิงก์นี้ไม่ได้</h2><p>' + esc(err.message) + '</p>' +
-          '<a class="ins-line" href="' + esc(LINE) + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์หาทีมงาน</a></div>';
+          '<a class="ins-line" href="' + esc(LINE) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-contact="line">ทักไลน์หาทีมงาน</a></div>';
       });
   }
 
