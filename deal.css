@@ -1,0 +1,97 @@
+/* ============================================================
+   หน้าติดตามการซื้อที่ดิน 11 ขั้น (Phase 2 งานย่อยที่ 5)
+   โหลดต่อจาก style.css + ui.css + menu.css
+
+   ⚠️ สถานะทุกขั้นมีข้อความกำกับเสมอ สีเป็นแค่ตัวช่วย
+      ถอดสีออกทั้งหมดแล้วหน้านี้ต้องยังอ่านรู้เรื่องครบทุกขั้น
+      (กติกาเดียวกับรายงานสุขภาพแปลงใน health.css)
+   ============================================================ */
+.page-deal{background:var(--bg)}
+.dl-main{padding:30px 0 44px}
+.dl-wrap{max-width:760px}
+.dl-main h1{font-size:24px;color:var(--navy);margin:0 0 8px;line-height:1.35}
+@media (max-width:560px){ .dl-main h1{font-size:20px} }
+.dl-lead{font-size:14px;color:var(--sub);margin:0 0 20px}
+
+.dl-card{
+  background:#fff;border:1px solid var(--border);border-radius:16px;
+  padding:22px;box-shadow:0 8px 28px rgba(12,32,64,.07);
+}
+@media (max-width:560px){ .dl-card{padding:17px} }
+.dl-loading{font-size:13.5px;color:var(--muted);text-align:center;padding:20px 0;margin:0}
+
+/* ---------- หัวการ์ด ---------- */
+.dl-no{font-size:13.5px;color:var(--sub);margin:0 0 4px}
+.dl-no b{color:var(--navy);font-size:16px}
+.dl-listing{font-size:13.5px;color:var(--sub);margin:0 0 12px}
+.dl-listing a{color:var(--blue);font-weight:600}
+.dl-now{
+  background:var(--blue-light);border-radius:12px;padding:13px 15px;margin-bottom:12px;
+}
+.dl-now b{display:block;font-size:16px;color:var(--navy)}
+.dl-now small{display:block;font-size:12.5px;color:var(--sub);margin-top:3px}
+.dl-bar{height:7px;border-radius:4px;background:var(--border);overflow:hidden}
+.dl-bar span{display:block;height:100%;background:var(--green);border-radius:4px}
+.dl-count{font-size:12.5px;color:var(--muted);margin:7px 0 0}
+
+/* ---------- เส้นทาง 11 ขั้น ---------- */
+.dl-steps{list-style:none;margin:20px 0 0;padding:0}
+.dl-step{display:flex;gap:12px;padding:0 0 18px;position:relative}
+/* เส้นเชื่อมระหว่างขั้น — ขั้นสุดท้ายไม่ต้องมี */
+.dl-step::before{
+  content:'';position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--border);
+}
+.dl-step:last-child{padding-bottom:0}
+.dl-step:last-child::before{display:none}
+.dl-mark{
+  flex:none;width:28px;height:28px;border-radius:50%;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;font-weight:700;
+  background:var(--bg);color:var(--muted);border:2px solid var(--border);
+}
+.dl-body{flex:1;min-width:0;padding-top:2px}
+.dl-name{font-size:14.5px;font-weight:600;color:var(--ink)}
+.dl-state{font-size:12.5px;color:var(--muted);margin-top:2px}
+.dl-note{font-size:13px;color:var(--sub);margin:7px 0 0;line-height:1.6}
+.dl-todo{
+  font-size:13px;color:#7C5B00;background:#FEF3C7;border-radius:9px;
+  padding:9px 11px;margin:8px 0 0;line-height:1.6;
+}
+.dl-todo b{color:#5C4300}
+.dl-meta{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+/* สถานะของแต่ละขั้น — สีมาเสริมข้อความ ไม่ใช่แทนข้อความ */
+.dl-step.is-done .dl-mark{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.dl-step.is-done .dl-state{color:var(--green)}
+.dl-step.is-done::before{background:var(--green-light)}
+.dl-step.is-active .dl-mark{background:var(--navy);color:#fff;border-color:var(--navy)}
+.dl-step.is-active .dl-name{color:var(--navy)}
+.dl-step.is-active .dl-state{color:var(--blue);font-weight:600}
+.dl-step.is-blocked .dl-mark{background:#FEE2E2;color:#B91C1C;border-color:#B91C1C}
+.dl-step.is-blocked .dl-state{color:#B91C1C;font-weight:600}
+/* ยังไม่ถึงขั้นนี้ — จางลงแต่ยังอ่านออก ห้ามซ่อน */
+.dl-step.is-none .dl-name{color:var(--muted);font-weight:500}
+
+.dl-foot{
+  font-size:12.5px;color:var(--sub);line-height:1.7;margin:20px 0 0;
+  border-top:1px solid var(--border);padding-top:14px;
+}
+.dl-line{
+  display:inline-block;margin-top:12px;text-decoration:none;
+  background:var(--line);color:#fff;border-radius:11px;padding:12px 20px;
+  font-size:14px;font-weight:700;
+}
+
+/* ---------- ไม่มีตั๋ว / เปิดไม่ได้ ---------- */
+.dl-empty{text-align:center;padding:6px 0}
+.dl-empty h2{font-size:18px;color:var(--navy);margin:0 0 10px}
+.dl-empty p{font-size:13.5px;color:var(--sub);margin:0 0 10px;line-height:1.7;text-align:left}
+
+.dl-privacy{
+  font-size:12px;color:var(--muted);line-height:1.7;margin:16px 0 0;
+}
+
+/* ⚠️ :focus-visible ไม่ใช่ :focus — กรอบจะได้ไม่เด้งตอนคลิกเมาส์ */
+.dl-line:focus-visible,.dl-listing a:focus-visible{
+  outline:3px solid rgba(27,75,122,.45);outline-offset:2px;
+}

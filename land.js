@@ -401,6 +401,10 @@
         (window.NJVerified?NJVerified.ladderHtml(L.verify):'')+
         (window.NJHealth?NJHealth.tableHtml(L):'')+
         (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):'')+
+        // คะแนนความพร้อมของข้อมูล (Phase 3) — สรุปรวมของทุกอย่างข้างบน
+        // ⚠️ `l.score` อยู่ระดับบนสุดของประกาศ **ไม่ได้อยู่ใน l.land** (คิดจากทั้งใบ ไม่ใช่เฉพาะข้อมูลแปลง)
+        // ⚠️ คืนสตริงว่างเมื่อ API ไม่ส่งคะแนนมา → แปลงเก่าหน้าตาเหมือนเดิมเป๊ะ (กติกาข้อ 5)
+        (window.NJScore?NJScore.panelHtml(l.score):'')+
         mapHtml(L)+
         nearbyHtml(L)+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
@@ -413,6 +417,13 @@
           // ยิงทั้งคู่เมื่อไหร่ = นับคนเดิมสองครั้ง แล้วตัวเลขลีดจะสูงกว่าความจริง
           '<button type="button" class="ld-btn tel" id="ld-tel" data-reveal="'+esc(l.id)+'">📞 คลิกดูเบอร์โทร</button>'+
         '</div>'+
+        // ทางเข้าหน้านัดตรวจแปลง (Phase 2) — วางแยกจากแถวปุ่มติดต่อโดยตั้งใจ
+        // ⚠️ ไม่ใส่ data-contact และไม่ยิงสถิติติดต่อ — คนกดยังไม่ได้ติดต่อใคร เขาไปกรอกฟอร์มต่อ
+        //    ซึ่งเซิร์ฟเวอร์นับเป็น inspect_submit ให้เองตอนสร้างใบ (นับที่เดียว · กติกาข้อ 6)
+        '<a class="ld-inspect" href="inspect.html?listing='+encodeURIComponent(l.id)+'&from=land_page">'+
+          '<b>ยังไม่มั่นใจ? ให้ช่างรังวัดไปตรวจแปลงนี้ก่อน</b>'+
+          '<small>ตรวจเอกสารสิทธิ์ · หมุดหลักเขต · ทางเข้า–ออก · ค่าใช้จ่ายวันโอน — ส่งคำขอไม่มีค่าใช้จ่าย</small>'+
+        '</a>'+
         inquiryHtml()+
         '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
       '</div>';

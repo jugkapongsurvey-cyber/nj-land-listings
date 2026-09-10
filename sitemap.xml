@@ -38,6 +38,13 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- นัดตรวจแปลงก่อนซื้อ · deal.html ไม่อยู่ในไฟล์นี้โดยตั้งใจ (noindex — เนื้อหาขึ้นกับตั๋วในลิงก์) -->
+  <url>
+    <loc>https://njteedinsure.com/inspect.html</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <!-- ตรวจสอบทรัพย์ก่อนซื้อ -->
   <url>
     <loc>https://njteedinsure.com/verify.html</loc>

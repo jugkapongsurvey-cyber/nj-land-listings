@@ -92,6 +92,14 @@
 .njcmp-win.price{ background:#EEF4FF; color:#1552B0; }
 .njcmp-win.size{ background:#FBF3E4; color:#8A6A2E; }
 .njcmp-none{ color:#9AABC2; }
+
+/* ---------- แถวของระลอก Phase 2 ----------
+   ⚠️ สีเป็นตัวช่วย ไม่ใช่ตัวสื่อความหมาย — ถอดสีออกแล้วข้อความในช่องต้องยังบอกเรื่องเดิมครบ
+   (กติกาเดียวกับรายงานสุขภาพแปลงใน health.css) */
+.njcmp-warn{ color:#B3261E; font-weight:600; }
+.njcmp-link{ color:#1552B0; font-weight:600; text-decoration:none; }
+.njcmp-link:hover{ text-decoration:underline; }
+.njcmp-link:focus-visible{ outline:3px solid rgba(21,82,176,.45); outline-offset:2px; }
 .njcmp-best{ background:#F4FBF6; }
 .njcmp-note{
   font-size:12.5px; line-height:1.7; color:#5A7091; background:#F7F9FC;

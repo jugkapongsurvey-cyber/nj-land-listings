@@ -239,5 +239,98 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 5 ร
   }
 }
 
+console.log('\n8) ระลอก Phase 2 — นัดตรวจแปลง · ติดตามงานซื้อขาย');
+{
+  const leadsLib = path.join(SRV, 'lib', 'leads.js');
+  if (!fs.existsSync(leadsLib)) {
+    console.log('  ข้าม — ยังไม่มี lib/leads.js ที่ฝั่งเซิร์ฟเวอร์ (สาขา phase2 ยังไม่ถูก merge)');
+  } else {
+    const leads = read(leadsLib);
+    const inspect = read(path.join(WEB, 'inspect.js'));
+
+    // ⚠️ ติ๊กบริการที่เซิร์ฟเวอร์ไม่รู้จัก = ถูกทิ้งเงียบๆ เหมือนเดิมทุกรอบ
+    //    (pickList กรองคีย์แปลกออกโดยไม่มี error) — เทียบทั้งชุดและลำดับ
+    const srvLeadSvc = listAfter(leads, 'LEAD_SERVICES');
+    const webLeadSvc = (inspect.match(/\{ k: '([a-z_]+)'/g) || []).map(s => (s.match(/'([a-z_]+)'/) || [])[1]);
+    check('อ่านรายการบริการตรวจแปลงได้ทั้งสองฝั่ง',
+      !!srvLeadSvc && srvLeadSvc.length > 0 && webLeadSvc.length > 0,
+      (srvLeadSvc || []).length + ' / ' + webLeadSvc.length);
+    check('คีย์บริการตรวจแปลงตรงกันทั้งชุดและลำดับ', same(srvLeadSvc || [], webLeadSvc),
+      (srvLeadSvc || []).join(',') + '  vs  ' + webLeadSvc.join(','));
+
+    // แหล่งที่มาของลีด — เว็บส่งค่าที่ไม่รู้จักไปก็ถูกเก็บเป็น 'other' เงียบๆ
+    // แล้วสถิติ "โฆษณาลงที่ไหนได้ผล" กองรวมกันหมด
+    const srvSrc = listAfter(leads, 'LEAD_SOURCES');
+    const webSrc = listAfter(inspect, 'var SOURCES');
+    check('รายชื่อแหล่งที่มาของลีดตรงกัน', same(srvSrc || [], webSrc || []),
+      (srvSrc || []).join(',') + '  vs  ' + (webSrc || []).join(','));
+
+    check('เซิร์ฟเวอร์รู้จัก inspect_view', (srvEvents || []).indexOf('inspect_view') >= 0);
+    check('เซิร์ฟเวอร์รู้จัก inspect_submit', (srvEvents || []).indexOf('inspect_submit') >= 0);
+    check('inspect_submit ไม่อยู่ในรายการฝั่งเบราว์เซอร์ (เซิร์ฟเวอร์บันทึกเองตอนสร้างใบ)',
+      (webEvents || []).indexOf('inspect_submit') < 0);
+
+    // ⚠️ หน้าเว็บสาธารณะห้ามมีฟอร์มเข้าสู่ระบบ — เว็บนี้เป็นสแตติกบน GitHub Pages
+    //    (กติกาเดียวกับ portal.html · การรับรหัสผ่านที่โดเมนหนึ่งแล้วส่งข้ามโดเมน = สอนลูกค้าให้โดนฟิชชิ่ง)
+    check('inspect.js ไม่มีช่องรหัสผ่าน', !/type="password"|type=.password./.test(inspect));
+    // ต้องยืนยัน PDPA ก่อนส่งเสมอ ทั้งฝั่งหน้าจอและฝั่งเซิร์ฟเวอร์
+    check('inspect.js กันการส่งเมื่อยังไม่ติ๊กยินยอม', /pdpaAt/.test(inspect) && /ins-pdpa/.test(inspect));
+    check('เซิร์ฟเวอร์ปฏิเสธใบที่ยังไม่ยินยอม', /consentOk/.test(read(path.join(SRV, 'server.js'))));
+
+    const dealsLib = path.join(SRV, 'lib', 'deals.js');
+    const dealWeb = path.join(WEB, 'deal.js');
+    if (fs.existsSync(dealsLib) && fs.existsSync(dealWeb)) {
+      const srvSteps = listAfter(read(dealsLib), 'const DEAL_STEPS');
+      const webSteps = listAfter(read(dealWeb), 'var STEPS');
+      check('ขั้นตอนการซื้อ 11 ขั้นตรงกันทั้งชุดและลำดับ', same(srvSteps || [], webSteps || []),
+        (srvSteps || []).join(',') + '  vs  ' + (webSteps || []).join(','));
+    }
+  }
+}
+
+console.log('\n9) ระลอก Phase 3 — คะแนนความพร้อมของแปลง');
+{
+  const scoreLib = path.join(SRV, 'lib', 'landscore.js');
+  if (!fs.existsSync(scoreLib)) {
+    console.log('  ข้าม — ยังไม่มี lib/landscore.js ที่ฝั่งเซิร์ฟเวอร์ (สาขา phase3 ยังไม่ถูก merge)');
+  } else {
+    const srvScore = read(scoreLib);
+    const webScore = read(path.join(WEB, 'landscore.js'));
+
+    // ⚠️ ชนิดของเหตุผลต้องรู้จักครบทั้งสองฝั่ง — ฝั่งเว็บไม่รู้จักชนิดไหน ชนิดนั้นจะถูกวาดเป็น
+    //    "ยังไม่มีข้อมูล" ทั้งที่ความจริงคือ "ตรวจแล้วพบประเด็น" ซึ่งกลับความหมายกันคนละขั้ว
+    ['ok', 'partial', 'missing', 'issue'].forEach(function (k) {
+      check('ฝั่งเว็บรู้จักเหตุผลชนิด ' + k, new RegExp('\\b' + k + ':\\s*\\{').test(webScore));
+      check('ฝั่งเซิร์ฟเวอร์ใช้เหตุผลชนิด ' + k, new RegExp("kind: '" + k + "'").test(srvScore));
+    });
+
+    // คำเตือนต้องมาจากเซิร์ฟเวอร์ที่เดียว ฝั่งเว็บพิมพ์ค่าที่ได้รับมาเท่านั้น
+    check('ฝั่งเซิร์ฟเวอร์ประกาศคำเตือนไว้', /SCORE_DISCLAIM/.test(srvScore));
+    check('คำเตือนบอกว่าไม่ใช่การรับประกันทางกฎหมาย', /ไม่ใช่การรับประกันทางกฎหมาย/.test(srvScore));
+    check('คำเตือนบอกว่าไม่ได้วัดคุณภาพที่ดิน', /ไม่ใช่การให้คะแนนคุณภาพที่ดิน/.test(srvScore));
+    check('ฝั่งเว็บพิมพ์คำเตือนที่ได้รับมา ไม่ได้เขียนเอง', /score\.disclaim/.test(webScore));
+
+    // ⚠️ ห้ามคิดคะแนนซ้ำที่ฝั่งเว็บ — สองที่ปัดเศษไม่เหมือนกันแล้วตัวเลขบนการ์ดกับหน้ารายละเอียดไม่ตรง
+    check('ฝั่งเว็บไม่มีน้ำหนักคะแนนของตัวเอง', !/SCORE_PARTS|DEFAULT_WEIGHTS/.test(webScore));
+    // ⚠️ เช็คว่า "ไม่มีการรวมยอด" ไม่ใช่เช็คว่าไม่มีคำว่า earned — ฝั่งเว็บพิมพ์ `p.earned + ' / '`
+    //    เพื่อแสดงผลอยู่แล้ว ซึ่งถูกต้อง (กับดักเดียวกับตอนเช็ค LEAD_FLOW ที่ไปเจอคำในคอมเมนต์)
+    check('ฝั่งเว็บไม่รวมยอดคะแนนเอง', !/reduce\(|\+=/.test(webScore));
+    check('ฝั่งเว็บอ่านคะแนนรวมจากเซิร์ฟเวอร์', /score\.total/.test(webScore));
+
+    // ไม่มีคะแนน = ไม่วาดอะไรเลย (แปลงเก่าหน้าตาเหมือนเดิม)
+    check('ป้ายบนการ์ดคืนค่าว่างเมื่อไม่มีคะแนน', /badgeHtml[\s\S]{0,220}return ''/.test(webScore));
+    check('แผงในหน้าแปลงคืนค่าว่างเมื่อไม่มีคะแนน', /panelHtml[\s\S]{0,220}return ''/.test(webScore));
+
+    check('ไฟล์คะแนนฝั่งเว็บไม่มีคำรับประกัน',
+      !/รับประกันกรรมสิทธิ์|ปลอดภัย 100|สร้างได้แน่นอน|จัดสรรได้แน่นอน/.test(webScore));
+    // น้ำหนักที่เจ้าของกิจการกำหนดไว้ ต้องยังเป็นค่าเริ่มต้นของระบบ
+    [['documents', 20], ['owner', 15], ['boundary', 25], ['access', 15], ['zoning', 10], ['site', 10], ['fresh', 5]]
+      .forEach(function (pair) {
+        check('น้ำหนักเริ่มต้นของ ' + pair[0] + ' = ' + pair[1],
+          new RegExp("key: '" + pair[0] + "'[^\\n]*weight: " + pair[1] + "\\b").test(srvScore));
+      });
+  }
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

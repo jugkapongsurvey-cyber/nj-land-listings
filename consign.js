@@ -347,6 +347,38 @@ function renderReport(d) {
   });
   body.appendChild(nums);
 
+  // ---- ผู้ซื้อที่ติดต่อเข้ามาผ่านระบบ (Phase 2) ----
+  // ⚠️ **ตัวเลขล้วน** เซิร์ฟเวอร์ส่งมาแค่จำนวน ไม่มีชื่อ เบอร์ หรือข้อความของผู้ซื้อเลย
+  //    ผู้ซื้อยินยอมให้ "ทีมงานติดต่อกลับ" ไม่ได้ยินยอมให้ข้อมูลตัวเองถูกส่งต่อให้เจ้าของแปลง
+  //    ห้ามเพิ่มรายละเอียดรายบุคคลลงกล่องนี้ไม่ว่ากรณีใด
+  var I = d && d.interest;
+  if (I && (I.inquiries || I.inspections || I.deals)) {
+    var h2 = document.createElement('div');
+    h2.className = 'cs-report-sub';
+    h2.textContent = 'ผู้ซื้อที่ติดต่อเข้ามาผ่านระบบ';
+    body.appendChild(h2);
+
+    var nums2 = document.createElement('div');
+    nums2.className = 'cs-report-nums';
+    [['✉', I.inquiries, 'สนใจแปลงนี้'],
+     ['🔍', I.inspections, 'ขอนัดตรวจแปลง'],
+     ['🤝', I.deals, 'เปิดเรื่องซื้อขายแล้ว']].forEach(function (c) {
+      var el = document.createElement('div');
+      el.className = 'cs-report-num';
+      var b = document.createElement('b'); b.textContent = String(c[1] || 0);
+      var s2 = document.createElement('span'); s2.textContent = c[0] + ' ' + c[2];
+      el.appendChild(b); el.appendChild(s2);
+      nums2.appendChild(el);
+    });
+    body.appendChild(nums2);
+
+    var priv = document.createElement('small');
+    priv.className = 'cs-report-priv';
+    priv.textContent = 'เราแสดงเป็นจำนวนเท่านั้น ไม่เปิดเผยชื่อหรือเบอร์ของผู้ซื้อ ' +
+                       'ทีมงานเป็นผู้ติดต่อและคัดกรองให้ก่อนนัดคุยกับคุณ';
+    body.appendChild(priv);
+  }
+
   // อ่านตัวเลขให้ฟัง — เจ้าของส่วนใหญ่ไม่รู้ว่าตัวเลขเท่าไหร่ถึงเรียกว่าดี
   // และต้องไม่จบด้วยการโทษเจ้าของ ทุกกรณีลงท้ายด้วยสิ่งที่เขาทำต่อได้
   var msg = document.createElement('div');
