@@ -1,0 +1,89 @@
+/* ===========================================================================
+   ห้องข้อมูลแปลงสำหรับผู้ซื้อ (Phase 3) — ใช้กับ room.js
+   โหลดต่อจาก marketplace.css จึงใช้ตัวแปรสีชุดเดิมได้
+
+   ⚠️ หน้านี้เป็นเรื่องเอกสารสิทธิ์ของคนอื่น โทนจึงต้องสงบและตรงไปตรงมา
+      ไม่ใช่หน้าขาย — ห้ามใส่คำโฆษณาหรือปุ่มเร่งให้กด
+   =========================================================================== */
+.rm-head{padding:34px 0 8px}
+.rm-head h1{font-size:26px;font-weight:700;color:var(--navy);margin:0 0 10px;line-height:1.45}
+.rm-head p{font-size:14.5px;line-height:1.9;color:var(--sub);margin:0;max-width:62ch}
+@media(max-width:560px){ .rm-head{padding:24px 0 6px} .rm-head h1{font-size:21px} }
+/* โหมดติดตามคำขอไม่ต้องมีคำอธิบายชวนสมัคร — ผู้ขอส่งฟอร์มมาแล้ว */
+body.rm-tracking .rm-sell{display:none}
+.rm-wrap{padding:14px 0 56px;max-width:720px}
+
+.rm-form{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+@media(max-width:560px){ .rm-form{padding:15px} }
+.rm-field{display:block;margin-bottom:14px}
+.rm-field span{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:5px}
+.rm-field input,.rm-field textarea{
+  width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--mist);
+  border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;
+}
+.rm-field textarea{resize:vertical;line-height:1.7}
+.rm-field input:focus,.rm-field textarea:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+/* กับดักบอท — ต้องอยู่ใน DOM จริงและมองไม่เห็นด้วยตา */
+.rm-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+.rm-consent{display:flex;gap:10px;align-items:flex-start;margin:4px 0 16px}
+.rm-consent input{margin-top:3px;flex:none;width:18px;height:18px}
+.rm-consent span{font-size:13px;line-height:1.8;color:var(--sub)}
+
+.rm-btn{
+  display:inline-block;width:100%;text-align:center;font:inherit;font-size:15px;font-weight:700;
+  color:#fff;background:var(--navy);border:none;border-radius:11px;padding:14px;cursor:pointer;
+  text-decoration:none;
+}
+.rm-btn:hover{background:#0d2647}
+.rm-btn:disabled{background:#B7C3D6;cursor:not-allowed}
+.rm-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.rm-note{font-size:13px;line-height:1.8;color:var(--sub);margin:10px 0 0}
+.rm-warn{
+  font-size:12.5px;line-height:1.85;color:#78350F;background:#FFFBEB;
+  border:1px solid #FDE68A;border-radius:11px;padding:11px 13px;margin:14px 0 0;
+}
+
+.rm-done{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center}
+.rm-done b{display:block;font-size:17px;color:var(--navy);margin-bottom:8px}
+.rm-done p{font-size:14px;line-height:1.9;color:var(--sub);margin:0 0 12px}
+.rm-code{font-family:Manrope,sans-serif;font-weight:700;color:var(--navy)}
+.rm-line{
+  display:inline-block;margin-top:14px;font-size:14px;font-weight:600;
+  color:var(--navy);text-decoration:underline;
+}
+
+.rm-status{
+  display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:15px 17px;margin-bottom:14px;
+}
+.rm-status b{display:block;font-size:15px;color:var(--navy);line-height:1.5}
+.rm-status small{display:block;font-size:12.5px;color:var(--sub);line-height:1.7;margin-top:2px}
+.rm-chip{
+  flex:none;font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;white-space:nowrap;
+  background:#EEF2F7;color:#5B6B7C;
+}
+.rm-status.ok .rm-chip{background:#DCFCE7;color:#15803D}
+.rm-status.wait .rm-chip{background:#FEF3C7;color:#B45309}
+.rm-status.no .rm-chip{background:#FEE2E2;color:#B3261E}
+.rm-status.old .rm-chip{background:#EEF2F7;color:#5B6B7C}
+.rm-reason{font-size:13.5px;line-height:1.85;color:var(--sub);margin:0 0 14px}
+
+.rm-docs{list-style:none;margin:0;padding:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rm-doc{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--line);
+}
+.rm-doc:last-child{border-bottom:0}
+.rm-doc b{display:block;font-size:14px;font-weight:600;color:var(--navy);line-height:1.5}
+.rm-doc small{display:block;font-size:12px;color:var(--sub);line-height:1.7;margin-top:2px}
+.rm-doc a{
+  flex:none;font-size:13.5px;font-weight:700;color:var(--navy);
+  border:1.5px solid var(--line);border-radius:9px;padding:8px 14px;text-decoration:none;
+}
+.rm-doc a:hover{border-color:var(--gold)}
+.rm-doc a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.rm-empty{
+  font-size:13.5px;line-height:1.85;color:var(--sub);background:var(--mist);
+  border:1px solid var(--line);border-radius:14px;padding:16px;margin:0;
+}

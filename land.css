@@ -146,6 +146,10 @@
 .ld-inspect b{display:block;font-size:14.5px;color:var(--ink);font-weight:600}
 .ld-inspect small{display:block;font-size:12.5px;color:var(--sub);margin-top:4px;line-height:1.6}
 .ld-inspect:hover{border-color:var(--green)}
+/* ห้องข้อมูลแปลง (Phase 3) — ใช้โครงเดียวกับกล่องนัดตรวจ แต่แถบข้างเป็นสีกรมท่า
+   เพราะเป็นคนละเรื่องกัน: อันบนคือให้เราไปตรวจให้ อันนี้คือขอดูเอกสารที่ตรวจไว้แล้ว */
+.ld-room{border-left-color:var(--navy)}
+.ld-room:hover{border-color:var(--navy)}
 @media print{ .ld-inspect{display:none} }
 
 .ld-title{font-size:clamp(18px,3.4vw,23px);font-weight:600;line-height:1.5;margin:10px 0 6px;color:var(--ink)}

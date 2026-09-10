@@ -12,4 +12,8 @@ Disallow: /consign.html?*t=
 Disallow: /inspect.html?*t=
 Disallow: /deal.html
 
+# ห้องข้อมูลแปลง — ลิงก์ของผู้ขอมีตั๋วติดอยู่ และเนื้อหาเป็นเอกสารของลูกค้า
+# (หน้านี้ประกาศ noindex ไว้ในตัวหน้าด้วยอีกชั้น)
+Disallow: /room.html
+
 Sitemap: https://njteedinsure.com/sitemap.xml
