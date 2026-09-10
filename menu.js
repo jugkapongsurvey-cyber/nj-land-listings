@@ -31,6 +31,10 @@
   // จอเล็กซ่อนลิงก์ตัวจริงไว้ ลิ้นชักจึงต้องหยิบมาแสดงแทน ไม่งั้นทางเข้านี้หายไปทั้งบนมือถือ
   // อ่านทั้ง href และข้อความจากลิงก์จริง — ห้ามพิมพ์ค่าซ้ำไว้ในไฟล์นี้ (กติกาเดียวกับรายการเมนู)
   var PORTAL_SELECTOR = '[data-njportal]';
+  // ทางเข้าแชท AI — 10 หน้ามีลิงก์นี้อยู่ใน <nav> อยู่แล้ว ลิ้นชักจึงได้ไปเองตามกติกาข้างบน
+  // เหลือหน้าแรกหน้าเดียวที่แถวเมนูเต็มความกว้างพอดีจนเติมไม่ได้ ลิงก์จึงอยู่ในฟุตเตอร์และต้องหยิบมาแบบพอร์ทัล
+  // เช็ก href ซ้ำกับใน <nav> ก่อนเสมอ ไม่งั้นหน้าที่มีทั้งสองที่จะได้เมนูซ้ำสองข้อ
+  var CHAT_SELECTOR = '[data-njchat]';
 
   var nav = null, panel = null, backdrop = null, btn = null, lastFocus = null;
 
@@ -118,6 +122,17 @@
       if (a.classList.contains('active')) item.className = 'on';
       list.appendChild(item);
     });
+    var chat = document.querySelector(CHAT_SELECTOR);
+    if (chat) {
+      var chref = chat.getAttribute('href') || 'chat.html';
+      if (!nav.querySelector('a[href="' + chref + '"]')) {
+        var c = document.createElement('a');
+        c.href = chref;
+        c.textContent = (chat.textContent || '').trim();
+        list.appendChild(c);
+      }
+    }
+
     panel.appendChild(list);
 
     if (cta) {
