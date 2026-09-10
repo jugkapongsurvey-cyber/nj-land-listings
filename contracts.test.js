@@ -422,5 +422,64 @@ console.log('\n10) ระลอก Phase 3 — ค้นหาตามวัต
   }
 }
 
+console.log('\n11) ระลอก Phase 3 — ห้องข้อมูลแปลง');
+{
+  const roomLib = path.join(SRV, 'lib', 'dataroom.js');
+  if (!fs.existsSync(roomLib)) {
+    console.log('  ข้าม — ยังไม่มี lib/dataroom.js ที่ฝั่งเซิร์ฟเวอร์ (สาขา phase3 ยังไม่ถูก merge)');
+  } else {
+    const srvRoom = read(roomLib);
+    const webRoom = read(path.join(WEB, 'room.js'));
+    // ⚠️ ตัดคอมเมนต์ทิ้งก่อนค้นคำต้องห้าม — กติกาที่เขียนกันไว้ในคอมเมนต์ต้องไม่ทำให้เทสต์แดงเอง
+    // (บทเรียนเดียวกับหัวข้อ 10 · ไม่งั้นคนจะแก้ด้วยการลบกติกาออก ซึ่งกลับหัวกลับหางกัน)
+    const noComment = src => src.replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .split(/\r?\n/).filter(l => l.trim().indexOf('//') !== 0).join('\n');
+    const webRoomBody = noComment(webRoom);
+    const roomHtml = read(path.join(WEB, 'room.html'));
+    const robots = read(path.join(WEB, 'robots.txt'));
+
+    // ชนิดเอกสาร 8 ชนิดตามข้อกำหนด — ฝั่งเว็บไม่ฝังรายการเอง แต่ต้องมีครบฝั่งเซิร์ฟเวอร์
+    ['deed', 'inspect', 'survey', 'map', 'photo', 'access', 'consent', 'sale'].forEach(function (k) {
+      check('เซิร์ฟเวอร์ประกาศชนิดเอกสาร ' + k, new RegExp("key: '" + k + "'").test(srvRoom));
+    });
+    check('ฝั่งเว็บไม่ได้ฝังรายชื่อชนิดเอกสารไว้เอง', !/DOC_KINDS\s*=\s*\[/.test(webRoom));
+    check('ฝั่งเว็บอ่านชื่อชนิดจากที่เซิร์ฟเวอร์ส่งมา', /kindTh/.test(webRoom));
+
+    // ⚠️ เอกสารต้องไม่มี URL ตรง — ฝั่งเว็บต้องเรียกผ่านเส้นทางที่มีตั๋วเท่านั้น
+    check('ฝั่งเว็บเปิดเอกสารผ่านเส้นทางที่ตรวจสิทธิ์', /dataroom\/[\s\S]{0,60}\/file\//.test(webRoom));
+    check('ฝั่งเว็บไม่ได้ลิงก์ไปที่ /uploads ของเอกสารห้องข้อมูล', !/uploads/.test(webRoom));
+    check('เซิร์ฟเวอร์เก็บเอกสารคนละโฟลเดอร์กับ /uploads', /ROOM_DIR/.test(server));
+    check('เซิร์ฟเวอร์ไม่ได้ mount โฟลเดอร์ห้องข้อมูลเป็น static', !/express\.static\(\s*ROOM_DIR/.test(server));
+    check('เซิร์ฟเวอร์ประทับลายน้ำก่อนส่งเอกสารออกเสมอ', /renderWatermarked/.test(server));
+
+    // ⚠️ ห้ามให้เสิร์ชเอนจินเก็บ — กันสองชั้น
+    check('room.html ประกาศ noindex ในหน้า', /name="robots"[^>]*noindex/.test(roomHtml));
+    check('robots.txt กัน /room.html ไว้ด้วย', /Disallow: \/room\.html/.test(robots));
+    check('เซิร์ฟเวอร์ส่งหัว X-Robots-Tag กับเอกสาร', /X-Robots-Tag/.test(server));
+    check('room.html ไม่อยู่ในแผนผังเว็บ', !/room\.html/.test(read(path.join(WEB, 'sitemap.xml'))));
+
+    // ยินยอม PDPA ก่อนเสมอ — กันทั้งสองฝั่ง
+    check('ฝั่งเว็บปิดปุ่มส่งไว้จนกว่าจะติ๊กยินยอม', /disabled = !box\.checked/.test(webRoom));
+    check('ฝั่งเว็บส่งเวลาที่ยินยอมไปด้วย', /pdpaAt/.test(webRoom));
+    check('เซิร์ฟเวอร์ตรวจความยินยอมซ้ำอีกชั้น', /consentOk\(b\)/.test(server));
+
+    // เหตุการณ์สถิติต้องตรงกันสองฝั่ง (บทเรียน messenger_click)
+    check('dataroom_view ขึ้นทะเบียนทั้งสองฝั่ง',
+      /'dataroom_view'/.test(server) && /'dataroom_view'/.test(read(path.join(WEB, 'analytics.js'))));
+    check('dataroom_request บันทึกที่เซิร์ฟเวอร์ที่เดียว',
+      /'dataroom_request'/.test(server) && !/'dataroom_request'/.test(noComment(read(path.join(WEB, 'analytics.js')))));
+
+    // ⚠️ ข้อความที่ห้ามพูดบนหน้าเว็บ — ไม่มีทางได้ไฟล์ต้นฉบับจากห้องนี้
+    check('ฝั่งเว็บไม่สัญญาว่าจะได้ไฟล์ต้นฉบับ', !/ไฟล์ต้นฉบับ|ดาวน์โหลดต้นฉบับ/.test(webRoomBody));
+    check('ฝั่งเว็บเตือนว่าเอกสารมีชื่อผู้เปิดประทับอยู่', /ประทับ/.test(webRoom));
+    check('ฝั่งเว็บเตือนว่าห้ามส่งลิงก์ต่อ', /อย่าส่งต่อ|ห้ามเผยแพร่ต่อ/.test(webRoom));
+
+    // หน้ารายละเอียดแปลงต้องมีทางเข้า และต้องบอกว่าต้องขออนุมัติก่อน
+    const landJs = read(path.join(WEB, 'land.js'));
+    check('หน้ารายละเอียดแปลงมีทางเข้าห้องข้อมูล', /room\.html\?listing=/.test(landJs));
+    check('ทางเข้าบอกว่าต้องผ่านการยืนยันตัวตนก่อน', /ยืนยันตัวตน/.test(landJs));
+  }
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
