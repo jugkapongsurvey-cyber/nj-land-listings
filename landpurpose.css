@@ -1,0 +1,110 @@
+/* ===========================================================================
+   ค้นหาตามวัตถุประสงค์ (Phase 3) — ใช้กับ landpurpose.js และ purpose.js
+   โหลดต่อจาก marketplace.css จึงใช้ตัวแปรสีชุดเดิมได้
+
+   ⚠️ สีเป็นตัวช่วยเท่านั้น — ทุกป้ายมีคำอธิบายเป็นข้อความกำกับอยู่แล้ว
+      ถอดสีออกทั้งหมดแล้วต้องยังอ่านรู้เรื่องครบ (กติกาเดียวกับ landscore.css)
+   ⚠️ "ยังบอกไม่ได้" (unknown) ใช้สีเทากลางๆ ไม่ใช่สีแดง — คนละความหมายกับ "ยังไม่เข้าทาง" (weak)
+   =========================================================================== */
+
+/* ---------- ปุ่มเลือกวัตถุประสงค์ ---------- */
+.njpp-chips{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 6px}
+.njpp-chip{
+  font:inherit;font-size:14px;font-weight:600;color:var(--navy);
+  background:#fff;border:1.5px solid var(--line);border-radius:999px;
+  padding:10px 17px;cursor:pointer;line-height:1.4;
+}
+.njpp-chip:hover{border-color:var(--gold)}
+.njpp-chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+@media(max-width:560px){ .njpp-chip{font-size:13.5px;padding:9px 14px} }
+
+/* ---------- ป้ายระดับ ---------- */
+.njpp-badge{
+  display:inline-block;font-size:12px;font-weight:700;line-height:1.5;
+  padding:3px 10px;border-radius:999px;white-space:nowrap;
+}
+.njpp-badge.good{background:#DCFCE7;color:#15803D}
+.njpp-badge.maybe{background:#FEF3C7;color:#B45309}
+.njpp-badge.unknown{background:#EEF2F7;color:#5B6B7C}
+.njpp-badge.weak{background:#FEE2E2;color:#B3261E}
+
+/* ---------- สรุปผลค้น ---------- */
+.njpp-summary{
+  background:var(--mist);border:1px solid var(--line);border-radius:14px;
+  padding:15px 17px;margin:16px 0;
+}
+.njpp-summary h2{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 8px;line-height:1.5}
+.njpp-counts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.njpp-count{
+  font-size:12.5px;font-weight:600;line-height:1.5;
+  padding:4px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--sub);
+}
+.njpp-count b{font-weight:800}
+.njpp-summary p{font-size:12.5px;line-height:1.85;color:var(--sub);margin:0}
+
+/* ---------- เหตุผลย่อใต้การ์ด ---------- */
+.njpp-row{margin-bottom:26px}
+.njpp-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;margin-bottom:8px;
+}
+.njpp-head b{font-size:15px;font-weight:700;color:var(--navy);line-height:1.5}
+.njpp-why{margin-top:9px}
+.njpp-why ul{margin:0;padding-left:19px;font-size:13px;line-height:1.85;color:var(--sub)}
+.njpp-gap{display:block;font-size:12.5px;color:#8798A9;margin-top:5px;line-height:1.7}
+.njpp-more{
+  display:inline-block;font-size:13px;font-weight:600;color:var(--navy);
+  text-decoration:underline;margin-top:7px;
+}
+
+/* ---------- แผงเต็มในหน้ารายละเอียดแปลง ---------- */
+.njpp{
+  background:var(--mist);border:1px solid var(--line);border-radius:16px;
+  padding:20px;margin:22px 0;
+}
+@media(max-width:560px){ .njpp{padding:15px} }
+.njpp h2{font-size:17px;font-weight:700;color:var(--navy);margin:0 0 10px;line-height:1.5}
+.njpp-disclaim{font-size:12.5px;line-height:1.85;color:var(--sub);margin:0 0 14px}
+.njpp-note{font-size:13px;line-height:1.85;color:var(--sub);background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:12px 14px;margin:0 0 12px}
+.njpp-list{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.njpp-item{border-bottom:1px solid var(--line)}
+.njpp-item:last-child{border-bottom:0}
+.njpp-item summary{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 15px;cursor:pointer;list-style:none;
+}
+.njpp-item summary::-webkit-details-marker{display:none}
+.njpp-item summary b{font-size:14.5px;font-weight:600;color:var(--navy);line-height:1.5}
+.njpp-item summary:hover{background:var(--mist)}
+.njpp-body{padding:0 15px 15px}
+.njpp-known{font-size:12.5px;color:#8798A9;margin:0 0 9px;line-height:1.7}
+.njpp-reasons{list-style:none;margin:0 0 4px;padding:0}
+.njpp-reasons li{
+  display:flex;gap:8px;font-size:13px;line-height:1.85;color:var(--sub);
+  padding:2px 0;
+}
+.njpp-reasons li span{flex:none;font-weight:800}
+.njpp-reasons li.ok span{color:#15803D}
+.njpp-reasons li.partial span{color:#B45309}
+.njpp-reasons li.caution span{color:#B3261E}
+.njpp-group{margin-top:11px}
+.njpp-group b{display:block;font-size:12.5px;font-weight:700;line-height:1.6;margin-bottom:3px}
+.njpp-group ul{margin:0;padding-left:19px;font-size:12.5px;line-height:1.85;color:var(--sub)}
+.njpp-group.done b{color:#15803D}
+.njpp-group.miss b{color:#5B6B7C}
+.njpp-group.watch b{color:#B45309}
+.njpp-group.svc b{color:var(--navy)}
+
+/* ---------- หน้าค้นหาตามวัตถุประสงค์ ---------- */
+.pp-head{padding:34px 0 6px}
+.pp-head h1{font-size:27px;font-weight:700;color:var(--navy);margin:0 0 9px;line-height:1.45}
+.pp-head p{font-size:14.5px;line-height:1.9;color:var(--sub);margin:0 0 18px;max-width:60ch}
+@media(max-width:560px){ .pp-head{padding:24px 0 4px} .pp-head h1{font-size:22px} }
+.pp-wrap{padding-bottom:56px}
+.pp-empty{
+  background:var(--mist);border:1px solid var(--line);border-radius:14px;
+  padding:24px;text-align:center;font-size:14px;line-height:1.9;color:var(--sub);
+}
+.pp-empty b{display:block;font-size:15.5px;color:var(--navy);margin-bottom:6px}
+.pp-loading{font-size:14px;color:var(--sub);padding:22px 0}
