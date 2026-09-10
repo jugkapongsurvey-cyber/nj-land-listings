@@ -1,0 +1,189 @@
+/* น้องเอ็นเจชัวร์ — วิดเจ็ตแชทมุมจอ (ทุกหน้า) + หน้าเต็ม chat.html
+ *
+ * ⚠️ เว็บมีชุดสีอยู่ 3 ชุด (home.css · marketplace.css · ui.css) — ไฟล์นี้จึงประกาศสีของตัวเองครบทุกค่า
+ * ไม่ยืมตัวแปรของหน้าใดหน้าหนึ่ง (กติกาเดียวกับ menu.css) วางบนหน้าไหนก็หน้าตาเหมือนกัน
+ *
+ * z-index: ปุ่มลอย 790 · แผงแชท 890 — ต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (960/961)
+ * แต่สูงกว่าแถบล่างมือถือ (200) · แถบเทียบ (60) · แถบติดต่อหน้าฝากขาย (800 — แผงแชทอยู่เหนือได้)
+ * ห้ามขยับขึ้นถึง 900 — แบนเนอร์ยินยอมเป็นเรื่องกฎหมาย ต้องอยู่บนสุดเสมอ
+ */
+
+/* ---------- ปุ่มลอย ---------- */
+.njchat-launcher{
+  position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:790;
+  display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+  background:#0B2549; color:#fff; border:1px solid rgba(255,255,255,.14); border-radius:999px;
+  padding:8px 16px 8px 8px; font-family:'IBM Plex Sans Thai','Sarabun',-apple-system,sans-serif; font-size:14px; font-weight:700;
+  box-shadow:0 10px 30px rgba(11,37,73,.32);
+}
+.njchat-launcher:hover{ background:#12315F; }
+.njchat-launcher:focus-visible{ outline:3px solid #D8B96B; outline-offset:2px; }
+.njchat-launcher.on .njchat-launcher-txt{ display:none; }
+.njchat-launcher.on{ padding-right:8px; }
+.njchat-avatar{
+  flex:none; width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+  background:#D8B96B; color:#0B2549; font:800 12px/1 Manrope,'IBM Plex Sans Thai',sans-serif; letter-spacing:.02em;
+}
+.njchat-avatar.big{ width:40px; height:40px; font-size:14px; }
+/* จอเล็ก: ยกให้พ้นแถบล่าง 5 ปุ่ม (marketplace/home 69px) และแถบติดต่อหน้าฝากขาย (74px) */
+@media (max-width:640px){
+  .njchat-launcher{ bottom:calc(84px + env(safe-area-inset-bottom)); right:12px; }
+  .page-consign .njchat-launcher, .page-verify .njchat-launcher, .page-wanted .njchat-launcher{ bottom:calc(88px + env(safe-area-inset-bottom)); }
+}
+@media print{ .njchat-launcher, .njchat-panel{ display:none !important; } }
+
+/* ---------- แผงแชท (ใช้ร่วมกันทั้งวิดเจ็ตและหน้าเต็ม) ---------- */
+.njchat{
+  display:flex; flex-direction:column; background:#fff; color:#0B2549;
+  font-family:'IBM Plex Sans Thai','Sarabun',-apple-system,sans-serif; font-size:14px; line-height:1.55;
+  border:1px solid #DCE3EF; border-radius:16px; overflow:hidden; box-shadow:0 18px 44px rgba(12,32,64,.18);
+}
+.njchat-panel{
+  position:fixed; right:16px; bottom:calc(76px + env(safe-area-inset-bottom)); z-index:890;
+  width:min(400px, calc(100vw - 32px)); height:min(620px, calc(100vh - 110px));
+}
+/* [hidden] ต้องชนะ display:flex — กับดักเดิมของโปรเจกต์ (ดู ui.css / menu.css) */
+.njchat[hidden], .njchat-panel[hidden]{ display:none !important; }
+@media (max-width:640px){
+  .njchat-panel{ inset:0; width:auto; height:auto; border-radius:0; border:0; bottom:0; right:0; }
+  html.njchat-open, html.njchat-open body{ overflow:hidden; }
+}
+.njchat-head{
+  display:flex; align-items:center; gap:10px; padding:12px 14px;
+  background:#0B2549; color:#fff; border-bottom:1px solid rgba(255,255,255,.14);
+}
+.njchat-title{ display:flex; flex-direction:column; min-width:0; flex:1; }
+.njchat-title b{ font-size:15px; }
+.njchat-title small{ font-size:11.5px; color:#9DBBE0; }
+.njchat-close{
+  width:36px; height:36px; border-radius:9px; cursor:pointer; flex:none;
+  background:rgba(255,255,255,.08); border:none; color:#fff; font-size:16px; line-height:1;
+}
+.njchat-close:hover{ background:rgba(255,255,255,.16); }
+.njchat-expand{
+  width:36px; height:36px; border-radius:9px; flex:none; display:grid; place-items:center; margin-right:6px;
+  background:rgba(255,255,255,.08); color:#fff; text-decoration:none; font-size:16px;
+}
+.njchat-expand:hover{ background:rgba(255,255,255,.16); }
+.njchat-expand:focus-visible{ outline:3px solid #D8B96B; outline-offset:1px; }
+.njchat-close:focus-visible, .njchat-send:focus-visible, .njchat-chip:focus-visible, .njchat-btn:focus-visible{ outline:3px solid #D8B96B; outline-offset:1px; }
+
+.njchat-log{ flex:1; overflow-y:auto; padding:14px 12px; background:#F4F7F8; display:flex; flex-direction:column; gap:10px; }
+.njchat-msg{ display:flex; gap:8px; align-items:flex-end; max-width:100%; flex-direction:column; }
+.njchat-msg.bot{ align-items:flex-start; }
+.njchat-msg.user{ align-items:flex-end; }
+.njchat-msg .njchat-avatar{ width:26px; height:26px; font-size:9.5px; margin-bottom:-2px; }
+.njchat-bubble{
+  max-width:92%; padding:10px 13px; border-radius:14px; word-break:break-word; overflow-wrap:anywhere;
+  background:#fff; border:1px solid #DCE3EF; color:#0B2549;
+}
+.njchat-msg.user .njchat-bubble{ background:#0B2549; color:#fff; border-color:#0B2549; border-bottom-right-radius:4px; }
+.njchat-msg.bot .njchat-bubble{ border-bottom-left-radius:4px; }
+.njchat-bubble small{ display:block; margin-top:6px; color:#5A6B7D; font-size:12px; }
+.njchat-bubble p{ margin:0 0 6px; }
+.njchat-note{ background:#FFF7E0; border:1px solid #F0D890; border-radius:8px; padding:6px 9px; font-size:13px; color:#5A4A12; }
+.njchat-link{ color:#1B4B7A; font-weight:700; text-decoration:underline; text-underline-offset:2px; }
+.njchat-none{ color:#8798A9; }
+.njchat-ai-tag{ margin-top:8px; font-size:11.5px; color:#8798A9; border-top:1px dashed #DCE3EF; padding-top:6px; }
+
+/* จุดกำลังพิมพ์ */
+.njchat-typing .njchat-bubble{ display:inline-flex; gap:4px; padding:12px 14px; }
+.njchat-typing i{ width:6px; height:6px; border-radius:50%; background:#8798A9; animation:njchat-blink 1s infinite; }
+.njchat-typing i:nth-child(2){ animation-delay:.2s; } .njchat-typing i:nth-child(3){ animation-delay:.4s; }
+@keyframes njchat-blink{ 0%,80%,100%{ opacity:.25 } 40%{ opacity:1 } }
+@media (prefers-reduced-motion:reduce){ .njchat-typing i{ animation:none; opacity:.6; } }
+
+/* ปุ่มคำถามด่วน */
+.njchat-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; max-width:100%; }
+.njchat-chip{
+  cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:600; color:#0B2549;
+  background:#fff; border:1px solid #1B4B7A; border-radius:999px; padding:5px 11px;
+}
+.njchat-chip:hover{ background:#E7EEF5; }
+
+/* ปุ่มติดต่อในแชท */
+.njchat-cta{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.njchat-btn{
+  display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:9px;
+  font-size:13px; font-weight:700; text-decoration:none; color:#fff; background:#0B2549;
+}
+.njchat-btn.line{ background:#06C755; }
+.njchat-btn.fb{ background:#1B4B7A; }
+.njchat-btn.tel{ background:#fff; color:#0B2549; border:1px solid #DCE3EF; }
+
+/* ตารางเทียบในแชท */
+.njchat-table{ overflow-x:auto; margin-top:8px; border:1px solid #DCE3EF; border-radius:10px; background:#fff; }
+.njchat-table table{ border-collapse:collapse; min-width:100%; font-size:12.5px; }
+.njchat-table th, .njchat-table td{ padding:6px 9px; border-bottom:1px solid #EEF2F7; text-align:left; vertical-align:top; white-space:nowrap; }
+.njchat-table th[scope=row]{ color:#5A6B7D; font-weight:600; background:#F8FAFC; position:sticky; left:0; }
+.njchat-table thead th, .njchat-table tr:first-child th{ background:#F4F7F8; font-weight:700; }
+
+/* ---------- การ์ดแปลงในแชท ----------
+ * ⚠️ ตัวเรนเดอร์คือ NJListing.card() ตัวเดียวกับทุกหน้า (ห้ามก๊อป) — แต่สไตล์ .land-card ของเว็บ
+ * แยกอยู่ใน home.css / marketplace.css ซึ่งหน้าฝากขาย/ตรวจทรัพย์/ฝากหา (ui.css) ไม่ได้โหลด
+ * จึงประกาศสไตล์การ์ด "เฉพาะในกล่องแชท" ไว้ที่นี่ครบชุด ให้การ์ดหน้าตาเหมือนกันทุกหน้าที่มีแชท
+ * (จงใจใช้ตัวเลือก .njchat-cards .land-card ให้ชนะสไตล์ของหน้า — ไม่ใช่ชุดที่สามของเว็บ
+ *  เพราะใช้ในกล่องแชทเท่านั้น · เพิ่มคลาสใหม่ให้การ์ดที่ listingcard.js ต้องมาเพิ่มที่นี่ด้วย)
+ */
+.njchat-cards{ display:grid; grid-template-columns:1fr; gap:10px; width:100%; margin-top:4px; }
+.njchat-full .njchat-cards{ grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); }
+.njchat-cards .land-card{
+  display:flex !important; flex-direction:column; flex:none !important; width:auto !important; margin:0 !important;
+  background:#fff; border:1px solid #DCE3EF; border-radius:12px; overflow:hidden; cursor:pointer;
+  box-shadow:none; text-align:left; scroll-snap-align:none;
+}
+.njchat-cards .land-card:hover{ border-color:#1B4B7A; }
+.njchat-cards .card-media{ position:relative; height:150px; background:#E7EEF5; }
+.njchat-cards .card-media img, .njchat-cards .fallback-land{ width:100%; height:100%; object-fit:cover; display:block; }
+.njchat-cards .fallback-land{ background:linear-gradient(135deg,#DCE8D4,#BFD3C1); }
+.njchat-cards .card-tags{ position:absolute; left:8px; top:8px; display:flex; gap:5px; }
+.njchat-cards .card-tags span{ font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.95); color:#0B2549; }
+.njchat-cards .card-tags .verified{ background:#1CA45C; color:#fff; }
+.njchat-cards .card-tags .basic{ background:#F5C400; color:#3A2F00; }
+.njchat-cards .photo-count{ position:absolute; right:8px; top:8px; font-size:11px; background:rgba(11,37,73,.75); color:#fff; padding:2px 7px; border-radius:6px; }
+.njchat-cards .card-body{ padding:10px 12px 12px; display:flex; flex-direction:column; gap:4px; }
+.njchat-cards .card-price{ font:800 17px/1.2 Manrope,'IBM Plex Sans Thai',sans-serif; color:#0B2549; }
+.njchat-cards .card-title{ margin:0; font-size:14px; line-height:1.4; }
+.njchat-cards .card-title a{ color:#0B2549; text-decoration:none; }
+.njchat-cards .card-meta{ font-size:12.5px; color:#1B4B7A; font-weight:600; }
+.njchat-cards .card-facts{ font-size:12.5px; color:#5A6B7D; }
+.njchat-cards .card-agent{ display:flex; align-items:center; gap:8px; margin-top:6px; padding-top:8px; border-top:1px solid #EEF2F7; font-size:12px; }
+.njchat-cards .card-agent b{ display:block; font-size:12px; }
+.njchat-cards .card-agent small{ color:#8798A9; font-size:11px; }
+.njchat-cards .agent-avatar{ width:26px; height:26px; border-radius:50%; background:#0B2549; color:#D8B96B; display:grid; place-items:center; font:800 10px Manrope,sans-serif; flex:none; }
+.njchat-cards .contact-mini{ margin-left:auto; display:flex; gap:5px; }
+.njchat-cards .contact-mini a{ width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:800; text-decoration:none; color:#fff; background:#0B2549; }
+.njchat-cards .contact-mini .line{ background:#06C755; }
+.njchat-cards .contact-mini .fb{ background:#1B4B7A; }
+.njchat-cards .empty-result{ display:none; }
+
+/* ---------- แถบพิมพ์ ---------- */
+.njchat-form{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid #DCE3EF; background:#fff; }
+.njchat-input{
+  flex:1; min-width:0; font-family:inherit; font-size:15px; padding:10px 12px;
+  border:1px solid #DCE3EF; border-radius:10px; color:#0B2549; background:#fff;
+}
+.njchat-input:focus{ outline:none; border-color:#1B4B7A; box-shadow:0 0 0 3px rgba(27,75,122,.15); }
+.njchat-send{
+  flex:none; width:44px; border:none; border-radius:10px; cursor:pointer;
+  background:#1CA45C; color:#fff; font-size:16px;
+}
+.njchat-send:hover{ background:#178C4E; }
+.njchat-foot{ padding:6px 12px calc(8px + env(safe-area-inset-bottom)); font-size:11px; color:#8798A9; background:#fff; text-align:center; }
+.njchat-foot a{ color:#1B4B7A; font-weight:700; }
+
+/* ---------- หน้าเต็ม chat.html ---------- */
+.njchat-full{
+  position:static; height:min(760px, calc(100vh - 150px)); min-height:480px; border-radius:16px;
+  width:100%; max-width:920px; margin:0 auto;
+}
+.njchat-full .njchat-log{ padding:18px 16px; }
+.njchat-full .njchat-bubble{ max-width:80%; font-size:15px; }
+.chat-head{ padding:34px 0 18px; }
+.chat-head h1{ margin:0 0 6px; font-size:28px; color:#0B2549; }
+.chat-head p{ margin:0; color:#5A6B7D; font-size:14px; max-width:640px; }
+.chat-wrap{ padding-bottom:48px; }
+@media (max-width:640px){
+  .njchat-full{ height:calc(100vh - 210px); min-height:420px; border-radius:12px; }
+  .chat-head{ padding:22px 0 12px; } .chat-head h1{ font-size:23px; }
+}

@@ -15,6 +15,8 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="compare.css">
+  <link rel="stylesheet" href="verified.css">
+  <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="consent.css">
 </head>
@@ -47,6 +49,10 @@
   <!-- compare.js เก็บ/อ่านรายการที่เลือก · comparepage.js วาดตาราง — ลำดับนี้สลับไม่ได้ -->
   <script src="compare.js"></script>
   <script src="comparepage.js"></script>
+  <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
+  <script src="verified.js"></script>
+  <script src="landvocab.js"></script>
+  <script src="njchat.js"></script>
   <script src="menu.js"></script>
   <script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
 </body>

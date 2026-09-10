@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="listings.css">
   <link rel="stylesheet" href="compare.css">
+  <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="consent.css">
   <link rel="stylesheet" href="verified.css">
@@ -109,6 +110,9 @@
   <!-- ปุ่ม "เทียบ" บนการ์ด — ต้องมาหลัง listingcard.js/listings.js เพราะไปแปะบนการ์ดที่สองไฟล์นั้นวาด
        (compare.js เฝ้า #listing-grid ด้วย MutationObserver อยู่แล้ว การ์ดที่วาดใหม่ตอนกรองจึงได้ปุ่มด้วย) -->
   <script src="compare.js"></script>
+  <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
+  <script src="landvocab.js"></script>
+  <script src="njchat.js"></script>
   <script src="menu.js"></script>
 </body>
 </html>

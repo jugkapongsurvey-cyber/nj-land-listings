@@ -22,6 +22,9 @@
   <link rel="stylesheet" href="feecalc.css">
   <link rel="stylesheet" href="valuecalc.css">
   <link rel="stylesheet" href="consent.css">
+  <link rel="stylesheet" href="compare.css">
+  <link rel="stylesheet" href="verified.css">
+  <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
 </head>
 <body>
@@ -133,6 +136,12 @@
     NJValueCalc.mount(document.getElementById('gd-value'), {});
     if (window.njTrackInternal) njTrackInternal('pageview');
   </script>
+<!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
+<script src="verified.js"></script>
+<script src="listingcard.js"></script>
+<script src="landvocab.js"></script>
+<script src="compare.js"></script>
+<script src="njchat.js"></script>
 <script src="menu.js"></script>
 </body>
 </html>

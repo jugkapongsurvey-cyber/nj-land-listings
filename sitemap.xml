@@ -10,6 +10,13 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <!-- แชทกับน้องเอ็นเจชัวร์ (AI ผู้ช่วย) -->
+  <url>
+    <loc>https://njteedinsure.com/chat.html</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
   <!-- รวมประกาศขายที่ดิน -->
   <url>
     <loc>https://njteedinsure.com/listings.html</loc>
