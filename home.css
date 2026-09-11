@@ -196,6 +196,13 @@ button{cursor:pointer}
   .listing-grid{grid-template-columns:repeat(2,1fr)}
 }
 
+/* แท็บเล็ต — ภาพ hero ถูกครอบแคบลงจนครอบครัวเลื่อนมาทับพาดหัวพอดี และการ์ดเช็กลิสต์
+   ฝั่งขวาโดนตัดหาย ดันจุดโฟกัสของภาพไปทางขวา 76% แล้วทั้งสองอย่างกลับมาเข้าที่
+   ไม่แตะช่วง <=640px เพราะช่วงนั้นสลับไปใช้ไฟล์แนวตั้งที่จัดองค์ประกอบมาให้ครอบตรงกลางแล้ว */
+@media (min-width:641px) and (max-width:1040px){
+  .hero-ken{object-position:76% center}
+}
+
 @media (max-width:640px){
   [data-r="display"]{font-size:36px !important}
   h2{font-size:27px !important}
