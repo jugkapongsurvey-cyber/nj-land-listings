@@ -13,12 +13,13 @@ const WEB = __dirname;
 const SRV = process.argv[2] || path.join(WEB, '..', 'nj-survey-system');
 const API_PORT = 8790, WEB_PORT = 8791;
 
-// แปลง 3 ใบที่ต่างกันตรงจุดที่ตรรกะแยกทาง: A ครบทุกช่อง+เอ่ยถึงบ้าน · B ยังไม่ระบุเอกสารสิทธิ์/ผัง · C ต่างจังหวัด
+// แปลง 3 ใบที่ต่างกันตรงจุดที่ตรรกะแยกทาง: A ครบทุกช่อง (บ้านเดี่ยว 1 ชั้น) · B ที่ดินเปล่า ยังไม่ระบุเอกสารสิทธิ์/ผัง · C ต่างจังหวัด
+// ⚠️ C ไม่กรอก propertyType/floors โดยตั้งใจ — ใช้ทดสอบว่า "ยังไม่ระบุ" ถูกนับเป็นซ่อน ไม่ใช่ไม่ตรง (กติกาข้อ 5)
 const LISTINGS = [
   { id: 'OP-101', type: 'sell', parcelInfo: 'ที่ดินพร้อมบ้านชั้นเดียว บางบ่อ', estValue: 2500000, totalWa: 850, pricePerWa: 2941, pricePerRai: 1176471, blurb: 'บ้านชั้นเดียว ติดถนนซอย ใกล้ตลาด', photos: [], tier: 2, updatedAt: '2026-09-08T00:00:00Z',
-    land: { province: 'สมุทรปราการ', amphoe: 'บางบ่อ', tambon: 'บางบ่อ', deedType: 'chanote', zoneColor: 'yellow', roadSurface: 'concrete', features: ['road', 'electric'], verify: { reached: 2, total: 5 } } },
+    land: { province: 'สมุทรปราการ', amphoe: 'บางบ่อ', tambon: 'บางบ่อ', deedType: 'chanote', zoneColor: 'yellow', roadSurface: 'concrete', features: ['road', 'electric'], propertyType: 'house', floors: 1, verify: { reached: 2, total: 5 } } },
   { id: 'OP-102', type: 'sell', parcelInfo: 'ที่ดินเปล่า คลองหลวง', estValue: 4000000, totalWa: 400, pricePerWa: 10000, pricePerRai: 4000000, blurb: '', photos: [], tier: 1, updatedAt: '2026-09-07T00:00:00Z',
-    land: { province: 'ปทุมธานี', amphoe: 'คลองหลวง', tambon: 'คลองสอง', deedType: '', zoneColor: '', features: [] } },
+    land: { province: 'ปทุมธานี', amphoe: 'คลองหลวง', tambon: 'คลองสอง', deedType: '', zoneColor: '', features: [], propertyType: 'land', floors: null } },
   { id: 'OP-103', type: 'sell', parcelInfo: 'ที่ดินสวน บ้านค่าย', estValue: 9000000, totalWa: 2000, pricePerWa: 4500, pricePerRai: 1800000, blurb: '', photos: [], tier: 1, updatedAt: '2026-09-06T00:00:00Z',
     land: { province: 'ระยอง', amphoe: 'บ้านค่าย', tambon: 'หนองละลอก', deedType: 'nor3gor', zoneColor: 'green', features: ['road'] } }
 ];
@@ -53,6 +54,7 @@ const web = http.createServer((req, res) => {
 });
 
 let pass = 0, fail = 0;
+let navRef = [];
 function check(name, cond, extra) {
   if (cond) { pass++; console.log('  ok   ' + name); }
   else { fail++; console.log('  FAIL ' + name + (extra !== undefined ? '  → ' + String(extra).slice(0, 300) : '')); }
@@ -93,6 +95,9 @@ function check(name, cond, extra) {
   console.log('\n1) วิดเจ็ตบนหน้ารวมประกาศ (มือถือ 390px)');
   {
     const { ctx, page } = await open('listings.html', 390);
+    // เมนูอ้างอิง — ใช้เทียบกับ chat.html ในข้อ 2 แทนการฮาร์ดโค้ดจำนวนลิงก์
+    // (ฮาร์ดโค้ดไว้แล้วพังทุกครั้งที่เมนูเปลี่ยน — เจอมาแล้วตอนเพิ่มลิงก์ "แชทกับน้อง")
+    navRef = await page.evaluate(() => [...document.querySelectorAll('header.topbar nav a')].map(a => a.getAttribute('href')));
     check('ปุ่มลอยขึ้น และแผงยังซ่อน', await page.locator('.njchat-launcher').isVisible() && await page.locator('.njchat-panel').isHidden());
     await page.click('.njchat-launcher');
     check('เปิดแผงแล้ว + ข้อความทักทายบอกว่าเป็น AI', await page.locator('.njchat-panel').isVisible() && /AI/.test(await page.locator('.njchat-msg.bot').first().innerText()));
@@ -103,9 +108,12 @@ function check(name, cond, extra) {
     // สถานการณ์ตามโจทย์ของเจ้าของ
     let last = await ask(page, 'ต้องการบ้านที่มีสิ่งปลูกสร้าง 1 ชั้น ในกรุงเทพฯปริมณฑล ส่งมาให้ฉันดูเปรียบเทียบ มีกี่หลัง');
     let txt = await last.innerText();
-    check('บอกตามจริงว่าประกาศยังไม่มีช่องจำนวนชั้น (ไม่แต่งข้อมูล)', /ยังไม่มีช่อง/.test(txt) && /1 ชั้น/.test(txt), txt);
+    // เดิมข้อนี้ล็อกว่า "ประกาศยังไม่มีช่องจำนวนชั้น ต้องบอกตามจริง" — ตั้งแต่ 11 ก.ย. 69 มีช่องจริงแล้ว
+    // จึงต้องกรองตรงๆ และห้ามมีข้อความขอโทษเรื่องช่องที่ไม่มีหลงเหลืออยู่
+    check('กรอง "บ้าน 1 ชั้น" ได้จริง ไม่ใช่ขอโทษว่าไม่มีข้อมูล', /บ้านเดี่ยว/.test(txt) && /1 ชั้น/.test(txt) && !/ยังไม่มีช่อง/.test(txt), txt);
     const cards = last.locator('.njchat-cards .land-card');
-    check('คัดตามพื้นที่ กทม.+ปริมณฑล = 2 แปลง (A สป. + B ปทุม) แล้วเจาะแปลงที่เอ่ยถึงบ้าน = 1', /พบ 2 แปลง/.test(txt) && /แสดง 1 แปลงที่เอ่ยถึงสิ่งปลูกสร้าง/.test(txt) && await cards.count() === 1, txt + ' cards=' + await cards.count());
+    // A = สมุทรปราการ + บ้านเดี่ยว 1 ชั้น → ตรงทั้งสามเงื่อนไข · B = ปทุมธานีแต่เป็นที่ดินเปล่า → ไม่ตรง (ไม่ใช่ซ่อน)
+    check('กรองรวมทำเล+ประเภท+ชั้น → เหลือแปลงเดียวที่ตรงจริง', /พบ 1 แปลง/.test(txt) && await cards.count() === 1, txt);
     check('โจทย์ขอ "เปรียบเทียบ" แต่เหลือแปลงเดียว = ไม่มีตารางเทียบ (ไม่เทียบกับของที่ไม่ตรงโจทย์)', await last.locator('.njchat-table').count() === 0);
     check('การ์ดใช้ตัวเรนเดอร์กลาง (มีป้ายรังวัดยืนยันแล้ว + ราคา + ตร.ว.)', /รังวัดยืนยันแล้ว/.test(await cards.first().innerText()) && /฿2,500,000/.test(await cards.first().innerText()) && /2,941\/ตร\.ว\./.test(await cards.first().innerText()), await cards.first().innerText());
     check('ปุ่ม "เทียบ" ของ compare.js ถูกแปะบนการ์ดในแชท', await cards.first().locator('.njcmp-btn').count() === 1);
@@ -188,7 +196,10 @@ function check(name, cond, extra) {
     const txt = await bots.nth(await bots.count() - 1).innerText();
     check('?q= เริ่มถามทันที: ปทุมธานี 1 แปลง', /พบ 1 แปลง/.test(txt), txt);
     check('ปี พ.ศ. ท้ายหน้าถูกเติม', /^25\d\d$/.test(await page.locator('#year').innerText()));
-    check('เมนูหลักและฟุตเตอร์เหมือนหน้าอื่น', await page.locator('header.topbar nav a').count() === 7 && await page.locator('footer#contact').count() === 1);
+    // เทียบกับเมนูของ listings.html จริงๆ ไม่ใช่ตัวเลขตายตัว — chat.html ต้องมีลิงก์ชุดเดียวกันเป๊ะ
+    const navHere = await page.evaluate(() => [...document.querySelectorAll('header.topbar nav a')].map(a => a.getAttribute('href')));
+    check('เมนูหลักและฟุตเตอร์เหมือนหน้าอื่น', navHere.join(',') === navRef.join(',') && navRef.length > 0 && await page.locator('footer#contact').count() === 1,
+      navHere.join(',') + '  vs  ' + navRef.join(','));
     await page.screenshot({ path: path.join(outDir, '05-desktop-fullpage.png') });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(200);
@@ -198,8 +209,13 @@ function check(name, cond, extra) {
   }
 
   // ==================================================================
-  console.log('\n3) วิดเจ็ตบนหน้าอื่นทุกหน้า (หน้าแรก · ฝากขาย ui.css · คู่มือ) ที่ 1440px');
-  for (const u of ['index.html', 'consign.html', 'guides.html', 'wanted.html', 'verify.html', 'portal.html', 'videos.html', 'compare.html', 'land.html?id=OP-101']) {
+  console.log('\n3) วิดเจ็ตบนหน้าอื่นทุกหน้า — ครบ 15 หน้า (listings/chat ทดสอบไปแล้วในข้อ 1-2) ที่ 1440px');
+  // ⚠️ deal/inspect/room เป็นหน้าที่มีตั๋วอยู่ใน URL — เปิดโดยไม่มีตั๋วได้
+  //    ทั้งสามหน้ามี .catch() รับกรณี API ตอบ 404 อยู่แล้ว (เซิร์ฟเวอร์ปลอมไม่มีเส้นทางของหน้าพวกนั้น)
+  //    สิ่งที่ข้อนี้ทดสอบคือ "วิดเจ็ตแชททำงานบนหน้านั้นได้" ไม่ใช่เนื้อหาของหน้า
+  for (const u of ['index.html', 'consign.html', 'guides.html', 'wanted.html', 'verify.html',
+                   'portal.html', 'videos.html', 'compare.html', 'land.html?id=OP-101',
+                   'deal.html', 'inspect.html', 'purpose.html', 'room.html', 'notify.html']) {
     const { ctx, page } = await open(u, 1440);
     const ok = await page.locator('.njchat-launcher').isVisible();
     await page.click('.njchat-launcher');
