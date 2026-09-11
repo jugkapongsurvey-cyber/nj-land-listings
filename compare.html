@@ -54,8 +54,9 @@
   <script src="compare.js"></script>
   <script src="comparepage.js"></script>
   <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
-  <script src="verified.js"></script>
-  <script src="landvocab.js"></script>
+  <!-- verified.js กับ landvocab.js โหลดไปแล้วด้านบน (comparepage.js ต้องใช้) จึงไม่ต้องโหลดซ้ำที่นี่
+       ⚠️ เคยซ้ำมาแล้วเมื่อ 11 ก.ย. 69 — ตอนเติมแชท สองไฟล์นี้ยังไม่มีในหน้านี้ แล้วมาถูกเติมด้านบนทีหลัง
+       ตรวจด้วย: grep -oE 'src="[a-z0-9]+\.js"' compare.html | sort | uniq -d -->
   <script src="njchat.js"></script>
   <script src="menu.js"></script>
   <script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
