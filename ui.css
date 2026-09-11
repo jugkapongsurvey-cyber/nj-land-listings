@@ -47,6 +47,27 @@
 }
 .cs-hero-grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:start}
 
+/* ---- ภาพแบนเนอร์ hero — เฉพาะหน้าฝากหาที่ดิน ---------------------------
+   .cs-hero ใช้ร่วมกัน 3 หน้า (ฝากขาย · ตรวจทรัพย์ · ฝากหา) ทุกกฎในบล็อกนี้จึงล็อกด้วย
+   .page-wanted อีกชั้น แม้ตัว <img> จะมีแค่ใน wanted.html ก็ตาม
+   ⚠️ ขอบล่างของไฟล์ภาพไล่จางไปเป็น #0B1F3A มาแล้วในตัวไฟล์ ไม่ได้ไล่ด้วย CSS
+   เพราะต้องไปบรรจบกับ .cs-hero ที่เป็น gradient 158deg ซึ่งสีที่ระดับความสูงหนึ่ง ๆ
+   เปลี่ยนไปตามความกว้างจอ ทำม่านทับด้วย CSS ยังไงก็เห็นรอยต่อที่ความกว้างใดความกว้างหนึ่ง
+   (ช่วง 46% แรกของแกน gradient เป็น #0B1F3A ล้วน ซึ่งกินลึกกว่าความสูงแบนเนอร์ทุกขนาดจอ) */
+.page-wanted .cs-hero{position:relative;overflow:hidden;padding-top:0}
+/* จอเล็ก — ภาพอยู่ในสายการไหลของหน้า ดันหัวข้อลงมาเอง ไม่ต้องคำนวณ padding ให้ตรงกับ
+   ความสูงภาพซึ่งเปลี่ยนตามความกว้างจอ · และตัวหนังสือไม่ต้องไปวางทับท้องฟ้าสว่าง ๆ */
+.page-wanted .cs-hero-bg{display:block;width:100%;height:auto;margin-bottom:24px}
+.page-wanted .cs-hero-grid{position:relative;z-index:1}
+
+@media (min-width:900px){
+  /* จอใหญ่ — ฟอร์มยาวทำให้ hero สูงเกือบ 1,900px ถ้าปล่อยภาพไว้ในสายการไหล
+     จะเหลือพื้นน้ำเงินโล่ง ๆ ใต้ภาพอีกครึ่งจอ · ยกเป็น absolute ให้ภาพอยู่แถบบน
+     แล้วคอลัมน์ข้อความ (ซึ่ง align-items:center ดันลงมากลาง hero) วางพ้นภาพพอดี */
+  .page-wanted .cs-hero{padding-top:60px}
+  .page-wanted .cs-hero-bg{position:absolute;left:0;top:0;margin:0}
+}
+
 .cs-eyebrow{
   display:inline-flex;align-items:center;gap:7px;
   background:rgba(124,240,178,.14);border:1px solid rgba(124,240,178,.36);
