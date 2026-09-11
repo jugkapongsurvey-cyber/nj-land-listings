@@ -1,7 +1,21 @@
 /* หน้ารวมประกาศ — เฉพาะแผงตัวกรอง · การ์ดแปลงใช้สไตล์เดิมจาก marketplace.css
    (ห้ามเขียนสไตล์การ์ดซ้ำที่นี่ ไม่งั้นการ์ดหน้านี้กับหน้าอื่นจะค่อยๆ เพี้ยนจากกัน) */
 
-.ls-head{background:var(--navy);color:#fff;padding:34px 0 30px}
+.ls-head{position:relative;background:var(--navy);color:#fff;padding:52px 0 46px;overflow:hidden}
+/* ภาพพื้นหลังแถบหัว — แถบสูงราว 220px บนภาพที่ถูกขยายจนสูง 810px จึงเห็นแค่ 27% ของภาพ
+   เล็งไว้ที่ 80% ตามแนวตั้ง = ระดับมือที่ถือแท็บเล็ตกับป้ายหิน "ที่ดินชัวร์" ฝั่งขวา
+   เคยลองเล็งที่ระดับใบหน้า (46%) แล้วหัวคนโดนขอบบนของแถบตัดกลางหน้าผาก ดูเหมือนวางผิด
+   ระดับนี้ไม่มีใบหน้าให้ตัด อ่านเป็นภาพครอปตั้งใจ และได้ชื่อแบรนด์บนป้ายหินมาเต็ม ๆ ด้วย */
+.ls-head-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 80%}
+/* ม่านสองชั้น — แนวตั้งกันไม่ให้ขอบบนล่างจืดจนกลืนกับแถบเมนู
+   แนวนอนกันหัวข้อขาวกับคำโปรยสีฟ้าอ่อนหลุดหายไปกับพุ่มไม้สว่าง ๆ ฝั่งซ้ายของภาพ */
+.ls-head-veil{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(11,31,58,0.92) 0%,rgba(11,31,58,0.74) 45%,rgba(11,31,58,0.15) 80%,rgba(11,31,58,0.08) 100%),
+    linear-gradient(180deg,rgba(11,31,58,0.5) 0%,rgba(11,31,58,0.18) 45%,rgba(11,31,58,0.55) 100%);
+}
+.ls-head>.shell{position:relative;z-index:1}
 .ls-head h1{margin:0 0 8px;font-size:27px;font-weight:700;line-height:1.35}
 .ls-head p{margin:0;font-size:15px;line-height:1.7;color:#CFE0F7;max-width:58ch}
 /* ทางเข้าหน้าค้นตามวัตถุประสงค์ — คนที่ยังไม่รู้ว่าจะกรองอะไร ควรมีทางเริ่มจาก "จะเอาไปทำอะไร" */
@@ -38,7 +52,15 @@
 .ls-loading{color:var(--muted);font-size:14px;padding:20px 2px}
 
 @media (max-width:760px){
-  .ls-head{padding:26px 0 22px}
+  .ls-head{padding:34px 0 28px}
+  /* จอแคบ ดันเฟรมไปทางขวาให้ป้ายหินยังอยู่ในภาพ และเพิ่มความทึบของม่าน
+     เพราะคำโปรยกินความกว้างเกือบเต็มจอแล้ว ไม่เหลือฝั่งที่ปล่อยให้ภาพสว่างได้ */
+  .ls-head-bg{object-position:74% 80%}
+  .ls-head-veil{
+    background:
+      linear-gradient(90deg,rgba(11,31,58,0.92) 0%,rgba(11,31,58,0.84) 55%,rgba(11,31,58,0.5) 100%),
+      linear-gradient(180deg,rgba(11,31,58,0.45) 0%,rgba(11,31,58,0.3) 50%,rgba(11,31,58,0.55) 100%);
+  }
   .ls-head h1{font-size:22px}
   .ls-filters{padding:14px}
   /* จอแคบ: ช่องกรองเรียงสองคอลัมน์ ไม่ใช่บีบให้เตี้ยจนกดยาก */
