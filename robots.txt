@@ -16,4 +16,8 @@ Disallow: /deal.html
 # (หน้านี้ประกาศ noindex ไว้ในตัวหน้าด้วยอีกชั้น)
 Disallow: /room.html
 
+# ตั้งค่าการแจ้งเตือนของผู้รับ — ลิงก์มีโทเคนของคนคนนั้นติดอยู่
+# (หน้านี้ประกาศ noindex ไว้ในตัวหน้าด้วยอีกชั้น)
+Disallow: /notify.html
+
 Sitemap: https://njteedinsure.com/sitemap.xml

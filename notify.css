@@ -1,0 +1,53 @@
+/* ตั้งค่าการแจ้งเตือนของผู้รับ — notify.html
+   ยืมโทนเดียวกับ room.css/consent.css · ไม่มีสีใหม่ ไม่มีฟอนต์ใหม่ */
+
+.nt-head { padding: 34px 0 18px; }
+.nt-head h1 { font-size: 26px; margin: 0 0 8px; color: #12315F; }
+.nt-sell { font-size: 14px; color: #4A5A72; line-height: 1.75; max-width: 720px; margin: 0; }
+
+.nt-wrap { padding-bottom: 52px; }
+
+.nt-card {
+  background: #fff; border: 1px solid #E4E9F2; border-radius: 16px;
+  padding: 20px 22px; margin-bottom: 16px;
+}
+.nt-card h2 { font-size: 18px; color: #12315F; margin: 6px 0 14px; }
+.nt-card h3 { font-size: 13.5px; color: #12315F; margin: 18px 0 8px; }
+.nt-card h3:first-of-type { margin-top: 4px; }
+
+.nt-load { padding: 30px 4px; color: #7186A3; font-size: 14px; }
+
+.nt-note {
+  border-radius: 11px; padding: 11px 14px; font-size: 13px; line-height: 1.7;
+  background: #F1F5F9; color: #334155; border: 1px solid #E2E8F0; margin-bottom: 14px;
+}
+.nt-info { background: #FFFBEB; border-color: #FDE68A; color: #78350F; }
+.nt-warn { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
+
+.nt-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 12px; border: 1px solid #E9EEF6; border-radius: 11px;
+  margin-bottom: 8px; cursor: pointer; background: #FBFCFE;
+}
+.nt-row:hover { border-color: #C9D8F0; }
+.nt-row input { width: 18px; height: 18px; accent-color: #1E6FE0; flex: none; }
+.nt-name { font-size: 13.5px; color: #1B2536; font-weight: 600; flex: 1; }
+.nt-addr { font-size: 12px; color: #7186A3; }
+.nt-off { opacity: .6; cursor: default; }
+
+.nt-help { font-size: 12.5px; color: #7186A3; line-height: 1.7; margin: 10px 0 0; }
+
+.nt-btn {
+  margin-top: 12px; padding: 11px 18px; border-radius: 11px; border: none;
+  font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+}
+.nt-primary { background: #1E6FE0; color: #fff; }
+.nt-stop { background: #fff; border: 1px solid #FCA5A5; color: #B91C1C; }
+.nt-btn[disabled] { opacity: .55; cursor: default; }
+.nt-danger { border-color: #FBD5D5; }
+
+@media (max-width: 560px) {
+  .nt-head h1 { font-size: 22px; }
+  .nt-card { padding: 16px 15px; }
+  .nt-addr { display: none; }
+}

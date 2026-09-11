@@ -481,5 +481,31 @@ console.log('\n11) ระลอก Phase 3 — ห้องข้อมูลแ
   }
 }
 
+// ---------- Phase 3 ข้อ 6 · หน้าตั้งค่าการแจ้งเตือนของผู้รับ ----------
+{
+  console.log('\n== ตั้งค่าการแจ้งเตือน (notify.html) ==');
+  const stripCmt = src => src.replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .split(/\r?\n/).filter(l => !/^\s*\/\//.test(l)).join('\n');
+  const webNotify = read(path.join(WEB, 'notify.js'));
+  const notifyHtml = read(path.join(WEB, 'notify.html'));
+  const robots = read(path.join(WEB, 'robots.txt'));
+
+  // ⚠️ ชื่อไฟล์ต้องตรงกับที่เซิร์ฟเวอร์ประกอบไว้ท้ายข้อความ — ไม่ตรง = ลิงก์ยกเลิกพาไป 404
+  check('เซิร์ฟเวอร์ชี้มาที่ notify.html จริง', /notify\.html\?t=/.test(server));
+  check('หน้านี้ห้ามเสิร์ชเอนจินเก็บ', /noindex/.test(notifyHtml));
+  check('robots.txt กันอีกชั้น', /Disallow: \/notify\.html/.test(robots));
+
+  // ⚠️ หน้าเว็บต้องดึงรายการเรื่องและช่องทางจาก API ห้ามก๊อปคีย์มาฝัง
+  //    (บทเรียนเดียวกับ messenger_click ที่ตกหล่นใน analytics.js)
+  check('หน้าเว็บไม่ก๊อปคีย์ของเรื่องมาฝัง',
+    !/lead_new|appt_confirm|docs_missing|report_ready/.test(stripCmt(webNotify)));
+  check('หน้าเว็บบอกว่าระบบยังไม่ส่งจริง', /ยังไม่ได้ส่ง/.test(webNotify));
+  check('มีปุ่มยกเลิกทั้งหมดในหน้าเดียว', /unsubscribe/.test(webNotify));
+
+  // ⛔ ต้องไม่มีตัวส่งจริงฝั่งระบบ
+  check('ระบบหลังบ้านยังไม่เปิดการส่งจริง',
+    /OUTBOUND_ENABLED = false/.test(read(path.join(SRV, 'lib', 'notifyout.js'))));
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
