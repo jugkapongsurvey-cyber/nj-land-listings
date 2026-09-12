@@ -63,11 +63,18 @@
   function note(text, kind) {
     return '<div class="qt-note' + (kind ? (' qt-' + kind) : '') + '">' + text + '</div>';
   }
+  // เบอร์มือถือคู่เบอร์สำนักงานทุกจุดบนเว็บ (ตามที่ตกลงกันไว้ทั้งเว็บ)
+  //    หน้านี้เปิดบนมือถือเกือบทั้งหมด และคนที่อ่านอยู่มักอยากคุยกับคนทันที
+  var TEL_ALT = '084-915-8601';
+  function telLink(no, label) {
+    return '<a href="tel:' + esc(String(no).replace(/[^0-9+]/g, '')) + '">' + esc(label) + '</a>';
+  }
   function contactCta(d) {
     var line = (d && d.org && d.org.lineUrl) || 'https://line.me/R/ti/p/@716lffzt';
     var tel = (d && d.org && d.org.tel) || '02-162-0405';
     return '<div class="qt-cta"><a class="is-line" href="' + esc(line) + '" target="_blank" rel="noopener">ทักไลน์หาทีมงาน</a>' +
-      '<a href="tel:' + esc(String(tel).replace(/[^0-9+]/g, '')) + '">โทร ' + esc(tel) + '</a></div>';
+      telLink(tel, 'โทร ' + tel) +
+      telLink(TEL_ALT, '📱 ' + TEL_ALT) + '</div>';
   }
 
   var STATE_TH = {
