@@ -69,7 +69,8 @@ function cardHtml(l, i) {
         blurb + agoHtml +
         '<div class="lc-actions">' +
           '<a class="lc-btn lc-btn-line" href="' + esc(LINE_OA_URL) + '" target="_blank" rel="noopener" data-track="line">💬 ทักไลน์</a>' +
-          '<a class="lc-btn lc-btn-tel" href="' + telHref(COMPANY_TEL) + '" data-track="tel">📞 โทรสอบถาม</a>' +
+          '<a class="lc-btn lc-btn-tel" href="' + telHref(COMPANY_TEL) + '" data-track="tel">☏ ' + COMPANY_TEL + '</a>' +
+          '<a class="lc-btn lc-btn-tel" href="' + telHref(COMPANY_TEL_ALT) + '" data-track="tel">📱 ' + COMPANY_TEL_ALT + '</a>' +
         '</div>' +
       '</div>' +
     '</article>';
@@ -119,7 +120,7 @@ function loadListings() {
     })
     .catch(function () {
       grid.innerHTML = '<div class="lc-empty"><div class="lc-empty-title">ไม่สามารถโหลดรายการที่ดินได้ในขณะนี้</div>' +
-        '<div class="lc-empty-text">กรุณาลองใหม่อีกครั้ง หรือติดต่อเราโดยตรงที่ ' + esc(COMPANY_TEL) + '</div></div>';
+        '<div class="lc-empty-text">กรุณาลองใหม่อีกครั้ง หรือติดต่อเราโดยตรงที่ ' + esc(COMPANY_TEL) + ' / ' + esc(COMPANY_TEL_ALT) + '</div></div>';
     });
 }
 
@@ -127,7 +128,7 @@ function setupContact() {
   var lineBtn = document.getElementById('line-cta'), telBtn = document.getElementById('tel-cta');
   lineBtn.href = LINE_OA_URL;
   telBtn.href = telHref(COMPANY_TEL);
-  telBtn.textContent = '📞 ' + COMPANY_TEL;
+  telBtn.textContent = '📞 ' + COMPANY_TEL + ' / ' + COMPANY_TEL_ALT;
   document.getElementById('contact-name').textContent = COMPANY_NAME;
   document.getElementById('contact-address').textContent = COMPANY_ADDRESS;
   lineBtn.addEventListener('click', function () { njTrackInternal('line_click'); njTrack('Contact', { method: 'line', from: 'footer' }); });

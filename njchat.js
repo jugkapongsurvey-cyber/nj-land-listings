@@ -25,6 +25,7 @@
   var API = function () { return window.NJ_API_BASE || 'https://app.njteedinsure.com'; };
   var PRICING_URL = 'https://app.njteedinsure.com/pricing.js';
   var TEL_TXT = '02-162-0405', TEL_HREF = 'tel:021620405';
+  var TEL2_TXT = '084-915-8601', TEL2_HREF = 'tel:0849158601';
   var LINE_URL = 'https://line.me/R/ti/p/@716lffzt';
   var FB_URL = window.NJ_MESSENGER_URL || 'https://m.me/NJTeeDinSure';
   var HOURS = 'จ.–ส. 08:30–17:30 น.';
@@ -393,7 +394,7 @@
       }
       return { html: html, cards: lastResults, chips: ch };
     }, function () {
-      return { html: '<b>ตอนนี้โหลดรายการที่ดินไม่สำเร็จครับ</b><br>ลองใหม่อีกครั้ง หรือโทร ' + TEL_TXT, chips: ['คุยกับเจ้าหน้าที่'] };
+      return { html: '<b>ตอนนี้โหลดรายการที่ดินไม่สำเร็จครับ</b><br>ลองใหม่อีกครั้ง หรือโทร ' + TEL_TXT + ' / ' + TEL2_TXT, chips: ['คุยกับเจ้าหน้าที่'] };
     });
   }
 
@@ -475,7 +476,7 @@
       pending = { intent: 'survey', slots: { job: job, province: prov, deeds: deeds, split: split, wa: wa } };
       return { html: lines.join('<br>'), chips: [prov ? 'ขอใบเสนอราคาจริง' : 'อยู่กรุงเทพฯ', job === 'สอบเขต' ? 'ถ้าเป็นแบ่งแยกโฉนดล่ะ' : 'ถ้าเป็นสอบเขตล่ะ', 'เตรียมเอกสารอะไรบ้าง'] };
     }, function () {
-      return { html: 'ตอนนี้โหลดตารางราคาไม่สำเร็จครับ เลยยังบอกตัวเลขให้ไม่ได้ — ทักไลน์หรือโทร ' + TEL_TXT + ' บอกเนื้อที่และประเภทงาน ทีมงานแจ้งราคาให้ทันทีครับ', chips: ['คุยกับเจ้าหน้าที่'] };
+      return { html: 'ตอนนี้โหลดตารางราคาไม่สำเร็จครับ เลยยังบอกตัวเลขให้ไม่ได้ — ทักไลน์หรือโทร ' + TEL_TXT + ' / ' + TEL2_TXT + ' บอกเนื้อที่และประเภทงาน ทีมงานแจ้งราคาให้ทันทีครับ', chips: ['คุยกับเจ้าหน้าที่'] };
     });
   }
 
@@ -484,7 +485,8 @@
     return { html: 'ได้เลยครับ ทีมงานตอบเอง ' + HOURS + '<div class="njchat-cta">' +
       '<a class="njchat-btn line" href="' + esc(lineHref) + '" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์ @716lffzt</a>' +
       '<a class="njchat-btn fb" href="' + esc(FB_URL) + '" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>' +
-      '<a class="njchat-btn tel" href="' + TEL_HREF + '" data-contact="tel">📞 โทร ' + TEL_TXT + '</a></div>' };
+      '<a class="njchat-btn tel" href="' + TEL_HREF + '" data-contact="tel">☏ โทร ' + TEL_TXT + '</a>' +
+      '<a class="njchat-btn tel" href="' + TEL2_HREF + '" data-contact="tel">📱 โทร ' + TEL2_TXT + '</a></div>' };
   }
 
   // ---------------------------------------------------------------------------
@@ -513,7 +515,7 @@
     if (has(q, ['เป็นบอท', 'บอทเหรอ', 'บอทใช่', 'เป็นai', 'ใช่aiไหม', 'เป็นคนไหม', 'ใช่คนไหม', 'คุณคือใคร', 'น้องคือใคร', 'คือใคร'])) return Promise.resolve({ html: nl2br(KB.identity), chips: ['คุยกับเจ้าหน้าที่', 'หาที่ดินในกรุงเทพฯ ปริมณฑล'] });
     if (has(q, ['สวัสดี', 'หวัดดี', 'hello', 'เฮลโล']) || q === 'hi' || q === 'ดีครับ' || q === 'ดีค่ะ') return Promise.resolve({ html: greetHtml(), chips: HOME_CHIPS });
     if (has(q, ['ขอบคุณ', 'ขอบใจ', 'thank'])) return Promise.resolve({ html: 'ยินดีครับ 🙏 มีอะไรถามน้องได้ตลอด หรือทักทีมงานได้ที่ไลน์ @716lffzt ครับ', chips: HOME_CHIPS.slice(0, 3) });
-    if (has(q, ['เวลาทำการ', 'เปิดกี่โมง', 'กี่โมง', 'ที่อยู่บริษัท', 'ออฟฟิศอยู่'])) return Promise.resolve({ html: 'ทีมงานทำการ ' + HOURS + ' ครับ สำนักงานอยู่ที่ 121/124 หมู่ 4 ต.บางเมือง อ.เมืองสมุทรปราการ จ.สมุทรปราการ 10270 · โทร ' + TEL_TXT, chips: ['คุยกับเจ้าหน้าที่'] });
+    if (has(q, ['เวลาทำการ', 'เปิดกี่โมง', 'กี่โมง', 'ที่อยู่บริษัท', 'ออฟฟิศอยู่'])) return Promise.resolve({ html: 'ทีมงานทำการ ' + HOURS + ' ครับ สำนักงานอยู่ที่ 121/124 หมู่ 4 ต.บางเมือง อ.เมืองสมุทรปราการ จ.สมุทรปราการ 10270 · โทร ' + TEL_TXT + ' / ' + TEL2_TXT, chips: ['คุยกับเจ้าหน้าที่'] });
 
     // "เปรียบเทียบ" — ถ้ามาพร้อมโจทย์ค้น (จังหวัด/งบ/เนื้อที่ ฯลฯ) ให้ค้นก่อนแล้วเทียบต่อในคำตอบเดียว
     if (has(q, ['เปรียบเทียบ', 'เทียบ'])) {
@@ -583,7 +585,7 @@
       if (j && j.ok && j.text) return { html: nl2br(j.text), ai: true, chips: ['คุยกับเจ้าหน้าที่'] };
       throw new Error((j && j.reason) || 'no ai');
     }).catch(function () {
-      return { html: 'เรื่องนี้น้องยังตอบเองไม่ได้ครับ ให้ทีมงานตอบดีกว่า — ทักไลน์ @716lffzt หรือโทร ' + TEL_TXT + ' (' + HOURS + ')<br>หรือลองถามเรื่องที่น้องถนัด: หาที่ดิน · เทียบแปลง · ค่ารังวัด · ขั้นตอนฝากขาย · เอกสาร · ค่าโอน',
+      return { html: 'เรื่องนี้น้องยังตอบเองไม่ได้ครับ ให้ทีมงานตอบดีกว่า — ทักไลน์ @716lffzt หรือโทร ' + TEL_TXT + ' / ' + TEL2_TXT + ' (' + HOURS + ')<br>หรือลองถามเรื่องที่น้องถนัด: หาที่ดิน · เทียบแปลง · ค่ารังวัด · ขั้นตอนฝากขาย · เอกสาร · ค่าโอน',
         chips: ['คุยกับเจ้าหน้าที่'].concat(HOME_CHIPS.slice(0, 3)) };
     });
   }
@@ -639,7 +641,7 @@
       ui.history.push({ role: 'bot', text: r.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 800) }); saveHistory();
     }).catch(function (e) {
       typing(false);
-      bubble('bot', 'ขออภัยครับ ตอบไม่สำเร็จ ลองใหม่อีกครั้ง หรือโทร ' + TEL_TXT, { chips: ['คุยกับเจ้าหน้าที่'] });
+      bubble('bot', 'ขออภัยครับ ตอบไม่สำเร็จ ลองใหม่อีกครั้ง หรือโทร ' + TEL_TXT + ' / ' + TEL2_TXT, { chips: ['คุยกับเจ้าหน้าที่'] });
     }).then(function () { busy = false; ui.input.focus(); });
   }
 

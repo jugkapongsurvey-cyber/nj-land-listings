@@ -14,6 +14,7 @@
   var LINE = 'https://line.me/R/ti/p/@716lffzt';
   var FB = window.NJ_MESSENGER_URL || 'https://m.me/NJTeeDinSure';   // ตั้งค่าไว้ใน analytics.js
   var TEL = 'tel:021620405';
+  var TEL2 = 'tel:0849158601';
 
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
@@ -120,7 +121,8 @@
           '<span class="contact-mini">' +
             '<a href="' + LINE + '" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์">●</a>' +
             '<a href="' + FB + '" target="_blank" rel="noopener" class="fb" data-contact="messenger" aria-label="ติดต่อทางเมสเซนเจอร์">f</a>' +
-            '<a href="' + TEL + '" data-contact="tel" aria-label="โทรสอบถาม">☎</a>' +
+            '<a href="' + TEL + '" data-contact="tel" aria-label="โทรสอบถาม 02-162-0405">☎</a>' +
+            '<a href="' + TEL2 + '" data-contact="tel" aria-label="โทรสอบถาม 084-915-8601">📱</a>' +
           '</span>' +
         '</div>' +
       '</div>' +
@@ -156,8 +158,9 @@
   function loadFailedHtml() {
     // โหลดไม่ได้ ≠ ไม่มีแปลง — ต้องบอกตามจริงและให้ช่องทางติดต่อ ไม่ใช่แสดงว่าว่างเปล่า
     return '<div class="empty-result"><b>ตอนนี้โหลดรายการที่ดินไม่สำเร็จ</b>' +
-      'กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ 02-162-0405' +
-      '<span class="empty-actions"><a class="outline-btn" href="' + TEL + '" data-contact="tel">โทร 02-162-0405</a></span></div>';
+      'กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ 02-162-0405 / 084-915-8601' +
+      '<span class="empty-actions"><a class="outline-btn" href="' + TEL + '" data-contact="tel">โทร 02-162-0405</a>' +
+      '<a class="outline-btn" href="' + TEL2 + '" data-contact="tel">โทร 084-915-8601</a></span></div>';
   }
 
   // ดึงรายการสด · ผู้เรียกต้องจัดการทั้งกรณีสำเร็จและล้มเหลว (สองกรณีนี้ห้ามแสดงเหมือนกัน)
@@ -190,7 +193,7 @@
   }
 
   window.NJListing = {
-    LINE: LINE, FB: FB, TEL: TEL,
+    LINE: LINE, FB: FB, TEL: TEL, TEL2: TEL2,
     esc: esc, money: money, num: num, ago: ago, areaTh: areaTh,
     normalize: normalize, card: card,
     emptyHtml: emptyHtml, loadFailedHtml: loadFailedHtml,

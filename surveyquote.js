@@ -420,7 +420,8 @@
         sent.className = 'sq-sent bad';
         sent.innerHTML = 'ส่งไม่สำเร็จ กรุณาลองใหม่ หรือ ' +
           '<a href="' + LINE + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์หาเราได้เลย</a> ' +
-          '· โทร <a href="tel:021620405" data-contact="tel">02-162-0405</a>';
+          '· โทร <a href="tel:021620405" data-contact="tel">02-162-0405</a> / ' +
+          '<a href="tel:0849158601" data-contact="tel">084-915-8601</a>';
         btn.disabled = false;
         btn.textContent = 'ส่งให้ทีมงานตีราคาให้';
       });

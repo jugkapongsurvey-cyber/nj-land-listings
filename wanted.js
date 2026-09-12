@@ -24,12 +24,16 @@ function $(id) { return document.getElementById(id); }
 var CONTACT_CHANNELS = {
   line:      { href: function () { return LINE_OA_URL; },          ev: 'line_click',      method: 'line' },
   messenger: { href: function () { return NJ_MESSENGER_URL; },     ev: 'messenger_click', method: 'messenger' },
-  tel:       { href: function () { return telHref(COMPANY_TEL); }, ev: 'tel_click',       method: 'phone' }
+  tel:       { href: function () { return telHref(COMPANY_TEL); }, ev: 'tel_click',       method: 'phone' },
+  // เบอร์มือถือเป็น "ช่องทางโทร" เดียวกับเบอร์สำนักงาน จึงนับเป็น tel_click เหมือนกัน
+  // ไม่ตั้งชื่อเหตุการณ์ใหม่ ไม่งั้นต้องไปขึ้นทะเบียนที่ analytics.js + server.js ด้วย (กติกาข้อ 6)
+  tel2:      { href: function () { return telHref(COMPANY_TEL_ALT); }, ev: 'tel_click',    method: 'phone' }
 };
 function setupContactLinks() {
   [['wt-line', 'line'], ['wt-done-line', 'line'], ['wt-bar-line', 'line'],
    ['wt-fb', 'messenger'], ['wt-done-fb', 'messenger'],
-   ['wt-tel', 'tel'], ['wt-done-tel', 'tel'], ['wt-bar-tel', 'tel']].forEach(function (pair) {
+   ['wt-tel', 'tel'], ['wt-done-tel', 'tel'], ['wt-bar-tel', 'tel'],
+   ['wt-tel2', 'tel2'], ['wt-done-tel2', 'tel2'], ['wt-bar-tel2', 'tel2']].forEach(function (pair) {
     var el = $(pair[0]), ch = CONTACT_CHANNELS[pair[1]];
     if (!el || !ch) return;
     el.href = ch.href();

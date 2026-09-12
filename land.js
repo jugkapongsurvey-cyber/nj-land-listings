@@ -12,6 +12,8 @@
   var FB=window.NJ_MESSENGER_URL||'https://m.me/NJTeeDinSure';   // ตั้งค่าไว้ใน analytics.js
   var TEL='tel:021620405';
   var TEL_TXT='02-162-0405';
+  var TEL2='tel:0849158601';
+  var TEL2_TXT='084-915-8601';
 
   // ---------- บอก Google ว่าหน้านี้คือแปลงไหน ----------
   //
@@ -511,7 +513,7 @@
         if(window.njTrackInternal) njTrackInternal('listing_view', l.id);
       })
       .catch(function(){
-        fail('ตอนนี้โหลดข้อมูลไม่สำเร็จ','กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ '+TEL_TXT);
+        fail('ตอนนี้โหลดข้อมูลไม่สำเร็จ','กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ '+TEL_TXT+' / '+TEL2_TXT);
       });
   }
 
@@ -525,8 +527,12 @@
     var rv=e.target.closest('[data-reveal]');
     if(rv){
       var wrap=document.createElement('a');
-      wrap.className='ld-btn tel'; wrap.href=TEL; wrap.textContent='📞 '+TEL_TXT;
+      wrap.className='ld-btn tel'; wrap.href=TEL; wrap.textContent='☏ '+TEL_TXT;
+      // เผยทั้งสองเบอร์พร้อมกัน — กดดูเบอร์แล้วต้องเห็นทุกเบอร์ที่โทรหาเราได้จริง
+      var wrap2=document.createElement('a');
+      wrap2.className='ld-btn tel'; wrap2.href=TEL2; wrap2.textContent='📱 '+TEL2_TXT;
       rv.parentNode.replaceChild(wrap,rv);
+      wrap.parentNode.insertBefore(wrap2,wrap.nextSibling);
       // ส่งรหัสแปลงไปด้วยเสมอ — สถิติรายแปลง (listingStats) นับ "กดดูเบอร์" จากค่านี้
       // ไม่ส่ง = ช่องนั้นขึ้น 0 ตลอดทั้งที่มีคนกดจริง โดยไม่มีอะไรเตือน
       if(window.njTrackInternal) njTrackInternal('phone_reveal', rv.getAttribute('data-reveal'));
