@@ -1,0 +1,93 @@
+/* ใบเสนอราคาที่ลูกค้าเปิดดูและกดยอมรับเอง — quote.html
+   ยืมโทนเดียวกับ notify.css / room.css · ไม่มีสีใหม่ ไม่มีฟอนต์ใหม่ */
+
+.qt-head { padding: 34px 0 18px; }
+.qt-head h1 { font-size: 26px; margin: 0 0 8px; color: #12315F; }
+.qt-sell { font-size: 14px; color: #4A5A72; line-height: 1.75; max-width: 720px; margin: 0; }
+
+.qt-wrap { padding-bottom: 52px; }
+
+.qt-card {
+  background: #fff; border: 1px solid #E4E9F2; border-radius: 16px;
+  padding: 20px 22px; margin-bottom: 16px;
+}
+.qt-card h2 { font-size: 18px; color: #12315F; margin: 6px 0 14px; }
+.qt-card h3 { font-size: 13.5px; color: #12315F; margin: 18px 0 8px; }
+.qt-card h3:first-of-type { margin-top: 4px; }
+
+.qt-load { padding: 30px 4px; color: #7186A3; font-size: 14px; }
+
+.qt-note {
+  border-radius: 11px; padding: 11px 14px; font-size: 13px; line-height: 1.7;
+  background: #F1F5F9; color: #334155; border: 1px solid #E2E8F0; margin-bottom: 14px;
+}
+.qt-info { background: #FFFBEB; border-color: #FDE68A; color: #78350F; }
+.qt-warn { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
+.qt-good { background: #F0FDF4; border-color: #BBF7D0; color: #166534; }
+
+/* หัวใบ */
+.qt-top { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+.qt-no { font-size: 20px; font-weight: 800; color: #12315F; font-family: Manrope, sans-serif; }
+.qt-meta { font-size: 12.5px; color: #7186A3; line-height: 1.7; }
+.qt-state {
+  font-size: 12px; font-weight: 800; padding: 5px 13px; border-radius: 20px; flex: none;
+  background: #EAF1FC; color: #1552B0;
+}
+.qt-state.is-accepted { background: #DCFCE7; color: #166534; }
+.qt-state.is-rejected { background: #FFE4E0; color: #B8321E; }
+.qt-state.is-expired { background: #FEF9EC; color: #92580A; }
+
+/* ตารางรายการ */
+.qt-lines { margin: 6px 0 0; }
+.qt-line {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-size: 13.5px; color: #334155;
+}
+.qt-line b { color: #12315F; font-family: Manrope, sans-serif; white-space: nowrap; }
+.qt-line.is-minus b { color: #166534; }
+.qt-sum { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 13.5px; color: #334155; }
+.qt-sum.is-total { border-top: 2px solid #E4E9F2; margin-top: 6px; padding-top: 11px; font-size: 16px; font-weight: 800; color: #12315F; }
+.qt-sum b { font-family: Manrope, sans-serif; }
+.qt-wht { font-size: 12px; color: #7186A3; line-height: 1.7; margin: 8px 0 0; }
+
+.qt-kv { display: grid; grid-template-columns: 130px 1fr; gap: 7px 12px; font-size: 13.5px; }
+.qt-kv dt { color: #7186A3; }
+.qt-kv dd { margin: 0; color: #1B2536; font-weight: 600; }
+
+.qt-terms { font-size: 13px; color: #334155; line-height: 1.8; white-space: pre-wrap; margin: 0; }
+
+/* ฟอร์มยืนยัน */
+.qt-field { margin-bottom: 12px; }
+.qt-field label { display: block; font-size: 12.5px; color: #4A5A72; font-weight: 600; margin-bottom: 5px; }
+.qt-field input, .qt-field textarea {
+  width: 100%; border: 1px solid #DCE3EF; border-radius: 11px; padding: 11px 13px;
+  font-family: inherit; font-size: 14px; color: #1B2536; background: #FBFCFE; outline: none;
+}
+.qt-field textarea { min-height: 76px; resize: vertical; }
+.qt-check { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: #4A5A72; line-height: 1.7; }
+.qt-check input { width: 18px; height: 18px; accent-color: #1E6FE0; flex: none; margin-top: 2px; }
+
+.qt-btn {
+  margin-top: 12px; padding: 13px 20px; border-radius: 12px; border: none;
+  font-family: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer;
+}
+.qt-primary { background: #16A34A; color: #fff; width: 100%; }
+.qt-ghost { background: #fff; border: 1px solid #DCE3EF; color: #556376; font-size: 13px; font-weight: 700; padding: 11px 16px; }
+.qt-btn[disabled] { opacity: .55; cursor: default; }
+
+.qt-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.qt-help { font-size: 12.5px; color: #7186A3; line-height: 1.7; margin: 10px 0 0; }
+.qt-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.qt-cta a {
+  padding: 11px 16px; border-radius: 11px; font-size: 13.5px; font-weight: 700;
+  text-decoration: none; border: 1px solid #DCE3EF; color: #12315F; background: #fff;
+}
+.qt-cta a.is-line { background: #06C755; border-color: #06C755; color: #fff; }
+
+@media (max-width: 560px) {
+  .qt-head h1 { font-size: 22px; }
+  .qt-card { padding: 16px 15px; }
+  .qt-kv { grid-template-columns: 1fr; gap: 2px 0; }
+  .qt-kv dd { margin-bottom: 8px; }
+  .qt-no { font-size: 18px; }
+}

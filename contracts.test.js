@@ -507,5 +507,38 @@ console.log('\n11) ระลอก Phase 3 — ห้องข้อมูลแ
     /OUTBOUND_ENABLED = false/.test(read(path.join(SRV, 'lib', 'notifyout.js'))));
 }
 
+
+// ============================================================
+// 12) ใบเสนอราคาที่ลูกค้ากดยอมรับเอง (Phase 4 รอบ 4)
+// ============================================================
+{
+  const webQuote = read(path.join(WEB, 'quote.js'));
+  const quoteHtml = read(path.join(WEB, 'quote.html'));
+  const robots2 = read(path.join(WEB, 'robots.txt'));
+  const analytics = read(path.join(WEB, 'analytics.js'));
+  const srv = read(path.join(SRV, 'server.js'));
+
+  // ⚠️ ชื่อไฟล์ต้องตรงกับที่เซิร์ฟเวอร์ประกอบไว้ในลิงก์ — ไม่ตรง = ลูกค้ากดลิงก์แล้วเจอ 404
+  check('เซิร์ฟเวอร์ชี้มาที่ quote.html จริง', /quote\.html\?id=/.test(srv));
+  check('หน้านี้ห้ามเสิร์ชเอนจินเก็บ', /noindex/.test(quoteHtml));
+  check('ไม่ส่ง referrer (ตั๋วอยู่ใน URL)', /no-referrer/.test(quoteHtml));
+  check('robots.txt กันอีกชั้น', /Disallow: \/quote\.html/.test(robots2));
+  check('หน้าเรียกไฟล์ของตัวเองทั้งสองไฟล์',
+    /quote\.js/.test(quoteHtml) && /quote\.css/.test(quoteHtml));
+
+  // ⚠️ ห้ามคิดยอดเอง — ตัวเลขบนหน้านี้ต้องเท่ากับเอกสารที่ลูกค้าถืออยู่เสมอ
+  check('⭐ หน้าเว็บไม่คิดยอดเอง', !/computeQuote|vatRate \* |\* 1\.07/.test(webQuote));
+  // ⚠️ ข้อความกำกับเรื่องลายเซ็นห้ามถอด (ระบบยังไม่เชื่อมผู้ให้บริการลายเซ็นดิจิทัล)
+  check('⭐ บอกว่าการกดยืนยันไม่ใช่ลายเซ็นอิเลกทรอนิกส์',
+    /ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์/.test(webQuote));
+  check('มีช่องยินยอม PDPA ก่อนกดยืนยัน', /qt-pdpa/.test(webQuote));
+  check('ไม่มีฟอร์มเข้าสู่ระบบในหน้านี้',
+    !/type="password"|type=.password./.test(quoteHtml + webQuote));
+
+  // ⚠️ ชนิดเหตุการณ์ต้องขึ้นทะเบียนทั้งสองฝั่ง (บทเรียน messenger_click)
+  check('quote_view ขึ้นทะเบียนทั้งสองฝั่ง',
+    /'quote_view'/.test(analytics) && /'quote_view'/.test(srv));
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

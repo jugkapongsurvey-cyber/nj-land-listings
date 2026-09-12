@@ -170,6 +170,8 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           // ทั้งคู่ **ไม่ใช่ลีด** (การดูไม่ใช่การติดต่อ) ห้ามบวกเข้า leads ใน track/summary
                           // ส่วน inquiry_submit เซิร์ฟเวอร์บันทึกเองตอนสร้างใบ ฝั่งนี้จึงไม่ต้องยิงซ้ำ
                           'inquiry_view', 'compare_open',
+                          // quote_view = ลูกค้าเปิดหน้าใบเสนอราคาของตัวเอง — **ไม่ใช่ลีด** (เป็นลูกค้าอยู่แล้ว)
+                          'quote_view',
                           'chat_open',   // เปิดแชทน้องเอ็นเจชัวร์ (ไม่ใช่ลีด — นับแค่ว่ามีคนใช้กี่ครั้ง)
                           // นัดตรวจแปลง (Phase 2) — inspect_submit เซิร์ฟเวอร์บันทึกเองเช่นกัน
                           'inspect_view',
