@@ -96,8 +96,9 @@ button{cursor:pointer}
 .land-card:hover{border-color:var(--brass)}
 .land-card[data-href]{cursor:pointer}
 .card-media{position:relative;background:var(--ink)}
-.card-media img{width:100%;height:220px;object-fit:cover}
-.fallback-land{height:220px;background:var(--ink)}
+/* รูปการ์ดเตี้ยลงจาก 220 → 160px (เจ้าของสั่ง 2026-09-13 — รูปกินพื้นที่เกินไป) */
+.card-media img{display:block;width:100%;height:160px;object-fit:cover}
+.fallback-land{height:160px;background:var(--ink)}
 .fallback-land::after{
   content:"";position:absolute;inset:0;
   background-image:
@@ -139,6 +140,17 @@ button{cursor:pointer}
   font-size:13px;color:var(--bronze);
 }
 .contact-mini a:hover{border-color:var(--brass);color:var(--ink)}
+
+/* ปุ่มเปลี่ยนหน้าใต้ตะแกรงแปลง (marketplace.js สร้างให้ · หน้าละ 9 แปลง) */
+.listing-pager{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;margin-top:30px}
+.listing-pager button{
+  min-width:42px;height:42px;padding:0 14px;border:1px solid var(--line);background:var(--card);
+  font:inherit;font-size:14px;color:var(--ink);cursor:pointer;
+}
+.listing-pager button:hover:not(:disabled){border-color:var(--brass);color:var(--bronze)}
+.listing-pager button[aria-current="page"]{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+.listing-pager button:disabled{opacity:.4;cursor:default}
+.listing-pager .pager-info{flex-basis:100%;text-align:center;font-size:13px;font-weight:300;color:var(--muted);margin-top:4px}
 
 .empty-result{
   grid-column:1/-1;background:var(--card);border:1px solid var(--line);

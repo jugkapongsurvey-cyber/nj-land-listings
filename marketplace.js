@@ -9,7 +9,8 @@
   var NJL = window.NJListing;
   var card = NJL.card;   // ตัวเรนเดอร์การ์ดตัวเดียวกับหน้ารวมประกาศ
 
-  var state={listings:[],loaded:false,query:'',price:'all',type:'all'};
+  var state={listings:[],loaded:false,query:'',price:'all',type:'all',page:1};
+  var PAGE_SIZE=9;   // หน้าแรกโชว์หน้าละ 9 แปลง (3×3) ที่เหลือไปหน้าถัดไป
 
   function filtered(){
     return state.listings.filter(function(item){
@@ -25,17 +26,52 @@
   // ยังไม่มีแปลงประกาศ = คนที่เข้ามาถึงตรงนี้จะเจอทางตัน
   // เปลี่ยนเป็นข้อเสนอที่ใช้ได้จริงแทน — คนที่สนใจตลาดที่ดินจำนวนมากคือเจ้าของที่ดินเอง
 
+  // message = มาจากการกรอง/ค้นหาใหม่ → กลับไปหน้า 1 เสมอ · ไม่มี message = แค่เปลี่ยนหน้า/โหลดครั้งแรก
   function render(message){
     var grid=document.getElementById('listing-grid');
     var list=filtered();
     if(message){
+      state.page=1;
       var note=document.getElementById('result-note');
       note.hidden=false;
       note.textContent=message+' — พบ '+list.length+' รายการ';
     }
-    if(!list.length){ grid.innerHTML=NJL.emptyHtml(state.loaded&&state.listings.length>0); return; }
-    grid.innerHTML=list.map(card).join('');
+    if(!list.length){ grid.innerHTML=NJL.emptyHtml(state.loaded&&state.listings.length>0); renderPager(0); return; }
+    var pages=Math.ceil(list.length/PAGE_SIZE);
+    if(state.page>pages)state.page=pages;
+    var start=(state.page-1)*PAGE_SIZE;
+    grid.innerHTML=list.slice(start,start+PAGE_SIZE).map(card).join('');
+    renderPager(list.length);
   }
+
+  // ปุ่มเปลี่ยนหน้า — แปลงไม่เกิน 9 = ซ่อนทั้งแถบ
+  // ⚠️ pager ต้องอยู่นอก #listing-grid — compare.js เฝ้า DOM ในตะแกรงนั้นอยู่ (ดูกับดัก MutationObserver ใน CLAUDE.md)
+  function renderPager(total){
+    var pager=document.getElementById('listing-pager');
+    if(!pager)return;
+    var pages=Math.ceil(total/PAGE_SIZE);
+    if(pages<=1){ pager.hidden=true; pager.innerHTML=''; return; }
+    var p=state.page, html='';
+    html+='<button type="button" data-page="'+(p-1)+'"'+(p<=1?' disabled':'')+' aria-label="หน้าก่อนหน้า">‹ ก่อนหน้า</button>';
+    for(var i=1;i<=pages;i++){
+      html+='<button type="button" data-page="'+i+'"'+(i===p?' aria-current="page"':'')+'>'+i+'</button>';
+    }
+    html+='<button type="button" data-page="'+(p+1)+'"'+(p>=pages?' disabled':'')+' aria-label="หน้าถัดไป">ถัดไป ›</button>';
+    var from=(p-1)*PAGE_SIZE+1, to=Math.min(p*PAGE_SIZE,total);
+    html+='<div class="pager-info">แสดง '+from+'–'+to+' จาก '+total+' แปลง</div>';
+    pager.innerHTML=html;
+    pager.hidden=false;
+  }
+
+  var pagerEl=document.getElementById('listing-pager');
+  if(pagerEl)pagerEl.addEventListener('click',function(e){
+    var btn=e.target.closest('button[data-page]');
+    if(!btn||btn.disabled)return;
+    state.page=Number(btn.dataset.page);
+    render();
+    // เลื่อนกลับไปหัวแถบ ไม่งั้นคนกดหน้า 2 แล้วยังยืนอยู่ท้ายตะแกรง เห็นแต่ปุ่ม
+    document.getElementById('listings').scrollIntoView({behavior:'smooth'});
+  });
 
   function load(){
     NJL.fetchListings()

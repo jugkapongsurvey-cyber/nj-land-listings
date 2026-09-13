@@ -53,6 +53,11 @@
   · **ผูกกับ id เหล่านี้แบบไม่เช็ก null**: `search-form` `search-input` `type-filter` `price-filter`
     `listing-grid` `result-note` `listings` `year` + `[data-purpose]` `[data-quick]`
     ขาดตัวใดตัวหนึ่งคือ JS ตายทั้งไฟล์ ประกาศไม่ขึ้นเลย — จัดหน้าแรกใหม่ต้องเก็บครบทุกตัว
+  · **หน้าแรกแบ่งหน้าละ 9 แปลง** (`PAGE_SIZE` · `renderPager()` · `#listing-pager` · เจ้าของสั่ง 2026-09-13)
+    พร้อมย่อรูปการ์ดใน `home.css` จาก 220 → 160px · กรอง/ค้นหาใหม่ (`render(message)`) กลับหน้า 1 เสมอ
+    · ⚠️ **`#listing-pager` ต้องอยู่นอก `#listing-grid`** — `compare.js` เฝ้า DOM ในตะแกรง (ดูกับดัก MutationObserver)
+    · `#listing-pager` เป็น id ที่เช็ก null แล้ว ไม่อยู่ในรายชื่อบังคับข้างบน
+    · หน้ารวมประกาศ (`listings.js`) **ยังไม่แบ่งหน้า** แสดงทุกแปลงตามเดิม
 - `listingcard.js` **ตัวเรนเดอร์การ์ดกลาง** (`window.NJListing`) — `card()` `normalize()` `emptyHtml()`
   `loadFailedHtml()` `fetchListings()` `bindGrid()` · ใช้ร่วมกันทั้งหน้าแรกและหน้ารวมประกาศ
   · **ต้องโหลดก่อน `marketplace.js` / `listings.js` เสมอ** (ทั้งสองไฟล์อ่าน `window.NJListing` ตอนเริ่มทำงานทันที)
