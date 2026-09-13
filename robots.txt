@@ -24,4 +24,7 @@ Disallow: /quote.html
 # (หน้านี้ประกาศ noindex ไว้ในตัวหน้าด้วยอีกชั้น)
 Disallow: /notify.html
 
+# ลิงก์ติดตามใบสมัครพันธมิตร — มีตั๋วของผู้สมัครติดอยู่ (หน้าสมัครเปล่าๆ ยังให้เก็บได้ตามปกติ)
+Disallow: /partner-apply.html?*t=
+
 Sitemap: https://njteedinsure.com/sitemap.xml

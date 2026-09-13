@@ -540,5 +540,36 @@ console.log('\n11) ระลอก Phase 3 — ห้องข้อมูลแ
     /'quote_view'/.test(analytics) && /'quote_view'/.test(srv));
 }
 
+console.log('\nPhase 6 — สมัครพันธมิตร (partner-apply.html)');
+{
+  const lib = path.join(SRV, 'lib', 'partners.js');
+  if (!fs.existsSync(lib)) {
+    console.log('  ข้าม — ยังไม่มี lib/partners.js ที่ฝั่งเซิร์ฟเวอร์ (สาขา phase6 ยังไม่ถูก merge · ส่ง path ของ worktree มาเป็นอาร์กิวเมนต์ได้)');
+  } else {
+    const srvLib = read(lib);
+    const at = srvLib.indexOf('DEFAULT_SERVICE_TYPES');
+    const srvTypes = (srvLib.slice(at, srvLib.indexOf('];', at)).match(/key: '([a-z_]+)'/g) || []).map(s => s.slice(6, -1));
+    const paJs = read(path.join(WEB, 'partner-apply.js'));
+    const paHtml = read(path.join(WEB, 'partner-apply.html'));
+    const webTypes = (paJs.match(/\{ k: '([a-z_]+)'/g) || []).map(s => (s.match(/'([a-z_]+)'/) || [])[1]);
+    check('อ่านประเภทบริการพันธมิตรได้ทั้งสองฝั่ง', srvTypes.length === 10 && webTypes.length === 10, srvTypes.length + ' / ' + webTypes.length);
+    // ⚠️ คีย์ที่เซิร์ฟเวอร์ไม่รู้จัก = ใบสมัครถูกปฏิเสธทั้งใบ
+    check('⭐ คีย์ประเภทบริการพันธมิตรตรงกันทั้งชุดและลำดับ', same(srvTypes, webTypes), srvTypes.join(',') + '  vs  ' + webTypes.join(','));
+    const srvDocKinds = listAfter(server, 'const PARTNER_DOC_KINDS') || [];
+    const webDocKinds = (paJs.match(/\['([a-z_]+)', '/g) || []).map(s => s.slice(2, s.indexOf("'", 2)));
+    check('ชนิดเอกสารที่ผู้สมัครแนบได้อยู่ในรายการของเซิร์ฟเวอร์',
+      webDocKinds.length > 0 && webDocKinds.every(k => srvDocKinds.indexOf(k) >= 0), webDocKinds.join(','));
+    check('เซิร์ฟเวอร์มีเส้นทางใบสมัครครบทั้งสามเส้นที่หน้าเว็บเรียก',
+      /app\.post\('\/api\/public\/partner-apply'/.test(server) && /app\.get\('\/api\/public\/partner-apply\/:id'/.test(server) && /'\/api\/public\/partner-apply\/:id\/docs'/.test(server));
+    check('⭐ ไม่มีช่องรหัสผ่านในหน้าสมัครพันธมิตร', !/type="password"|type=.password./.test(paHtml + paJs));
+    check('⭐ กันการส่งเมื่อยังไม่ติ๊กยินยอม', /pa-pdpa/.test(paJs) && /pdpa: !!form\.elements\.pdpa\.checked/.test(paJs));
+    check('กับดักบอทใช้ช่อง hp ตรงกับเซิร์ฟเวอร์', /name="hp"/.test(paJs) && /b\.hp/.test(server));
+    check('หน้าไม่ส่งตั๋วไปกับ referrer', /strict-origin-when-cross-origin/.test(paHtml));
+    check('robots.txt กันลิงก์ที่มีตั๋ว', /Disallow: \/partner-apply\.html\?\*t=/.test(read(path.join(WEB, 'robots.txt'))));
+    check('หน้าสมัครพันธมิตรอยู่ในแผนผังเว็บ', /partner-apply\.html/.test(read(path.join(WEB, 'sitemap.xml'))));
+    check('⭐ ไม่รับปากว่าจะได้งาน', /ไม่ใช่การรับประกันว่าจะได้รับงาน/.test(paJs) && /ไม่ใช่การรับประกันว่าจะได้รับงาน/.test(paHtml));
+  }
+}
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
