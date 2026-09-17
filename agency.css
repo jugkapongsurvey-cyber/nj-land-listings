@@ -1,0 +1,106 @@
+/* หน้า "ทรัพย์หน่วยงาน" (agency.html) — ต่อยอดชุดสีหน้ารอง (style.css + ui.css) ไม่สร้างชุดสีใหม่
+   ⚠️ ประกาศ [hidden] ซ้ำไว้ที่นี่ด้วย (กับดักเดียวกับ feecalc.css — .ag-result ตั้ง display เอง) */
+[hidden]{display:none !important}
+.page-agency{background:var(--bg)}
+
+.ag-hero{
+  background:
+    radial-gradient(1100px 460px at 82% -12%, rgba(22,163,74,.30), transparent 62%),
+    linear-gradient(158deg,#0B1F3A 0%,#0B1F3A 46%,#1B4B7A 100%);
+  color:#fff;padding:40px 0 48px;
+}
+.ag-hero-grid{display:grid;grid-template-columns:1fr;gap:26px;align-items:start}
+@media (min-width:900px){ .ag-hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:40px} }
+.ag-hero-copy h1{font-size:clamp(25px,5.4vw,38px);font-weight:700;line-height:1.28;margin:0 0 14px}
+.ag-lead{font-size:15.5px;color:rgba(255,255,255,.86);margin:0;max-width:60ch}
+.ag-lead strong{color:#fff}
+
+.ag-paste{background:#fff;color:var(--ink);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-card)}
+.ag-paste-label{display:block;font-weight:700;color:var(--navy);margin-bottom:8px}
+.ag-paste-row{display:flex;gap:8px;flex-wrap:wrap}
+.ag-paste-row input{
+  flex:1 1 220px;min-width:0;font:inherit;font-size:15px;
+  border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;color:var(--ink);background:#fff;
+}
+.ag-paste-row input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-light)}
+.ag-go{
+  flex:0 0 auto;font:inherit;font-weight:700;font-size:15px;cursor:pointer;
+  background:var(--navy);color:#fff;border:0;border-radius:11px;padding:12px 20px;
+}
+.ag-go:focus-visible,.ag-cta:focus-visible,.ag-chip:focus-visible{outline:3px solid #9EF5C4;outline-offset:2px}
+.ag-paste-hint{font-size:12.5px;color:var(--sub);margin-top:8px}
+
+.ag-result{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+.ag-found{font-size:12.5px;color:var(--sub)}
+.ag-name{font-size:18px;font-weight:700;color:var(--navy);margin:2px 0 2px;overflow-wrap:anywhere}
+.ag-kind{font-size:13px;color:var(--sub)}
+.ag-refs{font-size:13px;margin-top:6px;overflow-wrap:anywhere}
+.ag-warn{background:#FFF4E5;color:var(--amber);border-radius:10px;padding:9px 12px;font-size:13px;margin-top:10px}
+.ag-err{background:#FDECEA;color:#B42318;border-radius:10px;padding:9px 12px;font-size:13.5px}
+.ag-checks-h{font-weight:700;color:var(--navy);margin:14px 0 6px}
+.ag-checks{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.ag-checks li{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.ag-tag{flex:none;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:20px}
+.ag-tag.desk{background:var(--blue-light);color:var(--blue)}
+.ag-tag.field{background:#FFF4E5;color:var(--amber)}
+.ag-cta{
+  display:block;text-align:center;margin-top:16px;text-decoration:none;
+  background:var(--green);color:#fff;font-weight:700;font-size:15.5px;padding:14px;border-radius:12px;
+}
+.ag-cta-note{font-size:12.5px;color:var(--sub);text-align:center;margin-top:6px}
+
+.ag-how,.ag-sources{padding:44px 0}
+.ag-sources{background:#fff;border-top:1px solid var(--border)}
+.ag-ways{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){ .ag-ways{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.ag-way{background:#fff;border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--shadow-soft)}
+.ag-way b{display:block;color:var(--navy);margin-bottom:4px}
+.ag-way span{font-size:14px;color:var(--sub)}
+.ag-way em{font-style:normal;color:var(--muted)}
+
+.ag-sub{text-align:center;color:var(--sub);font-size:14px;max-width:62ch;margin:-12px auto 18px}
+.ag-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+.ag-chip{
+  font:inherit;font-size:13.5px;cursor:pointer;background:#fff;color:var(--ink);
+  border:1px solid var(--border);border-radius:30px;padding:7px 15px;
+}
+.ag-chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.ag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ag-card{
+  display:flex;flex-direction:column;gap:4px;background:var(--bg);
+  border:1px solid var(--border);border-radius:var(--r-md);padding:15px 17px;
+}
+.ag-card-cat{font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--blue)}
+.ag-card b{color:var(--navy);font-size:15.5px}
+.ag-card p{margin:0;font-size:13.5px;color:var(--sub);flex:1}
+.ag-card a{font-size:13.5px;font-weight:700;color:var(--blue);text-decoration:none;overflow-wrap:anywhere}
+.ag-card a:hover{text-decoration:underline}
+
+/* ---------- หน้าเครื่องมือคำนวณ (tools.html) ใช้ไฟล์นี้ร่วม ---------- */
+.tl-hero{padding:34px 0 38px}
+.tl-hero h1{font-size:clamp(25px,5.4vw,38px);font-weight:700;line-height:1.28;margin:0 0 12px}
+.tl-jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.tl-jump a{
+  color:#fff;text-decoration:none;font-size:14px;font-weight:600;
+  border:1px solid rgba(255,255,255,.35);border-radius:30px;padding:7px 15px;
+}
+.tl-jump a:hover,.tl-jump a:focus-visible{background:rgba(255,255,255,.12)}
+.tl-sec{padding:40px 0}
+.tl-alt{background:#fff;border-top:1px solid var(--border)}
+.tl-wrap{max-width:760px}
+.tl-sec .fc{margin-top:0}
+.lc-next{
+  display:block;width:100%;margin-top:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;
+  background:var(--navy);color:#fff;border:0;border-radius:11px;padding:12px;
+}
+.lc-next:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* ---------- แถวเมนูหัวเว็บ (agency.html · tools.html) ----------
+   เมนูชุดนี้มี 6 ลิงก์ที่ยาวกว่าหน้า verify.html · วัดจริงแล้วที่ 990–1100px ข้อความทุกข้อตัดสองบรรทัด
+   จึงซ่อนลิงก์ที่มีทางเข้าอื่นอยู่แล้ว (คู่มือ) ในช่วงนั้น — แนวเดียวกับลิงก์แชทใน style.css
+   ลิ้นชักมือถือยังมีลิงก์นี้เสมอ เพราะ menu.js อ่านจาก DOM ไม่สนใจ display
+   (ตัวเลข 1199 มาจากการวัด ถ้าแก้ข้อความเมนูต้องวัดใหม่) */
+@media (max-width:1199px){ .header-nav [data-nav-wide]{display:none} }
+/* 985–1023px ยังตัดสองบรรทัดแม้ซ่อนคู่มือแล้ว (วัด 17 ก.ย. 69) → สองหน้านี้ใช้ลิ้นชักเร็วกว่าหน้าอื่นเล็กน้อย
+   menu.js ตัดสินจาก getComputedStyle ของ nav จริง ปุ่มลิ้นชักจึงโผล่ตามเองโดยไม่ต้องแก้ JS */
+@media (max-width:1023px){ .page-agency .header-nav{display:none} }

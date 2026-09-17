@@ -75,6 +75,19 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <!-- ทรัพย์หน่วยงาน + เครื่องมือคำนวณ (P1 · 2026-09-17) -->
+  <url>
+    <loc>https://njteedinsure.com/agency.html</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/tools.html</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
   <!-- คลังวิดีโอ -->
   <url>
     <loc>https://njteedinsure.com/videos.html</loc>

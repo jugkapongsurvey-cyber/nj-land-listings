@@ -126,6 +126,17 @@ console.log('\n4) ตัวจ่ายงาน (route) — ตอบเอง�
     const q4 = await html('สอบเขต 1 ไร่');
     check('ไม่บอกจังหวัด → เตือนว่ายังไม่รวมค่าเดินทาง (กติกาข้อ 14)', /ยังไม่รวมค่าเดินทาง/.test(q4), q4);
   }
+  // วางลิงก์ประกาศในแชท (P1 · 2026-09-17)
+  C._reset();
+  const lk = await html('ช่วยดูแปลงนี้ให้หน่อย https://asset.led.go.th/x.asp?id=12&a="><img src=x>');
+  check('วางลิงก์ → ส่งไปหน้าทรัพย์หน่วยงานพร้อมลิงก์', /agency\.html\?url=https%3A%2F%2Fasset\.led\.go\.th/.test(lk), lk);
+  check('ลิงก์ของลูกค้าไม่ถูกทำเป็นปุ่มกดไปตรงๆ และไม่มี HTML หลุด', !/href="https:\/\/asset/.test(lk) && !/<img/.test(lk), lk);
+  check('ไม่รู้จัก NJAgency (หน้าที่ไม่ได้โหลด agencies.js) ก็ยังตอบได้', /ได้รับลิงก์แล้ว/.test(lk), lk);
+  w.URL = URL; w.URLSearchParams = URLSearchParams;   // agencies.js ใช้ URL ของเบราว์เซอร์ — context ของ vm ไม่มีให้เอง
+  vm.runInContext(fs.readFileSync(path.join(__dirname, 'agencies.js'), 'utf8'), ctx, { filename: 'agencies.js' });
+  const lk2 = await html('https://www.bam.co.th/property/ABC123');
+  check('โหลด agencies.js แล้ว → บอกชื่อหน่วยงาน', /BAM/.test(lk2), lk2);
+  check('คำว่า "ลิงก์" เฉยๆ ไม่เข้ากฎนี้', !/agency\.html/.test(String(await html('ส่งลิงก์ให้ได้ไหม'))));
   console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
