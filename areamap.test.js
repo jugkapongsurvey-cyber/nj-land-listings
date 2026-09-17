@@ -153,6 +153,9 @@ const tick = () => new Promise(r => setTimeout(r, 5));
   ok('ไม่มีคีย์ = mount คืน false (ไม่วาดแผนที่เปล่า)', A.mount({}, { key: '' }) === false);
   ok('สถิติเปิดแผนที่ไม่แนบพิกัด', /njTrack\('ViewContent', \{ content_name: 'area_map_open' \}\)/.test(code));
 
+  ok('⭐ ชั้นภาพผังเมืองปิดไว้ (ยังไม่มีหนังสืออนุญาต)', A.ZONING_OVERLAY === false && /var ZONING_OVERLAY = false;/.test(src));
+  ok('ปิดอยู่ = ไม่มีปุ่มผังสีบนหน้า', /\(ZONING_OVERLAY \?/.test(src));
+  ok('คำเตือนชั้นผังเมืองบอกว่าใช้อ้างอิงทางกฎหมายไม่ได้', /ใช้อ้างอิงทางกฎหมายไม่ได้/.test(A.ZONING_NOTE));
   const tools = fs.readFileSync(path.join(__dirname, 'tools.html'), 'utf8');
   const toolsJs = fs.readFileSync(path.join(__dirname, 'tools.js'), 'utf8');
   ok('tools.html โหลด areamap.js + areamap.css', /areamap\.js/.test(tools) && /areamap\.css/.test(tools));

@@ -35,6 +35,13 @@
   var LONGDO_SRC = 'https://api.longdo.com/map3/?key=';
   var DEFAULT_VIEW = { lon: 100.5018, lat: 13.7563, zoom: 11 };
   var MAX_POINTS = 60;
+  // ⚠️ ชั้นภาพผังเมือง (Longdo `cityplan_dpt` = สำเนาภาพจากกรมโยธาฯ) — **ปิดไว้จนกว่าจะได้รับอนุญาตเป็นลายลักษณ์อักษร**
+  //    ทั้งจากกรมโยธาฯ และเงื่อนไขเชิงพาณิชย์จาก Longdo (ตรวจ 17 ก.ย. 69: ยังไม่มีสิทธิ์เผยแพร่บนเว็บสาธารณะ)
+  //    เปิดเป็น true ได้เมื่อมีหนังสืออนุญาตแล้วเท่านั้น และต้องทดสอบกับคีย์จริงก่อน (รูปแบบ Layer ของ v3 ยังไม่ได้ยืนยัน)
+  var ZONING_OVERLAY = false;
+  var ZONING_LAYER = { name: 'cityplan_dpt', url: 'https://ms.longdo.com/mmmap/img.php' };
+  var ZONING_NOTE = 'ภาพผังเมืองรวมเป็นข้อมูลเบื้องต้นจากกรมโยธาธิการและผังเมือง (แสดงผ่าน Longdo Map) ' +
+                    'ใช้อ้างอิงทางกฎหมายไม่ได้ ผังบางพื้นที่อาจไม่เป็นฉบับล่าสุด ต้องตรวจกับหน่วยงานก่อนตัดสินใจ';
   var R = 6371008.8;
   var DISCLAIM = 'วัดจากภาพแผนที่ ไม่ใช่ผลรังวัด ภาพดาวเทียมอาจคลาดได้หลายเมตร ' +
                  'ใช้ประกอบการคุยเบื้องต้นเท่านั้น เนื้อที่จริงต้องยึดตามโฉนดและการรังวัดโดยช่างรังวัด';
@@ -262,6 +269,7 @@
           '<button type="button" data-am="layer" aria-pressed="true">🛰 ภาพดาวเทียม</button>' +
           '<button type="button" data-am="undo">↶ ย้อนหมุด</button>' +
           '<button type="button" data-am="clear">ล้างทั้งหมด</button>' +
+          (ZONING_OVERLAY ? '<button type="button" data-am="zoning" aria-pressed="false">🎨 ผังสี</button>' : '') +
         '</div>' +
         '<div class="am-grid">' +
           '<div class="am-map" data-am-map aria-label="แผนที่สำหรับวางหมุด"></div>' +
@@ -338,8 +346,23 @@
         t.setAttribute('aria-pressed', String(sat));
         t.textContent = sat ? '🛰 ภาพดาวเทียม' : '🗺 แผนที่ถนน';
       } else if (act === 'locate') locate();
+      else if (act === 'zoning' && ZONING_OVERLAY) toggleZoning(t);
     });
 
+    var zoningLayer = null, zoningOn = false;
+    function toggleZoning(btn) {
+      try {
+        if (!zoningLayer) zoningLayer = new L.Layer(ZONING_LAYER.name, { url: ZONING_LAYER.url, zoomRange: { min: 1, max: 20 } });
+        zoningOn = !zoningOn;
+        if (zoningOn) map.Layers.add(zoningLayer); else map.Layers.remove(zoningLayer);
+        btn.setAttribute('aria-pressed', String(zoningOn));
+        msg(zoningOn ? ZONING_NOTE : '');
+      } catch (e) {
+        zoningOn = false;
+        btn.setAttribute('aria-pressed', 'false');
+        msg('แสดงภาพผังเมืองไม่ได้ในตอนนี้ ตรวจผังได้ที่ระบบของกรมโยธาธิการและผังเมือง');
+      }
+    }
     function msg(text) { $('[data-am-msg]').textContent = text || ''; }
     function locate() {
       if (!navigator.geolocation) return msg('เบราว์เซอร์นี้หาตำแหน่งไม่ได้ เลื่อนแผนที่ไปที่แปลงเองได้เลย');
@@ -364,7 +387,7 @@
   }
 
   w.NJAreaMap = {
-    DISCLAIM: DISCLAIM, KEY: LONGDO_KEY,
+    DISCLAIM: DISCLAIM, KEY: LONGDO_KEY, ZONING_OVERLAY: ZONING_OVERLAY, ZONING_NOTE: ZONING_NOTE,
     areaM2: areaM2, sides: sides, haversine: haversine, thaiArea: thaiArea,
     summary: summary, lineText: lineText, resultHtml: resultHtml,
     createController: createController, loadLongdo: loadLongdo, mount: mount
