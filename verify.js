@@ -65,6 +65,12 @@ function setupSourceList() {
   });
 }
 
+// หัวข้อที่หน้าอื่นส่งมาได้ด้วย ?topic= — ข้อความอยู่ในไฟล์นี้ที่เดียว (รับเฉพาะคีย์ในรายการ ห้ามรับข้อความอิสระจาก URL)
+// zoning = มาจากคู่มือผังสี (tools.html#zoning) หรือแชท
+var PREFILL_TOPICS = {
+  zoning: 'ขอให้ตรวจผังเมืองของแปลงนี้ (ผังสีและข้อกำหนดการใช้ประโยชน์ที่ดิน)'
+};
+
 // มาจากหน้าทรัพย์หน่วยงาน (agency.html) = กรอกแหล่งทรัพย์ + ลิงก์ไว้ให้แล้ว ลูกค้ากรอกแค่ชื่อกับเบอร์
 // ⚠️ ค่าใน query string ใครก็ตั้งได้ — รับเฉพาะแหล่งที่อยู่ในรายการ และลิงก์ http/https ไม่เกิน 300 ตัว
 //    (เท่ากับ PROPCHECK_MAX.sourceUrl ฝั่งเซิร์ฟเวอร์) · ใส่ลงช่องด้วย .value เท่านั้น ไม่ประกอบเป็น HTML
@@ -76,6 +82,11 @@ function prefillFromQuery() {
   var url = String(q.get('url') || '').trim();
   if (PROPCHECK_SOURCES.indexOf(src) >= 0 && form.elements.source) form.elements.source.value = src;
   if (/^https?:\/\/\S+$/i.test(url) && url.length <= 300 && form.elements.sourceUrl) form.elements.sourceUrl.value = url;
+  var topic = q.get('topic') || '';
+  // ไม่ทับสิ่งที่ลูกค้าพิมพ์ไว้แล้ว (เช่น เบราว์เซอร์เติมค่าเดิมคืนตอนกดย้อนกลับ)
+  if (Object.prototype.hasOwnProperty.call(PREFILL_TOPICS, topic) && form.elements.note && !form.elements.note.value) {
+    form.elements.note.value = PREFILL_TOPICS[topic];
+  }
 }
 
 // ประกอบข้อความที่ตั้งจากช่องที่เลือกไว้ ให้ทีมขายอ่านรวดเดียวจบในการ์ดโอกาสทางธุรกิจ

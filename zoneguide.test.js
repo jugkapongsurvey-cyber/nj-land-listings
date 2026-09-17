@@ -44,7 +44,11 @@ ok('ทุกลิงก์เป็น https ของหน่วยงาน
 ok('มีลิงก์ระบบของกรมโยธาฯ', G.CHECK_LINKS.some(l => /landuseplan\.dpt\.go\.th/.test(l.url)));
 ok('ร่างผัง กทม. ติดป้ายร่าง', G.CHECK_LINKS.filter(l => /bmaplanning/.test(l.url)).every(l => l.draft) && /ร่าง ยังไม่มีผลบังคับใช้/.test(h));
 ok('ลิงก์ออกนอกเว็บมี noopener noreferrer', (h.match(/target="_blank"/g) || []).length === (h.match(/rel="noopener noreferrer"/g) || []).length);
-ok('ปุ่มให้ทีมตรวจไปที่ฟอร์มตรวจทรัพย์', /href="verify\.html#form"/.test(h));
+ok('ปุ่มให้ทีมตรวจไปที่ฟอร์มตรวจทรัพย์พร้อมหัวข้อผังเมือง', /href="verify\.html\?topic=zoning#form"/.test(h));
+const vjs = read('verify.js');
+ok('verify.js รู้จักหัวข้อ zoning', /PREFILL_TOPICS = \{[\s\S]*?zoning:/.test(vjs));
+ok('verify.js รับ topic เฉพาะคีย์ในรายการ (hasOwnProperty)', /hasOwnProperty\.call\(PREFILL_TOPICS, topic\)/.test(vjs));
+ok('verify.js ไม่ทับข้อความที่ลูกค้าพิมพ์ไว้', /!form\.elements\.note\.value/.test(vjs));
 
 console.log('\n4) กติกาในไฟล์');
 const src = read('zoneguide.js').replace(/\/\*[\s\S]*?\*\//g, '');
@@ -72,6 +76,7 @@ C._setListings([]);
   const a = await C.route('ผังสีเหลืองคืออะไร');
   ok('"ผังสีเหลืองคืออะไร" → คู่มือผังสี', a && /tools\.html#zoning/.test(a.html), a && a.html);
   ok('คำตอบไม่ฟันธงว่าสร้างอะไรได้', a && /ตอบแทนไม่ได้/.test(a.html));
+  ok('ปุ่มในแชทส่งหัวข้อผังเมืองไปฟอร์ม', a && /verify\.html\?topic=zoning#form/.test(a.html));
   const b = await C.route('อยากเช็คผังเมืองของที่ดินตัวเอง');
   ok('"เช็คผังเมือง" → คู่มือผังสี', b && /tools\.html#zoning/.test(b.html), b && b.html);
   const c = await C.route('ที่ดินผังสีเขียวสร้างโรงงานได้ไหม');
