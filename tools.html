@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เครื่องมือคำนวณ — ค่างวดสินเชื่อ ค่าโอน ภาษีวันโอน | ที่ดินชัวร์</title>
+<meta name="description" content="คำนวณค่างวดสินเชื่อบ้านและที่ดินเปล่า รายได้ที่ควรมี และค่าใช้จ่ายวันโอน (ค่าธรรมเนียม ภาษีธุรกิจเฉพาะ อากรแสตมป์ ภาษีหัก ณ ที่จ่าย) แบบประมาณการ จากทีมช่างรังวัดของที่ดินชัวร์">
+<link rel="canonical" href="https://njteedinsure.com/tools.html">
+<link rel="icon" href="brand/logo-favicon.svg">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B1F3A">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ที่ดินชัวร์">
+<meta property="og:title" content="เครื่องมือคำนวณ — สินเชื่อและค่าโอน">
+<meta property="og:description" content="ประมาณค่างวดและค่าใช้จ่ายวันโอนก่อนซื้อที่ดิน">
+<meta property="og:url" content="https://njteedinsure.com/tools.html">
+<meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="feecalc.css">
+<link rel="stylesheet" href="compare.css">
+<link rel="stylesheet" href="verified.css">
+<link rel="stylesheet" href="njchat.css">
+<link rel="stylesheet" href="menu.css">
+<link rel="stylesheet" href="agency.css">
+</head>
+<body class="page-agency page-tools">
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="brand">
+      <img src="brand/logo-mark.svg" alt="ที่ดินชัวร์" class="brand-logo">
+      <span class="brand-name">ที่ดินชัวร์</span>
+    </a>
+    <nav class="header-nav">
+      <a href="listings.html">แปลงที่ดิน</a>
+      <a href="consign.html">ฝากขายที่ดิน</a>
+      <a href="agency.html">ทรัพย์หน่วยงาน</a>
+      <a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a>
+      <a class="active" href="tools.html">เครื่องมือคำนวณ</a>
+      <a href="guides.html" data-nav-wide>ความรู้เรื่องที่ดิน</a>
+    </nav>
+    <a class="nj-portal-link" data-njportal href="portal.html">ติดตามงานรังวัด</a>
+    <a class="header-cta" href="verify.html#form">ส่งทรัพย์ให้ตรวจ</a>
+  </div>
+</header>
+
+<section class="ag-hero tl-hero">
+  <div class="wrap">
+    <div class="cs-eyebrow">ตัวเลขประมาณการ · แก้ได้ทุกช่อง</div>
+    <h1>เครื่องมือคำนวณก่อนซื้อที่ดิน</h1>
+    <p class="ag-lead">ดูค่างวดสินเชื่อและค่าใช้จ่ายวันโอนก่อนคุยกับธนาคารหรือเจ้าของที่ดิน · ตัวเลขทั้งหมดเป็นค่าประมาณ ยอดจริงขึ้นกับธนาคารและเจ้าหน้าที่สำนักงานที่ดิน</p>
+    <div class="tl-jump">
+      <a href="#loan">ค่างวดสินเชื่อ</a>
+      <a href="#fee">ค่าใช้จ่ายวันโอน</a>
+      <a href="guides.html#valuation">หลักการประเมินราคาที่ดิน</a>
+    </div>
+  </div>
+</section>
+
+<section class="tl-sec" id="loan">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">ค่างวดสินเชื่อ</h2>
+    <div id="tl-loan"></div>
+  </div>
+</section>
+
+<section class="tl-sec tl-alt" id="fee">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">ค่าใช้จ่ายวันโอน</h2>
+    <div id="tl-fee"></div>
+  </div>
+</section>
+
+<section class="cs-final">
+  <div class="wrap">
+    <h2>ตัวเลขลงตัวแล้ว เหลือตรวจตัวแปลง</h2>
+    <p>ส่งลิงก์ทรัพย์หรือเลขโฉนดให้ทีมช่างรังวัดตรวจแนวเขตและทางเข้าออกก่อนโอน</p>
+    <a href="agency.html" class="cs-final-btn">ส่งลิงก์ทรัพย์ให้ตรวจ →</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
+</footer>
+
+<script src="analytics.js"></script>
+<script src="feecalc.js"></script>
+<script src="loancalc.js"></script>
+<script src="tools.js"></script>
+<!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
+<script src="verified.js"></script>
+<script src="listingcard.js"></script>
+<script src="landvocab.js"></script>
+<script src="compare.js"></script>
+<script src="njchat.js"></script>
+<script src="menu.js"></script>
+</body>
+</html>

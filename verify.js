@@ -65,6 +65,19 @@ function setupSourceList() {
   });
 }
 
+// มาจากหน้าทรัพย์หน่วยงาน (agency.html) = กรอกแหล่งทรัพย์ + ลิงก์ไว้ให้แล้ว ลูกค้ากรอกแค่ชื่อกับเบอร์
+// ⚠️ ค่าใน query string ใครก็ตั้งได้ — รับเฉพาะแหล่งที่อยู่ในรายการ และลิงก์ http/https ไม่เกิน 300 ตัว
+//    (เท่ากับ PROPCHECK_MAX.sourceUrl ฝั่งเซิร์ฟเวอร์) · ใส่ลงช่องด้วย .value เท่านั้น ไม่ประกอบเป็น HTML
+function prefillFromQuery() {
+  var form = $('verify-form');
+  if (!form || typeof URLSearchParams === 'undefined') return;
+  var q = new URLSearchParams(location.search);
+  var src = q.get('source') || '';
+  var url = String(q.get('url') || '').trim();
+  if (PROPCHECK_SOURCES.indexOf(src) >= 0 && form.elements.source) form.elements.source.value = src;
+  if (/^https?:\/\/\S+$/i.test(url) && url.length <= 300 && form.elements.sourceUrl) form.elements.sourceUrl.value = url;
+}
+
 // ประกอบข้อความที่ตั้งจากช่องที่เลือกไว้ ให้ทีมขายอ่านรวดเดียวจบในการ์ดโอกาสทางธุรกิจ
 function locationText(a) {
   var bkk = a.province === 'กรุงเทพมหานคร';
@@ -158,5 +171,6 @@ document.getElementById('year').textContent = new Date().getFullYear() + 543;   
 setupContactLinks();
 setupSourceList();
 setupForm();
+prefillFromQuery();
 njTrackInternal('propcheck_view');
 njTrack('ViewContent', { content_name: 'verify_page' });
