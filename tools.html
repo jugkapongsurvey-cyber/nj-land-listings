@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="agency.css">
 <link rel="stylesheet" href="zoneguide.css">
+<link rel="stylesheet" href="areamap.css">
 </head>
 <body class="page-agency page-tools">
 
@@ -59,6 +60,7 @@
     <h1>เครื่องมือคำนวณก่อนซื้อที่ดิน</h1>
     <p class="ag-lead">ดูค่างวดสินเชื่อและค่าใช้จ่ายวันโอนก่อนคุยกับธนาคารหรือเจ้าของที่ดิน · ตัวเลขทั้งหมดเป็นค่าประมาณ ยอดจริงขึ้นกับธนาคารและเจ้าหน้าที่สำนักงานที่ดิน</p>
     <div class="tl-jump">
+      <a href="#map" data-map-link hidden>วัดพื้นที่บนแผนที่</a>
       <a href="#loan">ค่างวดสินเชื่อ</a>
       <a href="#fee">ค่าใช้จ่ายวันโอน</a>
       <a href="#zoning">ผังสีผังเมือง</a>
@@ -67,14 +69,22 @@
   </div>
 </section>
 
-<section class="tl-sec" id="loan">
+<!-- วัดพื้นที่บนแผนที่ (P2 · Longdo Map) — ซ่อนไว้จนกว่า areamap.js จะมีคีย์และ mount สำเร็จ -->
+<section class="tl-sec" id="map" hidden>
+  <div class="wrap tl-wrap am-wrap">
+    <h2 class="cs-h2">วัดพื้นที่บนแผนที่</h2>
+    <div id="tl-map"></div>
+  </div>
+</section>
+
+<section class="tl-sec tl-alt" id="loan">
   <div class="wrap tl-wrap">
     <h2 class="cs-h2">ค่างวดสินเชื่อ</h2>
     <div id="tl-loan"></div>
   </div>
 </section>
 
-<section class="tl-sec tl-alt" id="fee">
+<section class="tl-sec" id="fee">
   <div class="wrap tl-wrap">
     <h2 class="cs-h2">ค่าใช้จ่ายวันโอน</h2>
     <div id="tl-fee"></div>
@@ -82,7 +92,7 @@
 </section>
 
 <!-- คู่มือผังสี (P3) — อธิบายความหมาย + ลิงก์ไปตรวจที่หน่วยงาน ไม่มีข้อมูลผังรายแปลง (ดูหัวไฟล์ zoneguide.js) -->
-<section class="tl-sec" id="zoning">
+<section class="tl-sec tl-alt" id="zoning">
   <div class="wrap tl-wrap zg-wrap">
     <h2 class="cs-h2">ผังสีผังเมืองบอกอะไร</h2>
     <div id="tl-zoning"></div>
@@ -106,6 +116,7 @@
 <script src="loancalc.js"></script>
 <script src="landvocab.js"></script>
 <script src="zoneguide.js"></script>
+<script src="areamap.js"></script>
 <script src="tools.js"></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="verified.js"></script>

@@ -30,6 +30,12 @@
 
   NJZoneGuide.mount(document.getElementById('tl-zoning'));
 
+  // แผนที่วัดพื้นที่ — ไม่มีคีย์ Longdo = mount คืน false แล้วส่วนนี้ซ่อนต่อไป (กติกาข้อ 4 ใน areamap.js)
+  if (window.NJAreaMap && NJAreaMap.mount(document.getElementById('tl-map'))) {
+    document.getElementById('map').hidden = false;
+    document.querySelectorAll('[data-map-link]').forEach(function (a) { a.hidden = false; });
+  }
+
   document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
   njTrack('ViewContent', { content_name: 'tools_page' });
 })();
