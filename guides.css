@@ -49,3 +49,18 @@
 /* กล่องเครื่องคำนวณค่าโอน — ตัวกล่องเองอยู่ใน feecalc.css ตรงนี้แค่จัดระยะให้เข้ากับ .gd-item */
 .gd-calc{scroll-margin-top:80px}
 .gd-calc .fc{margin-top:0}
+
+/* แถบเครื่องมือด้านบน + ลิงก์ต่อท้ายหัวข้อ (2026-09-17) */
+.gd-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:760px){ .gd-tools{grid-template-columns:1fr} }
+.gd-tools a{
+  display:flex;flex-direction:column;gap:3px;text-decoration:none;
+  background:#0B1F3A;color:#fff;border-radius:14px;padding:15px 18px;
+}
+.gd-tools a:hover,.gd-tools a:focus-visible{background:#1B4B7A}
+.gd-tools a:focus-visible{outline:3px solid #8FE3B8;outline-offset:2px}
+.gd-tools b{font-size:15.5px}
+.gd-tools span{font-size:12.5px;color:#D8E1EA;line-height:1.5}
+.gd-item p.gd-more{margin-top:8px}
+.gd-more a{color:#1B4B7A;font-weight:600;text-decoration:none}
+.gd-more a:hover{text-decoration:underline}
