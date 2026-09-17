@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>เครื่องมือคำนวณ — ค่างวดสินเชื่อ ค่าโอน ภาษีวันโอน | ที่ดินชัวร์</title>
-<meta name="description" content="คำนวณค่างวดสินเชื่อบ้านและที่ดินเปล่า รายได้ที่ควรมี และค่าใช้จ่ายวันโอน (ค่าธรรมเนียม ภาษีธุรกิจเฉพาะ อากรแสตมป์ ภาษีหัก ณ ที่จ่าย) แบบประมาณการ จากทีมช่างรังวัดของที่ดินชัวร์">
+<meta name="description" content="คำนวณค่างวดสินเชื่อบ้านและที่ดินเปล่า รายได้ที่ควรมี ความหมายของผังสีผังเมือง และค่าใช้จ่ายวันโอน (ค่าธรรมเนียม ภาษีธุรกิจเฉพาะ อากรแสตมป์ ภาษีหัก ณ ที่จ่าย) แบบประมาณการ จากทีมช่างรังวัดของที่ดินชัวร์">
 <link rel="canonical" href="https://njteedinsure.com/tools.html">
 <link rel="icon" href="brand/logo-favicon.svg">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
@@ -30,6 +30,7 @@
 <link rel="stylesheet" href="njchat.css">
 <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="agency.css">
+<link rel="stylesheet" href="zoneguide.css">
 </head>
 <body class="page-agency page-tools">
 
@@ -60,6 +61,7 @@
     <div class="tl-jump">
       <a href="#loan">ค่างวดสินเชื่อ</a>
       <a href="#fee">ค่าใช้จ่ายวันโอน</a>
+      <a href="#zoning">ผังสีผังเมือง</a>
       <a href="guides.html#valuation">หลักการประเมินราคาที่ดิน</a>
     </div>
   </div>
@@ -79,6 +81,14 @@
   </div>
 </section>
 
+<!-- คู่มือผังสี (P3) — อธิบายความหมาย + ลิงก์ไปตรวจที่หน่วยงาน ไม่มีข้อมูลผังรายแปลง (ดูหัวไฟล์ zoneguide.js) -->
+<section class="tl-sec" id="zoning">
+  <div class="wrap tl-wrap zg-wrap">
+    <h2 class="cs-h2">ผังสีผังเมืองบอกอะไร</h2>
+    <div id="tl-zoning"></div>
+  </div>
+</section>
+
 <section class="cs-final">
   <div class="wrap">
     <h2>ตัวเลขลงตัวแล้ว เหลือตรวจตัวแปลง</h2>
@@ -94,6 +104,7 @@
 <script src="analytics.js"></script>
 <script src="feecalc.js"></script>
 <script src="loancalc.js"></script>
+<script src="zoneguide.js"></script>
 <script src="tools.js"></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="verified.js"></script>

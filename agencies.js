@@ -65,9 +65,9 @@
     { key: 'treasury', cat: 'check', name: 'ราคาประเมิน กรมธนารักษ์', source: null,
       url: 'https://assessprice.treasury.go.th/', hosts: ['treasury.go.th'],
       desc: 'ราคาประเมินทุนทรัพย์ที่ใช้คิดค่าธรรมเนียมโอน' },
-    { key: 'dpt', cat: 'check', name: 'กรมโยธาธิการและผังเมือง', source: null,
-      url: 'https://www.dpt.go.th/', hosts: ['dpt.go.th'],
-      desc: 'ผังเมืองรวมและข้อกำหนดการใช้ประโยชน์ที่ดิน (ผังสี)' }
+    { key: 'dpt', cat: 'check', name: 'ตรวจผังเมือง กรมโยธาธิการและผังเมือง', source: null,
+      url: 'https://landuseplan.dpt.go.th/main', hosts: ['dpt.go.th'],
+      desc: 'ค้นผังสีและข้อกำหนดการใช้ประโยชน์ที่ดินตามผังเมืองรวม (ข้อมูลเบื้องต้น ใช้อ้างอิงทางกฎหมายไม่ได้) · ดูความหมายของแต่ละสีได้ที่ "เครื่องมือคำนวณ"' }
   ];
 
   var SHORT_HOSTS = ['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'shorturl.at', 's.id', 'lin.ee', 'cutt.ly', 'rb.gy', 'is.gd'];
