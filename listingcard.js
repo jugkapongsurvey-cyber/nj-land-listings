@@ -67,6 +67,18 @@
     };
   }
 
+  // ป้ายผังสีบนการ์ด · สี/ลายอ่านจาก NJVocab ที่เดียว (ห้ามพิมพ์รหัสสีซ้ำที่นี่)
+  function zoneChip(key) {
+    var V = window.NJVocab;
+    if (!key || !V || !V.ZONE_HEX || !V.ZONE_HEX[key]) return '';
+    var hex = V.ZONE_HEX[key];
+    var bg = (V.ZONE_HATCH && V.ZONE_HATCH[key])
+      ? 'repeating-linear-gradient(135deg,' + hex + ' 0 3px,#fff 3px 7px)'
+      : hex;
+    return '<span class="card-zone" title="' + esc('ผังสี: ' + (V.ZONE_TH[key] || '')) + '">' +
+      '<i style="background:' + bg + '" aria-hidden="true"></i>ผัง' + esc(V.zoneShort ? V.zoneShort(key) : key) + '</span>';
+  }
+
   function card(item) {
     var media = item.photos[0]
       ? '<img src="' + esc(item.photos[0]) + '" alt="' + esc(item.parcelInfo || 'แปลงที่ดิน') + '" loading="lazy">'
@@ -89,6 +101,10 @@
       bits.push(esc(PT[LP.propertyType]) + (LP.floors > 0 ? ' ' + LP.floors + ' ชั้น' : ''));
     } else if (LP.floors > 0) { bits.push(LP.floors + ' ชั้น'); }
     var meta = bits.length ? '<div class="card-meta">' + bits.join(' · ') + '</div>' : '';
+    // ป้ายผังสี — ขึ้นเฉพาะแปลงที่ทีมงานอ่านผังแล้วกดบันทึกเอง (เพิ่ม 2026-09-18)
+    // ⚠️ ไม่มี zoneColor = ยังไม่ได้ตรวจ ต้องไม่ขึ้นป้ายอะไรเลย ห้ามขึ้นป้าย "ไม่มีผังสี"
+    // ⚠️ เป็นข้อมูลของบริษัทเอง (ทีมกรอก) ไม่ใช่ภาพผังของหน่วยงาน — จึงเผยแพร่ได้
+    var zone = zoneChip(LP.zoneColor);
     var when = ago(item.updatedAt);
     var href = 'land.html?id=' + encodeURIComponent(item.id);
     return '<article class="land-card" data-href="' + esc(href) + '" data-id="' + esc(item.id) + '">' +
@@ -114,6 +130,7 @@
         (window.NJScore ? NJScore.badgeHtml(item.score) : '') +
         '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(item.parcelInfo || 'แปลงที่ดิน') + '</a></h3>' +
         meta +
+        zone +
         facts +
         '<div class="card-agent">' +
           '<span class="agent-avatar">NJ</span>' +

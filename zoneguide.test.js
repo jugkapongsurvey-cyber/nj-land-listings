@@ -6,11 +6,12 @@ const vm = require('vm');
 const W = __dirname;
 const read = f => fs.readFileSync(path.join(W, f), 'utf8');
 
+// โหลดในกล่องเดียวกันแบบหน้าเว็บจริง — zoneguide อ่านสีผังจาก NJVocab (landvocab.js ต้องมาก่อน)
 global.window = {};
+new Function(read('landvocab.js'))();
 new Function(read('zoneguide.js'))();
 const G = global.window.NJZoneGuide;
-const V = {};
-new Function('window', read('landvocab.js'))(V);
+const V = global.window;
 
 let pass = 0, fail = 0;
 function ok(label, cond, extra) {
@@ -22,11 +23,15 @@ console.log('\n1) ข้อมูลในคู่มือ');
 const keys = G.ZONES.map(z => z.key);
 const vocabKeys = Object.keys(V.NJVocab.ZONE_TH);
 ok('คีย์ตรงกับ NJVocab.ZONE_TH ทั้งชุดและลำดับ', JSON.stringify(keys) === JSON.stringify(vocabKeys), [keys, vocabKeys]);
-ok('ทุกสีมีชื่อ สีตามกฎหมาย รหัสสี การใช้ และข้อจำกัด', G.ZONES.every(z => z.name && z.law && /^#[0-9A-F]{6}$/i.test(z.hex) && z.use && z.watch && z.codes));
+ok('ทุกสีมีชื่อ สีตามกฎหมาย การใช้ และข้อจำกัด', G.ZONES.every(z => z.name && z.law && z.use && z.watch && z.codes));
+ok('รหัสสีอ่านจาก NJVocab ที่เดียว (ไม่มีรหัสสีซ้ำในไฟล์คู่มือ)', !/#[0-9A-Fa-f]{6}/.test(read('zoneguide.js').replace(/#FFFFFF|#8798A9/g, '')));
+ok('NJVocab มีรหัสสีครบทุกคีย์', vocabKeys.every(k => /^#[0-9A-F]{6}$/i.test(V.NJVocab.ZONE_HEX[k])), V.NJVocab.ZONE_HEX);
+ok('เขียวลายขาวถูกทำเครื่องหมายว่าเป็นลายทแยงใน NJVocab', V.NJVocab.ZONE_HATCH.green_diag === true && !V.NJVocab.ZONE_HATCH.green);
+ok('คำสีสั้น (zoneShort) ตัดจาก ZONE_TH', V.NJVocab.zoneShort('yellow') === 'เหลือง' && V.NJVocab.zoneShort('green_diag') === 'เขียวลายขาว');
 ok('ชื่อประเภทตรงกับคำใน NJVocab (ส่วนหลัง " — ")',
    G.ZONES.filter(z => z.key !== 'blue' && z.key !== 'other').every(z => V.NJVocab.ZONE_TH[z.key].indexOf(z.name) >= 0),
    G.ZONES.map(z => [z.name, V.NJVocab.ZONE_TH[z.key]]));
-ok('เขียวลายขาวมีลายทแยง ส่วนเขียวทึบไม่มี', G.ZONES.find(z => z.key === 'green_diag').hatch === true && !G.ZONES.find(z => z.key === 'green').hatch);
+ok('เขียวลายขาววาดเป็นลายทแยง ส่วนเขียวทึบไม่', G.hatchOf('green_diag') === true && G.hatchOf('green') === false);
 ok('ชื่อสีตามกฎกระทรวงของเขียวลายขาว', /เส้นทแยงสีเขียว/.test(G.ZONES.find(z => z.key === 'green_diag').law));
 
 console.log('\n2) ห้ามรับปาก');
