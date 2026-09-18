@@ -25,6 +25,21 @@
     grey: 'เทา — สถาบันศาสนา', other: 'อื่นๆ / นอกเขตผังเมือง'
   };
 
+  // สีของผังสีสำหรับวาดป้าย/สัญลักษณ์บนหน้าจอ (เพิ่ม 2026-09-18)
+  // ⚠️ กฎกระทรวงเขียนชื่อสีเป็นคำ ไม่ได้ให้รหัสสี — ค่าข้างล่างคัดจากตัวแสดงผลของบริการแผนที่ทางการ
+  //    (กรมโยธาธิการฯ / กทม.) จึงเป็น **สีโดยประมาณ** ห้ามนำไปอ้างว่าเป็นสีตามกฎหมาย
+  // ⚠️ อยู่ที่นี่ที่เดียว — ทั้งป้ายบนการ์ดประกาศ (`listingcard.js`) และคู่มือผังสี (`zoneguide.js`) อ่านจากชุดนี้
+  //    คีย์ต้องครบและตรงกับ ZONE_TH เสมอ (มีเทสต์ล็อกไว้)
+  var ZONE_HEX = {
+    yellow: '#FFFF00', orange: '#FF7F00', brown: '#A87000', red: '#FF0000',
+    purple: '#8400A8', plum: '#FFB0FF', green: '#38A800', green_diag: '#38A800',
+    blue: '#007FFF', olive: '#557300', grey: '#ADADAD', other: '#FFFFFF'
+  };
+  // ประเภทที่กฎกระทรวงกำหนดเป็น "สีขาวมีกรอบและเส้นทแยง" — ต้องวาดเป็นลายทแยง ไม่ใช่สีทึบ
+  var ZONE_HATCH = { green_diag: true };
+  // คำสีสั้นๆ สำหรับป้ายแคบ (ตัดจาก ZONE_TH ก่อนเครื่องหมาย —)
+  function zoneShort(key) { return String(ZONE_TH[key] || '').split(' — ')[0]; }
+
   var ROAD_TH = { concrete: 'คอนกรีต', asphalt: 'ลาดยาง', laterite: 'ลูกรัง', dirt: 'ดิน', none: 'ยังไม่มีถนนเข้าถึง' };
 
   var FACING_TH = {
@@ -68,7 +83,8 @@
   };
 
   w.NJVocab = {
-    DEED_TH: DEED_TH, ZONE_TH: ZONE_TH, ROAD_TH: ROAD_TH, FACING_TH: FACING_TH,
+    DEED_TH: DEED_TH, ZONE_TH: ZONE_TH, ZONE_HEX: ZONE_HEX, ZONE_HATCH: ZONE_HATCH, zoneShort: zoneShort,
+    ROAD_TH: ROAD_TH, FACING_TH: FACING_TH,
     FEATURES: FEATURES, FEATURE_TH: FEATURE_TH,
     SHAPE_TH: SHAPE_TH, ACCESS_TH: ACCESS_TH, STRUCTURE_TH: STRUCTURE_TH,
     PROPERTY_TH: PROPERTY_TH

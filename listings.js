@@ -107,7 +107,8 @@
       }
       if (f.zone !== 'all') {
         if (!L.zoneColor) { hiddenUnknown++; return false; }
-        if (L.zoneColor !== f.zone) return false;
+        // 'checked' = ขอเฉพาะแปลงที่ทีมอ่านผังแล้วกดบันทึก (สีอะไรก็ได้) · ค่าอื่น = เจาะจงสีนั้น
+        if (f.zone !== 'checked' && L.zoneColor !== f.zone) return false;
       }
       if (f.feats.length) {
         var have = L.features || [];
@@ -170,7 +171,7 @@
       var o = document.createElement('option'); o.value = k; o.textContent = PROP_TH[k];
       prop.appendChild(o);
     });
-    fillSelect($('f-zone'), Object.keys(ZONE_TH).map(function (k) { return [k, ZONE_TH[k]]; }), 'ไม่เกี่ยง');
+    fillSelect($('f-zone'), [['checked', 'ตรวจผังสีแล้ว (ทุกสี)']].concat(Object.keys(ZONE_TH).map(function (k) { return [k, ZONE_TH[k]]; })), 'ไม่เกี่ยง');
     $('f-features').innerHTML = FEATURES.map(function (k) {
       return '<label><input type="checkbox" id="f-feat-' + k + '"> ' + NJL.esc(FEATURE_TH[k]) + '</label>';
     }).join('');

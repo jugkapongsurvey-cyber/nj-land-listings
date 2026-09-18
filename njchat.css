@@ -212,3 +212,7 @@
    ต้องมีรายการเท่ากับ listings.html เป๊ะตามกติกา (njchat.e2e.js เทียบไว้)
    ซ่อนในแถวเมนูแต่ยังอยู่ใน DOM — ลิ้นชักจอเล็กจึงยังเห็นและ "หน้าปัจจุบัน" ยังถูกทำเครื่องหมายได้ */
 .page-chat .topbar nav a[href="chat.html"]{ display:none; }
+
+/* ป้ายผังสีบนการ์ด (2026-09-18) — สีมาจาก NJVocab.ZONE_HEX ผ่าน inline style ของ listingcard.js */
+.njchat-cards .card-zone{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;color:#5A6B7D}
+.njchat-cards .card-zone i{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.3);flex:none}
