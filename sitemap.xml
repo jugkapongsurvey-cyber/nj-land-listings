@@ -1,112 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ที่ดินชัวร์ — แผนผังเว็บไซต์
-     หน้าแปลงรายแปลง (land.html?id=OP-xxx) ไม่อยู่ในไฟล์นี้ เพราะเปลี่ยนไปมาตลอด
-     Google ตามเจอเองจากลิงก์ในหน้ารวมประกาศ (listingcard.js สร้าง <a href> จริง) -->
+<!-- สร้างด้วย build/sitemap.js — ห้ามแก้ด้วยมือ (แก้แล้วจะถูกเขียนทับรอบถัดไป)
+     lastmod = วันที่ commit ล่าสุดของไฟล์นั้น · ไม่มี priority/changefreq โดยตั้งใจ
+     หน้าแปลงรายแปลงจะมาในไฟล์แยก (sitemaps/properties.xml) เมื่อสร้างหน้าจริงเสร็จ -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- หน้าแรก -->
   <url>
     <loc>https://njteedinsure.com/</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <!-- แชทกับน้องเอ็นเจชัวร์ (AI ผู้ช่วย) -->
-  <url>
-    <loc>https://njteedinsure.com/chat.html</loc>
-    <lastmod>2026-09-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <!-- รวมประกาศขายที่ดิน -->
-  <url>
-    <loc>https://njteedinsure.com/listings.html</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <!-- แพ็กเกจบริการ (รอบ 4) -->
-  <url>
-    <loc>https://njteedinsure.com/packages.html</loc>
     <lastmod>2026-09-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
-  <!-- ฝากขายที่ดิน -->
-  <url>
-    <loc>https://njteedinsure.com/consign.html</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <!-- ฝากหาที่ดิน -->
-  <url>
-    <loc>https://njteedinsure.com/wanted.html</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- นัดตรวจแปลงก่อนซื้อ · deal.html ไม่อยู่ในไฟล์นี้โดยตั้งใจ (noindex — เนื้อหาขึ้นกับตั๋วในลิงก์) -->
-  <url>
-    <loc>https://njteedinsure.com/inspect.html</loc>
-    <lastmod>2026-09-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- ค้นหาตามวัตถุประสงค์ -->
-  <url>
-    <loc>https://njteedinsure.com/purpose.html</loc>
-    <lastmod>2026-09-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <!-- ตรวจสอบทรัพย์ก่อนซื้อ -->
-  <url>
-    <loc>https://njteedinsure.com/verify.html</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- คู่มือที่ดิน + เครื่องคำนวณค่าโอน -->
-  <url>
-    <loc>https://njteedinsure.com/guides.html</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <!-- ระบบติดตามงานรังวัด (หน้าอธิบาย + ทางเข้าพอร์ทัลลูกค้า)
-       ตัวระบบจริงอยู่ที่ app.njteedinsure.com ซึ่งต้องล็อกอิน จึงไม่ใส่ในแผนผังนี้
-       (หน้าที่บอตเข้าไม่ถึงแต่ประกาศไว้ = บอกกูเกิลถึงหน้าที่มันจะเจอแต่ประตูล็อก) -->
-  <url>
-    <loc>https://njteedinsure.com/portal.html</loc>
-    <lastmod>2026-09-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <!-- ทรัพย์หน่วยงาน + เครื่องมือคำนวณ (P1 · 2026-09-17) -->
   <url>
     <loc>https://njteedinsure.com/agency.html</loc>
     <lastmod>2026-09-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/chat.html</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/consign.html</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/guides.html</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/inspect.html</loc>
+    <lastmod>2026-09-12</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/listings.html</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/packages.html</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/partner-apply.html</loc>
+    <lastmod>2026-09-17</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/portal.html</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://njteedinsure.com/purpose.html</loc>
+    <lastmod>2026-09-19</lastmod>
   </url>
   <url>
     <loc>https://njteedinsure.com/tools.html</loc>
-    <lastmod>2026-09-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2026-09-18</lastmod>
   </url>
-  <!-- คลังวิดีโอ -->
+  <url>
+    <loc>https://njteedinsure.com/verify.html</loc>
+    <lastmod>2026-09-17</lastmod>
+  </url>
   <url>
     <loc>https://njteedinsure.com/videos.html</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2026-09-19</lastmod>
   </url>
-  <!-- สมัครเป็นพันธมิตรกับ NJ -->
   <url>
-    <loc>https://njteedinsure.com/partner-apply.html</loc>
-    <lastmod>2026-09-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://njteedinsure.com/wanted.html</loc>
+    <lastmod>2026-09-12</lastmod>
   </url>
 </urlset>
