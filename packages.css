@@ -1,0 +1,127 @@
+/* แพ็กเกจบริการที่ดินชัวร์ (รอบ 4) — ใช้คำนำหน้า pk-* ทั้งหมด ไม่ชนกับหน้าอื่น
+ *
+ * โทนสีตามข้อกำหนดข้อ 9: กรมท่า–ขาว–ทอง
+ * ⚠️ style.css ไม่มีตัวแปรสีทอง (ชุดทองอยู่ใน home.css ซึ่งหน้านี้ไม่ได้โหลด)
+ *    จึงประกาศ --pk-gold ไว้เองที่นี่ · แก้สีทองของหน้านี้ให้แก้ที่ตัวแปรเดียวนี้
+ */
+.page-packages { --pk-gold: #C79A3B; --pk-gold-soft: #FBF5E7; --pk-gold-line: #EBDCB4; }
+
+/* ---------- หัวหน้า ---------- */
+.pk-hero { background: linear-gradient(165deg, #0B1F3A 0%, #143453 100%); color: #fff; padding: 40px 0 44px; }
+.pk-hero h1 { font-size: clamp(25px, 4vw, 38px); line-height: 1.3; margin: 0 0 12px; color: #fff; }
+.pk-hero h1 b { color: var(--pk-gold); font-weight: 700; }
+.pk-lead { font-size: 16px; line-height: 1.8; margin: 0; max-width: 680px; color: rgba(255, 255, 255, .88); }
+.pk-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding: 0; list-style: none; }
+.pk-badges li { font-size: 13px; padding: 5px 12px; border-radius: 999px; color: #F3E2B8; background: rgba(199, 154, 59, .18); border: 1px solid rgba(199, 154, 59, .45); }
+
+/* ---------- แถบกลุ่มแพ็กเกจ ---------- */
+.pk-main { padding: 26px 0 40px; background: var(--bg); }
+.pk-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+.pk-tab { font: 600 14px/1 inherit; font-family: inherit; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: #fff; color: var(--sub); cursor: pointer; }
+.pk-tab[aria-selected="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+.pk-tab:focus-visible, .pk-btn:focus-visible, .pk-chip:focus-visible { outline: 3px solid #1B4B7A; outline-offset: 2px; }
+
+/* ---------- การ์ดแพ็กเกจ ---------- */
+.pk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.pk-card { position: relative; display: flex; flex-direction: column; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+.pk-card.is-rec { border-color: var(--pk-gold); box-shadow: 0 10px 28px rgba(11, 31, 58, .09); }
+.pk-rib { position: absolute; top: -11px; left: 18px; background: var(--pk-gold); color: #20180A; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; }
+.pk-name { font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.45; margin: 0; }
+.pk-sub { font-size: 13px; color: var(--sub); line-height: 1.65; margin: 4px 0 0; }
+.pk-aud { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
+.pk-aud li { font-size: 12px; color: #41577A; background: #EEF3F9; border-radius: 6px; padding: 3px 8px; }
+.pk-price { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0; }
+.pk-price b { font-size: 22px; color: var(--navy); }
+.pk-price .pk-unit { font-size: 13px; color: var(--sub); margin-left: 5px; }
+.pk-price .pk-note { display: block; font-size: 12px; color: var(--sub); line-height: 1.6; margin-top: 6px; }
+.pk-withsurvey { display: block; margin-top: 8px; font-size: 12.5px; line-height: 1.6; color: #6B5111; background: var(--pk-gold-soft); border: 1px solid var(--pk-gold-line); border-radius: 9px; padding: 7px 10px; }
+.pk-sec { font-size: 12px; font-weight: 700; color: var(--sub); margin: 0 0 5px; }
+.pk-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.pk-list li { position: relative; padding-left: 20px; font-size: 13px; line-height: 1.65; color: #35506F; }
+.pk-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.pk-list.is-no li::before { content: '✕'; color: #C2553F; }
+.pk-list.is-doc li::before { content: '•'; color: var(--sub); }
+.pk-dur { font-size: 13px; line-height: 1.6; color: #35506F; background: #F7FAFD; border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
+.pk-more { border-top: 1px dashed var(--border); padding-top: 10px; }
+.pk-more > summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--navy); list-style: none; }
+.pk-more > summary::-webkit-details-marker { display: none; }
+.pk-more > summary::before { content: '▸ '; color: var(--pk-gold); }
+.pk-more[open] > summary::before { content: '▾ '; }
+.pk-more-body { margin-top: 10px; display: flex; flex-direction: column; gap: 12px; }
+.pk-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 2px; }
+.pk-btn { font: 700 13.5px inherit; font-family: inherit; border: 1px solid transparent; border-radius: 11px; padding: 11px 13px; cursor: pointer; flex: 1 1 130px; }
+.pk-btn.is-primary { background: var(--navy); color: #fff; }
+.pk-btn.is-ghost { background: #fff; color: var(--navy); border-color: var(--border); }
+.pk-btn.is-gold { background: var(--pk-gold); color: #20180A; }
+.pk-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.pk-chip { flex: 0 0 auto; font: 600 13px inherit; font-family: inherit; border: 1px solid var(--border); background: #fff; color: var(--sub); border-radius: 11px; padding: 11px 12px; cursor: pointer; }
+.pk-chip[aria-pressed="true"] { background: #EEF3F9; color: var(--navy); border-color: #C6D5E6; }
+
+/* ---------- ส่วนเนื้อหาอื่น ---------- */
+.pk-block { margin-top: 34px; }
+.pk-block > h2 { font-size: 22px; color: var(--navy); margin: 0 0 4px; }
+.pk-block > p.pk-hint { font-size: 14px; color: var(--sub); line-height: 1.7; margin: 0 0 14px; }
+.pk-panel { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+.pk-empty { color: var(--sub); font-size: 14px; }
+.pk-table-wrap { overflow-x: auto; }
+.pk-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
+.pk-table th, .pk-table td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; vertical-align: top; line-height: 1.6; }
+.pk-table th { font-size: 12px; color: var(--sub); font-weight: 600; }
+.pk-table th.pk-th-name { color: var(--navy); font-size: 13.5px; }
+.pk-table td.pk-k { color: var(--sub); white-space: nowrap; }
+
+/* ---------- ฟอร์ม ---------- */
+.pk-f { display: block; margin-bottom: 12px; min-width: 0; }
+.pk-f > span { display: block; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
+.pk-f input, .pk-f select, .pk-f textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 15px; background: #F7F9FC; color: var(--ink); }
+.pk-f small { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; }
+.pk-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+.pk-check { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 12px; }
+.pk-check input { margin-top: 4px; flex: none; }
+.pk-pdpa { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.65; color: #334155; background: #F7F9FC; border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; margin: 12px 0 10px; cursor: pointer; }
+.pk-pdpa input { margin-top: 4px; flex: none; }
+.pk-hp { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; opacity: 0; }
+.pk-msg { font-size: 14px; line-height: 1.6; margin: 10px 0 0; min-height: 1px; }
+.pk-msg.is-ok { color: #166534; }
+.pk-msg.is-err { color: #B3261E; }
+
+/* ---------- แบบสอบถาม ---------- */
+.pk-bar { height: 6px; background: #E9EFF6; border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+.pk-bar > i { display: block; height: 100%; background: var(--pk-gold); transition: width .3s; }
+.pk-steps { font-size: 13px; color: var(--sub); margin: 0 0 10px; }
+.pk-q { font-size: 17px; font-weight: 600; color: var(--navy); margin: 0 0 12px; }
+.pk-opts { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 12px; }
+.pk-opt { font: 500 14px inherit; font-family: inherit; border: 1px solid var(--border); background: #fff; color: #35506F; border-radius: 11px; padding: 11px 15px; cursor: pointer; }
+.pk-opt[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+.pk-res { border: 1px solid var(--pk-gold-line); background: var(--pk-gold-soft); border-radius: 13px; padding: 15px; margin-bottom: 11px; }
+.pk-res h3 { font-size: 16px; color: var(--navy); margin: 0 0 6px; }
+.pk-res .pk-why { font-size: 13.5px; line-height: 1.7; color: #5C4A1E; }
+.pk-res .pk-pr { margin-top: 9px; font-size: 15px; font-weight: 700; color: var(--navy); }
+.pk-warn { background: #FFF4F1; border: 1px solid #F3D5CC; color: #8A3A22; border-radius: 10px; padding: 11px 13px; font-size: 13.5px; line-height: 1.65; margin-bottom: 10px; }
+
+/* ---------- ผลคำนวณราคา ---------- */
+.pk-quote { border: 1px solid var(--border); border-radius: 13px; padding: 15px; background: #F7FAFD; }
+.pk-quote h3 { font-size: 16px; color: var(--navy); margin: 0 0 10px; }
+.pk-lines { list-style: none; margin: 0 0 10px; padding: 0; }
+.pk-lines li { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 6px 0; border-bottom: 1px dashed var(--border); color: #35506F; }
+.pk-total { font-size: 19px; font-weight: 700; color: var(--navy); }
+.pk-flags { list-style: none; margin: 10px 0 0; padding: 0; }
+.pk-flags li { font-size: 12.5px; line-height: 1.65; color: var(--sub); padding-left: 18px; position: relative; }
+.pk-flags li::before { content: 'ⓘ'; position: absolute; left: 0; color: var(--muted); }
+
+/* ---------- ค่านายหน้า และข้อความกำกับ ---------- */
+.pk-tiers { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pk-tiers li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; background: #F7FAFD; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.pk-tiers li b { color: var(--navy); white-space: nowrap; }
+.pk-disc { font-size: 13px; line-height: 1.8; color: var(--sub); background: #fff; border: 1px dashed var(--border); border-radius: 12px; padding: 14px; margin-top: 18px; }
+.pk-offline { background: #FFF4F1; border: 1px solid #F3D5CC; color: #8A3A22; border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.7; }
+
+@media (max-width: 760px) {
+  .pk-grid2 { grid-template-columns: 1fr; }
+  .pk-hero { padding: 30px 0 34px; }
+  .pk-btn { flex: 1 1 100%; }
+  .pk-chip { flex: 1 1 100%; }
+}
+@media (max-width: 900px) {
+  body.page-packages { padding-bottom: 76px; }
+}

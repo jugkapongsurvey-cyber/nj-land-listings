@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แพ็กเกจบริการที่ดินชัวร์ — ตรวจสอบ เตรียมขาย และฝากขายที่ดิน | ที่ดินชัวร์</title>
+<meta name="description" content="แพ็กเกจบริการสำหรับเจ้าของที่ดิน นักลงทุน และผู้พัฒนาโครงการ — ตรวจเอกสารสิทธิ์ รังวัดยืนยันแนวเขต เตรียมทรัพย์ก่อนขาย ฝากขาย และวิเคราะห์ทรัพย์ พร้อมช่วงราคาประมาณการและเอกสารที่ต้องเตรียม">
+<link rel="canonical" href="https://njteedinsure.com/packages.html">
+<link rel="icon" href="brand/logo-favicon.svg">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ที่ดินชัวร์">
+<meta property="og:title" content="แพ็กเกจบริการที่ดินชัวร์">
+<meta property="og:description" content="เลือกแพ็กเกจที่ตรงกับทรัพย์ของคุณ — ตรวจสอบ เตรียมขาย ฝากขาย และวิเคราะห์ทรัพย์ พร้อมช่วงราคาประมาณการ">
+<meta property="og:url" content="https://njteedinsure.com/packages.html">
+<meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="menu.css">
+<link rel="stylesheet" href="packages.css">
+</head>
+<body class="page-packages">
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="brand">
+      <img src="brand/logo-mark.svg" alt="ที่ดินชัวร์" class="brand-logo">
+      <span class="brand-name">ที่ดินชัวร์</span>
+    </a>
+    <!-- ⚠️ รายการเดียวกับหน้าอื่นเป๊ะ — menu.js สร้างลิ้นชักมือถือจาก <nav> นี้ -->
+    <nav class="header-nav">
+      <a href="listings.html">แปลงที่ดิน</a>
+      <a href="wanted.html">ฝากหาที่ดิน</a>
+      <a href="consign.html">ฝากขายที่ดิน</a>
+      <a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a>
+      <a href="guides.html">ความรู้เรื่องที่ดิน</a>
+      <a href="chat.html">แชทกับน้อง</a>
+    </nav>
+    <a class="nj-portal-link" data-njportal href="portal.html">ติดตามงานรังวัด</a>
+    <a class="header-cta" href="#pk-quiz">ให้เจ้าหน้าที่แนะนำ</a>
+  </div>
+</header>
+
+<section class="pk-hero">
+  <div class="wrap">
+    <h1>เลือก<b>แพ็กเกจบริการ</b>ที่ตรงกับทรัพย์ของคุณ</h1>
+    <p class="pk-lead">
+      สำหรับเจ้าของที่ดิน ผู้ซื้อ นักลงทุน นายหน้า และผู้พัฒนาโครงการ —
+      ตรวจเอกสารสิทธิ์ รังวัดยืนยันแนวเขต เตรียมทรัพย์ก่อนขาย ฝากขาย และวิเคราะห์ทรัพย์
+      ทุกแพ็กเกจบอกขอบเขตบริการ เอกสารที่ต้องเตรียม และสิ่งที่ไม่รวมไว้ตรงๆ ก่อนตัดสินใจ
+    </p>
+    <ul class="pk-badges">
+      <li>ช่างรังวัดเอกชน ใบอนุญาตกรมที่ดินเลขที่ 351</li>
+      <li>ผ่านกระบวนการตรวจสอบตามขอบเขตบริการ</li>
+      <li>ให้บริการทั่วประเทศ</li>
+    </ul>
+  </div>
+</section>
+
+<main class="pk-main">
+  <div class="wrap">
+
+    <!-- ⚠️ ราคาและรายการทั้งหมดมาจาก /api/public/packages ของระบบหลังบ้าน
+         ห้ามพิมพ์ราคาหรือรายการแพ็กเกจไว้ในไฟล์นี้เด็ดขาด (ข้อกำหนดข้อ 4) -->
+    <div id="pk-root" aria-live="polite">
+      <p class="pk-empty">กำลังโหลดรายการแพ็กเกจ…</p>
+    </div>
+
+    <noscript>
+      <div class="pk-offline">
+        หน้านี้ต้องเปิดจาวาสคริปต์เพื่อดึงรายการแพ็กเกจและช่วงราคาจากระบบของเรา
+        — โทร <b>02-162-0405</b> หรือทักไลน์ <b>@716lffzt</b> ให้ทีมงานส่งรายละเอียดให้ได้ทันที
+      </div>
+    </noscript>
+
+    <section class="pk-block" id="pk-compare-block" hidden>
+      <h2>เปรียบเทียบแพ็กเกจ</h2>
+      <p class="pk-hint">กดปุ่ม “เทียบ” บนการ์ด (เลือกได้ไม่เกิน 3 แพ็กเกจ) แล้วตารางจะขึ้นตรงนี้</p>
+      <div class="pk-panel" id="pk-compare"></div>
+    </section>
+
+    <section class="pk-block" id="pk-calc-block" hidden>
+      <h2>คำนวณราคาประมาณการ</h2>
+      <p class="pk-hint">
+        กรอกข้อมูลทรัพย์ของคุณ ระบบจะคิดราคาตามตารางราคาจริงของบริษัท
+        — เป็นราคาประมาณการเพื่อใช้ตัดสินใจ ยังไม่ใช่ใบเสนอราคา
+      </p>
+      <div class="pk-panel" id="pk-calc"></div>
+    </section>
+
+    <section class="pk-block" id="pk-quiz">
+      <h2>ไม่แน่ใจว่าควรเริ่มจากแพ็กเกจไหน</h2>
+      <p class="pk-hint">ตอบคำถามสั้นๆ ระบบจะเสนอแพ็กเกจที่เหมาะกับทรัพย์ของคุณ พร้อมเหตุผลและช่วงราคาประมาณการ</p>
+      <div class="pk-panel" id="pk-quizbox">
+        <p class="pk-empty">กำลังเตรียมคำถาม…</p>
+      </div>
+    </section>
+
+    <section class="pk-block" id="pk-commission-block" hidden>
+      <h2>ค่านายหน้าเมื่อขายสำเร็จ</h2>
+      <p class="pk-hint">คิดเป็นขั้นตามมูลค่าที่ขายได้จริง เก็บวันโอนเมื่อขายสำเร็จเท่านั้น</p>
+      <div class="pk-panel" id="pk-commission"></div>
+    </section>
+
+    <div class="pk-disc" id="pk-disclaimer"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
+</footer>
+
+<div class="cs-bottombar">
+  <a href="tel:021620405" class="cs-bar-btn" data-contact="tel">☏ สนง.</a>
+  <a href="https://line.me/R/ti/p/@716lffzt" class="cs-bar-btn line" target="_blank" rel="noopener" data-contact="line">💬 ไลน์</a>
+  <a href="#pk-quiz" class="cs-bar-btn primary">ให้เจ้าหน้าที่แนะนำ</a>
+</div>
+
+<script src="analytics.js"></script>
+<script src="packages.js"></script>
+<script src="menu.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
+</body>
+</html>
