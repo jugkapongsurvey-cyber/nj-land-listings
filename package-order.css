@@ -1,0 +1,56 @@
+/* หน้าติดตามใบสั่งงานแพ็กเกจ (รอบ 4) — ใช้คำนำหน้า po-* ทั้งหมด ไม่ชนกับหน้าอื่น */
+.page-package-order { --po-gold: #C79A3B; }
+
+.po-main { background: var(--bg); padding: 26px 0 40px; min-height: 60vh; }
+.po-head { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.po-id { font-size: 13px; color: var(--sub); margin: 0 0 4px; }
+.po-status { font-size: 22px; font-weight: 700; color: var(--navy); margin: 0 0 6px; }
+.po-hint { font-size: 14.5px; line-height: 1.7; color: #35506F; margin: 0; }
+.po-step { font-size: 13px; color: var(--sub); margin: 10px 0 0; }
+.po-bar { height: 6px; background: #E9EFF6; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.po-bar > i { display: block; height: 100%; background: var(--po-gold); }
+
+.po-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.po-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+.po-card h2 { font-size: 16px; color: var(--navy); margin: 0 0 10px; }
+.po-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.po-list li { font-size: 14px; line-height: 1.65; color: #35506F; padding-left: 20px; position: relative; }
+.po-list li::before { content: '•'; position: absolute; left: 0; color: var(--sub); }
+.po-list.is-doc li::before { content: '📄'; font-size: 12px; }
+.po-file { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding: 9px 0; font-size: 14px; }
+.po-file:last-child { border-bottom: 0; }
+.po-file small { display: block; color: var(--muted); font-size: 12px; }
+.po-file a { color: #1552B0; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.po-tl { list-style: none; margin: 0; padding: 0; }
+.po-tl li { position: relative; padding: 0 0 12px 20px; border-left: 2px solid var(--border); margin-left: 5px; }
+.po-tl li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.po-tl li::before { content: ''; position: absolute; left: -6px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--po-gold); }
+.po-tl b { font-size: 14px; color: var(--navy); font-weight: 600; }
+.po-tl span { display: block; font-size: 12.5px; color: var(--muted); }
+.po-est { font-size: 15px; color: var(--navy); font-weight: 700; }
+.po-note { font-size: 13px; color: var(--sub); line-height: 1.7; margin: 8px 0 0; }
+
+.po-f { display: block; margin-bottom: 12px; }
+.po-f > span { display: block; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
+.po-f input, .po-f select, .po-f textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 15px; background: #F7F9FC; color: var(--ink); }
+.po-row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+.po-btn { font: 700 13.5px inherit; font-family: inherit; border: 1px solid transparent; border-radius: 11px; padding: 11px 14px; cursor: pointer; }
+.po-btn.is-primary { background: var(--navy); color: #fff; }
+.po-btn.is-ghost { background: #fff; color: var(--navy); border-color: var(--border); }
+.po-btn.is-gold { background: var(--po-gold); color: #20180A; }
+.po-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.po-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.po-msg { font-size: 14px; line-height: 1.6; margin: 10px 0 0; }
+.po-msg.is-ok { color: #166534; }
+.po-msg.is-err { color: #B3261E; }
+.po-warn { background: #FFF4F1; border: 1px solid #F3D5CC; color: #8A3A22; border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.7; }
+.po-disc { font-size: 13px; line-height: 1.8; color: var(--sub); background: #fff; border: 1px dashed var(--border); border-radius: 12px; padding: 14px; margin-top: 16px; }
+.po-contact { display: flex; flex-wrap: wrap; gap: 8px; }
+.po-contact a { flex: 1 1 140px; text-align: center; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px; border-radius: 11px; border: 1px solid var(--border); background: var(--bg); color: var(--navy); }
+.po-contact a.is-line { background: var(--line); color: #fff; border-color: transparent; }
+
+@media (max-width: 900px) {
+  .po-grid { grid-template-columns: 1fr; }
+  .po-row2 { grid-template-columns: 1fr; }
+  body.page-package-order { padding-bottom: 76px; }
+}
