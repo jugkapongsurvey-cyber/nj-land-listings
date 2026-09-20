@@ -13,6 +13,9 @@
   <meta property="og:description" content="งานรังวัดของคุณเดินไปถึงขั้นไหนแล้ว เปิดดูเองได้ตลอดเวลา พร้อมดาวน์โหลดรายงานและไฟล์ค่าพิกัด">
   <meta property="og:url" content="https://njteedinsure.com/portal.html">
   <meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+  <!-- nj-seo:start — สร้างด้วย build/seo.js จากทะเบียน SEO กลาง · ห้ามแก้ด้วยมือ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- nj-seo:end -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- NJ:CORECSS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
@@ -34,6 +37,128 @@
   <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="legal.css">
+  <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
+  <script type="application/ld+json" data-nj-schema>
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": [
+          "RealEstateAgent",
+          "ProfessionalService"
+        ],
+        "@id": "https://njteedinsure.com/#org",
+        "name": "ที่ดินชัวร์",
+        "url": "https://njteedinsure.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://njteedinsure.com/brand/logo-mark-512.png"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://njteedinsure.com/#website",
+        "url": "https://njteedinsure.com",
+        "name": "ที่ดินชัวร์",
+        "inLanguage": "th-TH",
+        "publisher": {
+          "@id": "https://njteedinsure.com/#org"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://njteedinsure.com/portal.html#webpage",
+        "url": "https://njteedinsure.com/portal.html",
+        "name": "ระบบติดตามงานรังวัด สำหรับลูกค้า",
+        "isPartOf": {
+          "@id": "https://njteedinsure.com/#website"
+        },
+        "inLanguage": "th-TH",
+        "description": "ลูกค้างานรังวัดของ เอ็นเจ แอนด์ คอนซัลติ้ง เข้าดูสถานะงานรังวัดของตัวเองได้ตลอด 24 ชม. — สถานะ 11 ขั้นตอน รายงานผลการรังวัด ไฟล์ค่าพิกัด ใบแจ้งหนี้ และแผนที่แปลง",
+        "breadcrumb": {
+          "@id": "https://njteedinsure.com/portal.html#breadcrumb"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://njteedinsure.com/portal.html#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "หน้าแรก",
+            "item": "https://njteedinsure.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "ระบบติดตามงานรังวัด สำหรับลูกค้า",
+            "item": "https://njteedinsure.com/portal.html"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://njteedinsure.com/portal.html#faq",
+        "isPartOf": {
+          "@id": "https://njteedinsure.com/portal.html#webpage"
+        },
+        "inLanguage": "th-TH",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "ยังไม่เคยใช้บริการรังวัดกับ NJ เข้าระบบนี้ได้ไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ยังไม่ได้ ระบบนี้แสดงเฉพาะงานที่ทำกับเรา — ถ้าสนใจให้เรารังวัด ทักไลน์หรือโทรเข้ามาสอบถามได้ ประเมินราคาก่อนตัดสินใจได้ไม่มีค่าใช้จ่าย"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ต้องโหลดแอปไหม เสียเงินเพิ่มหรือเปล่า",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ไม่ต้องโหลดแอป และไม่มีค่าใช้จ่ายเพิ่มจากค่าบริการรังวัดที่ตกลงกันไว้ เปิดผ่านเบราว์เซอร์ในมือถือได้เลย ถ้าใช้บ่อยจะกด “เพิ่มไปยังหน้าจอโฮม” ให้เปิดง่ายเหมือนแอปก็ได้"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "งานเก่าที่ทำไว้นานแล้วยังดูได้ไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ดูได้ทุกงานที่บันทึกอยู่ในระบบภายใต้ชื่อลูกค้าของคุณ ไม่ได้จำกัดเฉพาะงานที่กำลังทำอยู่ ส่วนรายงานจะเปิดได้เฉพาะงานที่ทีมงานกดส่งให้คุณแล้ว"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ลืมรหัสผ่านต้องทำอย่างไร",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "แจ้งทีมงานทางไลน์หรือโทรเข้ามา แล้วเราจะออกรหัสใหม่ให้ ระบบเปิดดูรหัสเดิมไม่ได้เพราะเก็บแบบเข้ารหัสทางเดียว การออกรหัสใหม่จะปลดล็อกบัญชีที่ถูกล็อกจากการใส่รหัสผิดให้ด้วยทันที"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "เคยได้ลิงก์ระบบจากไลน์เป็นอีกชื่อหนึ่ง ใช้ลิงก์ไหนดี",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ใช้ app.njteedinsure.com เป็นหลัก ลิงก์เดิมที่เคยส่งให้ในไลน์ยังเปิดได้เหมือนเดิม ทั้งสองทางเข้าเป็นระบบเดียวกันและข้อมูลชุดเดียวกัน — เปลี่ยนมาใช้ที่อยู่ใหม่แล้วอาจต้องเข้าสู่ระบบใหม่หนึ่งครั้ง"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "คนอื่นในครอบครัวหรือในบริษัทดูงานเดียวกันได้ไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ได้ แต่ต้องแจ้งทีมงานให้ออกรหัสเพิ่มให้ ไม่แนะนำให้ส่งรหัสของคุณต่อให้คนอื่น เพราะระบบบันทึกทุกการเข้าใช้งานไว้ตามบัญชี"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- nj-schema:end -->
 </head>
 <!-- ============================================================================
      หน้าอธิบาย + ทางเข้า "ระบบติดตามงานรังวัด" (พอร์ทัลลูกค้า)
