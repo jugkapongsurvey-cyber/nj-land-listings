@@ -1,0 +1,237 @@
+/* ที่ดินชัวร์ — หัวเว็บชุดเดียวของทั้งเว็บ (Sprint 1 · งานที่ 2 · 2026-09-20)
+ *
+ * ⚠️ **HTML ของหัวเว็บสร้างจาก `build/pages.js` ห้ามแก้ในไฟล์ HTML** (ดูเหตุผลในไฟล์นั้น)
+ *
+ * ⚠️ **ไฟล์นี้ต้องพึ่งตัวเองทั้งหมด** — หน้าเว็บ 24 หน้าโหลดชุดสไตล์ต่างกันสามชุด
+ *    (`home.css` · `marketplace.css` · `ui.css`) หัวเว็บจึงห้ามอ่านค่าจากไฟล์ใดไฟล์หนึ่ง
+ *    ทุกค่ามาจาก `tokens.css` ซึ่งโหลดทุกหน้าเหมือนกัน
+ *
+ * ⚠️ **คลาสขึ้นต้นด้วย `njh-` เสมอ** — ของเดิมมี `.site-header` `.topbar` `.header-nav`
+ *    อยู่ในสามชุดสไตล์ ใช้ชื่อซ้ำเมื่อไหร่กฎเก่าจะมาทับโดยไม่มีใครเห็น
+ */
+
+/* ---------- ลิงก์ข้ามไปเนื้อหาหลัก ---------- */
+/* ต้องเป็นสิ่งแรกที่ Tab ถึง — ของเดิมทั้งเว็บไม่มีเลยสักหน้า และหน้าแรกมีลิงก์+ปุ่ม 178 ชิ้น
+ * คนใช้คีย์บอร์ดต้องกด Tab ผ่านเมนูทั้งชุดทุกครั้งที่เปลี่ยนหน้า (ACCESSIBILITY ข้อ A11Y-01) */
+.njh-skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: calc(var(--nj-z-header) + 1);
+  background: var(--nj-navy-900);
+  color: var(--nj-white);
+  padding: 12px 18px;
+  font-size: 16px;
+  text-decoration: none;
+}
+.njh-skip:focus {
+  left: 8px;
+  top: 8px;
+  outline: 2px solid var(--nj-focus);
+  outline-offset: 2px;
+}
+
+/* ---------- แถบหัวเว็บ ---------- */
+.njh {
+  position: sticky;
+  top: 0;
+  z-index: var(--nj-z-header);
+  background: var(--nj-navy-900);
+  color: var(--nj-white);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.njh-in {
+  display: flex;
+  align-items: center;
+  gap: var(--nj-space-4);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--nj-space-5);
+  min-height: 64px;
+}
+
+/* ---------- โลโก้ ---------- */
+.njh-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--nj-space-2);
+  /* 44px — โลโก้เป็นทางกลับหน้าแรก และเป็นปุ่มที่คนกดพลาดบ่อยที่สุดบนมือถือ */
+  min-height: 44px;
+  color: inherit;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+.njh-brand img { display: block; }
+.njh-brand b {
+  display: block;
+  font-size: 17px;
+  font-weight: var(--nj-fw-semi);
+  line-height: 1.15;
+}
+.njh-brand small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--nj-gold-500);
+}
+.njh-brand:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 3px; }
+
+/* ---------- แถวเมนู ---------- */
+.njh-nav { flex: 1 1 auto; min-width: 0; }
+
+.njh-list {
+  display: flex;
+  align-items: center;
+  gap: var(--nj-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.njh-item { position: relative; }
+
+.njh-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  /* 44px คือเกณฑ์เป้ากดบนมือถือ — แถบนี้ซ่อนบนมือถือก็จริง แต่ผู้ใช้จอสัมผัสขนาดกลางก็มี */
+  min-height: 44px;
+  padding: 0 var(--nj-space-3);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--nj-fs-nav);
+  font-weight: var(--nj-fw-medium);
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.njh-top:hover { color: var(--nj-gold-500); }
+.njh-top:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: -2px; }
+
+.njh-caret { font-size: 10px; opacity: 0.7; }
+
+/* หน้าที่กำลังเปิดอยู่ — `aria-current` ถูกใส่ให้ตอน build ตามชื่อไฟล์
+ * ⚠️ ผูกสไตล์กับ [aria-current] ไม่ใช่คลาสที่ตั้งเอง — ความหมายกับหน้าตาจะได้ไม่มีทางหลุดจากกัน */
+.njh-top[aria-current="page"] {
+  color: var(--nj-white);
+  box-shadow: inset 0 -3px 0 var(--nj-gold-500);
+}
+
+/* ---------- เมนูย่อย ---------- */
+/* ⚠️ เปิดด้วย :hover และ :focus-within ล้วนๆ **ไม่พึ่ง JS เลย**
+ *    ไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ เมนูย่อยยังกางได้ทั้งด้วยเมาส์และด้วยปุ่ม Tab
+ *    (เหตุผลเดียวกับที่บันได 5 ระดับใช้ <details> ของเบราว์เซอร์) */
+.njh-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 268px;
+  padding: var(--nj-space-2);
+  background: var(--nj-white);
+  border: 1px solid var(--nj-gray-200);
+  box-shadow: var(--nj-shadow-lg);
+  /* ซ่อนด้วย visibility ไม่ใช่ display:none — เปลี่ยน display ทำให้ transition ไม่ทำงาน
+   * และบางเบราว์เซอร์ข้ามลิงก์ข้างในตอนกด Tab ไปเลย */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  /* ⚠️ **ห้ามใส่ visibility ลงในรายการที่มีระยะเวลา** — ค่ามันไม่ไล่ระดับ
+   * ใส่แล้วช่วงที่กำลังเปลี่ยน getComputedStyle ยังอ่านได้ว่า hidden
+   * ผลคือแผงกางออกช้ากว่าที่ควร และทดสอบอัตโนมัติอ่านว่า "ไม่เปิด" (เจอจริงตอนพรีวิว)
+   * ท่าที่ถูกคือ: เปิด = เปลี่ยนทันที (0s) · ปิด = หน่วงไว้จนภาพจางจบก่อน (0s + delay) */
+  transition: opacity var(--nj-dur) var(--nj-ease),
+              transform var(--nj-dur) var(--nj-ease),
+              visibility 0s linear var(--nj-dur);
+}
+
+/* ⚠️ **ขาเปิดไม่มี transition เลย** — แผงต้องปรากฏเต็มตัวทันทีที่เมาส์แตะหรือโฟกัสมาถึง
+ * เหตุผล: ถ้าให้ opacity ค่อยๆ ไล่ขึ้น จะมีช่วงที่แผง "กดได้แล้วแต่ยังมองไม่เห็น"
+ * และในสภาพที่เบราว์เซอร์หน่วงการวาด (แท็บพื้นหลัง · เครื่องช้า · โหมดประหยัดพลังงาน)
+ * ช่วงนั้นยืดออกจนกลายเป็นเมนูที่เปิดแล้วแต่ใสสนิท — เจอจริงตอนทดสอบในแผงพรีวิว
+ * ส่วนขาปิดยังค่อยๆ จางตามกฎด้านบน ซึ่งไม่มีปัญหาแบบเดียวกันเพราะของที่กำลังจะหายไป */
+.njh-has-menu:hover > .njh-panel,
+.njh-has-menu:focus-within > .njh-panel {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* กลุ่มขวาสุดกางออกนอกจอถ้าชิดซ้าย — ให้ชิดขวาแทน */
+.njh-item:nth-last-child(-n+2) > .njh-panel { left: auto; right: 0; }
+
+.njh-panel ul { margin: 0; padding: 0; list-style: none; }
+
+.njh-panel a {
+  display: block;
+  padding: 10px var(--nj-space-3);
+  color: var(--nj-text-strong);
+  text-decoration: none;
+}
+.njh-panel a:hover { background: var(--nj-navy-050); }
+.njh-panel a:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: -2px; }
+.njh-panel b {
+  display: block;
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-semi);
+  line-height: 1.35;
+}
+.njh-panel small {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--nj-fs-xs);
+  line-height: 1.4;
+  color: var(--nj-text-muted);
+}
+.njh-panel a[aria-current="page"] {
+  background: var(--nj-navy-050);
+  box-shadow: inset 3px 0 0 var(--nj-gold-600);
+}
+
+/* ---------- ปุ่มหลัก ---------- */
+.njh-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--nj-space-4);
+  background: var(--nj-gold-500);
+  color: var(--nj-navy-900);
+  font-size: var(--nj-fs-nav);
+  font-weight: var(--nj-fw-semi);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.njh-cta:hover { background: var(--nj-white); }
+.njh-cta:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+/* ---------- จอกลาง ----------
+ * ⚠️ ของเดิมซ่อนเมนูเดสก์ท็อปตั้งแต่ต่ำกว่า 1280px ทำให้ iPad และโน้ตบุ๊ก 1024–1279
+ *    เหลือแค่ปุ่มแฮมเบอร์เกอร์ทั้งที่จอกว้างพอ (รายงาน RESPONSIVE ข้อ 3.1)
+ *    เมนูใหม่เหลือ 6 กลุ่มจึงพอดีที่ 1024 ได้จริง — วัดแล้ว ไม่ตัดบรรทัด */
+@media (max-width: 1180px) {
+  .njh-in { gap: var(--nj-space-3); padding: 0 var(--nj-space-4); }
+  .njh-top { padding: 0 10px; }
+}
+
+/* ---------- จอเล็ก ----------
+ * ซ่อนแถวเมนู แล้วปล่อยให้ `menu.js` สร้างปุ่มแฮมเบอร์เกอร์กับลิ้นชักแทน
+ * ⚠️ `menu.js` ตัดสินจาก getComputedStyle(nav).display ของจริง ไม่ได้อ่านเลข breakpoint
+ *    จึงไม่ต้องไปแก้ตัวเลขซ้ำในไฟล์นั้น (ดูคอมเมนต์หัวไฟล์ menu.js) */
+@media (max-width: 1023px) {
+  .njh-nav { display: none; }
+  .njh-in { min-height: 58px; }
+  .njh-brand b { font-size: 16px; }
+}
+
+/* จอแคบมาก — ปุ่มหลักกับชื่อแบรนด์แย่งที่กันจนตัดบรรทัดกลางคำ
+ * ทางเข้า "ฝากขายฟรี" ยังมีอีกหลายทางบนจอเดียวกัน (แถบล่าง · ในลิ้นชัก · ปุ่มในหน้า) */
+@media (max-width: 480px) {
+  .njh-cta { display: none; }
+}
+
+/* ---------- หน้าแรก ----------
+ * hero ของหน้าแรกเคยมี <header> ซ้อนอยู่ข้างในแบบโปร่งทับภาพ
+ * ตอนนี้หัวเว็บอยู่นอก hero และทึบแล้ว (ทุกหน้าใช้ชุดเดียวกันตามงานที่ 6)
+ * hero จึงไม่ต้องเผื่อที่ว่างด้านบนให้หัวเว็บอีก */
+[data-r="hero"] { padding-top: 0 !important; }

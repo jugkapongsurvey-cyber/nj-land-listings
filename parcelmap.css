@@ -35,7 +35,7 @@
 
 .njp-m circle{fill:#fff;stroke:var(--navy);stroke-width:3}
 .njp-m text{
-  font:700 19px/1 Manrope,sans-serif;fill:var(--navy);text-anchor:middle;
+  font:700 19px/1 var(--nj-font);fill:var(--navy);text-anchor:middle;
   paint-order:stroke;stroke:#F7FAFC;stroke-width:5px;stroke-linejoin:round;
 }
 .njp-m.on circle{fill:var(--green);stroke:#0d6b3c;r:14}
@@ -45,7 +45,7 @@
 .njp-scale text{font:600 17px/1 "IBM Plex Sans Thai",sans-serif;fill:#5A6B7D;text-anchor:middle}
 .njp-n circle{fill:#fff;stroke:var(--line);stroke-width:2}
 .njp-n path{fill:var(--navy)}
-.njp-n text{font:800 15px/1 Manrope,sans-serif;fill:var(--navy);text-anchor:middle}
+.njp-n text{font:800 15px/1 var(--nj-font);fill:var(--navy);text-anchor:middle}
 
 /* ---------- รายการหมุด (เป็นปุ่มจริง) ---------- */
 .njp-pins{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -55,7 +55,7 @@
   padding:8px 12px;text-align:left;min-width:104px;max-width:100%;
   font-family:inherit;color:var(--ink);
 }
-.njp-pin b{font:700 13px/1.5 Manrope,sans-serif;color:var(--navy)}
+.njp-pin b{font:700 13px/1.5 var(--nj-font);color:var(--navy)}
 .njp-pin span{font-size:11px;color:var(--sub);line-height:1.6}
 .njp-pin:hover{border-color:var(--blue);background:#fff}
 .njp-pin:focus-visible{outline:3px solid var(--blue);outline-offset:2px}

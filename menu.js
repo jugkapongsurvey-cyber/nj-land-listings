@@ -26,7 +26,7 @@
   // เรียงตามลำดับที่ควรเจอ — เอาอันแรกที่มีลิงก์จริง
   var NAV_SELECTORS = ['header nav', '.topbar nav', 'nav.header-nav', '.header-nav'];
   // ปุ่มหลักบนหัวเว็บ (ฝากขายฟรี) — ชุดสไตล์ต่างกันใช้คลาสคนละแบบ
-  var CTA_SELECTORS = ['.top-actions .post-btn', 'header a[href="consign.html"]', '.header-cta'];
+  var CTA_SELECTORS = ['.njh-cta', '.top-actions .post-btn', 'header a[href="consign.html"]', '.header-cta'];
   // ทางเข้าพอร์ทัลลูกค้า — วางไว้นอก <nav> โดยตั้งใจ (เหตุผลอยู่ใน menu.css)
   // จอเล็กซ่อนลิงก์ตัวจริงไว้ ลิ้นชักจึงต้องหยิบมาแสดงแทน ไม่งั้นทางเข้านี้หายไปทั้งบนมือถือ
   // อ่านทั้ง href และข้อความจากลิงก์จริง — ห้ามพิมพ์ค่าซ้ำไว้ในไฟล์นี้ (กติกาเดียวกับรายการเมนู)
@@ -114,14 +114,46 @@
     var list = document.createElement('nav');
     list.className = 'njmenu-list';
     list.setAttribute('aria-label', 'เมนูหลัก (จอเล็ก)');
-    links.forEach(function (a) {
+
+    // ---- ข้อความของลิงก์หนึ่งข้อ ----
+    // หัวเว็บชุดใหม่ใส่ลูกศร ▾ ไว้ใน <span> ข้างในลิงก์กลุ่ม และใส่คำอธิบายไว้ใน <small>
+    // ลิ้นชักต้องการแค่ชื่อ จึงหยิบจาก <b> ก่อนถ้ามี แล้วค่อยถอย textContent ทั้งก้อน
+    function labelOf(a) {
+      var b = a.querySelector && a.querySelector('b');
+      var t = (b ? b.textContent : a.textContent) || '';
+      return t.replace(/[▾▸▼]/g, '').replace(/^＋\s*/, '').replace(/\s*[→›»]\s*$/, '').trim();
+    }
+    function addLink(a, cls) {
       var item = document.createElement('a');
       item.href = a.getAttribute('href') || '#';
-      // ใช้ textContent เสมอ — ข้อความเมนูบางหน้ามีอักขระพิเศษ (＋) และเราไม่ต้องการ markup ข้างใน
-      item.textContent = (a.textContent || '').trim();
-      if (a.classList.contains('active')) item.className = 'on';
+      // ใช้ textContent เสมอ — ข้อความเมนูบางหน้ามีอักขระพิเศษ และเราไม่ต้องการ markup ข้างใน
+      item.textContent = labelOf(a);
+      if (cls) item.className = cls;
+      else if (a.classList.contains('active')) item.className = 'on';
+      // ⚠️ หน้าที่กำลังเปิดอยู่ต้องบอกให้รู้ในลิ้นชักด้วย ไม่ใช่เฉพาะบนแถวเดสก์ท็อปที่ถูกซ่อนไปแล้ว
+      if (a.getAttribute('aria-current') === 'page') item.setAttribute('aria-current', 'page');
       list.appendChild(item);
-    });
+      return item;
+    }
+
+    // ---- หัวเว็บชุดใหม่: มีกลุ่มจริง จึงจัดลิ้นชักเป็นกลุ่มตามนั้น ----
+    // ⚠️ ยังคงกติกาเดิม "สร้างรายการจาก <nav> ของหน้านั้นเอง ห้ามพิมพ์รายการเมนูซ้ำในไฟล์นี้"
+    //    เปลี่ยนแค่วิธีจัดเรียง ไม่ได้เปลี่ยนแหล่งที่มาของข้อมูล
+    var groups = nav.querySelectorAll ? nav.querySelectorAll('.njh-item') : [];
+    if (groups.length) {
+      Array.prototype.forEach.call(groups, function (li) {
+        var top = li.querySelector('.njh-top');
+        if (!top) return;
+        var subs = li.querySelectorAll('.njh-panel a');
+        if (!subs.length) { addLink(top); return; }
+        // กลุ่มที่มีเมนูย่อย: หัวกลุ่มเป็นลิงก์จริงเหมือนบนเดสก์ท็อป แล้วตามด้วยลูกของมัน
+        addLink(top, 'njmenu-group');
+        Array.prototype.forEach.call(subs, function (a) { addLink(a, 'njmenu-sub'); });
+      });
+    } else {
+      // ---- หัวเว็บแบบเดิม (เผื่อหน้าที่ยังไม่ได้ผ่าน build/pages.js) ----
+      links.forEach(function (a) { addLink(a); });
+    }
     var chat = document.querySelector(CHAT_SELECTOR);
     if (chat) {
       var chref = chat.getAttribute('href') || 'chat.html';
@@ -145,7 +177,10 @@
 
     // ทางเข้าพอร์ทัลลูกค้า — วางท้ายสุด เพราะเป็นของ "ลูกค้าเดิม" ไม่ใช่ปุ่มหลักของหน้า
     // หน้าไหนยังไม่มีลิงก์นี้ก็ข้ามไปเงียบๆ ลิ้นชักที่เหลือทำงานเหมือนเดิมทุกประการ
+    // ⚠️ หัวเว็บชุดใหม่ย้ายลิงก์นี้เข้าไปอยู่ใน <nav> แล้ว (กลุ่ม "ติดตามงาน")
+    // ลิ้นชักจึงได้ไปเองตามกติกาข้างบน — ต้องเช็ก href ซ้ำก่อน ไม่งั้นได้เมนูซ้ำสองข้อ
     var portal = document.querySelector(PORTAL_SELECTOR);
+    if (portal && nav.querySelector('a[href="' + (portal.getAttribute('href') || 'portal.html') + '"]')) portal = null;
     if (portal) {
       var p = document.createElement('a');
       p.className = 'njmenu-portal';

@@ -12,7 +12,7 @@
   display:flex;align-items:flex-start;justify-content:space-between;gap:18px;
   padding:24px 30px;background:#0B1F3A;color:#FFFFFF;
 }
-.sq-head b{display:block;font-family:Trirong,serif;font-weight:500;font-size:22px;color:#D8B96B}
+.sq-head b{display:block;font-family:var(--nj-font);font-weight:600;font-size:22px;color:#D8B96B}
 .sq-head span{display:block;margin-top:6px;font-size:14px;font-weight:300;line-height:1.7;color:#BFCAD6;max-width:640px}
 .sq-close{
   flex:none;background:transparent;border:1px solid rgba(216,185,107,.4);
@@ -69,7 +69,7 @@
 .sq-row em{flex:none;font-style:normal;font-weight:500;color:#0B1F3A;white-space:nowrap}
 .sq-total{border-bottom:0;border-top:2px solid #0B1F3A;margin-top:6px;padding-top:14px}
 .sq-total span{font-size:16px;font-weight:500;color:#0B1F3A}
-.sq-total em{font-family:Trirong,serif;font-size:26px;color:#0B1F3A}
+.sq-total em{font-family:var(--nj-font);font-size:26px;color:#0B1F3A}
 .sq-inc{margin-top:10px;padding:10px 13px;background:#E7EEF5;font-size:13px;font-weight:300;color:#31465E}
 .sq-inc b{font-weight:500;color:#0B1F3A}
 /* คำเตือน "ยังไม่ได้เลือกจังหวัด" — ต้องเด่นกว่าหมายเหตุทั่วไป เพราะบอกว่ายอดข้างบนยังไม่ครบ */
@@ -85,7 +85,7 @@
 
 /* ส่งข้อมูลให้ทีมขาย */
 .sq-cta{border-top:1px solid #D8E1EA;padding-top:20px}
-.sq-cta-h{font-family:Trirong,serif;font-weight:500;font-size:19px;color:#0B1F3A;margin-bottom:5px}
+.sq-cta-h{font-family:var(--nj-font);font-weight:600;font-size:19px;color:#0B1F3A;margin-bottom:5px}
 .sq-cta-p{margin:0 0 16px;font-size:13.5px;font-weight:300;line-height:1.7;color:#5A6B7D}
 .sq-send{
   width:100%;border:0;background:#0B1F3A;color:#D8B96B;

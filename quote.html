@@ -13,7 +13,12 @@
   <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<!-- NJ:CORECSS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="header.css">
+<!-- NJ:CORECSS จบ -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="compare.css">
@@ -26,11 +31,69 @@
 </head>
 <body>
 
-  <header class="topbar"><div class="shell topbar-inner">
-    <a class="logo" href="index.html" aria-label="ที่ดินชัวร์ หน้าแรก"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a>
-    <nav aria-label="เมนูหลัก"><a href="listings.html">ซื้อที่ดิน</a><a href="purpose.html">ค้นตามวัตถุประสงค์</a><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a><a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a><a href="chat.html">แชทกับน้อง</a></nav>
-    <div class="top-actions"><a class="post-btn" href="listings.html">ดูประกาศทั้งหมด</a></div>
-  </div></header>
+<!-- NJ:HEADER เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<a class="njh-skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
+<header class="njh" data-njh>
+  <div class="njh-in">
+    <a class="njh-brand" href="index.html">
+      <img src="brand/logo-mark.svg" alt="" width="34" height="34">
+      <span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span>
+    </a>
+    <nav class="njh-nav" aria-label="เมนูหลัก">
+      <ul class="njh-list">
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="listings.html">ซื้อ/เช่าทรัพย์<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="listings.html"><b>ประกาศทั้งหมด</b><small>กรองตามทำเล ราคา เนื้อที่ ผังสี</small></a></li>
+              <li><a href="purpose.html"><b>ค้นตามวัตถุประสงค์</b><small>สร้างบ้าน โกดัง เกษตร ลงทุน</small></a></li>
+              <li><a href="agency.html"><b>ทรัพย์หน่วยงาน</b><small>บังคับคดี ธนาคาร BAM SAM</small></a></li>
+              <li><a href="wanted.html"><b>ฝากหาที่ดิน</b><small>บอกโจทย์ไว้ ให้ทีมช่างรังวัดหาให้</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="consign.html">ขาย/ฝากทรัพย์<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="consign.html"><b>ฝากขายที่ดิน</b><small>ไม่มีค่าใช้จ่ายล่วงหน้า</small></a></li>
+              <li><a href="partner-apply.html"><b>สมัครเป็นพันธมิตร</b><small>ผู้ให้บริการด้านที่ดิน</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="verify.html">ตรวจสอบและรังวัด<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="verify.html"><b>ส่งทรัพย์ให้ตรวจก่อนซื้อ</b><small>ตรวจเอกสารและแนวเขต</small></a></li>
+              <li><a href="inspect.html"><b>นัดตรวจแปลงก่อนซื้อ</b><small>ให้ช่างรังวัดไปดูให้ก่อน</small></a></li>
+              <li><a href="terms.html#levels"><b>ระดับการตรวจสอบ 5 ระดับ</b><small>แต่ละระดับหมายถึงอะไร</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="guides.html">ความรู้และเครื่องมือ<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="guides.html"><b>คู่มือที่ดิน</b><small>เอกสารสิทธิ์ การโอน ผังเมือง</small></a></li>
+              <li><a href="tools.html"><b>เครื่องมือคำนวณ</b><small>ค่างวดสินเชื่อ ค่าโอนวันโอน</small></a></li>
+              <li><a href="videos.html"><b>วิดีโอให้ความรู้</b><small>ดูจบใน 30 วินาที</small></a></li>
+              <li><a href="chat.html"><b>แชทกับน้องเอ็นเจชัวร์</b><small>ผู้ช่วย AI ตอบเรื่องที่ดิน</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item">
+          <a class="njh-top" href="index.html#ทีมเรา">เกี่ยวกับเรา</a>
+        </li>
+        <li class="njh-item">
+          <a class="njh-top" href="portal.html" data-njportal>ติดตามงาน</a>
+        </li>
+      </ul>
+    </nav>
+    <a class="njh-cta" href="consign.html">ฝากขายฟรี</a>
+  </div>
+</header>
+<!-- NJ:HEADER จบ -->
 
   <main>
     <section class="qt-head"><div class="shell">

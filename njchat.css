@@ -13,7 +13,7 @@
   position:fixed; right:16px; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:790;
   display:inline-flex; align-items:center; gap:9px; cursor:pointer;
   background:#0B2549; color:#fff; border:1px solid rgba(255,255,255,.14); border-radius:999px;
-  padding:8px 16px 8px 8px; font-family:'IBM Plex Sans Thai','Sarabun',-apple-system,sans-serif; font-size:14px; font-weight:700;
+  padding:8px 16px 8px 8px; font-family:var(--nj-font); font-size:14px; font-weight:700;
   box-shadow:0 10px 30px rgba(11,37,73,.32);
 }
 .njchat-launcher:hover{ background:#12315F; }
@@ -22,7 +22,7 @@
 .njchat-launcher.on{ padding-right:8px; }
 .njchat-avatar{
   flex:none; width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
-  background:#D8B96B; color:#0B2549; font:800 12px/1 Manrope,'IBM Plex Sans Thai',sans-serif; letter-spacing:.02em;
+  background:#D8B96B; color:#0B2549; font:800 12px/1 var(--nj-font),'IBM Plex Sans Thai',sans-serif; letter-spacing:.02em;
 }
 .njchat-avatar.big{ width:40px; height:40px; font-size:14px; }
 /* จอเล็ก: ยกให้พ้นแถบล่าง 5 ปุ่ม (marketplace/home 69px) และแถบติดต่อหน้าฝากขาย (74px) */
@@ -35,7 +35,7 @@
 /* ---------- แผงแชท (ใช้ร่วมกันทั้งวิดเจ็ตและหน้าเต็ม) ---------- */
 .njchat{
   display:flex; flex-direction:column; background:#fff; color:#0B2549;
-  font-family:'IBM Plex Sans Thai','Sarabun',-apple-system,sans-serif; font-size:14px; line-height:1.55;
+  font-family:var(--nj-font); font-size:14px; line-height:1.55;
   border:1px solid #DCE3EF; border-radius:16px; overflow:hidden; box-shadow:0 18px 44px rgba(12,32,64,.18);
 }
 .njchat-panel{
@@ -142,7 +142,7 @@
 .njchat-cards .card-tags .basic{ background:#F5C400; color:#3A2F00; }
 .njchat-cards .photo-count{ position:absolute; right:8px; top:8px; font-size:11px; background:rgba(11,37,73,.75); color:#fff; padding:2px 7px; border-radius:6px; }
 .njchat-cards .card-body{ padding:10px 12px 12px; display:flex; flex-direction:column; gap:4px; }
-.njchat-cards .card-price{ font:800 17px/1.2 Manrope,'IBM Plex Sans Thai',sans-serif; color:#0B2549; }
+.njchat-cards .card-price{ font:800 17px/1.2 var(--nj-font),'IBM Plex Sans Thai',sans-serif; color:#0B2549; }
 .njchat-cards .card-title{ margin:0; font-size:14px; line-height:1.4; }
 .njchat-cards .card-title a{ color:#0B2549; text-decoration:none; }
 .njchat-cards .card-meta{ font-size:12.5px; color:#1B4B7A; font-weight:600; }
@@ -150,7 +150,7 @@
 .njchat-cards .card-agent{ display:flex; align-items:center; gap:8px; margin-top:6px; padding-top:8px; border-top:1px solid #EEF2F7; font-size:12px; }
 .njchat-cards .card-agent b{ display:block; font-size:12px; }
 .njchat-cards .card-agent small{ color:#8798A9; font-size:11px; }
-.njchat-cards .agent-avatar{ width:26px; height:26px; border-radius:50%; background:#0B2549; color:#D8B96B; display:grid; place-items:center; font:800 10px Manrope,sans-serif; flex:none; }
+.njchat-cards .agent-avatar{ width:26px; height:26px; border-radius:50%; background:#0B2549; color:#D8B96B; display:grid; place-items:center; font:800 10px var(--nj-font); flex:none; }
 .njchat-cards .contact-mini{ margin-left:auto; display:flex; gap:5px; }
 .njchat-cards .contact-mini a{ width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:800; text-decoration:none; color:#fff; background:#0B2549; }
 .njchat-cards .contact-mini .line{ background:#06C755; }

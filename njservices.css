@@ -71,7 +71,7 @@
 .njsv-code-label{ display:block; font-size:11.5px; letter-spacing:.04em; color:#9DBBE0; }
 .njsv-code-val{
   display:block; font-size:24px; font-weight:800; letter-spacing:.06em; margin:2px 0 5px;
-  font-family:Manrope,ui-monospace,system-ui,sans-serif;
+  font-family:var(--nj-font);
 }
 .njsv-code-note{ display:block; font-size:12px; line-height:1.65; color:#C7DAF2; }
 
@@ -106,9 +106,9 @@
 .njsv-sec{ background:var(--paper,#F4F7FA); color:#0B1F3A; border-top:1px solid #CFDBE6; }
 .njsv-sec .njsv-in{ max-width:1280px; margin:0 auto; padding:52px 32px; }
 .njsv-sec .njsv-eyebrow{ font-size:13px; letter-spacing:.06em; color:#1B4B7A; margin-bottom:16px; }
-/* หัวข้อบนหน้าแรกใช้ Trirong ตามดีไซน์ของหน้านั้น (หน้าอื่นที่ใช้ไฟล์นี้ไม่มีคลาส .njsv-sec) */
+/* หัวข้อบนหน้าแรกใช้ฟอนต์กลางตัวเดียวกับทั้งเว็บแล้ว (รวมฟอนต์ 20 ก.ย. 2569) */
 .njsv-sec h2{
-  font-family:Trirong,serif; font-weight:500; font-size:38px; line-height:1.38;
+  font-family:var(--nj-font); font-weight:500; font-size:38px; line-height:1.38;
   letter-spacing:-0.01em; margin:0 0 14px; color:#0B1F3A;
 }
 .njsv-sec .njsv-lede{ font-size:16px; font-weight:300; line-height:1.75; color:#3D5470; max-width:720px; margin:0; }

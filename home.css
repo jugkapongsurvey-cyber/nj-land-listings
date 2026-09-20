@@ -18,7 +18,7 @@
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--paper);color:var(--ink);
-  font-family:Sarabun,"Helvetica Neue",Arial,sans-serif;font-weight:400;
+  font-family:var(--nj-font);font-weight:400;
 }
 *{box-sizing:border-box}
 a{color:var(--bronze);text-decoration:none}
@@ -60,7 +60,7 @@ button{cursor:pointer}
 .field-line b{color:var(--brass)}
 .search-box input,.search-box select{
   width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;
-  padding:7px 0;font-size:15px;font-weight:300;color:var(--ink);
+  padding:7px 0;font-size:15px;font-weight:400;color:var(--ink);
 }
 .search-box input:focus,.search-box select:focus{outline:0;border-bottom-color:var(--brass)}
 .search-submit{
@@ -79,18 +79,18 @@ button{cursor:pointer}
   border:1px solid transparent;
 }
 .quick a:hover{border-color:var(--brass)}
-.quick-icon{font-family:Trirong,serif;font-size:15px;color:var(--bronze)}
-.quick b{font-family:Trirong,serif;font-weight:500;font-size:18px}
-.quick small{font-size:14px;font-weight:300;color:var(--muted)}
+.quick-icon{font-family:var(--nj-font);font-size:15px;color:var(--bronze)}
+.quick b{font-family:var(--nj-font);font-weight:600;font-size:18px}
+.quick small{font-size:14px;font-weight:400;color:var(--muted)}
 
 .result-note{
   margin-bottom:22px;padding:13px 20px;background:var(--sand);
-  font-size:14px;font-weight:300;color:#3D5470;
+  font-size:14px;font-weight:400;color:#3D5470;
 }
 .listing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .loading{
   grid-column:1/-1;padding:60px 0;text-align:center;
-  font-size:15px;font-weight:300;color:var(--muted);
+  font-size:15px;font-weight:400;color:var(--muted);
 }
 
 .land-card{background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column}
@@ -118,10 +118,10 @@ button{cursor:pointer}
   color:var(--gold);font-size:12px;padding:5px 10px;
 }
 .card-body{padding:20px 24px;display:grid;gap:10px}
-.card-price{font-family:Trirong,serif;font-size:24px;color:var(--ink)}
-.card-title{margin:0;font-family:Trirong,serif;font-weight:500;font-size:19px;line-height:1.5}
+.card-price{font-family:var(--nj-font);font-size:24px;color:var(--ink)}
+.card-title{margin:0;font-family:var(--nj-font);font-weight:600;font-size:19px;line-height:1.5}
 .card-title a{color:var(--ink)}
-.card-facts{font-size:15px;font-weight:300;line-height:1.7;color:var(--muted)}
+.card-facts{font-size:15px;font-weight:400;line-height:1.7;color:var(--muted)}
 .card-agent{
   display:flex;align-items:center;gap:12px;
   border-top:1px solid var(--line2);padding-top:18px;
@@ -129,11 +129,11 @@ button{cursor:pointer}
 .agent-avatar{
   width:38px;height:38px;flex:none;border:1px solid var(--line);
   display:flex;align-items:center;justify-content:center;
-  font-family:Trirong,serif;font-size:13px;color:var(--bronze);
+  font-family:var(--nj-font);font-size:13px;color:var(--bronze);
 }
 .card-agent > div{flex:1;display:grid;gap:3px}
 .card-agent b{font-size:14px;font-weight:500}
-.card-agent small{font-size:12px;font-weight:300;color:var(--muted)}
+.card-agent small{font-size:12px;font-weight:400;color:var(--muted)}
 .contact-mini{display:flex;gap:7px}
 .contact-mini a{
   width:32px;height:32px;border:1px solid var(--line);
@@ -151,14 +151,14 @@ button{cursor:pointer}
 .listing-pager button:hover:not(:disabled){border-color:var(--brass);color:var(--bronze)}
 .listing-pager button[aria-current="page"]{background:var(--ink);border-color:var(--ink);color:var(--gold)}
 .listing-pager button:disabled{opacity:.4;cursor:default}
-.listing-pager .pager-info{flex-basis:100%;text-align:center;font-size:13px;font-weight:300;color:var(--muted);margin-top:4px}
+.listing-pager .pager-info{flex-basis:100%;text-align:center;font-size:13px;font-weight:400;color:var(--muted);margin-top:4px}
 
 .empty-result{
   grid-column:1/-1;background:var(--card);border:1px solid var(--line);
-  padding:42px 38px;font-size:16px;font-weight:300;line-height:1.7;color:var(--muted);
+  padding:42px 38px;font-size:16px;font-weight:400;line-height:1.7;color:var(--muted);
 }
 .empty-result b{
-  display:block;font-family:Trirong,serif;font-weight:500;font-size:26px;
+  display:block;font-family:var(--nj-font);font-weight:600;font-size:26px;
   line-height:1.45;color:var(--ink);margin-bottom:14px;
 }
 .empty-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
@@ -178,7 +178,7 @@ button{cursor:pointer}
   position:fixed;left:12px;right:12px;bottom:12px;z-index:200;
   background:var(--ink);color:#BFCAD6;border:1px solid rgba(216,185,107,.32);
   padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  font-size:13px;font-weight:300;line-height:1.7;
+  font-size:13px;font-weight:400;line-height:1.7;
 }
 .nj-consent-text{flex:1;min-width:220px}
 .nj-consent-btns{display:flex;gap:9px;flex:none}
@@ -201,7 +201,7 @@ button{cursor:pointer}
   [data-r="g4"]{grid-template-columns:repeat(2,1fr) !important}
   [data-r="sticky"]{position:static !important}
   [data-r="hero"]{min-height:560px !important}
-  [data-r="display"]{font-size:52px !important}
+  [data-r="display"]{font-size:var(--nj-fs-h1) !important}
   [data-r="stats"]{grid-template-columns:repeat(3,1fr) !important}
   .search-box{grid-template-columns:1fr 1fr}
   .search-box label{border-left:0;border-top:1px solid var(--line2)}
@@ -217,7 +217,7 @@ button{cursor:pointer}
 }
 
 @media (max-width:640px){
-  [data-r="display"]{font-size:36px !important}
+  [data-r="display"]{font-size:var(--nj-fs-h1) !important}
   h2{font-size:27px !important}
   /* การ์ดสั้นๆ เรียง 2 คอลัมน์ได้แม้จอ 375px — ถ้าเรียงคอลัมน์เดียวทั้งหมด
      หน้าจะยาวขึ้นเกือบ 2,000px ต้องปัดนิ้วผ่านการ์ดซ้ำๆ กว่าจะถึงเนื้อหาถัดไป */
@@ -246,7 +246,7 @@ button{cursor:pointer}
   }
   .mobile-nav a{
     display:grid;gap:3px;justify-items:center;padding:10px 4px;
-    font-size:11px;font-weight:300;color:#A8B6C4;
+    font-size:11px;font-weight:400;color:#A8B6C4;
   }
   .mobile-nav a span{font-size:16px;color:var(--gold)}
   .mobile-nav .mobile-post{background:var(--gold);color:var(--ink)}
@@ -289,11 +289,11 @@ button{cursor:pointer}
 .nj-stage-in{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:72px 32px 78px;text-align:center}
 .nj-stage-eyebrow{font-size:13px;letter-spacing:.22em;color:var(--gold);margin-bottom:20px}
 .nj-stage h2{
-  font-family:Trirong,serif;font-weight:500;font-size:42px;line-height:1.34;
+  font-family:var(--nj-font);font-weight:600;font-size:42px;line-height:1.34;
   letter-spacing:-.01em;color:#fff;margin:0 0 18px;
 }
 .nj-stage-lede{
-  max-width:640px;margin:0 auto 42px;font-size:17px;font-weight:300;line-height:1.75;
+  max-width:640px;margin:0 auto 42px;font-size:17px;font-weight:400;line-height:1.75;
   color:rgba(255,255,255,.78);text-wrap:pretty;
 }
 
@@ -335,8 +335,8 @@ button{cursor:pointer}
   display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:960px;
   margin:40px auto 0;border-top:1px solid rgba(216,185,107,.28);padding-top:24px;text-align:left;
 }
-.nj-stage-points b{display:block;font-family:Trirong,serif;font-weight:500;font-size:18px;color:var(--gold);margin-bottom:6px}
-.nj-stage-points i{display:block;font-style:normal;font-size:14px;font-weight:300;line-height:1.65;color:rgba(255,255,255,.72)}
+.nj-stage-points b{display:block;font-family:var(--nj-font);font-weight:600;font-size:18px;color:var(--gold);margin-bottom:6px}
+.nj-stage-points i{display:block;font-style:normal;font-size:14px;font-weight:400;line-height:1.65;color:rgba(255,255,255,.72)}
 
 .nj-stage-cta{
   display:inline-block;margin-top:34px;border:1px solid rgba(216,185,107,.7);color:var(--gold);
@@ -439,21 +439,21 @@ button{cursor:pointer}
   backdrop-filter:blur(2px);transition:background .25s ease,transform .25s ease;
 }
 .nj-intro-play-txt{font-size:14px;font-weight:500;letter-spacing:.06em;text-align:center;line-height:1.5}
-.nj-intro-play-txt b{display:block;font-weight:300;font-size:12px;letter-spacing:.1em;color:rgba(255,255,255,.72);margin-top:5px}
+.nj-intro-play-txt b{display:block;font-weight:400;font-size:12px;letter-spacing:.1em;color:rgba(255,255,255,.72);margin-top:5px}
 .nj-intro-play:hover .nj-intro-play-ring{background:var(--gold);color:#0B1F3A;transform:scale(1.06)}
 .nj-intro-play:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
 /* เนื้อความ */
 .nj-intro-eyebrow{font-size:13px;letter-spacing:.22em;color:var(--gold);margin-bottom:18px}
 .nj-intro h2{
-  font-family:Trirong,serif;font-weight:500;font-size:40px;line-height:1.34;
+  font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.34;
   letter-spacing:-.01em;color:#fff;margin:0 0 18px;
 }
-.nj-intro-lede{font-size:17px;font-weight:300;line-height:1.75;color:rgba(255,255,255,.78);margin:0 0 26px;max-width:560px;text-wrap:pretty}
+.nj-intro-lede{font-size:17px;font-weight:400;line-height:1.75;color:rgba(255,255,255,.78);margin:0 0 26px;max-width:560px;text-wrap:pretty}
 .nj-intro-points{list-style:none;margin:0 0 30px;padding:0;display:grid;gap:1px}
 .nj-intro-points li{border-top:1px solid rgba(216,185,107,.26);padding:15px 0}
-.nj-intro-points b{display:block;font-family:Trirong,serif;font-weight:500;font-size:18px;color:var(--gold);margin-bottom:5px}
-.nj-intro-points span{display:block;font-size:14px;font-weight:300;line-height:1.65;color:rgba(255,255,255,.72)}
+.nj-intro-points b{display:block;font-family:var(--nj-font);font-weight:600;font-size:18px;color:var(--gold);margin-bottom:5px}
+.nj-intro-points span{display:block;font-size:14px;font-weight:400;line-height:1.65;color:rgba(255,255,255,.72)}
 .nj-intro-cta{
   display:inline-block;border:1px solid rgba(216,185,107,.7);color:var(--gold);
   font-size:14px;font-weight:500;letter-spacing:.16em;padding:15px 32px;

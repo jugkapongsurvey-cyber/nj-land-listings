@@ -15,7 +15,7 @@
 html{scroll-behavior:smooth}
 body{
   margin:0;
-  font-family:'IBM Plex Sans Thai','Sarabun',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family:var(--nj-font);
   color:var(--ink);
   background:#fff;
   line-height:1.6;

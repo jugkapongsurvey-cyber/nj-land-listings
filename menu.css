@@ -144,3 +144,39 @@ html.njmenu-open, html.njmenu-open body{ overflow:hidden; }
   /* ชื่อแบรนด์ห้ามตัดบรรทัดกลางคำ — อ่านแล้วเหมือนเว็บพัง */
   header .njmenu-btn{ margin-left:auto; }
 }
+
+/* ---------- ลิ้นชักแบบมีกลุ่ม (หัวเว็บชุดใหม่ · 2026-09-20) ----------
+ * เมนูใหม่มี 6 กลุ่ม ซึ่ง 4 กลุ่มมีเมนูย่อย · ลิ้นชักจึงต้องบอกได้ว่าอะไรอยู่ใต้อะไร
+ * ⚠️ หัวกลุ่มยังเป็น <a> ที่กดได้จริง ไม่ใช่หัวข้อเฉยๆ — บนเดสก์ท็อปมันกดได้
+ *    ลิ้นชักต้องทำได้เหมือนกัน ไม่งั้นทางไปหน้ารวมของกลุ่มนั้นหายไปบนมือถือ
+ */
+.njmenu-list .njmenu-group {
+  margin-top: 10px;
+  font-weight: 600;
+  color: var(--nj-navy-900, #0B1F3A);
+}
+.njmenu-list .njmenu-group:first-child { margin-top: 0; }
+
+.njmenu-list .njmenu-sub {
+  padding-left: 26px;
+  font-size: 15px;
+  color: var(--nj-gray-600, #5A6B7D);
+}
+.njmenu-list .njmenu-sub::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 6px;
+  height: 1px;
+  background: var(--nj-gray-300, #C8D7E6);
+}
+.njmenu-list a { position: relative; }
+
+/* หน้าที่กำลังเปิดอยู่ — ผูกกับ [aria-current] ไม่ใช่คลาสที่ตั้งเอง
+ * ความหมาย (สำหรับเครื่องอ่านหน้าจอ) กับหน้าตา (สำหรับคนมองเห็น) จะได้ไม่หลุดจากกัน */
+.njmenu-list a[aria-current="page"] {
+  color: var(--nj-navy-900, #0B1F3A);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--nj-gold-500, #D8B96B);
+}

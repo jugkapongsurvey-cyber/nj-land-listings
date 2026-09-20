@@ -97,7 +97,7 @@
 /* ---------- เนื้อหา ---------- */
 .ld-body{padding:22px 0 0;max-width:760px}
 .ld-price{
-  font-family:Manrope,sans-serif;font-size:clamp(26px,5.4vw,34px);font-weight:800;
+  font-family:var(--nj-font);font-size:clamp(26px,5.4vw,34px);font-weight:800;
   color:var(--navy);line-height:1.15;
 }
 .ld-price small{
@@ -116,7 +116,7 @@
 .ld-code-label{font-size:12px;letter-spacing:.05em;color:#9DBBE0}
 .ld-code-val{
   font-size:26px;font-weight:800;letter-spacing:.06em;
-  font-family:Manrope,ui-monospace,system-ui,sans-serif;
+  font-family:var(--nj-font);
 }
 .ld-code-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .ld-code-btn{
@@ -159,7 +159,7 @@
 .ld-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 @media(min-width:640px){.ld-facts{grid-template-columns:repeat(3,1fr)}}
 .ld-fact{background:var(--mist);border-radius:11px;padding:13px 15px}
-.ld-fact b{display:block;font-family:Manrope,sans-serif;font-size:16px;color:var(--ink);line-height:1.35}
+.ld-fact b{display:block;font-family:var(--nj-font);font-size:16px;color:var(--ink);line-height:1.35}
 .ld-fact span{font-size:11px;color:#8798A9}
 
 /* ---------- แผนที่โดยประมาณ ---------- */
@@ -193,7 +193,7 @@
 .ld-nb-g li{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13px}
 .ld-nb-g li span{color:var(--ink);min-width:0;overflow-wrap:anywhere}
 .ld-nb-g li b{
-  flex:none;font-family:Manrope,sans-serif;font-size:12.5px;font-weight:700;color:var(--green);
+  flex:none;font-family:var(--nj-font);font-size:12.5px;font-weight:700;color:var(--green);
 }
 .ld-nb-foot{
   font-size:11.5px;line-height:1.8;color:#8798A9;margin:12px 0 0;
@@ -232,7 +232,7 @@
 .ld-crow b{display:block;font-size:13.5px;line-height:1.55;color:var(--ink)}
 .ld-crow span{display:block;font-size:12px;color:var(--sub);line-height:1.7;margin-top:1px}
 .ld-val{
-  flex:none;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;
+  flex:none;font-family:var(--nj-font);font-size:13px;font-weight:700;
   color:var(--ink);white-space:nowrap;margin-top:2px;
 }
 .ld-crow .ld-val{display:block;margin-top:2px}
