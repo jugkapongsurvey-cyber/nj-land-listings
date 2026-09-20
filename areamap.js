@@ -35,13 +35,14 @@
   var LONGDO_SRC = 'https://api.longdo.com/map3/?key=';
   var DEFAULT_VIEW = { lon: 100.5018, lat: 13.7563, zoom: 11 };
   var MAX_POINTS = 60;
-  // ⚠️ ชั้นภาพผังเมือง (Longdo `cityplan_dpt` = สำเนาภาพจากกรมโยธาฯ) — **ปิดไว้จนกว่าจะได้รับอนุญาตเป็นลายลักษณ์อักษร**
-  //    ทั้งจากกรมโยธาฯ และเงื่อนไขเชิงพาณิชย์จาก Longdo (ตรวจ 17 ก.ย. 69: ยังไม่มีสิทธิ์เผยแพร่บนเว็บสาธารณะ)
-  //    เปิดเป็น true ได้เมื่อมีหนังสืออนุญาตแล้วเท่านั้น และต้องทดสอบกับคีย์จริงก่อน (รูปแบบ Layer ของ v3 ยังไม่ได้ยืนยัน)
-  var ZONING_OVERLAY = false;
-  var ZONING_LAYER = { name: 'cityplan_dpt', url: 'https://ms.longdo.com/mmmap/img.php' };
-  var ZONING_NOTE = 'ภาพผังเมืองรวมเป็นข้อมูลเบื้องต้นจากกรมโยธาธิการและผังเมือง (แสดงผ่าน Longdo Map) ' +
-                    'ใช้อ้างอิงทางกฎหมายไม่ได้ ผังบางพื้นที่อาจไม่เป็นฉบับล่าสุด ต้องตรวจกับหน่วยงานก่อนตัดสินใจ';
+  // ⚠️⚠️ **เว็บนี้ไม่แสดงภาพผังเมืองเอง — ส่งผู้ใช้ไปตรวจที่ระบบของหน่วยงานโดยตรง** (เจ้าของกิจการตัดสิน 20 ก.ย. 69)
+  //    เคยเตรียมชั้นภาพ `cityplan_dpt` ของ Longdo ไว้ แต่การเผยแพร่ซ้ำต้องมีหนังสืออนุญาตจากกรมโยธาฯ ก่อน
+  //    จึงตัดทิ้งทั้งก้อนแทนการรอหนังสือ · **ห้ามเอาชั้นภาพผังเมืองของบุคคลที่สามกลับมาซ้อนบนแผนที่นี้**
+  //    โดยไม่มีหนังสืออนุญาตเป็นลายลักษณ์อักษร (เผยแพร่ซ้ำ = บริษัทกลายเป็นผู้ยืนยันผังแทนรัฐ)
+  // ⚠️ รายชื่อลิงก์ตรวจผังอ่านจาก `NJZoneGuide.CHECK_LINKS` ที่เดียว (zoneguide.js โหลดก่อนไฟล์นี้ใน tools.html)
+  //    ห้ามคัดลอกรายชื่อมาไว้ที่นี่ — สองที่เมื่อไหร่ วันหนึ่งลิงก์จะเปลี่ยนที่เดียว แล้วอีกที่พาไปหน้าที่ตายแล้ว
+  var ZONING_NOTE = 'ผังเมืองต้องตรวจกับระบบของหน่วยงานโดยตรง เว็บนี้ไม่ได้แสดงภาพผังเมือง ' +
+                    'ผลจากระบบเหล่านั้นเป็นข้อมูลเบื้องต้น ใช้อ้างอิงทางกฎหมายไม่ได้ ผังบางพื้นที่อาจไม่เป็นฉบับล่าสุด';
   var R = 6371008.8;
   var DISCLAIM = 'วัดจากภาพแผนที่ ไม่ใช่ผลรังวัด ภาพดาวเทียมอาจคลาดได้หลายเมตร ' +
                  'ใช้ประกอบการคุยเบื้องต้นเท่านั้น เนื้อที่จริงต้องยึดตามโฉนดและการรังวัดโดยช่างรังวัด';
@@ -251,6 +252,22 @@
       '<p class="am-warn">' + esc(DISCLAIM) + '</p>';
   }
 
+  // ลิงก์ตรวจผังเมืองของจุดที่วัด — ไม่ใช่ผลตรวจ แค่พาไปหน้าที่ตรวจได้จริง
+  function zoningHtml(s) {
+    if (!s || !s.closed || !s.center) return '';
+    var links = (w.NJZoneGuide && w.NJZoneGuide.CHECK_LINKS) || [];
+    if (!links.length) return '';
+    var c = s.center.lat.toFixed(6) + ', ' + s.center.lon.toFixed(6);
+    var items = links.map(function (l) {
+      return '<li><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>' +
+        '<span>' + esc(l.area) + (l.draft ? ' · ร่าง' : '') + '</span></li>';
+    }).join('');
+    return '<div class="am-zone-head">ตรวจผังเมืองของจุดนี้</div>' +
+      '<button type="button" class="am-zone-copy" data-am-zcopy>คัดลอกพิกัดจุดกึ่งกลาง ' + esc(c) + '</button>' +
+      '<ul class="am-zone-links">' + items + '</ul>' +
+      '<p class="am-warn">' + esc(ZONING_NOTE) + '</p>';
+  }
+
   function mount(root, opts) {
     var o = opts || {};
     var key = o.key != null ? o.key : LONGDO_KEY;
@@ -269,7 +286,6 @@
           '<button type="button" data-am="layer" aria-pressed="true">🛰 ภาพดาวเทียม</button>' +
           '<button type="button" data-am="undo">↶ ย้อนหมุด</button>' +
           '<button type="button" data-am="clear">ล้างทั้งหมด</button>' +
-          (ZONING_OVERLAY ? '<button type="button" data-am="zoning" aria-pressed="false">🎨 ผังสี</button>' : '') +
         '</div>' +
         '<div class="am-grid">' +
           '<div class="am-map" data-am-map aria-label="แผนที่สำหรับวางหมุด"></div>' +
@@ -278,6 +294,7 @@
             '<a class="am-cta" data-am-line href="#" target="_blank" rel="noopener" hidden>ส่งเนื้อที่ให้ทีมเสนอราคารังวัดทางไลน์</a>' +
             '<button type="button" class="am-copy" data-am-copy hidden>คัดลอกผล</button>' +
             '<div class="am-msg" data-am-msg role="status"></div>' +
+          '<div class="am-zone" data-am-zone hidden></div>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -293,6 +310,9 @@
       var ok = !!(s && s.closed);
       line.hidden = !ok;
       copy.hidden = !ok;
+      var zone = $('[data-am-zone]'), zhtml = zoningHtml(s);
+      zone.innerHTML = zhtml;
+      zone.hidden = !zhtml;
       if (ok && w.njLineAskUrl) line.href = w.njLineAskUrl(lineText(s));
       else if (ok) line.href = 'https://line.me/R/ti/p/@716lffzt';
     }
@@ -332,10 +352,11 @@
     }
 
     root.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-am-open],[data-am],[data-am-copy]');
+      var t = e.target.closest('[data-am-open],[data-am],[data-am-copy],[data-am-zcopy]');
       if (!t) return;
       if (t.hasAttribute('data-am-open')) return open();
       if (t.hasAttribute('data-am-copy')) return copyResult();
+      if (t.hasAttribute('data-am-zcopy')) return copyCenter();
       if (!ctl) return;
       var act = t.getAttribute('data-am');
       if (act === 'undo') ctl.undo();
@@ -346,23 +367,8 @@
         t.setAttribute('aria-pressed', String(sat));
         t.textContent = sat ? '🛰 ภาพดาวเทียม' : '🗺 แผนที่ถนน';
       } else if (act === 'locate') locate();
-      else if (act === 'zoning' && ZONING_OVERLAY) toggleZoning(t);
     });
 
-    var zoningLayer = null, zoningOn = false;
-    function toggleZoning(btn) {
-      try {
-        if (!zoningLayer) zoningLayer = new L.Layer(ZONING_LAYER.name, { url: ZONING_LAYER.url, zoomRange: { min: 1, max: 20 } });
-        zoningOn = !zoningOn;
-        if (zoningOn) map.Layers.add(zoningLayer); else map.Layers.remove(zoningLayer);
-        btn.setAttribute('aria-pressed', String(zoningOn));
-        msg(zoningOn ? ZONING_NOTE : '');
-      } catch (e) {
-        zoningOn = false;
-        btn.setAttribute('aria-pressed', 'false');
-        msg('แสดงภาพผังเมืองไม่ได้ในตอนนี้ ตรวจผังได้ที่ระบบของกรมโยธาธิการและผังเมือง');
-      }
-    }
     function msg(text) { $('[data-am-msg]').textContent = text || ''; }
     function locate() {
       if (!navigator.geolocation) return msg('เบราว์เซอร์นี้หาตำแหน่งไม่ได้ เลื่อนแผนที่ไปที่แปลงเองได้เลย');
@@ -375,19 +381,26 @@
         msg('หาตำแหน่งไม่ได้ (อาจยังไม่อนุญาตให้เว็บใช้ตำแหน่ง) เลื่อนแผนที่ไปที่แปลงเองได้เลย');
       }, { enableHighAccuracy: true, timeout: 10000 });
     }
-    function copyResult() {
-      if (!last || !last.closed) return;
-      var text = 'วัดจากแผนที่: ' + last.thai.text + ' (' + fmt(last.m2) + ' ตร.ม.) — ' + DISCLAIM;
+    // พิกัดจุดกึ่งกลางไว้วางในช่องค้นของระบบหน่วยงาน — ไม่ถูกส่งไปไหนทั้งสิ้น (กติกาข้อ 5)
+    function copyCenter() {
+      if (!last || !last.center) return;
+      copyText(last.center.lat.toFixed(6) + ',' + last.center.lon.toFixed(6), 'คัดลอกพิกัดแล้ว วางในช่องค้นของระบบหน่วยงานได้เลย');
+    }
+    function copyText(text, okMsg) {
       function fallback() { w.prompt('คัดลอกข้อความนี้', text); }
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () { msg('คัดลอกแล้ว'); }, fallback);
+        navigator.clipboard.writeText(text).then(function () { msg(okMsg); }, fallback);
       } else fallback();
+    }
+    function copyResult() {
+      if (!last || !last.closed) return;
+      copyText('วัดจากแผนที่: ' + last.thai.text + ' (' + fmt(last.m2) + ' ตร.ม.) — ' + DISCLAIM, 'คัดลอกแล้ว');
     }
     return true;
   }
 
   w.NJAreaMap = {
-    DISCLAIM: DISCLAIM, KEY: LONGDO_KEY, ZONING_OVERLAY: ZONING_OVERLAY, ZONING_NOTE: ZONING_NOTE,
+    DISCLAIM: DISCLAIM, KEY: LONGDO_KEY, ZONING_NOTE: ZONING_NOTE, zoningHtml: zoningHtml,
     areaM2: areaM2, sides: sides, haversine: haversine, thaiArea: thaiArea,
     summary: summary, lineText: lineText, resultHtml: resultHtml,
     createController: createController, loadLongdo: loadLongdo, mount: mount

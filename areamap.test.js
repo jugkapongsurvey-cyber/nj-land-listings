@@ -153,9 +153,31 @@ const tick = () => new Promise(r => setTimeout(r, 5));
   ok('ไม่มีคีย์ = mount คืน false (ไม่วาดแผนที่เปล่า)', A.mount({}, { key: '' }) === false);
   ok('สถิติเปิดแผนที่ไม่แนบพิกัด', /njTrack\('ViewContent', \{ content_name: 'area_map_open' \}\)/.test(code));
 
-  ok('⭐ ชั้นภาพผังเมืองปิดไว้ (ยังไม่มีหนังสืออนุญาต)', A.ZONING_OVERLAY === false && /var ZONING_OVERLAY = false;/.test(src));
-  ok('ปิดอยู่ = ไม่มีปุ่มผังสีบนหน้า', /\(ZONING_OVERLAY \?/.test(src));
-  ok('คำเตือนชั้นผังเมืองบอกว่าใช้อ้างอิงทางกฎหมายไม่ได้', /ใช้อ้างอิงทางกฎหมายไม่ได้/.test(A.ZONING_NOTE));
+  console.log('\n6) ผังเมือง: ส่งออกไปตรวจที่ระบบของหน่วยงาน (ไม่แสดงภาพผังเอง)');
+  ok('⭐ ไม่มีชั้นภาพผังเมืองของบุคคลที่สามอยู่ในโค้ดแล้ว',
+    !/cityplan_dpt|ms\.longdo\.com|ZONING_OVERLAY|ZONING_LAYER|new L\.Layer\(/.test(code));   // code = ตัดคอมเมนต์ออกแล้ว (คอมเมนต์อธิบายเหตุผลยังอ้างชื่อชั้นได้)
+  ok('คำเตือนบอกว่าเว็บนี้ไม่ได้แสดงภาพผัง และใช้อ้างอิงทางกฎหมายไม่ได้',
+    /ไม่ได้แสดงภาพผังเมือง/.test(A.ZONING_NOTE) && /ใช้อ้างอิงทางกฎหมายไม่ได้/.test(A.ZONING_NOTE));
+  ok('⭐ ไม่คัดลอกรายชื่อลิงก์มาไว้ในไฟล์นี้ (อ่านจาก NJZoneGuide.CHECK_LINKS ที่เดียว)',
+    /w\.NJZoneGuide && w\.NJZoneGuide\.CHECK_LINKS/.test(code) && !/landuseplan\.dpt\.go\.th|bangkok\.go\.th/.test(src));
+
+  // ไม่มี NJZoneGuide (เช่นหน้าอื่นที่ไม่ได้โหลด zoneguide.js) = ไม่วาดอะไรเลย ห้ามวาดหัวข้อเปล่า
+  const sq = A.summary(rect(40, 40));
+  ok('ยังไม่มีรายชื่อลิงก์ = ไม่วาดส่วนนี้เลย', A.zoningHtml(sq) === '');
+  global.window.NJZoneGuide = { CHECK_LINKS: [
+    { name: 'ระบบตรวจผังของกรมโยธาฯ', area: 'ทั่วประเทศ', url: 'https://example.test/dpt' },
+    { name: 'ร่างผังกรุงเทพฯ', area: 'กรุงเทพมหานคร', draft: true, url: 'https://example.test/bkk' }
+  ] };
+  const zh = A.zoningHtml(sq);
+  ok('วาดลิงก์ครบตามรายชื่อ และเปิดแท็บใหม่แบบ noopener',
+    /example\.test\/dpt/.test(zh) && /example\.test\/bkk/.test(zh) &&
+    (zh.match(/rel="noopener"/g) || []).length === 2);
+  ok('ผังที่เป็นร่างติดป้ายบอก', /· ร่าง/.test(zh));
+  ok('มีปุ่มคัดลอกพิกัดจุดกึ่งกลาง', /data-am-zcopy/.test(zh) && new RegExp(sq.center.lat.toFixed(6)).test(zh));
+  ok('คำเตือนติดไปกับส่วนนี้เสมอ', zh.indexOf('ไม่ได้แสดงภาพผังเมือง') >= 0);
+  ok('ยังไม่ปิดรูป (2 หมุด) = ไม่วาดส่วนนี้', A.zoningHtml(A.summary(rect(40, 40).slice(0, 2))) === '');
+  ok('พิกัดไม่ถูกส่งออกนอกเครื่อง (คัดลอกอย่างเดียว)', /function copyCenter\(\)/.test(code) && !/fetch\(|XMLHttpRequest/.test(code));
+  delete global.window.NJZoneGuide;
   const tools = fs.readFileSync(path.join(__dirname, 'tools.html'), 'utf8');
   const toolsJs = fs.readFileSync(path.join(__dirname, 'tools.js'), 'utf8');
   ok('tools.html โหลด areamap.js + areamap.css', /areamap\.js/.test(tools) && /areamap\.css/.test(tools));

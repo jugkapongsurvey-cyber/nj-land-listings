@@ -59,3 +59,17 @@
 .am-msg{font-size:13px;color:var(--sub);min-height:1em}
 .am-err{margin-top:12px;background:#FDECEA;color:#B42318;border-radius:10px;padding:10px 12px;font-size:13.5px}
 .am-err a{color:inherit;font-weight:700}
+
+/* ลิงก์ตรวจผังเมืองของหน่วยงาน (เว็บนี้ไม่แสดงภาพผังเอง) */
+.am-zone{margin-top:12px;border-top:1px solid var(--line-soft,#E6ECF5);padding-top:10px}
+.am-zone-head{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.am-zone-copy{
+  width:100%;border:1px solid #DCE3EF;background:#F7F9FC;color:var(--ink);
+  border-radius:10px;padding:9px 11px;font:inherit;font-size:12.5px;cursor:pointer;
+}
+.am-zone-copy:hover{background:#EEF3FA}
+.am-zone-links{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:13px}
+.am-zone-links li{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
+.am-zone-links a{color:var(--blue);font-weight:600;text-decoration:none}
+.am-zone-links a:hover{text-decoration:underline}
+.am-zone-links span{color:var(--sub);font-size:12px}
