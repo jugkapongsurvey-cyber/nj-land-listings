@@ -495,6 +495,13 @@
     var q = norm(text);
     if (!q) return Promise.resolve(null);
 
+    // ⚠️ นับ "ขอคุยกับคน" แยกจาก chat_open — สองอย่างนี้ตอบคนละคำถาม
+    //    chat_open = มีคนลองใช้แชท · chat_to_human = แชทตอบไม่พอ เขาอยากคุยกับคนจริง
+    //    ตัวหลังคือสัญญาณว่าฐานความรู้ยังขาดอะไร จึงต้องแยกให้เห็น
+    if (has(q, ['คุยกับเจ้าหน้าที่', 'คุยกับคน', 'ขอคุยกับ'])) {
+      if (window.njTrackInternal) njTrackInternal('chat_to_human');
+    }
+
     // สล็อตที่รออยู่ (เช่น รอเนื้อที่) — ถ้าข้อความใหม่เป็นคำตอบของสิ่งที่ถามไป
     if (pending && pending.intent === 'survey' && (parseAreaWa(text) > 0 || (parseSearch(text).provinces.length && pending.slots.wa) || has(q, ['ถ้าเป็น', 'กรุงเทพ']))) {
       // ถามใหม่โดยระบุประเภทงานเอง = โจทย์ใหม่ จำไว้แค่จังหวัด (จำนวนโฉนด/แปลงของคำถามก่อนไม่ควรติดมา)

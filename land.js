@@ -78,12 +78,61 @@
     if(/^\d+-\d+-\d+(\.\d+)?$/.test(area)) area+=' ไร่';
     return [head, loc, area].filter(Boolean).join(' · ');
   }
+  // เขียน <meta> ให้ถูกตัว — มี name= กับ property= ปนกัน ถ้าเลือกผิดจะได้แท็กซ้ำ
+  function setMeta(attr, key, value){
+    if(!value) return;
+    var el=document.head.querySelector('meta['+attr+'="'+key+'"]');
+    if(!el){ el=document.createElement('meta'); el.setAttribute(attr,key); document.head.appendChild(el); }
+    if(el.getAttribute('content')!==value) el.setAttribute('content', value);
+  }
+  // คำอธิบายสั้นของแปลง — ประกอบจากช่องที่มีจริง ไม่เติมแทนช่องที่ว่าง
+  function metaDescOf(l){
+    var L=l.land||{};
+    var bits=[shortLabel(l)];
+    if(Number(l.estValue)>0) bits.push('ราคา '+Number(l.estValue).toLocaleString('th-TH')+' บาท');
+    if(Number(l.pricePerWa)>0) bits.push(Number(l.pricePerWa).toLocaleString('th-TH')+' บาท/ตร.ว.');
+    if(L.deedType&&window.NJVocab&&NJVocab.DEED_TH&&NJVocab.DEED_TH[L.deedType]) bits.push(NJVocab.DEED_TH[L.deedType]);
+    var txt=bits.join(' · ');
+    if(l.blurb) txt+=' — '+String(l.blurb).replace(/\s+/g,' ').trim();
+    txt+=' · รหัสทรัพย์ '+l.id+' · ตรวจสอบโดยสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351';
+    return txt.length>300?txt.slice(0,297).trim()+'…':txt;
+  }
+
   function setSeo(l, photos){
     try{
       var url=SITE_URL+'/land.html?id='+encodeURIComponent(l.id);
       var link=document.querySelector('link[rel="canonical"]');
       if(!link){ link=document.createElement('link'); link.rel='canonical'; document.head.appendChild(link); }
       link.href=url;
+
+      // ⚠️ **og ต้องเปลี่ยนตามแปลง** — ของเดิมเป็นข้อความกลางทุกแปลง
+      // แปลว่าลิงก์ที่พนักงานส่งให้ลูกค้าทางไลน์ทุกแปลง ขึ้นหัวข้อและรูปเหมือนกันหมด
+      // ซึ่งเป็นช่องทางขายหลักของบริษัท (รายงานตรวจ SEO ข้อ H-07)
+      // ⚠️ ข้อจำกัดที่ต้องรู้: ไลน์/เฟซบุ๊กอ่าน og จาก HTML ต้นทาง **ไม่รันสคริปต์**
+      //    การตั้งค่าตรงนี้จึงช่วยได้เฉพาะตัวที่รัน JS · ตัวแก้จริงคือสร้างหน้าแปลงเป็นไฟล์จริง
+      //    ตอน build (ดู build/properties.js) ซึ่งต้องให้เจ้าของอนุมัติรอบ deploy ก่อน
+      var desc=metaDescOf(l);
+      var img=(photos||[]).filter(function(u){return /^https:\/\//.test(u);})[0]||'';
+      setMeta('name','description',desc);
+      setMeta('property','og:title',shortLabel(l)+' | ที่ดินชัวร์');
+      setMeta('property','og:description',desc);
+      setMeta('property','og:url',url);
+      setMeta('property','og:type','website');
+      if(img) setMeta('property','og:image',img);
+
+      // เส้นทางนำทางสำหรับเสิร์ชเอนจิน — ต้องตรงกับที่แสดงบนหน้าจอเป๊ะ
+      var bc={'@context':'https://schema.org','@type':'BreadcrumbList',
+        itemListElement:crumbsOf(l).map(function(c,i){
+          var it={'@type':'ListItem',position:i+1,name:c.t};
+          if(c.h) it.item=SITE_URL+'/'+c.h;
+          return it;
+        })};
+      var oldBc=document.getElementById('ld-breadcrumb');
+      if(oldBc) oldBc.remove();
+      var bs=document.createElement('script');
+      bs.type='application/ld+json'; bs.id='ld-breadcrumb';
+      bs.textContent=JSON.stringify(bc);
+      document.head.appendChild(bs);
 
       var d={
         '@context':'https://schema.org',
@@ -398,6 +447,85 @@
     '</section>';
   }
 
+  // ---------- เส้นทางนำทาง (Breadcrumb) ----------
+  // ⚠️ ลิงก์ทุกอันต้องไปถึงที่ที่ใช้ได้จริง — "จังหวัด" ชี้ไปหน้ารวมประกาศพร้อมคำค้น
+  //    ซึ่งใช้ได้เพราะหน้านั้นรับ ?q= แล้ว (Sprint 2) · ไม่มีจังหวัดก็ข้ามขั้นนั้นไป
+  function crumbsOf(l){
+    var d=(l.land||{});
+    var out=[{t:'หน้าแรก',h:'index.html'},{t:'ประกาศทั้งหมด',h:'listings.html'}];
+    if(d.province) out.push({t:d.province,h:'listings.html?q='+encodeURIComponent(d.province)});
+    out.push({t:l.id,h:''});
+    return out;
+  }
+  function breadcrumbHtml(l){
+    var c=crumbsOf(l);
+    return '<nav class="ld-crumbs" aria-label="เส้นทางนำทาง"><ol>'+
+      c.map(function(x,i){
+        return '<li>'+(x.h?'<a href="'+esc(x.h)+'">'+esc(x.t)+'</a>'
+                          :'<span aria-current="page">'+esc(x.t)+'</span>')+'</li>';
+      }).join('')+'</ol></nav>';
+  }
+
+  // ลิงก์แจ้งข้อมูลไม่ถูกต้อง — เปิดไลน์พร้อมข้อความที่มีรหัสแปลงติดไปแล้ว
+  // ⚠️ ต้องมีรหัสแปลงเสมอ ไม่งั้นทีมงานได้ข้อความว่า "ข้อมูลผิด" โดยไม่รู้ว่าแปลงไหน
+  function reportHref(l){
+    var msg='แจ้งข้อมูลไม่ถูกต้องของประกาศ รหัส '+l.id+' — รายละเอียด: ';
+    return 'https://line.me/R/oaMessage/'+encodeURIComponent('@716lffzt')+'/?'+encodeURIComponent(msg);
+  }
+
+  // ---------- แปลงที่เพิ่งดู ----------
+  // ⚠️ เก็บแค่รหัส ไม่เก็บข้อมูลแปลง — ราคาและสถานะเปลี่ยนได้ตลอด
+  //    เก็บทั้งก้อนไว้ = ผู้ซื้อกลับมาเห็นราคาเก่าที่ไม่ตรงกับความจริงแล้ว
+  var SEEN_KEY='njSeen', SEEN_MAX=8;
+  function seenList(){
+    try{ var v=JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
+      return Array.isArray(v)?v.filter(function(x){return typeof x==='string'&&x;}):[]; }
+    catch(e){ return []; }
+  }
+  function seenPush(id){
+    var list=seenList().filter(function(x){return x!==id;});
+    list.unshift(id);
+    try{ localStorage.setItem(SEEN_KEY, JSON.stringify(list.slice(0,SEEN_MAX))); }catch(e){}
+  }
+
+  // ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ----------
+  // ⚠️ ดึงรายการย่อครั้งเดียวแล้วใช้ทั้งสองบล็อก — ไม่ยิงซ้ำสองรอบ
+  // ⚠️ โหลดไม่สำเร็จ = ซ่อนทั้งหัวข้อไปเลย ห้ามขึ้นกล่องว่าง (กติกาข้อ 5)
+  function renderRelated(current){
+    var host=document.getElementById('ld-related');
+    if(!host||!window.NJListing) return;
+    NJListing.fetchListings().then(function(list){
+      var all=list.filter(function(x){ return x.id!==current.id; });
+      var prov=(current.land||{}).province||'';
+      var near=all.filter(function(x){ return prov && (x.land||{}).province===prov; });
+      var similar=near.concat(all.filter(function(x){ return near.indexOf(x)<0; })).slice(0,3);
+      var seen=seenList().filter(function(id){ return id!==current.id; });
+      var recent=seen.map(function(id){
+        return all.filter(function(x){ return x.id===id; })[0];
+      }).filter(Boolean).slice(0,3);
+
+      var html='';
+      if(similar.length){
+        html+='<section class="ld-rel" aria-labelledby="ld-rel-h">'+
+          '<h2 id="ld-rel-h">แปลงใกล้เคียง'+(prov?' ใน'+esc(prov):'')+'</h2>'+
+          '<div class="ld-rel-grid">'+similar.map(NJListing.card).join('')+'</div>'+
+          '<a class="ld-rel-more" href="listings.html'+(prov?'?q='+encodeURIComponent(prov):'')+'">ดูประกาศทั้งหมด'+(prov?'ใน'+esc(prov):'')+' <span aria-hidden="true">→</span></a>'+
+        '</section>';
+      }
+      if(recent.length){
+        html+='<section class="ld-rel" aria-labelledby="ld-seen-h">'+
+          '<h2 id="ld-seen-h">แปลงที่คุณเพิ่งดู</h2>'+
+          '<div class="ld-rel-grid">'+recent.map(NJListing.card).join('')+'</div>'+
+        '</section>';
+      }
+      if(!html) return;
+      host.innerHTML=html;
+      if(window.NJCompare&&NJCompare.decorate) NJCompare.decorate(host);
+      if(window.NJSave) NJSave.decorate(host);
+      NJListing.bindGrid(host,'land_related');
+    }).catch(function(){ /* ไม่มีแปลงใกล้เคียงก็ไม่ต้องขึ้นอะไร */ });
+  }
+
   function render(l){
     var L=l.land||{};
     var tier=l.tier===2?2:1;
@@ -409,6 +537,7 @@
     var pw=perWa(l.estValue, areaForWa);
 
     document.getElementById('ld-root').innerHTML=
+      breadcrumbHtml(l)+
       '<div class="ld-gal">'+galleryHtml(photos, l.parcelInfo||'แปลงที่ดิน')+
         '<div class="ld-badges"><span class="ld-badge type">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+badge+'</div>'+
         '<div class="ld-wm"><span>ที่ดินชัวร์</span><small>njteedinsure.com</small></div>'+
@@ -417,7 +546,11 @@
         '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
         (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
         '<div id="ld-fee"></div>'+
-        '<h1 class="ld-title">'+esc(l.parcelInfo||'แปลงที่ดิน')+'</h1>'+
+        // ⚠️ **H1 ต้องเป็นชื่อสั้น ไม่ใช่รายละเอียดทั้งย่อหน้า** (งานที่ 8)
+        // ของเดิมใช้ `parcelInfo` ทั้งก้อน ซึ่งคือ "ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่"
+        // ต่อกัน · เจอจริงยาว 200+ ตัวอักษร อ่านบนผลค้นหาไม่รู้เรื่องและกินพื้นที่ครึ่งจอมือถือ
+        // ข้อความเต็มไม่ได้หายไปไหน — ย้ายลงไปเป็นคำอธิบายใต้ข้อมูลแปลงแทน
+        '<h1 class="ld-title">'+esc(shortLabel(l))+'</h1>'+
         codeHtml(l)+
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+
@@ -437,6 +570,9 @@
         (window.NJPurpose?NJPurpose.panelHtml(l.purposes):'')+
         mapHtml(L)+
         nearbyHtml(L)+
+        // รายละเอียดเต็ม — ย้ายมาจาก H1 (งานที่ 8) · ขึ้นเฉพาะเมื่อมีข้อความที่ต่างจากชื่อสั้น
+        (l.parcelInfo&&l.parcelInfo!==shortLabel(l)
+          ? '<section class="ld-desc"><h2>รายละเอียดแปลง</h2><p>'+esc(l.parcelInfo)+'</p></section>' : '')+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
         (tier===2?tier2Html(L):tier1Html(L))+
         '<div class="ld-cta">'+
@@ -460,8 +596,27 @@
           '<b>ขอดูเอกสารของแปลงนี้ก่อนตัดสินใจ</b>'+
           '<small>รายงานรังวัด · รายงานตรวจสอบ · แผนที่ · เอกสารทางเข้า–ออก — ทีมงานยืนยันตัวตนแล้วจึงเปิดให้ดู</small>'+
         '</a>'+
+        // แถวเครื่องมือของผู้ซื้อ — บันทึก · แชร์ · แจ้งประกาศไม่ถูกต้อง (งานที่ 8)
+        // ⚠️ ปุ่มแจ้งประกาศ **ไม่ใช่ช่องทางติดต่อ** จึงไม่ใส่ data-contact และไม่ยิงสถิติลีด
+        //    คนที่กดคือคนที่เจอข้อมูลผิด ไม่ใช่คนที่สนใจซื้อ (กติกาเดียวกับหน้าพอร์ทัล)
+        '<div class="ld-tools">'+
+          '<button type="button" class="njsave-btn njsave-wide" data-njsave="'+esc(l.id)+'" aria-pressed="false">'+
+            '<span class="njsave-ico" aria-hidden="true">♥</span><span class="njsave-txt">บันทึก</span></button>'+
+          '<button type="button" class="ld-tool" id="ld-share">'+
+            '<span aria-hidden="true">↗</span> แชร์แปลงนี้</button>'+
+          '<a class="ld-tool" id="ld-report" href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">'+
+            '<span aria-hidden="true">⚑</span> แจ้งข้อมูลไม่ถูกต้อง</a>'+
+        '</div>'+
         inquiryHtml()+
         '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
+        '<div id="ld-related"></div>'+
+      '</div>'+
+      // แถบติดต่อแบบติดหนึบบนมือถือ (งานที่ 8) — ซ่อนบนเดสก์ท็อปและตอนสั่งพิมพ์
+      // ⚠️ ต้องอยู่ต่ำกว่าแบนเนอร์คุกกี้และลิ้นชักเมนู ไม่งั้นไปบังของที่เป็นเรื่องกฎหมาย
+      '<div class="ld-sticky" role="group" aria-label="ติดต่อเรื่องแปลงนี้">'+
+        '<span class="ld-sticky-code">รหัส '+esc(l.id)+'</span>'+
+        '<a class="ld-sticky-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">ทักไลน์</a>'+
+        '<a class="ld-sticky-btn tel" href="'+TEL2+'" data-contact="tel">โทร</a>'+
       '</div>';
 
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
@@ -493,9 +648,38 @@
     // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน
     if(window.NJCompare){ NJCompare.sync(); NJCompare.renderBar(); }
 
+    // ปุ่มแชร์ — ใช้ตัวแชร์ของเครื่องถ้ามี ไม่มีก็คัดลอกลิงก์ให้
+    // ⚠️ ต้องมีทางถอยเสมอ: navigator.share ใช้ได้เฉพาะ https และบางเบราว์เซอร์เท่านั้น
+    var shareBtn=document.getElementById('ld-share');
+    if(shareBtn) shareBtn.addEventListener('click', function(){
+      var url=location.href, title=shortLabel(l)+' | ที่ดินชัวร์';
+      if(window.njTrackInternal) njTrackInternal('share_property', l.id);
+      var done=function(){ shareBtn.innerHTML='<span aria-hidden="true">✓</span> คัดลอกลิงก์แล้ว';
+        setTimeout(function(){ shareBtn.innerHTML='<span aria-hidden="true">↗</span> แชร์แปลงนี้'; },2200); };
+      if(navigator.share){ navigator.share({title:title,text:title,url:url}).catch(function(){}); return; }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(done, function(){ prompt('คัดลอกลิงก์นี้ไว้', url); });
+      } else { prompt('คัดลอกลิงก์นี้ไว้', url); }
+    });
+    if(window.NJSave) NJSave.sync();
+    seenPush(l.id);
+    renderRelated(l);
+
     document.title=shortLabel(l)+' | ที่ดินชัวร์';
     setSeo(l, photos);
     if(window.njTrack) njTrack('ViewContent',{content_name:'land_detail',content_ids:[l.id],content_category:'tier'+tier});
+  }
+
+  // ⚠️ **แปลงที่ไม่มีอยู่แล้วต้องบอกเสิร์ชเอนจินว่าอย่าเก็บหน้านี้**
+  // เว็บนี้เป็นสแตติกบน GitHub Pages จึงคืนสถานะ 404 จริงไม่ได้ (ทุกคำขอได้ 200 เสมอ)
+  // ผลคือประกาศที่ถอนไปแล้วยังค้างในดัชนีเป็นหน้าว่าง — รายงานตรวจ SEO ข้อ H-08
+  // ทางที่ทำได้จริงคือ noindex + ไม่ใส่ canonical ชี้ไปหาหน้าที่ไม่มีเนื้อหาแล้ว
+  function markGone(){
+    var m=document.head.querySelector('meta[name="robots"]');
+    if(!m){ m=document.createElement('meta'); m.name='robots'; document.head.appendChild(m); }
+    m.setAttribute('content','noindex, follow');
+    var c=document.querySelector('link[rel="canonical"]');
+    if(c) c.remove();
   }
 
   function fail(title,detail){
@@ -527,7 +711,7 @@
       .then(function(d){
         var l=d&&d.listing;
         // ไม่เจอ = อาจขายไปแล้วหรือเจ้าของถอนประกาศ ต้องบอกตามจริง ไม่ใช่บอกว่าเว็บพัง
-        if(!l){ fail('ไม่พบแปลงที่ดินนี้แล้ว','แปลงนี้อาจขายไปแล้ว หรือเจ้าของขอถอนประกาศ — ทักไลน์มาสอบถามแปลงอื่นที่ใกล้เคียงได้'); return; }
+        if(!l){ markGone(); fail('ไม่พบแปลงที่ดินนี้แล้ว','แปลงนี้อาจขายไปแล้ว หรือเจ้าของขอถอนประกาศ — ทักไลน์มาสอบถามแปลงอื่นที่ใกล้เคียงได้'); return; }
         render(l);
         // นับว่ามีคนเปิดดูแปลงนี้ — ยิงหลังจากพบแปลงจริงแล้วเท่านั้น
         // ยิงตั้งแต่ตอนเปิดหน้า = นับรวมลิงก์เสียและแปลงที่ถอนประกาศไปแล้วเข้าไปด้วย

@@ -325,3 +325,126 @@
 @media print{
   .njv,.njh,.njp{break-inside:avoid}
 }
+
+/* =====================================================================
+ * Sprint 3 — Breadcrumb · รายละเอียดเต็ม · เครื่องมือผู้ซื้อ · แถบติดหนึบ · แปลงใกล้เคียง
+ * (2026-09-20 · งานที่ 8) · ค่าสีทั้งหมดมาจาก tokens.css
+ * ===================================================================== */
+
+/* ---------- เส้นทางนำทาง ---------- */
+.ld-crumbs { margin: 0 0 var(--nj-space-3); font-size: var(--nj-fs-xs); color: var(--nj-text-muted); }
+.ld-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 0; padding: 0; list-style: none; }
+.ld-crumbs li + li::before { content: "›"; margin-right: 6px; opacity: 0.55; }
+.ld-crumbs a { color: var(--nj-navy-600); text-decoration: underline; text-underline-offset: 3px; }
+.ld-crumbs a:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+.ld-crumbs [aria-current="page"] { color: var(--nj-text-strong); font-weight: var(--nj-fw-semi); }
+
+/* ---------- รายละเอียดเต็ม (ย้ายมาจาก H1) ---------- */
+.ld-desc { margin: var(--nj-space-5) 0; }
+.ld-desc h2 { margin: 0 0 var(--nj-space-2); font-size: var(--nj-fs-h4); color: var(--nj-text-strong); }
+.ld-desc p {
+  margin: 0;
+  max-width: var(--nj-measure);      /* 65–75 ตัวอักษรต่อบรรทัด */
+  font-size: var(--nj-fs-body);
+  line-height: var(--nj-lh-body);
+  color: var(--nj-text);
+  white-space: pre-line;             /* เจ้าของบางรายขึ้นบรรทัดใหม่เอง ต้องคงไว้ */
+}
+
+/* ---------- แถวเครื่องมือของผู้ซื้อ ---------- */
+.ld-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nj-space-2);
+  margin: var(--nj-space-4) 0;
+}
+.ld-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;                  /* เกณฑ์เป้ากดบนมือถือ */
+  padding: 0 var(--nj-space-4);
+  border: 1px solid var(--nj-gray-300);
+  background: var(--nj-white);
+  color: var(--nj-navy-900);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-medium);
+  cursor: pointer;
+  text-decoration: none;
+}
+.ld-tool:hover { border-color: var(--nj-navy-900); }
+.ld-tool:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+/* ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ---------- */
+.ld-rel { margin: var(--nj-space-7) 0 0; padding-top: var(--nj-space-6); border-top: 1px solid var(--nj-border); }
+.ld-rel h2 { margin: 0 0 var(--nj-space-4); font-size: var(--nj-fs-h3); color: var(--nj-text-strong); }
+.ld-rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--nj-space-4); }
+.ld-rel-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-top: var(--nj-space-3);
+  color: var(--nj-navy-600);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-semi);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- แถบติดต่อแบบติดหนึบ (มือถือเท่านั้น) ---------- */
+/* ⚠️ ซ่อนบนเดสก์ท็อป — ที่นั่นปุ่มติดต่อเห็นอยู่แล้วโดยไม่ต้องมีแถบลอยมาบังเนื้อหา */
+.ld-sticky { display: none; }
+
+@media (max-width: 900px) {
+  .ld-rel-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .ld-rel-grid { grid-template-columns: 1fr; }
+  .ld-tools > * { flex: 1 1 100%; justify-content: center; }
+
+  /* ⚠️ z-index ต้องต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (950)
+   *    แถบนี้เป็นเรื่องการขาย ส่วนแบนเนอร์คุกกี้เป็นเรื่องกฎหมาย — บังกันไม่ได้
+   * ⚠️ ยกตัวเองให้พ้นแถบเมนูล่าง 5 ปุ่มที่มีอยู่แล้วบนหน้านี้ */
+  .ld-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 69px;
+    z-index: var(--nj-z-sticky);
+    display: flex;
+    align-items: center;
+    gap: var(--nj-space-2);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--nj-navy-900);
+    box-shadow: 0 -6px 20px rgba(11, 31, 58, 0.22);
+  }
+  .ld-sticky-code {
+    flex: 0 0 auto;
+    font-size: var(--nj-fs-xs);
+    color: var(--nj-gold-500);
+    font-weight: var(--nj-fw-semi);
+  }
+  .ld-sticky-btn {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    font-size: var(--nj-fs-sm);
+    font-weight: var(--nj-fw-semi);
+    text-decoration: none;
+  }
+  .ld-sticky-btn.line { background: var(--nj-gold-500); color: var(--nj-navy-900); }
+  .ld-sticky-btn.tel { border: 1px solid rgba(255, 255, 255, 0.55); color: var(--nj-white); }
+  .ld-sticky-btn:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+  /* เว้นที่ท้ายหน้าให้แถบลอยไม่ทับเนื้อหาบรรทัดสุดท้าย */
+  body { padding-bottom: 130px; }
+}
+
+/* ตอนสั่งพิมพ์ไม่ต้องมีแถบลอยและเครื่องมือบนหน้าจอ */
+@media print {
+  .ld-sticky, .ld-tools, .ld-rel { display: none !important; }
+}

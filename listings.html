@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="listings.css">
   <link rel="stylesheet" href="compare.css">
+  <link rel="stylesheet" href="save.css">
   <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="consent.css">
@@ -113,7 +114,18 @@
     <section class="shell ls-wrap">
       <!-- ตัวกรอง — ทุกช่องเริ่มที่ "ทั้งหมด" เสมอ ไม่ตั้งค่าเริ่มต้นที่กรองอะไรไว้ก่อน
            เพราะผู้ซื้อที่เพิ่งเข้ามาต้องเห็นของทั้งหมดที่มีจริงก่อน แล้วค่อยแคบลงเอง -->
+      <!-- ⚠️ ปุ่มนี้แสดงเฉพาะจอเล็ก (CSS) — บนเดสก์ท็อปแผงตัวกรองกางอยู่แล้ว ไม่ต้องมีปุ่ม
+           ⚠️ ตั้ง aria-expanded ไว้ตั้งแต่ใน HTML · `listings.js` เป็นคนสลับค่า
+              ไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ แผงตัวกรองต้องกางอยู่ตามปกติ ไม่ใช่ถูกซ่อนแล้วเปิดไม่ได้
+              (CSS จึงซ่อนแผงเฉพาะตอนที่ <body> มีคลาส `ls-js` ซึ่ง JS เป็นคนใส่) -->
+      <button type="button" class="ls-open" id="ls-open" aria-expanded="false" aria-controls="ls-form">
+        <span aria-hidden="true">⚙</span> ตัวกรองและการเรียงลำดับ
+      </button>
       <form class="ls-filters" id="ls-form" aria-label="ตัวกรองประกาศ">
+        <div class="ls-sheet-head">
+          <b>ตัวกรอง</b>
+          <button type="button" class="ls-sheet-x" id="ls-close" aria-label="ปิดตัวกรอง">✕</button>
+        </div>
         <div class="ls-row">
           <label class="ls-field ls-grow">
             <span>คำค้น</span>
@@ -158,6 +170,9 @@
         </fieldset>
 
         <div class="ls-actions">
+          <!-- ⚠️ ตัวกรอง "เฉพาะที่บันทึกไว้" อ่านจาก `NJSave` ที่เดียว ห้ามเก็บรายการซ้ำในไฟล์นี้
+               ไม่มีอะไรบันทึกไว้เลย = กรองแล้วได้ผลว่าง ซึ่งถูกต้องและมีข้อความอธิบายอยู่แล้ว -->
+          <label class="ls-saved"><input type="checkbox" id="f-saved"> เฉพาะที่บันทึกไว้ <b id="f-saved-n"></b></label>
           <button type="submit" class="post-btn">ค้นหา</button>
           <button type="button" class="outline-btn" id="f-reset">ล้างตัวกรอง</button>
         </div>
@@ -189,6 +204,7 @@
        ตอนวาดการ์ดและตอนเติมตัวเลือกในตัวกรอง ถ้ามาทีหลัง ตัวกรอง "ประเภททรัพย์" จะว่างเงียบๆ -->
   <script src="landvocab.js"></script>
   <script src="listingcard.js"></script>
+  <script src="save.js"></script>
   <script src="listings.js"></script>
   <!-- ปุ่ม "เทียบ" บนการ์ด — ต้องมาหลัง listingcard.js/listings.js เพราะไปแปะบนการ์ดที่สองไฟล์นั้นวาด
        (compare.js เฝ้า #listing-grid ด้วย MutationObserver อยู่แล้ว การ์ดที่วาดใหม่ตอนกรองจึงได้ปุ่มด้วย) -->

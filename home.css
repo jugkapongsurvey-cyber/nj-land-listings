@@ -112,7 +112,10 @@ button{cursor:pointer}
   font-size:12px;letter-spacing:.06em;padding:5px 10px;
 }
 .card-tags .verified{background:#1F4D2E;color:#BFE6CB}
-.card-tags .basic{background:#6B571E;color:var(--gold)}
+/* ⚠️ ความต่างสีต้องไม่ต่ำกว่า 4.5:1 — ของเดิม (ทองบนทองเข้ม) ได้ 3.68:1 ที่ 12px
+   ซึ่งไม่ผ่านเกณฑ์ AA ทั้งที่เป็นป้ายบอกระดับความน่าเชื่อถือ (ACCESSIBILITY ข้อ A11Y-04)
+   ขาวบน #6B571E ได้ 8.6:1 */
+.card-tags .basic{background:#6B571E;color:#FFFFFF}
 .photo-count{
   position:absolute;bottom:14px;right:14px;background:rgba(11,31,58,.72);
   color:var(--gold);font-size:12px;padding:5px 10px;
@@ -688,3 +691,28 @@ button{cursor:pointer}
 
   .nj-pagehead-in { padding: var(--nj-space-6) var(--nj-space-4) !important; }
 }
+
+/* ---------- การ์ดประกาศ: รหัสทรัพย์ + ปุ่มดูรายละเอียด (Sprint 3 · งานที่ 7) ----------
+ * ⚠️ สไตล์การ์ดยังแยกสามชุดตามชุดสี — เพิ่มคลาสใหม่ต้องเพิ่มครบทั้งสามไฟล์
+ *    ใส่ที่เดียว = อีกหน้าไม่มีสไตล์โดยไม่มี error (กติกาใน CLAUDE.md หัวข้อ listingcard.js) */
+.card-code {
+  margin: 6px 0 2px;
+  font-size: var(--nj-fs-xs);
+  color: var(--nj-text-muted);
+  letter-spacing: 0.02em;
+}
+.card-code b { color: var(--nj-navy-600); font-weight: var(--nj-fw-semi); }
+
+.card-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-top: 4px;
+  color: var(--nj-navy-600);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-semi);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.card-more:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }

@@ -185,7 +185,13 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           'purpose_view',
                           // ห้องข้อมูลแปลง (Phase 3) — เปิดหน้าเท่านั้น **ไม่ใช่ลีด**
                           // ส่วน dataroom_request เซิร์ฟเวอร์บันทึกเองตอนสร้างคำขอ ฝั่งนี้จึงไม่ยิงซ้ำ
-                          'dataroom_view'];
+                          'dataroom_view',
+                          // ---- พฤติกรรมบนหน้าเว็บ (Sprint 3 · 20 ก.ย. 2569) ----
+                          // ⚠️ **ไม่ใช่ลีดสักตัว** ห้ามบวกเข้า leads ทั้งฝั่งนี้และฝั่ง server.js
+                          //    ใช้ตอบว่า "เครื่องมือบนเว็บถูกใช้จริงไหม" ไม่ใช่ "มีคนติดต่อกี่ราย"
+                          // ⚠️ ต้องตรงกับ PUBLIC_EVENT_TYPES ใน server.js เป๊ะ (contracts.test.js เทียบให้)
+                          'homepage_search', 'filter_property', 'save_property',
+                          'share_property', 'use_calculator', 'chat_to_human'];
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)

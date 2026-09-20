@@ -27,7 +27,7 @@ footer{background:#0B1F3A;color:#fff;padding:55px 0 25px}.footer-grid{display:gr
 
 /* ป้ายระดับ 1 บนการ์ด — สีเหลือง ต้องต่างจากป้ายเขียว "รังวัดยืนยันแล้ว" ให้เห็นชัดตั้งแต่แวบแรก
    ถ้าสองระดับดูเหมือนกัน ป้ายเขียวจะหมดความหมายทันที */
-.card-tags span.basic{background:rgba(138,96,8,.93)}
+.card-tags span.basic{background:rgba(107,87,30,.96);color:#FFFFFF}
 /* การ์ดคลิกได้ทั้งใบ (marketplace.js พาไปหน้ารายละเอียด) แต่ยังไม่ใช่ <a> เพราะมีปุ่มติดต่อซ้อนอยู่ข้างใน */
 .land-card[data-href]{cursor:pointer}
 .card-title a{color:inherit;text-decoration:none}
@@ -55,3 +55,28 @@ footer{background:#0B1F3A;color:#fff;padding:55px 0 25px}.footer-grid{display:gr
 /* ป้ายผังสีบนการ์ด (2026-09-18) — สีมาจาก NJVocab.ZONE_HEX ผ่าน inline style ของ listingcard.js */
 .card-zone{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;color:#5A6B7D}
 .card-zone i{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.3);flex:none}
+
+/* ---------- การ์ดประกาศ: รหัสทรัพย์ + ปุ่มดูรายละเอียด (Sprint 3 · งานที่ 7) ----------
+ * ⚠️ สไตล์การ์ดยังแยกสามชุดตามชุดสี — เพิ่มคลาสใหม่ต้องเพิ่มครบทั้งสามไฟล์
+ *    ใส่ที่เดียว = อีกหน้าไม่มีสไตล์โดยไม่มี error (กติกาใน CLAUDE.md หัวข้อ listingcard.js) */
+.card-code {
+  margin: 6px 0 2px;
+  font-size: var(--nj-fs-xs);
+  color: var(--nj-text-muted);
+  letter-spacing: 0.02em;
+}
+.card-code b { color: var(--nj-navy-600); font-weight: var(--nj-fw-semi); }
+
+.card-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-top: 4px;
+  color: var(--nj-navy-600);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-semi);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.card-more:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }

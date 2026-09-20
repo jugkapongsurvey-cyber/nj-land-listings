@@ -199,6 +199,8 @@
     render(state.query?'ผลการค้นหา “'+state.query+'”':'ผลการค้นหาทั้งหมด');
     document.getElementById('listings').scrollIntoView({behavior:'smooth'});
     if(window.njTrack)window.njTrack('Search',{search_string:state.query});
+    // สถิติภายใน — นับว่ามีคนใช้ช่องค้นหาบนหน้าแรกกี่ครั้ง (ไม่ส่งคำค้น ไม่มี PII)
+    if(window.njTrackInternal)njTrackInternal('homepage_search');
   });
 
   // ปุ่มค้นหาด่วน — ทุกปุ่มกรองจริงจากข้อมูลที่มี ไม่ใช่ขึ้นข้อความเฉยๆ
