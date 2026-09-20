@@ -119,7 +119,10 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ที่ดินชัวร์">
   <meta property="og:title" content="ที่ดินชัวร์ — เช็กก่อนซื้อ ชัวร์ก่อนโอน">
-  <meta property="og:description" content="ที่ดินทุกแปลงผ่านการรังวัดยืนยันแนวเขตโดยทีมช่างรังวัดเอกชน">
+  <!-- ⚠️ ห้ามเขียนว่า "ทุกแปลงรังวัดแล้ว" อีก — การ์ดบนหน้าเดียวกันติดป้าย tier 1 "ข้อมูลเบื้องต้น"
+       ซึ่งแปลว่ายังไม่ได้รังวัด · ข้อความเดิมจึงขัดกับสิ่งที่หน้าเดียวกันแสดงอยู่ (แก้ 20 ก.ย. 2569)
+       กติกาเดียวกับ lib/landverify.js ข้อ 1: ระบบไม่ยกระดับให้ใครเอง ป้ายต้องมีคนกดเองทุกระดับ -->
+  <meta property="og:description" content="ทุกแปลงแสดงระดับข้อมูลที่ตรวจสอบแล้วและวันที่ตรวจ โดยสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351">
   <meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -226,8 +229,10 @@
       </div>
       <div style="padding:26px 26px;border-right:1px solid #E3EAF1">
         <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">03</div>
-        <div style="font-family:Trirong,serif;font-weight:500;font-size:18px;margin-bottom:7px">ตรวจสอบกรรมสิทธิ์</div>
-        <div style="font-size:14px;font-weight:300;line-height:1.65;color:#5A6B7D">โฉนด ภาระผูกพัน ทางเข้า–ออก ผังเมือง</div>
+        <!-- ⚠️ ห้ามกลับไปใช้คำว่า "ตรวจสอบกรรมสิทธิ์" — ผู้ซื้ออ่านว่าบริษัทรับรองกรรมสิทธิ์ให้
+             ซึ่งเกินขอบเขตบริการจริง · คำปฏิเสธความรับผิดชุดเดียวกับที่ verify.html ใช้อยู่แล้ว -->
+        <div style="font-family:Trirong,serif;font-weight:500;font-size:18px;margin-bottom:7px">ตรวจข้อมูลเอกสารสิทธิ์</div>
+        <div style="font-size:14px;font-weight:300;line-height:1.65;color:#5A6B7D">โฉนด ภาระผูกพัน ทางเข้า–ออก ผังเมือง — ตามขอบเขตบริการและข้อมูล ณ วันที่ตรวจ</div>
         <button type="button" data-fc-open class="sq-open">คำนวณค่าโอนออนไลน์ →</button>
       </div>
       <div style="padding:30px 28px">
@@ -377,7 +382,7 @@
       <div>
         <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:18px">คนที่อยู่เบื้องหลัง</div>
         <h2 style="font-family:Trirong,serif;font-weight:500;font-size:40px;line-height:1.38;letter-spacing:-0.01em;margin:0 0 22px">ทีมที่ลงไปยืนบนที่ดินจริง</h2>
-        <p style="font-size:16px;font-weight:300;line-height:1.68;color:#31465E;margin:0 0 26px">เราไม่ใช่เว็บรวมประกาศที่นั่งอยู่หลังจอ — <span style="font-family:Trirong,serif;font-weight:500;color:#0B1F3A">เราคือสำนักงานช่างรังวัดที่ทำงานในสนามมากว่า 12 ปี</span> ทุกแปลงที่ขึ้นเว็บนี้ มีคนของเราเดินเข้าไปวัด ตรวจหมุด และคุยกับเจ้าของที่ดินมาแล้วจริง ๆ</p>
+        <p style="font-size:16px;font-weight:300;line-height:1.68;color:#31465E;margin:0 0 26px">เราไม่ใช่เว็บรวมประกาศที่นั่งอยู่หลังจอ — <span style="font-family:Trirong,serif;font-weight:500;color:#0B1F3A">เราคือสำนักงานช่างรังวัดที่ทำงานในสนามมากว่า 12 ปี</span> ทุกแปลงที่ขึ้นเว็บนี้ คนของเราคุยกับเจ้าของที่ดินและยืนยันสิทธิ์ในการประกาศมาแล้วจริง ๆ ส่วนแปลงที่ลงพื้นที่หรือรังวัดแล้ว จะระบุระดับและวันที่ตรวจไว้บนการ์ด</p>
         <div style="border-left:2px solid #B08D57;padding:4px 0 4px 22px">
           <div style="font-family:Trirong,serif;font-weight:500;font-size:19px;margin-bottom:8px">สำนักงานช่างรังวัดเอกชน ใบอนุญาตเลขที่ 351</div>
           <p style="font-size:15px;font-weight:300;line-height:1.65;color:#5A6B7D;margin:0">ใบอนุญาตนี้ออกโดยกรมที่ดิน และเป็นเหตุผลที่เรายืนยันแนวเขตให้ได้จริง ต่างจากนายหน้าทั่วไปที่ต้องจ้างช่างรังวัดต่ออีกทอด — เจ้าของที่ดินจึงคุยกับคนที่ลงมือทำได้โดยตรง</p>
@@ -473,10 +478,10 @@
         <h2 id="nj-intro-h">เอ็นเจ ทำงานยังไง ดูจบใน 1 คลิป</h2>
         <p class="nj-intro-lede">
           เราไม่ใช่เว็บรวมประกาศ และไม่ใช่นายหน้าที่รับประกาศต่อ — ทีมงานเป็นช่างรังวัดเอกชน
-          ที่มีใบอนุญาตตามกฎหมาย ทุกแปลงจึงผ่านการตรวจแนวเขตและเนื้อที่จริงก่อนขึ้นประกาศ
+          ที่มีใบอนุญาตตามกฎหมาย ทุกแปลงจึงบอกไว้ชัดว่าตรวจถึงระดับไหนแล้ว และตรวจเมื่อไหร่
         </p>
         <ul class="nj-intro-points">
-          <li><b>รังวัดยืนยันก่อนประกาศ</b><span>แนวเขตและเนื้อที่จริง ไม่ใช่ตัวเลขที่คัดลอกจากหน้าโฉนด</span></li>
+          <li><b>บอกระดับที่ตรวจแล้วทุกแปลง</b><span>แปลงที่รังวัดแล้วจะแสดงแนวเขตและเนื้อที่จริง ไม่ใช่ตัวเลขที่คัดลอกจากหน้าโฉนด</span></li>
           <li><b>ติดตามงานออนไลน์ทุกขั้น</b><span>ตั้งแต่วันยื่นเรื่องถึงวันโอน รู้คิวและวันนัดตลอดทาง</span></li>
           <li><b>ตรวจให้ก่อนตัดสินใจซื้อ</b><span>แนวเขต ทางเข้าออก ผังเมือง และค่าใช้จ่ายวันโอน</span></li>
         </ul>
