@@ -82,6 +82,17 @@ const END = '<!-- NJ:HEADER จบ -->';
 const CSS_START = '<!-- NJ:CORECSS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->';
 const CSS_END = '<!-- NJ:CORECSS จบ -->';
 
+// สคริปต์กลาง — ต้องอยู่ทุกหน้า ไม่ใช่เฉพาะหน้าที่มีฟอร์ม
+//
+// ⚠️ `attrib.js` เก็บ "สัมผัสแรก" ของผู้ใช้ ซึ่งเกิดที่หน้าไหนก็ได้ ไม่ใช่หน้าฟอร์ม
+//    คนคลิกโฆษณาเข้าหน้าแปลง อ่านสามหน้า แล้วค่อยไปกรอกฟอร์ม — ถ้าโหลดเฉพาะหน้าฟอร์ม
+//    เราจะบันทึกว่าเขามาจาก "ในเว็บเราเอง" ทุกราย ซึ่งไร้ประโยชน์ทั้งหมด
+// ⚠️ ใช้ `defer` เพื่อไม่ให้บล็อกการวาดหน้า และให้รันก่อน DOMContentLoaded เสมอ
+const CORE_JS = ['attrib.js'];
+
+const JS_START = '<!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->';
+const JS_END = '<!-- NJ:COREJS จบ -->';
+
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // หน้าไหนถือว่า "อยู่ในกลุ่มนี้" — ใช้ตัดสิน aria-current
@@ -132,10 +143,19 @@ function headerHtml(file, NL) {
   return L.join(NL);
 }
 
+// หนีอักขระพิเศษของ regex — ใช้กับเครื่องหมายเปิด/ปิดบล็อกที่มี `$`, `(`, `[` ปนอยู่
+function rx(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
 function cssHtml(NL) {
   return [CSS_START]
     .concat(CORE_CSS.map(f => '<link rel="stylesheet" href="' + f + '">'))
     .concat([CSS_END]).join(NL);
+}
+
+function jsHtml(NL) {
+  return [JS_START]
+    .concat(CORE_JS.map(f => '<script src="' + f + '" defer></script>'))
+    .concat([JS_END]).join(NL);
 }
 
 // ---------------------------------------------------------------------------
@@ -159,6 +179,15 @@ function build() {
       const m = src.match(/[ \t]*<link[^>]+rel="stylesheet"[^>]*>/);
       if (m) src = src.replace(m[0], css + NL + m[0]);
       else src = src.replace('</head>', css + NL + '</head>');
+    }
+
+    // ---- 1ข) สคริปต์กลาง ----
+    const js = jsHtml(NL);
+    if (src.includes(JS_START)) {
+      src = src.replace(new RegExp(rx(JS_START) + '[\\s\\S]*?' + rx(JS_END)), js);
+    } else {
+      // วางต่อท้ายบล็อกสไตล์ชีตกลาง — ยังอยู่ใน <head> และมาก่อนสคริปต์ของหน้าเสมอ
+      src = src.replace(CSS_END, CSS_END + NL + js);
     }
 
     // ---- 2) หัวเว็บ ----

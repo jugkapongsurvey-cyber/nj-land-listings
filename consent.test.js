@@ -51,6 +51,8 @@ function makeEl(tag) {
       this.parent = null;
     },
     focus() { el.focused = true; },
+    // แบนเนอร์เป็น fixed ขอบล่าง — คืนกรอบจำลองให้ measureConsent() วัดได้
+    getBoundingClientRect() { return { top: 700, bottom: 780, height: 80, left: 0, right: 390, width: 390 }; },
     addEventListener(t, fn) { (this.listeners[t] = this.listeners[t] || []).push(fn); },
     click() { (this.listeners.click || []).forEach(fn => fn({ preventDefault() {} })); },
     querySelector(sel) { return descendants(this).filter(c => matches(c, sel))[0] || null; },
@@ -112,6 +114,16 @@ function run(opts) {
   const loaded = [];        // สคริปต์ภายนอกที่ถูกเพิ่มเข้า head/body
   let reloaded = 0;
   const win = {};
+  // <html> ปลอม — analytics.js ตั้งตัวแปร CSS --nj-consent-h ไว้ที่นี่ เพื่อให้แถบติดต่อ
+  // ติดหนึบในหน้าแปลงหลบแบนเนอร์คุกกี้ได้ (ดู measureConsent)
+  const cssVars = {};
+  const docEl = {
+    style: {
+      setProperty(k, v) { cssVars[k] = String(v); },
+      removeProperty(k) { delete cssVars[k]; },
+      getPropertyValue(k) { return k in cssVars ? cssVars[k] : ''; }
+    }
+  };
   const sandbox = {
     console, JSON, Array, Object, String, Number, Boolean, Date, RegExp, Math,
     setTimeout, clearTimeout, encodeURIComponent, decodeURIComponent,
@@ -126,6 +138,7 @@ function run(opts) {
       setItem: (k, v) => { store[k] = String(v); },
       removeItem: k => { delete store[k]; }
     },
+    innerHeight: 812, innerWidth: 390,
     location: { hostname: 'njteedinsure.com', search: '', reload() { reloaded++; } },
     navigator: { sendBeacon() { return true; } },
     fetch() { return Promise.resolve({ ok: true }); },
@@ -133,6 +146,7 @@ function run(opts) {
     document: {
       readyState: 'complete',
       body, head,
+      documentElement: docEl,
       createElement: t => { const e = makeEl(t); if (t === 'script') loaded.push(e); return e; },
       getElementById: id => descendants(body).filter(e => e.attrs.id === id)[0] || null,
       querySelector: sel => descendants(body).filter(e => matches(e, sel))[0] || null,
@@ -146,7 +160,7 @@ function run(opts) {
   vm.createContext(sandbox);
   vm.runInContext(SRC, sandbox, { filename: 'analytics.js' });
   return {
-    sandbox, body, store, loaded,
+    sandbox, body, store, loaded, cssVars,
     get reloaded() { return reloaded; },
     bar: () => descendants(body).filter(e => e.attrs.id === 'nj-consent')[0] || null,
     pixelLoaded: () => loaded.some(e => /connect\.facebook\.net|googletagmanager/.test(e.src || '')) || !!sandbox.fbq
@@ -232,6 +246,37 @@ r = run({});
 check('เปิด window.NJConsent ให้เรียกได้', typeof r.sandbox.window.NJConsent === 'object');
 check('มี open()', typeof r.sandbox.window.NJConsent.open === 'function');
 check('มี value()', typeof r.sandbox.window.NJConsent.value === 'function');
+
+console.log('\n9) ถ้อยคำบนแบนเนอร์ (Sprint 4 · งานที่ 12)');
+r = run({});
+let btns = r.bar().querySelector('.nj-consent-btns').textContent;
+check('⭐ ปุ่มยอมรับบอกว่ายอมรับ "ทั้งหมด"', /ยอมรับทั้งหมด/.test(btns), btns);
+check('⭐ ปุ่มปฏิเสธบอกว่าได้ "เฉพาะที่จำเป็น" ไม่ใช่คำว่าปฏิเสธลอยๆ',
+      /เฉพาะที่จำเป็น/.test(btns), btns);
+// อ่านจาก innerHTML ไม่ใช่ textContent — ตัวอ่าน HTML แบบหยาบข้างบนทิ้งข้อความที่อยู่ก่อน <a>
+check('บอกว่าเลือกเฉพาะที่จำเป็นแล้วยังใช้เว็บได้ครบ', /ใช้งานเว็บได้ครบ/.test(r.bar().innerHTML));
+check('มีทางไปหน้าตั้งค่า/นโยบายคุกกี้', !!r.bar().querySelector('a[href="cookie.html"]'));
+// ⚠️ ยังมีของให้เลือกจริงหมวดเดียว (การตลาด) จึงตั้งใจไม่ทำแผงติ๊กหมวด — ดูเหตุผลใน CLAUDE.md
+check('ยังไม่มีแผงติ๊กหมวด (ตั้งใจ) จึงมีปุ่มแค่ 2 ปุ่ม',
+      r.bar().querySelectorAll('button').length === 2);
+
+console.log('\n10) ⭐ แบนเนอร์ต้องไม่บังแถบติดต่อติดหนึบในหน้าแปลง');
+// แบนเนอร์เป็น fixed ขอบล่าง z-index 900 · แถบติดต่อของหน้าแปลงอยู่ 150 จึงถูกทับเต็มๆ
+// ซึ่งแปลว่าผู้ซื้อที่ยังไม่ตอบแบนเนอร์ กดปุ่มโทร/ไลน์ของแปลงนั้นไม่ได้เลย
+const landCss = fs.readFileSync(path.join(__dirname, 'land.css'), 'utf8');
+check('⭐ .ld-sticky บวกความสูงแบนเนอร์เข้าไปในระยะขอบล่าง',
+      landCss.indexOf('bottom: calc(69px + var(--nj-consent-h, 0px))') >= 0);
+const anaSrc = fs.readFileSync(path.join(__dirname, 'analytics.js'), 'utf8');
+check('analytics.js เป็นคนตั้งค่าตัวแปรนี้', anaSrc.indexOf('--nj-consent-h') >= 0);
+check('วัดจากตัวแบนเนอร์จริง ไม่ใช่ตัวเลขที่เดา', /getBoundingClientRect/.test(anaSrc));
+check('⭐ เทียบค่าเดิมก่อนเขียน (กับดัก MutationObserver)',
+      anaSrc.indexOf("getPropertyValue('--nj-consent-h') === want") >= 0);
+r = run({});
+check('⭐ มีแบนเนอร์อยู่ = ตั้งตัวแปรให้ของอื่นหลบ',
+      '--nj-consent-h' in r.cssVars, JSON.stringify(r.cssVars));
+r.bar().querySelector('.nj-consent-yes').click();
+check('⭐ ตอบแล้ว = คืนพื้นที่ทันที ไม่ทิ้งช่องว่างค้างไว้',
+      !('--nj-consent-h' in r.cssVars), JSON.stringify(r.cssVars));
 
 console.log('\n' + (fail ? '❌' : '✅') + ' consent: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

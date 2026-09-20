@@ -56,7 +56,7 @@
     var svc = TYPES.map(function (s) {
       return '<label class="pa-svc"><input type="checkbox" name="svc" value="' + esc(s.k) + '"><span>' + esc(s.t) + '</span></label>';
     }).join('');
-    return '<form id="pa-form" class="pa-form" novalidate>' +
+    return '<form id="pa-form" class="pa-form" novalidate data-njform>' +
       '<div class="pa-step"><span class="pa-n">1</span><h2>ผู้สมัคร</h2></div>' +
       '<div class="pa-kinds">' +
         '<label><input type="radio" name="kind" value="company" checked> นิติบุคคล</label>' +
@@ -149,17 +149,28 @@
     function refresh() { send.disabled = !pdpa.checked; }
     pdpa.addEventListener('change', refresh);
     refresh();
+    // ⚠️ ฟอร์มนี้ถูกวาดหลัง DOMContentLoaded — ต้องเรียก attach เองเหมือน njservices.js
+    if (window.NJForm) NJForm.attach(form);
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var b = collect(form);
       var c = b.contacts[0];
-      function err(t, el) { msg.textContent = t; msg.className = 'pa-msg err'; if (el) el.focus(); }
+      var errs = window.NJForm ? NJForm.errors(form) : null;
+      function err(t, el) {
+        msg.textContent = t; msg.className = 'pa-msg err';
+        if (errs && el) { errs.clear(); errs.set(el, t); }
+        if (el) el.focus();
+      }
       if (!b.name) return err('กรุณากรอกชื่อบริษัทหรือชื่อ-สกุล', form.elements.name);
       if (!b.serviceKeys.length) return err('กรุณาเลือกบริการอย่างน้อย 1 ประเภท');
       if (!c.name) return err('กรุณากรอกชื่อผู้ติดต่อ', form.elements.cName);
       if (!c.phone && !c.email) return err('กรุณากรอกเบอร์โทรหรืออีเมลอย่างน้อยหนึ่งช่องทาง', form.elements.cPhone);
       if (!b.pdpa) return err('กรุณาติ๊กยินยอมก่อนส่งใบสมัคร');
+      if (errs) errs.clear();
+
+      // ที่มาของลีด — ไม่มีข้อมูลส่วนบุคคลอยู่ในนี้ (ดูคำเตือนหัวไฟล์ attrib.js)
+      if (window.NJAttrib) b.attrib = NJAttrib.value();
 
       send.disabled = true;
       send.textContent = 'กำลังส่ง...';

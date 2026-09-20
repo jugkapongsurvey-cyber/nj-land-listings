@@ -23,6 +23,9 @@
 <link rel="stylesheet" href="components.css">
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
+<!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="attrib.js" defer></script>
+<!-- NJ:COREJS จบ -->
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="ui.css">
@@ -143,6 +146,9 @@
         <tr><td><code>njts_ref</code></td><td>sessionStorage</td><td>รหัสพนักงานผู้แชร์ลิงก์ ใช้ให้เครดิตคนแชร์</td><td>ปิดแท็บแล้วหาย</td></tr>
         <tr><td><code>njCompare</code></td><td>sessionStorage</td><td>รายการแปลงที่คุณเลือกไว้เปรียบเทียบ</td><td>ปิดแท็บแล้วหาย</td></tr>
         <tr><td><code>njchat</code></td><td>sessionStorage</td><td>ประวัติแชทบนหน้าจอ เพื่อให้คุยต่อได้เมื่อเปลี่ยนหน้า</td><td>ปิดแท็บแล้วหาย</td></tr>
+        <tr><td><code>njSaved</code></td><td>localStorage</td><td>รหัสแปลงที่คุณกดบันทึกไว้ (เก็บแค่รหัส ไม่เก็บราคาหรือข้อมูลแปลง)</td><td>จนกว่าคุณจะเอาออกเอง หรือล้างข้อมูลเว็บไซต์</td></tr>
+        <tr><td><code>njSeen</code></td><td>localStorage</td><td>รหัสแปลงที่คุณเพิ่งดู สูงสุด 8 แปลง ใช้แสดงแถบ "แปลงที่คุณเพิ่งดู"</td><td>จนกว่าคุณจะล้างข้อมูลเว็บไซต์</td></tr>
+        <tr><td><code>njAttribFirst</code> · <code>njAttribLast</code></td><td>localStorage</td><td>ลิงก์หรือโฆษณาที่พาคุณมาถึงเว็บนี้ครั้งแรกและครั้งล่าสุด (เช่น ชื่อแคมเปญ) <b>ไม่มีชื่อ เบอร์ หรือข้อมูลที่ระบุตัวคุณได้</b> และไม่เก็บส่วนท้าย URL ที่เป็นรหัสส่วนตัวของคุณ</td><td>180 วัน</td></tr>
       </tbody>
     </table>
     </div>

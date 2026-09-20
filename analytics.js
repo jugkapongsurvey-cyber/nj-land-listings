@@ -104,6 +104,7 @@ function setConsent(v) {
   var needReload = (v === 'no' && trackersLoaded);
   var bar = document.getElementById('nj-consent');
   if (bar) bar.remove();
+  setConsentH(0);           // คืนพื้นที่ขอบล่างให้แถบติดต่อติดหนึบทันที
   paintConsentState();
   if (needReload) location.reload();
 }
@@ -236,17 +237,52 @@ function buildConsentBar() {
   bar.setAttribute('role', 'region');
   bar.setAttribute('aria-label', 'การตั้งค่าคุกกี้');
   bar.innerHTML =
-    '<div class="nj-consent-text">เราใช้คุกกี้เพื่อวัดผลโฆษณาและปรับปรุงเว็บไซต์ ' +
-    'คุณเลือกปฏิเสธได้โดยยังใช้งานเว็บได้ครบทุกส่วน ' +
-    '<a class="nj-consent-more" href="cookie.html">อ่านนโยบายคุกกี้</a></div>' +
+    // ⚠️ **สั้นที่สุดเท่าที่ยังบอกครบ** — วัดจริงที่ 375px แล้วแบนเนอร์กินจอ 17%
+    //    ข้อความยาวขึ้นทุกบรรทัด = พื้นที่อ่านเนื้อหาหายไปอีกหนึ่งบรรทัดบนมือถือ
+    //    คุกกี้ที่จำเป็นไม่ต้องขอความยินยอมอยู่แล้ว รายละเอียดทั้งหมดอยู่ในหน้านโยบาย
+    '<div class="nj-consent-text">เราใช้คุกกี้การตลาดเพื่อวัดผลโฆษณา — เลือก "เฉพาะที่จำเป็น" ก็ใช้งานเว็บได้ครบ ' +
+    '<a class="nj-consent-more" href="cookie.html">ตั้งค่าคุกกี้</a></div>' +
     '<div class="nj-consent-btns">' +
-      '<button type="button" class="nj-consent-no">ปฏิเสธ</button>' +
-      '<button type="button" class="nj-consent-yes">ยอมรับ</button>' +
+      '<button type="button" class="nj-consent-no">เฉพาะที่จำเป็น</button>' +
+      '<button type="button" class="nj-consent-yes">ยอมรับทั้งหมด</button>' +
     '</div>';
   document.body.appendChild(bar);
+  // ⚠️ ต้องวัดความสูงจริงแล้วบอกทั้งหน้า ไม่งั้นแบนเนอร์ทับของที่ติดขอบล่างอยู่ก่อนแล้ว
+  measureConsent(bar);
   bar.querySelector('.nj-consent-yes').addEventListener('click', function () { setConsent('yes'); });
   bar.querySelector('.nj-consent-no').addEventListener('click', function () { setConsent('no'); });
   return bar;
+}
+
+// ---------- บอกทั้งหน้าว่าแบนเนอร์สูงเท่าไร ----------
+//
+// ทำไมต้องมี: แบนเนอร์คุกกี้เป็น fixed ที่ขอบล่างและ z-index 900 (สูงที่สุดรองจากลิ้นชักเมนู
+// เพราะเป็นเรื่องกฎหมาย) · ของที่ติดขอบล่างอยู่ก่อนแล้วจึงถูกทับทันที —
+// **แถบติดต่อติดหนึบในหน้ารายละเอียดแปลง** (`.ld-sticky` · z-index 150) เจอเต็มๆ
+// ซึ่งแปลว่าผู้ซื้อที่ยังไม่ตอบแบนเนอร์ กดปุ่มโทร/ไลน์ของแปลงนั้นไม่ได้เลย
+//
+// ⚠️ ให้ค่าเป็นตัวแปร CSS ตัวเดียว (`--nj-consent-h`) แล้วให้แต่ละองค์ประกอบบวกเอง
+//    ดีกว่าให้ analytics.js ไปไล่แก้ style ของคนอื่นทีละตัว (ซึ่งต้องรู้จักทุกหน้า)
+// ⚠️ เทียบค่าเดิมก่อนเขียนเสมอ — กับดัก MutationObserver ชุดเดียวกับที่เคยทำให้สองหน้าค้าง
+function setConsentH(px) {
+  var root = document.documentElement;
+  var want = px > 0 ? px + 'px' : '';
+  if (root.style.getPropertyValue('--nj-consent-h') === want) return;
+  if (want) root.style.setProperty('--nj-consent-h', want);
+  else root.style.removeProperty('--nj-consent-h');
+}
+function measureConsent(bar) {
+  bar = bar || document.getElementById('nj-consent');
+  if (!bar) { setConsentH(0); return; }
+  // ⚠️ DOM ปลอมใน consent.test.js ไม่มี getBoundingClientRect — วัดไม่ได้ก็แค่ไม่ยก ไม่ใช่พังทั้งไฟล์
+  if (typeof bar.getBoundingClientRect !== 'function' || typeof window.innerHeight !== 'number') return;
+  var r = bar.getBoundingClientRect();
+  // ระยะจากขอบล่างจอถึงขอบบนแบนเนอร์ + ช่องไฟ — ไม่ใช่แค่ความสูงของตัวแบนเนอร์
+  // เพราะบนจอเล็กแบนเนอร์ถูกยกขึ้นเหนือแถบเมนูล่างอยู่แล้ว (ดู consent.css)
+  setConsentH(r.height > 0 ? Math.round(window.innerHeight - r.top + 8) : 0);
+}
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('resize', function () { measureConsent(); });
 }
 
 // เปิดแถบอีกครั้งตามคำขอของผู้ใช้ — ใช้ได้แม้เคยตอบไปแล้ว

@@ -358,3 +358,25 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* =====================================================================
+ * ข้อความผิดพลาดรายช่อง (njform.js · Sprint 4 · งานที่ 11)
+ *
+ * ⚠️ ห้ามบอกว่าผิดด้วยสีอย่างเดียว — มีทั้งสัญลักษณ์ ข้อความ และ aria-invalid
+ *    คนที่แยกสีแดงไม่ออกต้องรู้ได้เท่ากับคนที่แยกออก
+ * ===================================================================== */
+
+.njf-err {
+  margin: calc(var(--nj-space-1) * -1) 0 var(--nj-space-3);
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-tight);
+  color: var(--nj-err-fg);
+}
+.njf-err::before { content: "⚠ "; }
+.njf-err[hidden] { display: none; }
+
+/* ขอบช่องที่ผิด — มาคู่กับข้อความข้างบนเสมอ ไม่ได้ใช้ลำพัง */
+[aria-invalid="true"] {
+  border-color: var(--nj-err-fg) !important;
+  background: var(--nj-err-bg);
+}

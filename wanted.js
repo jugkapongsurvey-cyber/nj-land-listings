@@ -45,20 +45,30 @@ function setupContactLinks() {
 }
 
 // ---------- ตรวจฟอร์มฝั่งหน้าเว็บ (เซิร์ฟเวอร์ตรวจซ้ำอีกชั้นเสมอ ห้ามเชื่อฝั่งนี้อย่างเดียว) ----------
+// กติกาขั้นต่ำอยู่ใน njform.js ที่เดียว — ทั้งสามฟอร์มใช้ชุดเดียวกัน ห้ามก๊อปมาเขียนซ้ำ
+// njform.js โหลดไม่สำเร็จก็ยังตรวจได้ครบเหมือนเดิม แค่ไม่มีข้อความชี้ว่าผิดช่องไหน
 function validate(v) {
-  if (!v.name) return 'กรุณากรอกชื่อ–นามสกุล';
-  if (v.phone.replace(/\D/g, '').length < 9) return 'กรุณากรอกเบอร์โทรให้ครบถ้วน';
-  if (!v.pdpa) return 'กรุณากดยินยอมให้เราติดต่อกลับ';
+  if (window.NJForm) return NJForm.checkLead(v);
+  if (!v.name) return { field: 'name', msg: 'กรุณากรอกชื่อ–นามสกุล' };
+  if (v.phone.replace(/\D/g, '').length < 9) return { field: 'phone', msg: 'กรุณากรอกเบอร์โทรให้ครบถ้วน' };
+  if (!v.pdpa) return { field: 'pdpa', msg: 'กรุณากดยินยอมให้เราติดต่อกลับ' };
   // ไม่บังคับให้กรอกทำเล/งบ/เนื้อที่ — โจทย์ที่ยังไม่ชัดก็ยังเป็นลีดที่คุยต่อได้
   // บังคับให้กรอกครบ = คนที่ยังไม่รู้ว่าตัวเองอยากได้อะไรกดถอยตั้งแต่ยังไม่ได้คุยกับใคร
-  return '';
+  return null;
 }
 
-function showErr(msg) {
+// ⚠️ ขึ้นข้อความ **สองที่** — กล่องสรุปบนหัวฟอร์ม และใต้ช่องที่ผิดจริง
+// บนมือถือกล่องบนหัวฟอร์มเลื่อนพ้นจอไปแล้วตอนผู้ใช้กดส่ง เขาจึงเห็นแต่ปุ่มที่กดแล้วเงียบ
+var wtErrs = null;
+function showErr(msg, field) {
+  if (!wtErrs && window.NJForm) wtErrs = NJForm.errors($('wanted-form'));
+  if (wtErrs) { wtErrs.clear(); if (msg && field) wtErrs.set(field, msg); }
   var box = $('wt-err');
   if (!msg) { box.hidden = true; box.textContent = ''; return; }
   box.textContent = msg;
   box.hidden = false;
+  // พาไปที่ช่องที่ผิดเลย ดีกว่าเลื่อนไปกล่องสรุปแล้วให้ผู้ใช้ไล่หาเองว่าช่องไหน
+  if (wtErrs && field && wtErrs.focusFirst()) return;
   box.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -137,8 +147,11 @@ function setupForm() {
     };
 
     var err = validate(v);
-    if (err) { showErr(err); return; }
+    if (err) { showErr(err.msg, err.field); return; }
     showErr('');
+
+    // ที่มาของลีด — ไม่มีข้อมูลส่วนบุคคลอยู่ในนี้ (ดูคำเตือนหัวไฟล์ attrib.js)
+    if (window.NJAttrib) v.attrib = NJAttrib.value();
 
     sending = true;
     btn.disabled = true;

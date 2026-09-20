@@ -36,7 +36,7 @@
 
   /* ---------- โหมดที่ 1: ฟอร์มขอสิทธิ์ ---------- */
   function formHtml() {
-    return '<form class="rm-form" id="rm-form" novalidate>' +
+    return '<form class="rm-form" id="rm-form" novalidate data-njform>' +
       '<label class="rm-field"><span>รหัสแปลงที่ต้องการดูเอกสาร *</span>' +
         '<input id="f-listing" value="' + esc(LISTING) + '" placeholder="เช่น OP-050" required autocomplete="off"></label>' +
       '<label class="rm-field"><span>ชื่อ–นามสกุล *</span>' +
@@ -58,6 +58,8 @@
   }
 
   function bindForm() {
+    // ⚠️ ฟอร์มนี้ถูกวาดหลัง DOMContentLoaded — ต้องเรียก attach เองเหมือน njservices.js
+    if (window.NJForm) NJForm.attach($('rm-form'));
     var box = $('f-consent');
     var btn = $('f-submit');
     box.addEventListener('change', function () { btn.disabled = !box.checked; });
@@ -74,10 +76,21 @@
         website: ($('f-website').value || '').trim(),
         pdpaAt: new Date().toISOString()
       };
-      if (!body.listingId || !body.name || body.phone.replace(/\D/g, '').length < 8) {
-        $('f-msg').textContent = 'กรุณากรอกรหัสแปลง ชื่อ และเบอร์โทรให้ครบ';
-        return;
+      // ⚠️ ของเดิมบอกรวบว่า "กรอกให้ครบ" โดยไม่บอกว่าช่องไหน — ผู้ใช้ต้องไล่เดาเอง
+      var errs = window.NJForm ? NJForm.errors($('rm-form')) : null;
+      function bad(id, text) {
+        $('f-msg').textContent = text;
+        if (errs) { errs.clear(); errs.set(id, text); errs.focusFirst(); }
+        else { var el = $(id); if (el) el.focus(); }
       }
+      if (!body.listingId) { bad('f-listing', 'กรุณากรอกรหัสแปลงที่ต้องการดูเอกสาร'); return; }
+      if (!body.name) { bad('f-name', 'กรุณากรอกชื่อผู้ขอ'); return; }
+      if (body.phone.replace(/\D/g, '').length < 8) { bad('f-phone', 'กรุณากรอกเบอร์โทรให้ครบถ้วน'); return; }
+      if (errs) errs.clear();
+      $('f-msg').textContent = '';
+
+      // ที่มาของลีด — ไม่มีข้อมูลส่วนบุคคลอยู่ในนี้ (ดูคำเตือนหัวไฟล์ attrib.js)
+      if (window.NJAttrib) body.attrib = NJAttrib.value();
       btn.disabled = true;
       btn.textContent = 'กำลังส่ง…';
       fetch(API + '/api/public/dataroom/request', {

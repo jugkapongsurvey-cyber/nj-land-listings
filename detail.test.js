@@ -96,7 +96,8 @@ ok('แถบติดหนึบแสดงรหัสแปลง', /ld-sti
 const lcss = read('land.css');
 ok('⭐ แถบติดหนึบซ่อนบนเดสก์ท็อป', /\.ld-sticky \{ display: none; \}/.test(lcss));
 ok('⭐ แถบติดหนึบอยู่ต่ำกว่าแบนเนอร์คุกกี้', /z-index: var\(--nj-z-sticky\)/.test(lcss));
-ok('แถบติดหนึบยกพ้นแถบเมนูล่าง', /bottom: 69px/.test(lcss));
+// 69px = ความสูงแถบเมนูล่าง · ตัวแปรที่บวกเพิ่มคือความสูงแบนเนอร์คุกกี้ (เพิ่ม Sprint 4 · งานที่ 12)
+ok('แถบติดหนึบยกพ้นแถบเมนูล่าง', /bottom: calc\(69px \+ var\(--nj-consent-h, 0px\)\)/.test(lcss));
 ok('ซ่อนตอนสั่งพิมพ์', /@media print[\s\S]*\.ld-sticky/.test(lcss));
 
 console.log('\n7) แปลงใกล้เคียง + แปลงที่เพิ่งดู (งานที่ 8)');

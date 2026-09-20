@@ -64,3 +64,31 @@
 .gd-item p.gd-more{margin-top:8px}
 .gd-more a{color:#1B4B7A;font-weight:600;text-decoration:none}
 .gd-more a:hover{text-decoration:underline}
+
+/* ---------- ผู้เรียบเรียง · วันที่ตรวจทาน · สิ่งที่ยังรอจากบริษัท (Sprint 4 · งานที่ 10) ---------- */
+
+.gd-byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--nj-space-5);
+  margin: var(--nj-space-4) 0 0;
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-body);
+  color: var(--nj-text-muted);
+}
+.gd-byline b { color: var(--nj-text); font-weight: 600; }
+
+/* กล่องสีเหลือง = ของที่ยังไม่มีจริง ไม่ใช่ของตกแต่ง (กติกาเดียวกับ .lg-todo) */
+.gd-todo {
+  margin: var(--nj-space-5) 0 0;
+  padding: var(--nj-space-4) var(--nj-space-5);
+  background: var(--nj-warn-bg);
+  border-left: 4px solid var(--nj-warn-fg);
+  border-radius: var(--nj-radius-sm);
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-body);
+}
+.gd-todo b { color: var(--nj-warn-fg); }
+.gd-todo p { margin: var(--nj-space-2) 0; }
+.gd-todo ul { margin: 0; padding-left: 1.2em; }
+

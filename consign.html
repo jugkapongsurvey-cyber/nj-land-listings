@@ -24,6 +24,9 @@
 <link rel="stylesheet" href="components.css">
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
+<!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="attrib.js" defer></script>
+<!-- NJ:COREJS จบ -->
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="ui.css">
@@ -145,7 +148,7 @@
         <div class="cs-mine-note">ฟอร์มด้านล่างว่างอยู่ — กรอกได้เลยถ้าจะฝากขายแปลงใหม่อีกแปลง</div>
       </div>
 
-      <form id="consign-form" novalidate>
+      <form id="consign-form" novalidate data-njform>
         <!-- honeypot: ซ่อนจากคนจริง บอทที่กรอกทุกช่องอัตโนมัติจะติดกับ (ฝั่งเซิร์ฟเวอร์ตรวจช่องนี้) -->
         <div class="cs-hp" aria-hidden="true">
           <label>เว็บไซต์<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
@@ -580,6 +583,7 @@
      (กล่องเช็กราคาและโรงฉายวิดีโอข้างในเช็ก element ของตัวเองก่อนทำงาน หน้านี้ไม่มีทั้งคู่ จึงไม่ทำอะไร)
      ⚠️ ต้องมาก่อน consign.js เสมอ — consign.js อ่าน window.NJSurveyQuote ตอนวาดกล่องรังวัดครั้งแรก -->
 <script src="surveyquote.js"></script>
+<script src="njform.js"></script>
 <script src="consign.js"></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="verified.js"></script>

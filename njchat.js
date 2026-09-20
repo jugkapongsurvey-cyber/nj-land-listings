@@ -605,11 +605,28 @@
   }
 
   // ---------------------------------------------------------------------------
+  // รหัสแปลงของหน้าที่กำลังเปิดอยู่ (มีเฉพาะ land.html?id=…) — หน้าอื่นคืนค่าว่าง
+  function currentListingId() {
+    if ((location.pathname.split('/').pop() || '') !== 'land.html') return '';
+    try {
+      return String(new URLSearchParams(location.search).get('id') || '')
+        .toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20);
+    } catch (e) { return ''; }
+  }
+
   // ทางสำรอง: ส่งให้ Claude ผ่านเซิร์ฟเวอร์ (ประวัติ 6 ข้อความล่าสุด · ไม่ส่งข้อมูลส่วนตัว)
   function askAI(text, history) {
     return fetch(API() + '/api/public/njchat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, history: history.slice(-6).map(function (m) { return { role: m.role, text: m.text.slice(0, 800) }; }), page: location.pathname.split('/').pop() || 'index.html', website: '' })
+      body: JSON.stringify({
+        message: text,
+        history: history.slice(-6).map(function (m) { return { role: m.role, text: m.text.slice(0, 800) }; }),
+        page: location.pathname.split('/').pop() || 'index.html',
+        // ⚠️ รหัสแปลงที่ผู้ใช้กำลังดู — ไม่ส่ง = AI ต้องเดาเองว่า "แปลงนี้" คือแปลงไหน
+        //    เซิร์ฟเวอร์กรองรูปแบบซ้ำอีกชั้นเสมอ (validateBody ใน lib/njchat.js)
+        listingId: currentListingId(),
+        website: ''
+      })
     }).then(function (r) { return r.json(); }).then(function (j) {
       if (j && j.ok && j.text) return { html: nl2br(j.text), ai: true, chips: ['คุยกับเจ้าหน้าที่'] };
       throw new Error((j && j.reason) || 'no ai');
@@ -713,6 +730,7 @@
       ui.panel.innerHTML = panelHtml(false);
       document.body.appendChild(ui.panel);
       ui.launcher.addEventListener('click', function () { toggle(!ui.open); });
+      revealLater(ui.launcher);
       dodgeConsent();
       // แบนเนอร์คุกกี้ (#nj-consent · z 900) ถูกลบออกจาก DOM เมื่อผู้ใช้ตอบ — เฝ้า childList ของ body
       // เพื่อคืนตำแหน่งปุ่ม · ตัวเฝ้าแก้แค่ style ของปุ่ม (ไม่ใช่ childList) จึงไม่วนลูปแบบบั๊ก compare.js
@@ -769,6 +787,34 @@
     if (ui.panel.style.paddingBottom !== pb) ui.panel.style.paddingBottom = pb;
     if (ui.panel.style.bottom !== pbot) ui.panel.style.bottom = pbot;
   }
+  // ---------- ปุ่มแชทโผล่ทีหลัง ไม่ใช่ตั้งแต่วินาทีแรก ----------
+  //
+  // ⚠️ **ยังห้ามเปิดแผงเอง** ข้อนี้ไม่เปลี่ยน — ที่เปลี่ยนคือ "ปุ่ม" ค่อยโผล่
+  // เหตุผล: บนจอ 390px ปุ่มลอยมุมขวาล่างทับเนื้อหาตั้งแต่วินาทีแรกที่หน้าโหลด
+  // คนที่เพิ่งกดโฆษณาเข้ามายังไม่ทันอ่านอะไรเลยก็เจอของมาขวางแล้ว
+  // โผล่ตอนเขา "อยู่ต่อ" (ผ่านไป 18 วินาที) หรือ "เริ่มสนใจ" (เลื่อนจอลงไปแล้ว) ตรงกับจังหวะที่คนเริ่มมีคำถามจริง
+  //
+  // ⚠️ ซ่อนด้วยคลาสที่ JS ใส่เอง (กติกาเดียวกับ ls-js ของแผงตัวกรอง) — CSS ซ่อนไว้ตรงๆ ไม่ได้
+  //    เพราะถ้า njchat.js โหลดไม่สำเร็จ ปุ่มจะหายถาวรโดยไม่มีทางเรียกกลับ
+  var REVEAL_MS = 18000;      // อยู่ในช่วง 15–30 วินาทีตามข้อกำหนด
+  var REVEAL_SCROLL = 400;    // เลื่อนจอลงไปเท่านี้ = เริ่มอ่านจริง ไม่ใช่แค่เปิดผ่าน
+  function revealLater(el) {
+    // เข้ามาที่หน้าแชทเต็มหน้า หรือเปิดลิงก์ที่พาไปแชทโดยตรง = เขาตั้งใจมาคุยอยู่แล้ว ไม่ต้องหน่วง
+    if (location.hash === '#chat') return;
+    el.classList.add('njchat-hold');
+    var fired = false;
+    function show() {
+      if (fired) return;
+      fired = true;
+      el.classList.remove('njchat-hold');
+      window.removeEventListener('scroll', onScroll);
+    }
+    function onScroll() { if ((window.pageYOffset || 0) > REVEAL_SCROLL) show(); }
+    setTimeout(show, REVEAL_MS);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();   // เผื่อเปิดหน้ามาแล้วเบราว์เซอร์คืนตำแหน่งเลื่อนเดิมให้
+  }
+
   function trackOpen() {
     if (ui.opened) return;
     ui.opened = true;

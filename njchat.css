@@ -18,6 +18,24 @@
 }
 .njchat-launcher:hover{ background:#12315F; }
 .njchat-launcher:focus-visible{ outline:3px solid #D8B96B; outline-offset:2px; }
+
+/* ⚠️ สถานะ "ยังไม่ถึงเวลาโผล่" — คลาสนี้ `njchat.js` เป็นคนใส่และถอดเอง
+   ห้ามซ่อนปุ่มไว้ใน CSS ตรงๆ เพราะไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ ปุ่มจะหายถาวร
+   (กติกาเดียวกับ `body.ls-js` ของแผงตัวกรองจอเล็ก และ `.js-ready` ของปุ่มเล่นคลิป)
+
+   ⚠️ **ขาโผล่ไม่มี transition** — กติกาเดียวกับเมนูย่อยบนหัวเว็บ (Sprint 1 ข้อ 6)
+   ใส่ transition ที่กฎฐานเมื่อไหร่ = มีช่วงที่ปุ่ม "กดได้แล้วแต่ยังมองไม่เห็น"
+   และถ้าเบราว์เซอร์หยุดวาด (แท็บพื้นหลัง) ช่วงนั้นยืดจนปุ่มใสสนิทแต่กดได้ — เจอจริงตอนวัด
+   ⚠️ ต้องมี `visibility` ด้วย ไม่ใช่ opacity อย่างเดียว · ปุ่มใสที่ยังกดได้คือสิ่งที่แย่ที่สุด */
+.njchat-launcher.njchat-hold{
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(12px) scale(.96);
+  pointer-events:none;
+  transition: opacity var(--nj-dur) var(--nj-ease),
+              transform var(--nj-dur) var(--nj-ease),
+              visibility 0s linear var(--nj-dur);
+}
 .njchat-launcher.on .njchat-launcher-txt{ display:none; }
 .njchat-launcher.on{ padding-right:8px; }
 .njchat-avatar{

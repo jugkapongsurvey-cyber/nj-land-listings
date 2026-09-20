@@ -235,7 +235,16 @@
   flex:none;font-family:var(--nj-font);font-size:13px;font-weight:700;
   color:var(--ink);white-space:nowrap;margin-top:2px;
 }
-.ld-crow .ld-val{display:block;margin-top:2px}
+/* ⚠️ ค่าที่อยู่ในแถวของตัวเองต้องตัดบรรทัดได้ — `.ld-val` ตั้ง `white-space:nowrap` ไว้
+   ซึ่งถูกสำหรับค่าสั้นๆ (วันที่ · "โฉนด") แต่ช่องนี้รับข้อความอิสระด้วย เช่นชื่อโครงการ
+   ปล่อย nowrap ไว้ = **ทั้งหน้าเลื่อนแนวนอนได้ที่จอ 375px** (วัดจริงแล้วล้น 91px) */
+/* ⚠️ ต้องมี `flex:0 1 auto` + `min-width:0` ด้วย ไม่ใช่แค่ปลด nowrap
+   `.ld-val` ตั้ง `flex:none` ไว้ ซึ่งแปลว่ากว้างเท่าเนื้อหาเสมอ ต่อให้ตัดบรรทัดได้ก็ไม่ยอมแคบลง */
+.ld-crow .ld-val{
+  display:block;margin-top:2px;
+  white-space:normal;overflow-wrap:anywhere;
+  flex:0 1 auto;min-width:0;text-align:right;
+}
 
 .ld-tier-foot{
   font-size:11.5px;line-height:1.8;margin:14px 0 0;padding-top:12px;
@@ -411,7 +420,9 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 69px;
+    /* ⚠️ ต้องบวกความสูงแบนเนอร์คุกกี้ด้วย — แบนเนอร์อยู่ z-index 900 ทับแถบนี้ (150) เต็มๆ
+     ค่าตัวแปรถูกตั้งโดย measureConsent() ใน analytics.js · ไม่มีแบนเนอร์ = 0px */
+  bottom: calc(69px + var(--nj-consent-h, 0px));
     z-index: var(--nj-z-sticky);
     display: flex;
     align-items: center;
