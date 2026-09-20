@@ -98,8 +98,14 @@ function consentValue() {
 function setConsent(v) {
   try { localStorage.setItem(CONSENT_KEY, v); } catch (e) { /* โหมดส่วนตัวเขียนไม่ได้ ไม่เป็นไร */ }
   if (v === 'yes') loadTrackers();
+  // ⚠️ กด "ปฏิเสธ" แล้ว **ไม่ถอน Pixel ที่โหลดไปแล้ว** ได้ — ถอนสคริปต์ที่รันไปแล้วไม่ได้จริง
+  // กรณีนี้เกิดได้ทางเดียวคือผู้ใช้เคยกดยอมรับ แล้วเปิดแถบกลับมากดปฏิเสธในหน้าเดียวกัน
+  // จึงต้องโหลดหน้าใหม่ให้ เพื่อให้สภาพจริงตรงกับสิ่งที่ผู้ใช้เพิ่งเลือก
+  var needReload = (v === 'no' && trackersLoaded);
   var bar = document.getElementById('nj-consent');
   if (bar) bar.remove();
+  paintConsentState();
+  if (needReload) location.reload();
 }
 
 var trackersLoaded = false;
@@ -203,17 +209,30 @@ function njTrackInternal(type, listingId) {
 // แบนเนอร์ขอความยินยอม — ขึ้นเฉพาะเมื่อ (ก) ยังไม่เคยตอบ และ (ข) มี ID ให้โหลดจริง
 // ถ้ายังไม่ได้กรอก ID ก็ไม่มีอะไรให้ขอความยินยอม จึงไม่รบกวนผู้ใช้เปล่าๆ
 // ---------------------------------------------------------------------------
-function initConsent() {
-  var has = META_PIXEL_ID || GA4_ID;
-  var val = consentValue();
-  if (val === 'yes') { loadTrackers(); return; }
-  if (val === 'no' || !has) return;
-
+// ---------------------------------------------------------------------------
+// แถบขอความยินยอม + ทางกลับมาเปลี่ยนใจ
+//
+// ⚠️ **ต้องมีทางกลับมาเปลี่ยนใจเสมอ** (เพิ่ม 2026-09-20)
+// ของเดิมกดตอบครั้งเดียวแล้วจบถาวร — เปลี่ยนใจได้ทางเดียวคือล้างข้อมูลเว็บไซต์ทิ้งทั้งก้อน
+// ซึ่งลบตั๋วใบฝากขายของลูกค้าไปด้วย · การถอนความยินยอมต้องง่ายพอๆ กับการให้
+// ทางกลับคือลิงก์ "ตั้งค่าคุกกี้" ในแถบนโยบายท้ายทุกหน้า (`[data-njconsent]`)
+//
+// ⚠️ **ปุ่ม "ปฏิเสธ" ต้องอยู่ระดับเดียวกับ "ยอมรับ" ห้ามทำให้หายากกว่า**
+// และต้องไม่มีปุ่มไหนถูกทำให้เด่นกว่าอีกปุ่มจนกลายเป็นการชี้นำ
+//
+// ⚠️ ปุ่ม "ตั้งค่าคุกกี้" ในแถบเป็นทางไปอ่านนโยบายฉบับเต็ม ไม่ใช่แผงติ๊กหลายหมวด
+// เพราะตอนนี้มีของให้เลือกจริงหมวดเดียว (การตลาด) — ทำแผงติ๊กหมวดเดียวคือเพิ่มขั้นตอน
+// ให้ผู้ใช้โดยไม่ได้เพิ่มทางเลือก · วันไหนมีหมวดที่สองค่อยเปลี่ยนเป็นแผงจริง
+// ---------------------------------------------------------------------------
+function buildConsentBar() {
   var bar = document.createElement('div');
   bar.id = 'nj-consent';
+  bar.setAttribute('role', 'region');
+  bar.setAttribute('aria-label', 'การตั้งค่าคุกกี้');
   bar.innerHTML =
     '<div class="nj-consent-text">เราใช้คุกกี้เพื่อวัดผลโฆษณาและปรับปรุงเว็บไซต์ ' +
-    'คุณเลือกปฏิเสธได้โดยยังใช้งานเว็บได้ครบทุกส่วน</div>' +
+    'คุณเลือกปฏิเสธได้โดยยังใช้งานเว็บได้ครบทุกส่วน ' +
+    '<a class="nj-consent-more" href="cookie.html">อ่านนโยบายคุกกี้</a></div>' +
     '<div class="nj-consent-btns">' +
       '<button type="button" class="nj-consent-no">ปฏิเสธ</button>' +
       '<button type="button" class="nj-consent-yes">ยอมรับ</button>' +
@@ -221,7 +240,61 @@ function initConsent() {
   document.body.appendChild(bar);
   bar.querySelector('.nj-consent-yes').addEventListener('click', function () { setConsent('yes'); });
   bar.querySelector('.nj-consent-no').addEventListener('click', function () { setConsent('no'); });
+  return bar;
 }
+
+// เปิดแถบอีกครั้งตามคำขอของผู้ใช้ — ใช้ได้แม้เคยตอบไปแล้ว
+function openConsent() {
+  var bar = document.getElementById('nj-consent') || buildConsentBar();
+  var btn = bar.querySelector('.nj-consent-no');
+  if (btn) btn.focus();
+  return bar;
+}
+
+function initConsent() {
+  var has = META_PIXEL_ID || GA4_ID;
+  var val = consentValue();
+
+  // ⚠️ ผูกลิงก์ "ตั้งค่าคุกกี้" ก่อนเสมอ ไม่ว่าจะเคยตอบไปแล้วหรือไม่
+  // ของเดิม return ออกตั้งแต่บรรทัดถัดไปเมื่อเคยตอบแล้ว — ผูกทีหลังคือลิงก์ตาย
+  bindConsentLinks();
+
+  if (val === 'yes') { loadTrackers(); return; }
+  if (val === 'no' || !has) return;
+
+  buildConsentBar();
+}
+
+// แถบลิงก์นโยบายท้ายฟุตเตอร์มีปุ่ม [data-njconsent] และช่องบอกสถานะ [data-njconsent-state]
+// ทั้งคู่ไม่บังคับ หน้าไหนไม่มีก็ข้ามไปเงียบๆ
+function bindConsentLinks() {
+  var btns = document.querySelectorAll('[data-njconsent]');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function (e) {
+      e.preventDefault();
+      openConsent();
+    });
+  }
+  paintConsentState();
+}
+
+function consentStateText() {
+  var v = consentValue();
+  if (v === 'yes') return 'ตอนนี้คุณเลือก “ยอมรับคุกกี้เพื่อการตลาด” ไว้';
+  if (v === 'no') return 'ตอนนี้คุณเลือก “ปฏิเสธคุกกี้เพื่อการตลาด” ไว้';
+  return 'คุณยังไม่ได้เลือก — ระบบจะยังไม่โหลดคุกกี้เพื่อการตลาดจนกว่าคุณจะกดยอมรับ';
+}
+function paintConsentState() {
+  var els = document.querySelectorAll('[data-njconsent-state]');
+  var txt = consentStateText();
+  for (var i = 0; i < els.length; i++) {
+    // ⚠️ เขียนทับด้วยค่าเดิมคือลบ text node แล้วสร้างใหม่ ซึ่งนับเป็น childList mutation
+    // เทียบก่อนเขียนเสมอ (กับดัก MutationObserver ที่เคยทำให้สองหน้าค้างทั้งแท็บ)
+    if (els[i].textContent !== txt) els[i].textContent = txt;
+  }
+}
+
+window.NJConsent = { open: openConsent, value: consentValue, stateText: consentStateText };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initConsent);
 else initConsent();
