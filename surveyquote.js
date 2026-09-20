@@ -429,6 +429,7 @@
 
   // ---------------------------------------------------------------------------
   function open() {
+    if (window.njTrackInternal) njTrackInternal('use_calculator');
     root.hidden = false;
     root.setAttribute('aria-hidden', 'false');
     render();

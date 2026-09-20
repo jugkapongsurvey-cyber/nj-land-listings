@@ -67,3 +67,104 @@
   .ls-field.ls-grow{flex:1 1 100%}
   .ls-actions .post-btn,.ls-actions .outline-btn{flex:1 1 auto;text-align:center}
 }
+
+/* =====================================================================
+ * Sprint 3 — ตัวกรอง "เฉพาะที่บันทึกไว้" + แผงตัวกรองแบบ Bottom Sheet บนจอเล็ก
+ * (2026-09-20 · งานที่ 4) · ค่าสีมาจาก tokens.css
+ * ===================================================================== */
+
+.ls-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-right: auto;
+  font-size: var(--nj-fs-sm);
+  color: var(--nj-text);
+  cursor: pointer;
+}
+.ls-saved input { width: 18px; height: 18px; accent-color: var(--nj-navy-900); }
+.ls-saved b { color: var(--nj-navy-600); }
+
+/* ปุ่มเปิดแผงตัวกรอง — เดสก์ท็อปไม่ต้องมี เพราะแผงกางอยู่แล้ว */
+.ls-open { display: none; }
+.ls-sheet-head { display: none; }
+
+@media (max-width: 860px) {
+  /* ⚠️ ซ่อนแผงเฉพาะเมื่อ JS ทำงานแล้ว (`body.ls-js`) — ไม่งั้น JS พังแล้วตัวกรองหายทั้งหน้า */
+  .ls-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    margin-bottom: var(--nj-space-4);
+    border: 1px solid var(--nj-gray-300);
+    background: var(--nj-white);
+    color: var(--nj-navy-900);
+    font-size: var(--nj-fs-body);
+    font-weight: var(--nj-fw-semi);
+    cursor: pointer;
+  }
+  .ls-open:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+  body.ls-js .ls-filters {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* ⚠️ ต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (950) — สองอย่างนั้นต้องอยู่เหนือเสมอ */
+    z-index: 860;
+    max-height: 86vh;
+    margin: 0;
+    padding: 0 var(--nj-space-4) calc(var(--nj-space-5) + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    background: var(--nj-white);
+    border-top: 1px solid var(--nj-border);
+    box-shadow: 0 -12px 40px rgba(11, 31, 58, 0.26);
+    transform: translateY(100%);
+    visibility: hidden;
+    transition: transform var(--nj-dur) var(--nj-ease), visibility 0s linear var(--nj-dur);
+  }
+  html.ls-sheet-open body.ls-js .ls-filters,
+  html.ls-sheet-open .ls-filters {
+    transform: none;
+    visibility: visible;
+    /* ⚠️ ขาเปิดไม่มีหน่วงเวลา — เหตุผลเดียวกับเมนูย่อยบนหัวเว็บ
+     *    แผงที่ "เปิดแล้วแต่ยังมองไม่เห็น" อ่านเหมือนปุ่มเสีย */
+    transition: transform var(--nj-dur) var(--nj-ease), visibility 0s linear 0s;
+  }
+
+  body.ls-js .ls-sheet-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 calc(var(--nj-space-4) * -1);
+    padding: var(--nj-space-4);
+    background: var(--nj-white);
+    border-bottom: 1px solid var(--nj-border);
+    font-size: var(--nj-fs-h4);
+    color: var(--nj-text-strong);
+  }
+  .ls-sheet-x {
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    background: none;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--nj-text-muted);
+    cursor: pointer;
+  }
+  .ls-sheet-x:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+  /* ล็อกไม่ให้หน้าเลื่อนอยู่ข้างหลังตอนแผงเปิด */
+  html.ls-sheet-open, html.ls-sheet-open body { overflow: hidden; }
+
+  .ls-actions { position: sticky; bottom: 0; background: var(--nj-white); padding-top: var(--nj-space-3); }
+  .ls-saved { margin-right: 0; flex: 1 1 100%; }
+}

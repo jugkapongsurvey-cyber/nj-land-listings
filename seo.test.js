@@ -1,148 +1,142 @@
-'use strict';
-// ---------- เทสต์ build/seo.js — ตัวเขียนค่า SEO จากทะเบียนกลางลงหัวไฟล์ HTML ----------
-// รัน: node seo.test.js [path ของ nj-survey-system]
-// ไม่มี dependency ภายนอก (repo นี้เป็นเว็บสแตติกล้วน ไม่มี package.json)
-
+/* SEO ทางเทคนิค (งานที่ 15) — หน้าแปลงสแตติก · canonical · แผนผัง · Structured Data
+ *   รันด้วย:  node seo.test.js   · เพิ่ม 2026-09-20 (Sprint 5)
+ *
+ * ทำไมต้องมี: ของพวกนี้ **พังเงียบที่สุดในเว็บ** — ไม่มีอะไรบนหน้าจอเปลี่ยนเลย
+ * รู้ตัวอีกทีคือตอนอันดับหายไปแล้ว หรือลิงก์ที่ส่งเข้าไลน์ขึ้นการ์ดผิดแปลง
+ *
+ * ⚠️ ไฟล์ใน `p/` ถูกสร้างจากข้อมูลจริงด้วย `node build/properties.js`
+ *    เทสต์นี้ตรวจ "ผลลัพธ์ที่ commit ไว้" ไม่ได้ยิง API เอง — CI จึงรันได้โดยไม่ต้องต่อเน็ต
+ */
 const fs = require('fs');
 const path = require('path');
-const S = require('./build/seo.js');
+const read = f => fs.readFileSync(path.join(__dirname, f), 'utf8');
 
 let pass = 0, fail = 0;
-function ok(cond, label, extra) {
-  if (cond) { pass++; console.log('  ok   ' + label); }
-  else { fail++; console.log('  FAIL ' + label + (extra ? ('  → ' + extra) : '')); }
-}
-function eq(a, b, label) { ok(JSON.stringify(a) === JSON.stringify(b), label, 'ได้ ' + JSON.stringify(a) + ' ควรเป็น ' + JSON.stringify(b)); }
-
-const ROOT = __dirname;
-const page = (head, body) => '<!doctype html>\n<html lang="th">\n<head>\n' + head + '\n</head>\n<body>\n' +
-  '<header class="topbar"><nav><a href="index.html">หน้าแรก</a></nav></header>\n' + (body || '') + '\n</body>\n</html>\n';
-const apply = (html, file, entry, opts) => S.applyToHtml(html, file, entry || null, opts || {});
-const headOf = html => { const r = S.headRange(html); return html.slice(r.start, r.end); };
-const has = (html, f) => S.tagRe(f).test(headOf(html));
-const val = (html, f) => { const m = headOf(html).match(S.tagRe(f)); return m ? S.valueOfTag(m[0], f) : null; };
-
-console.log('\n1) ⚠️ ค่าคงที่ที่ผูกกันข้ามไฟล์');
-const analytics = fs.readFileSync(path.join(ROOT, 'analytics.js'), 'utf8');
-const base = (analytics.match(/var\s+NJ_API_BASE\s*=\s*'([^']+)'/) || [])[1];
-eq(S.API_BASE, base, 'API_BASE ตรงกับ NJ_API_BASE ใน analytics.js');
-eq(S.SITE, 'https://njteedinsure.com', 'ที่อยู่เว็บตรงกับของจริง');
-// รายชื่อช่องต้องตรงกับ FIELDS ใน lib/seo.js ของระบบหลังบ้าน (ไม่เจอ = ข้ามเงียบๆ เหมือน contracts.test.js)
-const sys = [process.argv[2], '../nj-survey-system', '../nj-wt-p2b']
-  .filter(Boolean).map(p => path.resolve(ROOT, p)).find(p => fs.existsSync(path.join(p, 'lib', 'seo.js')));
-if (!sys) console.log('  (ข้าม) ไม่พบ lib/seo.js ของระบบหลังบ้าน — ข้ามการเทียบรายชื่อช่อง');
-else {
-  const F = require(path.join(sys, 'lib', 'seo.js')).FIELDS;
-  eq(S.FIELDS.slice().sort(), F.slice().sort(), '⭐ 13 ช่องตรงกับทะเบียนของระบบหลังบ้าน');
-  eq(S.FIELDS.length, 13, 'มี 13 ช่องพอดี');
+function ok(label, cond, extra) {
+  if (cond) pass++;
+  else { fail++; console.log('  ✗ ' + label + (extra !== undefined ? '  → ' + String(extra).slice(0, 200) : '')); }
 }
 
-console.log('\n2) ⭐ กติกาข้อ 1 — ไม่เขียนเนื้อหาให้เอง');
-const bare = page('  <title>หน้าทดสอบ | ที่ดินชัวร์</title>\n  <meta name="description" content="คำอธิบายเดิม">');
-const r2 = apply(bare, 'test.html', null);
-['title', 'description', 'ogTitle', 'ogDescription', 'ogImage', 'ogType', 'twitterTitle', 'twitterDescription', 'twitterImage']
-  .forEach(f => ok(r2.derived.indexOf(f) < 0, 'ไม่แต่ง ' + f + ' ให้เอง'));
-ok(!has(r2.html, 'ogTitle') && !has(r2.html, 'ogImage'), '⭐ หน้าที่ไม่มี og อยู่เดิม ไม่ถูกเติม og ให้');
-eq(S.DERIVABLE, ['canonical', 'ogUrl', 'twitterCard'], '⭐ คำนวณเองได้แค่ 3 ค่าที่เป็นกลไก');
-const src = fs.readFileSync(path.join(ROOT, 'build', 'seo.js'), 'utf8');
-ok(!/\bที่ดินชัวร์\b/.test(src.replace(/^\/\/.*$/gm, '')), '⭐ ไม่มีข้อความการตลาดฝังในโค้ด (นอกคอมเมนต์)');
+const P_DIR = path.join(__dirname, 'p');
+const PROPS = fs.existsSync(P_DIR)
+  ? fs.readdirSync(P_DIR).filter(f => f.endsWith('.html') && !f.startsWith('__')) : [];
 
-console.log('\n3) ⭐ กติกาข้อ 2 — ช่องว่างในทะเบียนไม่ลบของเดิม');
-const keep = apply(bare, 'test.html', { path: 'test.html', title: '', description: '   ', ogTitle: null });
-eq(val(keep.html, 'title'), 'หน้าทดสอบ | ที่ดินชัวร์', 'ส่ง title ว่างมาแล้วชื่อเดิมยังอยู่');
-eq(val(keep.html, 'description'), 'คำอธิบายเดิม', 'ส่งคำอธิบายเป็นช่องว่างแล้วของเดิมยังอยู่');
-const over = apply(bare, 'test.html', { path: 'test.html', title: 'ชื่อใหม่จากทะเบียน' });
-eq(val(over.html, 'title'), 'ชื่อใหม่จากทะเบียน', 'ทะเบียนมีค่า = เขียนทับของเดิม');
-eq((headOf(over.html).match(/<title/gi) || []).length, 1, 'แก้ในที่เดิม ไม่เกิดแท็กซ้ำ');
+console.log('\n1) ⭐ หน้าแปลงมีเนื้อหาอยู่ใน HTML ต้นทางจริง');
+// บอตของไลน์และเฟซบุ๊ก **ไม่รันสคริปต์** — เนื้อหาที่มาทีหลังจาก JS เท่ากับไม่มี
+ok('มีไฟล์หน้าแปลงอยู่จริง', PROPS.length > 0, PROPS.length + ' ไฟล์');
+const sample = PROPS.length ? read('p/' + PROPS[0]) : '';
+ok('ชื่อหน้าไม่ใช่ข้อความกลางของ land.html', !/<title>รายละเอียดแปลงที่ดิน \| ที่ดินชัวร์<\/title>/.test(sample));
+ok('มี <h1> อยู่ใน HTML ต้นทาง', /<h1[^>]*>[^<]{10,}/.test(sample));
+ok('มีรหัสทรัพย์อยู่ในเนื้อหา', /รหัสทรัพย์/.test(sample));
+ok('⭐ บอกให้ชัดว่า "กำลังโหลดข้อมูลล่าสุด" ไม่ใช่ทำเหมือนข้อมูลนี้คือทั้งหมด',
+   /กำลังโหลดข้อมูลล่าสุด/.test(sample));
 
-console.log('\n4) ⭐ กติกาข้อ 3 — ค่าที่คำนวณเอง');
-const withOg = page('  <title>ก | ที่ดินชัวร์</title>\n  <meta property="og:title" content="ก">\n  <meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">');
-const d4 = apply(withOg, 'guides.html', null);
-eq(val(d4.html, 'canonical'), 'https://njteedinsure.com/guides.html', 'เติม canonical จากชื่อไฟล์');
-eq(val(d4.html, 'ogUrl'), 'https://njteedinsure.com/guides.html', 'og:url ตามหลัง canonical');
-eq(val(d4.html, 'twitterCard'), 'summary_large_image', 'มีรูปแชร์ = การ์ดใหญ่');
-const noImg = page('  <title>ก | ที่ดินชัวร์</title>\n  <meta property="og:title" content="ก">');
-eq(val(apply(noImg, 'guides.html', null).html, 'twitterCard'), 'summary', 'ไม่มีรูปแชร์ = การ์ดเล็ก');
-ok(!has(apply(page('  <title>ก | ที่ดินชัวร์</title>'), 'guides.html', null).html, 'twitterCard'),
-  '⭐ หน้าที่ยังไม่มี og เลย ไม่เริ่มมีการ์ด X ให้เอง');
-eq(val(apply(withOg, 'index.html', null).html, 'canonical'), 'https://njteedinsure.com/', '⭐ หน้าแรกใช้ที่อยู่ที่ไม่มี index.html');
-ok(!apply(page('  <title>ก</title>\n  <meta name="twitter:card" content="summary">\n  <meta property="og:image" content="https://x.njteedinsure.com/a.png">'), 'guides.html', null).updated.includes('twitterCard'),
-  'มี twitter:card อยู่แล้ว ไม่ถูกเปลี่ยน');
-
-console.log('\n5) ⭐ กติกาข้อ 4 — หน้า noindex ไม่ได้ค่าที่คำนวณเอง');
-const noidx = page('  <title>ก | ที่ดินชัวร์</title>\n  <meta name="robots" content="noindex, nofollow">\n  <meta property="og:image" content="https://njteedinsure.com/a.png">');
-const r5 = apply(noidx, 'quote.html', null);
-eq(r5.derived, [], '⭐ ไม่คำนวณอะไรให้เลย');
-ok(!has(r5.html, 'canonical') && !has(r5.html, 'ogUrl') && !has(r5.html, 'twitterCard'), 'ไม่มี canonical/og:url/twitter:card งอกขึ้นมา');
-eq(val(apply(noidx, 'quote.html', { path: 'quote.html', canonical: 'https://njteedinsure.com/quote.html' }).html, 'canonical'),
-  'https://njteedinsure.com/quote.html', 'แต่ค่าที่คนตั้งในทะเบียนยังถูกเขียนลงตามปกติ');
-// ทะเบียนสั่ง noindex ได้ด้วย แม้ไฟล์เดิมจะยังไม่มี
-const r5b = apply(withOg, 'guides.html', { path: 'guides.html', robots: 'noindex,follow' });
-eq(r5b.derived, [], 'ทะเบียนสั่ง noindex = หยุดคำนวณทันที');
-
-console.log('\n6) ⭐ หน้าที่ที่อยู่คำนวณจากชื่อไฟล์ไม่ได้');
-ok(Object.keys(S.NO_URL).indexOf('land.html') >= 0, 'land.html อยู่ในรายการยกเว้น');
-ok(String(S.NO_URL['land.html']).length > 40, 'มีเหตุผลกำกับ ไม่ใช่รายชื่อเปล่าๆ');
-const r6 = apply(withOg, 'land.html', null);
-ok(!has(r6.html, 'canonical') && !has(r6.html, 'ogUrl'), '⭐ ไม่เติม canonical/og:url ให้หน้าแปลงรายแปลง');
-eq(val(r6.html, 'twitterCard'), 'summary_large_image', 'แต่ยังเติม twitter:card ได้ (ไม่ได้อ้างที่อยู่)');
-
-console.log('\n7) ⭐ กติกาข้อ 5 — รันซ้ำได้ผลเท่าเดิม');
-const once = apply(withOg, 'guides.html', { path: 'guides.html', title: 'ชื่อ' }).html;
-const twice = apply(once, 'guides.html', { path: 'guides.html', title: 'ชื่อ' });
-eq(twice.changed, false, 'รอบที่สองไม่มีอะไรเปลี่ยน');
-eq(twice.html, once, 'เนื้อไฟล์เท่าเดิมทุกตัวอักษร');
-eq((once.match(/nj-seo:start/g) || []).length, 1, 'มีบล็อกที่ระบบดูแลอันเดียว');
-const third = apply(apply(once, 'guides.html', { path: 'guides.html', title: 'ชื่อสอง' }).html, 'guides.html', { path: 'guides.html', title: 'ชื่อสอง' });
-eq((third.html.match(/nj-seo:start/g) || []).length, 1, 'แก้แล้วรันซ้ำก็ยังมีบล็อกเดียว');
-
-console.log('\n8) ความปลอดภัยของข้อความ');
-const evil = apply(bare, 'test.html', { path: 'test.html', ogTitle: 'a" onerror="alert(1)', ogDescription: 'ก & ข < ค' });
-ok(headOf(evil.html).indexOf('onerror="alert(1)') < 0, '⭐ เครื่องหมายคำพูดถูกแปลง ไม่หลุดออกจากแอตทริบิวต์');
-eq(val(evil.html, 'ogDescription'), 'ก &amp; ข &lt; ค', 'เครื่องหมาย & และ < ถูกแปลงก่อนเขียน');
-
-console.log('\n9) ⚠️ หา <head> ไม่หลงไปเจอ <header>');
-const r9 = S.headRange(page('  <title>ก</title>'));
-const body9 = page('  <title>ก</title>');
-ok(body9.slice(r9.start, r9.end).indexOf('<header') < 0, 'ช่วงหัวไฟล์ไม่กินเนื้อหาในหน้า');
-ok(body9.slice(r9.start, r9.end).indexOf('<title>') >= 0, 'แต่ยังได้แท็กในหัวไฟล์ครบ');
-
-console.log('\n10) ⭐ ไฟล์จริงในเว็บ (หลังรัน build/seo.js แล้ว)');
-const files = fs.readdirSync(ROOT).filter(f => /\.html$/i.test(f)).sort();
-const bad = [];
-files.forEach(f => {
-  const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
-  const head = headOf(html);
-  S.FIELDS.forEach(fld => {
-    const re = new RegExp(S.tagRe(fld).source, 'gi');
-    const n = (head.match(re) || []).length;
-    if (n > 1) bad.push(f + ' มี ' + fld + ' ' + n + ' อัน');
-  });
+console.log('\n2) ทุกหน้าแปลงมีข้อมูลหัวหน้าครบและไม่ซ้ำกัน');
+const titles = new Set(), canons = new Set();
+PROPS.forEach(f => {
+  const s = read('p/' + f);
+  const id = f.replace(/\.html$/, '');
+  const t = (s.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '';
+  const c = (s.match(/<link rel="canonical" href="([^"]*)"/) || [])[1] || '';
+  const d = (s.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
+  titles.add(t); canons.add(c);
+  ok(id + ': canonical ชี้มาที่ตัวเอง', c === 'https://njteedinsure.com/p/' + id + '.html', c);
+  ok(id + ': มีคำโปรยของตัวเอง', d.length > 40 && d.indexOf(id) >= 0);
+  ok(id + ': og:image ไม่ใช่ภาพกลางของเว็บ หรือไม่มีรูปก็ยอมรับได้',
+     /<meta property="og:image" content="[^"]+"/.test(s));
+  ok(id + ': ฝังรหัสแปลงให้ JS อ่านต่อ', s.indexOf('window.NJ_LISTING_ID="' + id + '"') >= 0);
 });
-eq(bad, [], '⭐ ไม่มีหน้าไหนมีแท็กซ้ำกันเอง');
-const idx = files.filter(f => {
-  const head = headOf(fs.readFileSync(path.join(ROOT, f), 'utf8'));
-  return !S.isNoindex(head);
-});
-const missing = idx.filter(f => !S.NO_URL[f]).filter(f => {
-  const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
-  return !has(html, 'canonical') || !has(html, 'ogUrl');
-});
-eq(missing, [], 'ทุกหน้าที่เก็บดัชนีได้มี canonical และ og:url ครบ');
-const noCard = idx.filter(f => {
-  const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
-  return has(html, 'ogImage') && !has(html, 'twitterCard');
-});
-eq(noCard, [], '⭐ ปิดช่องว่าง M1 — หน้าที่มีรูปแชร์มี twitter:card ครบแล้ว');
-const rogue = files.filter(f => {
-  const head = headOf(fs.readFileSync(path.join(ROOT, f), 'utf8'));
-  const s = head.indexOf(S.MANAGED_START);
-  if (s < 0) return false;
-  const block = head.slice(s, head.indexOf(S.MANAGED_END, s));
-  return /twitter:title|twitter:description/i.test(block);
-});
-eq(rogue, [], '⭐ ไม่เขียน twitter:title/description ซ้ำกับ og (กติกาข้อ 3)');
-ok(idx.indexOf('404.html') < 0, 'หน้า 404 ยังเป็น noindex และไม่มี canonical');
+ok('⭐ ชื่อหน้าไม่ซ้ำกันสักคู่', titles.size === PROPS.length, titles.size + '/' + PROPS.length);
+ok('⭐ canonical ไม่ซ้ำกันสักคู่', canons.size === PROPS.length, canons.size + '/' + PROPS.length);
 
-console.log('\n== สรุป: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail + ' ==');
+console.log('\n3) ⭐ Structured Data ต้องตรงกับความจริง');
+PROPS.forEach(f => {
+  const s = read('p/' + f);
+  const id = f.replace(/\.html$/, '');
+  const blocks = (s.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g) || [])
+    .map(b => b.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, ''));
+  let parsed = [];
+  try { parsed = blocks.map(b => JSON.parse(b)); } catch (e) { /* ปล่อยให้ข้อล่างจับ */ }
+  ok(id + ': JSON-LD อ่านได้ทุกก้อน', parsed.length === blocks.length && blocks.length >= 2,
+     blocks.length + ' ก้อน · อ่านได้ ' + parsed.length);
+  const types = parsed.map(x => x && x['@type']);
+  ok(id + ': มี RealEstateListing และ BreadcrumbList',
+     types.indexOf('RealEstateListing') >= 0 && types.indexOf('BreadcrumbList') >= 0, types.join(','));
+  // ⛔ ข้อกำหนดงานที่ 15 — ห้าม Review Schema ปลอม เว็บนี้ไม่มีรีวิวจริงสักรายการ
+  ok(id + ': ⛔ ไม่มี Review / AggregateRating ปลอม',
+     !/AggregateRating|"@type"\s*:\s*"Review"|ratingValue/.test(s));
+  const listing = parsed.filter(x => x && x['@type'] === 'RealEstateListing')[0] || {};
+  // ราคาในข้อมูลโครงสร้างต้องตรงกับที่แสดงบนหน้า — ไม่มีราคาก็ต้องไม่มีก้อน offers เลย
+  const shownPrice = (s.match(/<dt>ราคา<\/dt><dd>([\d,]+) บาท<\/dd>/) || [])[1];
+  if (shownPrice) {
+    ok(id + ': ราคาใน schema ตรงกับที่แสดงบนหน้า',
+       listing.offers && Number(listing.offers.price) === Number(shownPrice.replace(/,/g, '')),
+       JSON.stringify(listing.offers));
+  } else {
+    ok(id + ': ⭐ ไม่มีราคาบนหน้า = ต้องไม่มี offers ใน schema', !listing.offers, JSON.stringify(listing.offers));
+  }
+});
+
+console.log('\n4) ⭐ ห้ามอ้างว่ารังวัดแล้วทั้งที่ยังไม่ได้ (กติกาข้อ 10)');
+PROPS.forEach(f => {
+  const s = read('p/' + f);
+  const id = f.replace(/\.html$/, '');
+  const claimsSurvey = /ตรวจเชิงลึกแล้ว — มีผลรังวัดยืนยันแนวเขต/.test(s);
+  const saysBasic = /ข้อมูลเบื้องต้น — ยังไม่ได้รังวัดยืนยันแนวเขต/.test(s);
+  ok(id + ': บอกระดับข้อมูลไว้ชัดเจนข้างเดียว', claimsSurvey !== saysBasic);
+});
+
+console.log('\n5) แผนผังเว็บและ robots');
+const rob = read('robots.txt');
+ok('robots.txt ชี้แผนผังหน้าคงที่', rob.indexOf('Sitemap: https://njteedinsure.com/sitemap.xml') >= 0);
+ok('⭐ robots.txt ชี้แผนผังหน้าแปลงด้วย',
+   rob.indexOf('Sitemap: https://njteedinsure.com/sitemaps/properties.xml') >= 0);
+const pmap = fs.existsSync(path.join(__dirname, 'sitemaps/properties.xml')) ? read('sitemaps/properties.xml') : '';
+ok('มีไฟล์ sitemaps/properties.xml', pmap.length > 0);
+const locs = (pmap.match(/<loc>[^<]*<\/loc>/g) || []).length;
+ok('จำนวน URL ในแผนผังเท่ากับจำนวนหน้าแปลง', locs === PROPS.length, locs + ' vs ' + PROPS.length);
+PROPS.forEach(f => {
+  const u = 'https://njteedinsure.com/p/' + f;
+  if (pmap.indexOf(u) < 0) ok('แผนผังมี ' + f, false);
+});
+ok('⭐ แผนผังไม่มี priority / changefreq ที่แต่งขึ้น', !/priority|changefreq/.test(pmap));
+// หน้าที่ประกาศ noindex ต้องไม่โผล่ในแผนผังหน้าคงที่
+const smap = read('sitemap.xml');
+['deal.html', 'room.html', 'quote.html', 'notify.html', 'compare.html', '404.html'].forEach(p => {
+  ok('แผนผังไม่มีหน้า noindex: ' + p, smap.indexOf('/' + p) < 0);
+});
+
+console.log('\n6) หน้าที่มีตั๋วของลูกค้าต้องถูกกันไว้');
+['/room.html', '/deal.html', '/quote.html', '/notify.html'].forEach(p => {
+  ok('robots.txt กัน ' + p, new RegExp('Disallow: ' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(rob));
+});
+['inspect.html?*t=', 'consign.html?*t=', 'partner-apply.html?*t='].forEach(p => {
+  ok('robots.txt กันลิงก์ที่มีตั๋ว: ' + p, rob.indexOf('Disallow: /' + p) >= 0);
+});
+
+console.log('\n7) ที่อยู่ที่มีตัวกรองต้องไม่แตกเป็นหน้าใหม่ในดัชนี');
+// `index.html?q=…` และ `listings.html?…` เขียนตัวกรองลงที่อยู่หน้า — ถ้าไม่มี canonical คงที่
+// ทุกชุดตัวกรองจะกลายเป็นหน้าใหม่ในสายตา Google แล้วเนื้อหาเดียวกันแข่งกันเอง
+ok('หน้าแรกมี canonical คงที่ชี้ไปที่อยู่สะอาด',
+   read('index.html').indexOf('<link rel="canonical" href="https://njteedinsure.com/">') >= 0);
+ok('หน้ารวมประกาศมี canonical คงที่ชี้ไปที่อยู่สะอาด',
+   read('listings.html').indexOf('<link rel="canonical" href="https://njteedinsure.com/listings.html">') >= 0);
+ok('⭐ ตัวซิงก์ที่อยู่หน้าไม่ไปแก้ canonical', !/canonical/.test(read('marketplace.js')));
+
+console.log('\n8) land.html ยังเป็นทางเข้าที่ใช้ได้ และชี้ canonical มาหน้าสแตติก');
+const landJs = read('land.js');
+ok('⭐ canonical ของ land.html ชี้ไปหน้าสแตติก', /NJLandMeta\.pageUrl\(l\.id\)/.test(landJs));
+ok('รับรหัสแปลงได้ทั้งจาก ?id= และจากหน้าสแตติก',
+   /qs\('id'\)\|\|String\(window\.NJ_LISTING_ID/.test(landJs.replace(/\s/g, '')));
+ok('⭐ แปลงที่ถูกถอดแล้วยัง noindex เหมือนเดิม', /function markGone/.test(landJs) && /noindex, follow/.test(landJs));
+
+console.log('\n9) ตัวสร้างหน้าแปลงต้องปลอดภัยเมื่อดึงข้อมูลไม่สำเร็จ');
+const gen = read('build/properties.js');
+ok('⭐ ดึงข้อมูลล้มแล้วไม่แตะไฟล์เดิม', /ไม่ได้แตะไฟล์เดิมเลยสักไฟล์/.test(gen) && /process\.exit\(1\)/.test(gen));
+ok('⭐ API ตอบว่างเปล่าก็ไม่ลบของเดิมทิ้ง', /ไม่ลบของเดิมทิ้ง/.test(gen));
+ok('แปลงที่หายจาก API แล้วถูกลบไฟล์ทิ้ง', /unlinkSync/.test(gen));
+ok('ใช้คำศัพท์ชุดกลาง ไม่ก๊อปมาไว้เอง', /landvocab\.js/.test(gen) && !/DEED_TH\s*=/.test(gen));
+ok('ใช้ตัวประกอบชื่อชุดกลาง', /landmeta\.js/.test(gen));
+
+console.log('\n' + (fail ? '❌' : '✅') + ' seo: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

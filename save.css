@@ -1,0 +1,85 @@
+/* ปุ่มบันทึกแปลง (`save.js`) — ใช้ร่วมทุกหน้าที่มีการ์ดประกาศ
+ *
+ * ⚠️ อยู่ไฟล์เดียว ไม่แยกตามชุดสไตล์ — เหตุผลเดียวกับ `compare.css`
+ *    ปุ่มถูกแปะด้วย JS ทีหลัง หน้าที่ไม่โหลดไฟล์นี้จึงได้การ์ดหน้าตาเดิมเป๊ะ
+ * ⚠️ ค่าสีทั้งหมดมาจาก `tokens.css` ห้ามเขียนรหัสสีดิบ
+ */
+
+/* ---------- ปุ่มบนการ์ด ---------- */
+/* วางมุมซ้ายบนของรูป — มุมขวาบนเป็นที่ของปุ่ม "เทียบ" อยู่แล้ว */
+.land-card .card-media { position: relative; }
+
+.njsave-btn {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  /* 44px ตามเกณฑ์เป้ากดบนมือถือ — ปุ่มนี้อยู่บนรูปซึ่งกดพลาดง่ายอยู่แล้ว */
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--nj-radius-pill);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--nj-navy-900);
+  font-size: var(--nj-fs-xs);
+  font-weight: var(--nj-fw-semi);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--nj-shadow-sm);
+}
+.njsave-btn:hover { background: var(--nj-white); }
+.njsave-btn:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+.njsave-ico { font-size: 14px; color: var(--nj-gray-400); line-height: 1; }
+
+/* ⚠️ สถานะ "บันทึกแล้ว" ต้องต่างทั้ง **สีและข้อความ** ไม่ใช่เปลี่ยนแค่สีหัวใจ
+ *    คนตาบอดสีแยกแดง-เทาไม่ออก · ข้อความเปลี่ยนเป็น "บันทึกแล้ว" ใน save.js */
+.njsave-btn[aria-pressed="true"] { background: var(--nj-navy-900); color: var(--nj-white); }
+.njsave-btn[aria-pressed="true"] .njsave-ico { color: var(--nj-gold-500); }
+
+/* ---------- ข้อความชั่วคราว ---------- */
+.njsv-flash {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%) translateY(8px);
+  z-index: var(--nj-z-consent);
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 12px 18px;
+  background: var(--nj-navy-900);
+  color: var(--nj-white);
+  font-size: var(--nj-fs-sm);
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: var(--nj-shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--nj-dur) var(--nj-ease), transform var(--nj-dur) var(--nj-ease), visibility 0s linear var(--nj-dur);
+}
+.njsv-flash.on {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%);
+  transition: opacity var(--nj-dur) var(--nj-ease), transform var(--nj-dur) var(--nj-ease), visibility 0s linear 0s;
+}
+
+/* ---------- ปุ่มบันทึกในหน้ารายละเอียดแปลง ---------- */
+/* ที่นั่นปุ่มอยู่ในแถวเดียวกับปุ่มติดต่อ จึงเป็นปุ่มเต็มใบ ไม่ใช่ป้ายลอยบนรูป */
+.ld-actions .njsave-btn,
+.njsave-btn.njsave-wide {
+  position: static;
+  border: 1px solid var(--nj-gray-300);
+  border-radius: var(--nj-radius-0);
+  background: var(--nj-white);
+  padding: 0 var(--nj-space-4);
+  font-size: var(--nj-fs-sm);
+  box-shadow: none;
+}
+.njsave-btn.njsave-wide[aria-pressed="true"] { background: var(--nj-navy-900); color: var(--nj-white); border-color: var(--nj-navy-900); }
+
+@media (max-width: 640px) {
+  .njsv-flash { bottom: 150px; }   /* พ้นแถบเมนูล่างและแถบติดต่อแบบติดหนึบ */
+}

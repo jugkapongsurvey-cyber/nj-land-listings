@@ -10,7 +10,10 @@
   var card = NJL.card;   // ตัวเรนเดอร์การ์ดตัวเดียวกับหน้ารวมประกาศ
 
   var state={listings:[],loaded:false,query:'',price:'all',type:'all',page:1};
-  var PAGE_SIZE=9;   // หน้าแรกโชว์หน้าละ 9 แปลง (3×3) ที่เหลือไปหน้าถัดไป
+  // ⚠️ **6 ใบ ไม่ใช่ 9** (เจ้าของสั่งใหม่ 19 ก.ย. 2569 · งานที่ 6 ข้อ 5 "ทรัพย์แนะนำ 6 รายการ")
+  // ของเดิมเป็น 9 ตามคำสั่งเมื่อ 13 ก.ย. — คำสั่งใหม่กว่าจึงทับของเดิม
+  // หน้าแรกเป็นหน้า "แนะนำ" ไม่ใช่หน้าไล่ดูของ · คนที่อยากดูครบมีปุ่มไปหน้ารวมประกาศ
+  var PAGE_SIZE=6;
 
   function filtered(){
     return state.listings.filter(function(item){
@@ -73,12 +76,100 @@
     document.getElementById('listings').scrollIntoView({behavior:'smooth'});
   });
 
+  // ---------- ที่อยู่หน้าเว็บสะท้อนสิ่งที่ผู้ใช้เลือก (งานที่ 4) ----------
+  //
+  // ⚠️ ของเดิมค้นหา/กรองแล้ว URL ไม่เปลี่ยนเลย → แชร์ผลการค้นหาไม่ได้ และกดปุ่มย้อนกลับ
+  //    ก็ไม่คืนตัวกรองให้ (รายงานตรวจ FUNCTIONAL ข้อ 2.1)
+  // ⚠️ ใช้ replaceState ตอนโหลดครั้งแรก และ pushState เฉพาะตอนผู้ใช้สั่งเอง
+  //    ไม่งั้นประวัติจะเต็มไปด้วยรายการที่ผู้ใช้ไม่ได้กด แล้วกดย้อนกลับทีละสิบครั้งถึงจะออกจากหน้า
+  function urlOf(){
+    var p=[];
+    if(state.query) p.push('q='+encodeURIComponent(state.query));
+    if(state.type!=='all') p.push('type='+encodeURIComponent(state.type));
+    if(state.price!=='all') p.push('price='+encodeURIComponent(state.price));
+    return location.pathname+(p.length?'?'+p.join('&'):'')+'#listings';
+  }
+  function syncUrl(push){
+    if(!window.history||!history.pushState)return;
+    var snap={q:state.query,type:state.type,price:state.price};
+    try{ push ? history.pushState(snap,'',urlOf()) : history.replaceState(snap,'',urlOf()); }
+    catch(e){ /* บางเบราว์เซอร์ในเว็บวิวห้ามแก้ที่อยู่ — ค้นหายังทำงานได้ตามปกติ */ }
+  }
+  // อ่านค่าจากที่อยู่หน้าเว็บ — รับเฉพาะค่าที่ช่องนั้นมีจริง ห้ามเชื่อค่าจาก URL ตรงๆ
+  function readUrl(){
+    var u=new URLSearchParams(location.search);
+    var q=(u.get('q')||'').slice(0,80);
+    var t=u.get('type'), pr=u.get('price');
+    state.query=q;
+    state.type=(t==='sell'||t==='rent')?t:'all';
+    var priceEl=document.getElementById('price-filter');
+    var allowed=Array.prototype.map.call(priceEl.options,function(o){return o.value;});
+    state.price=(pr&&allowed.indexOf(pr)>-1)?pr:'all';
+    state.page=1;
+    paintControls();
+  }
+  // เขียนสถานะกลับลงช่องกรอก เพื่อให้หน้าจอตรงกับ URL เสมอ
+  function paintControls(){
+    document.getElementById('search-input').value=state.query;
+    document.getElementById('type-filter').value=state.type;
+    document.getElementById('price-filter').value=state.price;
+    document.querySelectorAll('[data-purpose]').forEach(function(x){
+      x.classList.toggle('selected',x.dataset.purpose===state.type);
+    });
+  }
+  // ⚠️ ย้อนกลับมาที่ "ไม่มีตัวกรอง" ต้องเก็บข้อความสรุปผลเดิมทิ้งด้วย
+  //    ไม่งั้นการ์ดกลับเป็น 6 ใบแล้วแต่บรรทัดบนยังเขียนว่า "ผลการค้นหา … พบ 5 รายการ"
+  //    ซึ่งอ่านแล้วขัดกับสิ่งที่เห็นตรงหน้า (เจอจริงตอนทดสอบปุ่มย้อนกลับ)
+  function noteFor(){
+    if(state.query) return 'ผลการค้นหา “'+state.query+'”';
+    if(state.type!=='all'||state.price!=='all') return 'ผลการกรอง';
+    return '';
+  }
+  window.addEventListener('popstate',function(){
+    readUrl();
+    var m=noteFor();
+    if(m){ render(m); }
+    else {
+      var note=document.getElementById('result-note');
+      if(note){ note.hidden=true; note.textContent=''; }
+      render();
+    }
+  });
+
+  // ---------- รายชื่อทำเลสำหรับช่องเติมคำอัตโนมัติ ----------
+  // ⚠️ **สร้างจากแปลงที่มีอยู่จริงเท่านั้น ไม่ใช่รายชื่อ 77 จังหวัด**
+  //    เลือกทำเลที่ไม่มีของแล้วเจอผลว่างเปล่าจะดูเหมือนเว็บพัง (กติกาเดียวกับ listings.js)
+  function fillLocations(list){
+    var box=document.getElementById('nj-locations');
+    if(!box)return;
+    var seen={};
+    list.forEach(function(it){
+      var d=it.land||{};
+      [d.province,d.amphoe,d.tambon].forEach(function(v){
+        v=(v||'').trim();
+        if(v&&!seen[v])seen[v]=true;
+      });
+    });
+    var names=Object.keys(seen).sort();
+    var frag=document.createDocumentFragment();
+    names.forEach(function(n){
+      var o=document.createElement('option');
+      o.value=n;                 // ชื่อมาจากข้อมูล ใส่ผ่าน .value ไม่ใช่ต่อเป็นสตริง HTML
+      frag.appendChild(o);
+    });
+    box.innerHTML='';
+    box.appendChild(frag);
+  }
+
   function load(){
     NJL.fetchListings()
       .then(function(list){
         state.listings=list;
         state.loaded=true;
-        render();
+        fillLocations(list);
+        readUrl();               // เปิดลิงก์ที่มีตัวกรองติดมา ต้องได้ผลเดิม
+        syncUrl(false);
+        render(noteFor());
       })
       .catch(function(){
         // โหลดไม่ได้ ≠ ไม่มีแปลง — ต้องบอกตามจริงและให้ช่องทางติดต่อ ไม่ใช่แสดงว่าว่างเปล่า
@@ -93,6 +184,7 @@
       btn.classList.add('selected');
       state.type=btn.dataset.purpose;
       document.getElementById('type-filter').value=state.type;
+      syncUrl(true);
       render(state.type==='rent'?'ที่ดินให้เช่า':'ที่ดินขาย');
     });
   });
@@ -102,9 +194,13 @@
     state.query=document.getElementById('search-input').value.trim();
     state.price=document.getElementById('price-filter').value;
     state.type=document.getElementById('type-filter').value;
+    state.page=1;
+    syncUrl(true);
     render(state.query?'ผลการค้นหา “'+state.query+'”':'ผลการค้นหาทั้งหมด');
     document.getElementById('listings').scrollIntoView({behavior:'smooth'});
     if(window.njTrack)window.njTrack('Search',{search_string:state.query});
+    // สถิติภายใน — นับว่ามีคนใช้ช่องค้นหาบนหน้าแรกกี่ครั้ง (ไม่ส่งคำค้น ไม่มี PII)
+    if(window.njTrackInternal)njTrackInternal('homepage_search');
   });
 
   // ปุ่มค้นหาด่วน — ทุกปุ่มกรองจริงจากข้อมูลที่มี ไม่ใช่ขึ้นข้อความเฉยๆ
@@ -118,6 +214,7 @@
       else { state.type='all'; state.price='all'; }
       document.getElementById('type-filter').value=state.type;
       document.getElementById('price-filter').value=state.price;
+      syncUrl(true);
       render(link.querySelector('b').textContent);
     });
   });

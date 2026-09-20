@@ -27,18 +27,28 @@
   // ⚠️ ต้องตรงกับ VERIFY_LEVELS ใน nj-survey-system/lib/landverify.js เป๊ะ ทั้งคีย์และลำดับ
   // ไม่ตรง = บันไดบนเว็บกับที่พนักงานกรอก คนละเรื่องกันโดยไม่มี error ให้เห็น
   // (contracts.test.js เทียบสองฝั่งให้แล้ว)
+  // ⚠️ **`th` คือชื่อสั้นที่ผู้ซื้อเห็น · `hint` คือคำอธิบายเต็มของระดับนั้น**
+  //    ชื่อสั้นถูกเปลี่ยนเมื่อ 20 ก.ย. 2569 ตามที่เจ้าของตัดสิน (งานที่ 7)
+  //    **คีย์ในฐานข้อมูลไม่เปลี่ยน** จึงไม่มี migration และแปลงเดิมไม่กระทบเลย
+  //    คำอธิบายเต็มของเดิมถูกย้ายไปเป็น `hint` ไม่ได้ถูกลบทิ้ง
+  //
+  // ⚠️ ลำดับในอาร์เรย์นี้คือลำดับบนบันได ห้ามสลับ ห้ามแทรกกลาง
+  //    `reached` ที่เซิร์ฟเวอร์ส่งมาคือ "ผ่านติดต่อกันจากระดับ 1" ดังนั้น
+  //    ชื่อของระดับที่ถึงแล้ว = LEVELS[reached - 1] เสมอ (ป้ายบนการ์ดใช้ข้อนี้)
   var LEVELS = [
-    { k: 'owner',    th: 'ยืนยันผู้มีสิทธิ์ประกาศ',
+    { k: 'owner',    th: 'ข้อมูลจากเจ้าของ',
       hint: 'ตรวจว่าคนที่ประกาศขายคือเจ้าของหรือผู้มีสิทธิ์จริง' },
-    { k: 'document', th: 'ตรวจข้อมูลเอกสารเบื้องต้น',
+    { k: 'document', th: 'ตรวจเอกสารเบื้องต้น',
       hint: 'อ่านเอกสารสิทธิ์ที่เจ้าของแสดง เทียบกับข้อมูลที่ประกาศ' },
-    { k: 'site',     th: 'ลงพื้นที่ตรวจตำแหน่งและสภาพแปลง',
+    { k: 'site',     th: 'ลงพื้นที่ตรวจสอบ',
       hint: 'ทีมงานไปถึงแปลงจริง ดูตำแหน่ง ทางเข้าออก และสภาพพื้นที่' },
-    { k: 'survey',   th: 'มีรายงานรังวัดหรือข้อมูลแนวเขตล่าสุด',
+    { k: 'survey',   th: 'รังวัดยืนยันแนวเขต',
       hint: 'มีผลรังวัดหรือข้อมูลแนวเขตจากงานรังวัดจริงประกอบ' },
-    { k: 'transfer', th: 'ข้อมูลและเอกสารพร้อมเข้าสู่ขั้นตอนซื้อขาย',
-      hint: 'เอกสารสำคัญครบพอที่จะเริ่มขั้นตอนโอนได้' }
+    { k: 'transfer', th: 'พร้อมรายงานตรวจสอบ',
+      hint: 'เอกสารสำคัญครบพอที่จะเริ่มขั้นตอนโอนได้ และมีรายงานให้ผู้ซื้ออ่าน' }
   ];
+  // ชื่อที่แสดงจริง = "ระดับ n · ชื่อสั้น" — เลขระดับช่วยให้ผู้ซื้อเทียบข้ามแปลงได้ทันที
+  function levelName(i) { return 'ระดับ ' + (i + 1) + ' · ' + LEVELS[i].th; }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -106,7 +116,7 @@
     return '<details class="njv-row ' + st.cls + '"' + (st.cls === 'issue' ? ' open' : '') + '>' +
       '<summary>' +
         '<span class="njv-ico" aria-hidden="true">' + st.ico + '</span>' +
-        '<span class="njv-t"><b>' + esc(def.th) + '</b>' +
+        '<span class="njv-t"><b>' + esc(def.name || def.th) + '</b>' +
           '<em>' + esc(st.label) + (meta.length ? ' · ' + esc(meta.join(' · ')) : '') + '</em>' +
         '</span>' +
         (hasBody ? '<span class="njv-more" aria-hidden="true">รายละเอียด</span>' : '') +
@@ -128,7 +138,9 @@
     if (!v || !v.levels || !v.levels.length) return '';
     var byKey = {};
     v.levels.forEach(function (l) { byKey[l.key] = l; });
-    var rows = LEVELS.map(function (def) { return rowHtml(def, byKey[def.k]); }).join('');
+    var rows = LEVELS.map(function (def, i) {
+      return rowHtml({ k: def.k, th: def.th, hint: def.hint, name: levelName(i) }, byKey[def.k]);
+    }).join('');
     var issues = v.levels.filter(function (l) { return l.status === 'issue'; }).length;
     var stale = v.levels.filter(function (l) { return l.expired; }).length;
 
@@ -157,9 +169,29 @@
      และแปลงที่ทีมยังไม่ได้ไล่กรอกจะดูเหมือนถูกตัดสินไปแล้วทั้งที่ยังไม่มีใครไปตรวจ */
   function badgeHtml(v) {
     if (!v || !v.total || !v.reached) return '';
-    return '<span class="njv-badge" title="ผ่านการตรวจสอบ ' + v.reached + ' จาก ' + v.total + ' ระดับ">' +
-      '<b>' + v.reached + '/' + v.total + '</b> ระดับตรวจสอบ</span>';
+    // ⚠️ บอก "ชื่อของระดับที่ถึงแล้ว" ไม่ใช่แค่เศษส่วน — "3/5" ไม่ได้บอกผู้ซื้อว่าตรวจอะไรไปแล้ว
+    //    ซึ่งเป็นคำถามเดียวที่เขาอยากรู้ตอนกวาดสายตาดูการ์ดหลายใบ
+    var i = Math.min(Math.max(Number(v.reached) - 1, 0), LEVELS.length - 1);
+    var name = LEVELS[i] ? LEVELS[i].th : '';
+    return '<span class="njv-badge" title="ผ่านการตรวจสอบ ' + v.reached + ' จาก ' + v.total + ' ระดับ — ระดับล่าสุดคือ ' + esc(name) + '">' +
+      '<b>ระดับ ' + v.reached + '/' + v.total + '</b> ' + esc(name) + '</span>';
   }
 
-  w.NJVerified = { LEVELS: LEVELS, ladderHtml: ladderHtml, badgeHtml: badgeHtml, stateOf: stateOf, thaiDate: thaiDate };
+  // ---------- นับตอนผู้ใช้กางดูบันไดการตรวจสอบ (งานที่ 16) ----------
+  //
+  // ⚠️ นับครั้งเดียวต่อหนึ่งการเปิดหน้า ไม่ใช่ทุกครั้งที่กางหุบ — บันไดมี 5 แถว
+  //    ถ้านับทุกแถว คนที่สนใจมากจะถูกนับ 5 ครั้ง แล้วตัวเลขอ่านไม่ได้ว่ามีกี่คน
+  // ⚠️ ผูกที่ document ด้วย event delegation — บันไดถูกวาดหลังโหลดข้อมูลเสร็จ
+  var ladderCounted = false;
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('toggle', function (e) {
+      if (ladderCounted) return;
+      var d = e.target;
+      if (!d || !d.classList || !d.classList.contains('njv-row') || !d.open) return;
+      ladderCounted = true;
+      if (w.njTrackInternal) w.njTrackInternal('view_survey_level');
+    }, true);   // เฟส capture — เหตุการณ์ toggle ไม่ bubble
+  }
+
+  w.NJVerified = { LEVELS: LEVELS, levelName: levelName, ladderHtml: ladderHtml, badgeHtml: badgeHtml, stateOf: stateOf, thaiDate: thaiDate };
 })(window, document);

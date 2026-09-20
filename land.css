@@ -97,7 +97,7 @@
 /* ---------- เนื้อหา ---------- */
 .ld-body{padding:22px 0 0;max-width:760px}
 .ld-price{
-  font-family:Manrope,sans-serif;font-size:clamp(26px,5.4vw,34px);font-weight:800;
+  font-family:var(--nj-font);font-size:clamp(26px,5.4vw,34px);font-weight:800;
   color:var(--navy);line-height:1.15;
 }
 .ld-price small{
@@ -116,7 +116,7 @@
 .ld-code-label{font-size:12px;letter-spacing:.05em;color:#9DBBE0}
 .ld-code-val{
   font-size:26px;font-weight:800;letter-spacing:.06em;
-  font-family:Manrope,ui-monospace,system-ui,sans-serif;
+  font-family:var(--nj-font);
 }
 .ld-code-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .ld-code-btn{
@@ -159,7 +159,7 @@
 .ld-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 @media(min-width:640px){.ld-facts{grid-template-columns:repeat(3,1fr)}}
 .ld-fact{background:var(--mist);border-radius:11px;padding:13px 15px}
-.ld-fact b{display:block;font-family:Manrope,sans-serif;font-size:16px;color:var(--ink);line-height:1.35}
+.ld-fact b{display:block;font-family:var(--nj-font);font-size:16px;color:var(--ink);line-height:1.35}
 .ld-fact span{font-size:11px;color:#8798A9}
 
 /* ---------- แผนที่โดยประมาณ ---------- */
@@ -193,7 +193,7 @@
 .ld-nb-g li{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13px}
 .ld-nb-g li span{color:var(--ink);min-width:0;overflow-wrap:anywhere}
 .ld-nb-g li b{
-  flex:none;font-family:Manrope,sans-serif;font-size:12.5px;font-weight:700;color:var(--green);
+  flex:none;font-family:var(--nj-font);font-size:12.5px;font-weight:700;color:var(--green);
 }
 .ld-nb-foot{
   font-size:11.5px;line-height:1.8;color:#8798A9;margin:12px 0 0;
@@ -232,10 +232,19 @@
 .ld-crow b{display:block;font-size:13.5px;line-height:1.55;color:var(--ink)}
 .ld-crow span{display:block;font-size:12px;color:var(--sub);line-height:1.7;margin-top:1px}
 .ld-val{
-  flex:none;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;
+  flex:none;font-family:var(--nj-font);font-size:13px;font-weight:700;
   color:var(--ink);white-space:nowrap;margin-top:2px;
 }
-.ld-crow .ld-val{display:block;margin-top:2px}
+/* ⚠️ ค่าที่อยู่ในแถวของตัวเองต้องตัดบรรทัดได้ — `.ld-val` ตั้ง `white-space:nowrap` ไว้
+   ซึ่งถูกสำหรับค่าสั้นๆ (วันที่ · "โฉนด") แต่ช่องนี้รับข้อความอิสระด้วย เช่นชื่อโครงการ
+   ปล่อย nowrap ไว้ = **ทั้งหน้าเลื่อนแนวนอนได้ที่จอ 375px** (วัดจริงแล้วล้น 91px) */
+/* ⚠️ ต้องมี `flex:0 1 auto` + `min-width:0` ด้วย ไม่ใช่แค่ปลด nowrap
+   `.ld-val` ตั้ง `flex:none` ไว้ ซึ่งแปลว่ากว้างเท่าเนื้อหาเสมอ ต่อให้ตัดบรรทัดได้ก็ไม่ยอมแคบลง */
+.ld-crow .ld-val{
+  display:block;margin-top:2px;
+  white-space:normal;overflow-wrap:anywhere;
+  flex:0 1 auto;min-width:0;text-align:right;
+}
 
 .ld-tier-foot{
   font-size:11.5px;line-height:1.8;margin:14px 0 0;padding-top:12px;
@@ -325,3 +334,148 @@
 @media print{
   .njv,.njh,.njp{break-inside:avoid}
 }
+
+/* =====================================================================
+ * Sprint 3 — Breadcrumb · รายละเอียดเต็ม · เครื่องมือผู้ซื้อ · แถบติดหนึบ · แปลงใกล้เคียง
+ * (2026-09-20 · งานที่ 8) · ค่าสีทั้งหมดมาจาก tokens.css
+ * ===================================================================== */
+
+/* ---------- เส้นทางนำทาง ---------- */
+.ld-crumbs { margin: 0 0 var(--nj-space-3); font-size: var(--nj-fs-xs); color: var(--nj-text-muted); }
+.ld-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 0; padding: 0; list-style: none; }
+.ld-crumbs li + li::before { content: "›"; margin-right: 6px; opacity: 0.55; }
+.ld-crumbs a { color: var(--nj-navy-600); text-decoration: underline; text-underline-offset: 3px; }
+.ld-crumbs a:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+.ld-crumbs [aria-current="page"] { color: var(--nj-text-strong); font-weight: var(--nj-fw-semi); }
+
+/* ---------- รายละเอียดเต็ม (ย้ายมาจาก H1) ---------- */
+.ld-desc { margin: var(--nj-space-5) 0; }
+.ld-desc h2 { margin: 0 0 var(--nj-space-2); font-size: var(--nj-fs-h4); color: var(--nj-text-strong); }
+.ld-desc p {
+  margin: 0;
+  max-width: var(--nj-measure);      /* 65–75 ตัวอักษรต่อบรรทัด */
+  font-size: var(--nj-fs-body);
+  line-height: var(--nj-lh-body);
+  color: var(--nj-text);
+  white-space: pre-line;             /* เจ้าของบางรายขึ้นบรรทัดใหม่เอง ต้องคงไว้ */
+}
+
+/* ---------- แถวเครื่องมือของผู้ซื้อ ---------- */
+.ld-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nj-space-2);
+  margin: var(--nj-space-4) 0;
+}
+.ld-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;                  /* เกณฑ์เป้ากดบนมือถือ */
+  padding: 0 var(--nj-space-4);
+  border: 1px solid var(--nj-gray-300);
+  background: var(--nj-white);
+  color: var(--nj-navy-900);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-medium);
+  cursor: pointer;
+  text-decoration: none;
+}
+.ld-tool:hover { border-color: var(--nj-navy-900); }
+.ld-tool:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+/* ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ---------- */
+.ld-rel { margin: var(--nj-space-7) 0 0; padding-top: var(--nj-space-6); border-top: 1px solid var(--nj-border); }
+.ld-rel h2 { margin: 0 0 var(--nj-space-4); font-size: var(--nj-fs-h3); color: var(--nj-text-strong); }
+.ld-rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--nj-space-4); }
+.ld-rel-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-top: var(--nj-space-3);
+  color: var(--nj-navy-600);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-semi);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- แถบติดต่อแบบติดหนึบ (มือถือเท่านั้น) ---------- */
+/* ⚠️ ซ่อนบนเดสก์ท็อป — ที่นั่นปุ่มติดต่อเห็นอยู่แล้วโดยไม่ต้องมีแถบลอยมาบังเนื้อหา */
+.ld-sticky { display: none; }
+
+@media (max-width: 900px) {
+  .ld-rel-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .ld-rel-grid { grid-template-columns: 1fr; }
+  .ld-tools > * { flex: 1 1 100%; justify-content: center; }
+
+  /* ⚠️ z-index ต้องต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (950)
+   *    แถบนี้เป็นเรื่องการขาย ส่วนแบนเนอร์คุกกี้เป็นเรื่องกฎหมาย — บังกันไม่ได้
+   * ⚠️ ยกตัวเองให้พ้นแถบเมนูล่าง 5 ปุ่มที่มีอยู่แล้วบนหน้านี้ */
+  .ld-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* ⚠️ ต้องบวกความสูงแบนเนอร์คุกกี้ด้วย — แบนเนอร์อยู่ z-index 900 ทับแถบนี้ (150) เต็มๆ
+     ค่าตัวแปรถูกตั้งโดย measureConsent() ใน analytics.js · ไม่มีแบนเนอร์ = 0px */
+  bottom: calc(69px + var(--nj-consent-h, 0px));
+    z-index: var(--nj-z-sticky);
+    display: flex;
+    align-items: center;
+    gap: var(--nj-space-2);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--nj-navy-900);
+    box-shadow: 0 -6px 20px rgba(11, 31, 58, 0.22);
+  }
+  .ld-sticky-code {
+    flex: 0 0 auto;
+    font-size: var(--nj-fs-xs);
+    color: var(--nj-gold-500);
+    font-weight: var(--nj-fw-semi);
+  }
+  .ld-sticky-btn {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    font-size: var(--nj-fs-sm);
+    font-weight: var(--nj-fw-semi);
+    text-decoration: none;
+  }
+  .ld-sticky-btn.line { background: var(--nj-gold-500); color: var(--nj-navy-900); }
+  .ld-sticky-btn.tel { border: 1px solid rgba(255, 255, 255, 0.55); color: var(--nj-white); }
+  .ld-sticky-btn:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+  /* เว้นที่ท้ายหน้าให้แถบลอยไม่ทับเนื้อหาบรรทัดสุดท้าย */
+  body { padding-bottom: 130px; }
+}
+
+/* ตอนสั่งพิมพ์ไม่ต้องมีแถบลอยและเครื่องมือบนหน้าจอ */
+@media print {
+  .ld-sticky, .ld-tools, .ld-rel { display: none !important; }
+}
+
+/* ---------------------------------------------------------------------------
+   เนื้อหาที่ฝังไว้ใน HTML ต้นทางของหน้าสแตติก p/<รหัส>.html (Sprint 5 · งานที่ 15)
+
+   ⚠️ กล่องนี้ถูก `land.js` เขียนทับทั้งก้อนทันทีที่ข้อมูลสดโหลดเสร็จ
+      สไตล์จึงต้องทำให้ "จังหวะแรกก่อน JS ทำงาน" อ่านออกและไม่กระโดด ไม่ต้องสวยเท่าของจริง
+   ⚠️ รูปมี width/height กำกับ เพื่อให้เบราว์เซอร์จองที่ไว้ก่อน — กัน layout shift
+--------------------------------------------------------------------------- */
+.ldp{max-width:var(--nj-measure);margin:0 auto}
+.ldp-photo{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:var(--nj-radius-md);background:var(--nj-gray-100)}
+.ldp-title{margin:var(--nj-space-5) 0 var(--nj-space-3);font-size:var(--nj-fs-h2);line-height:var(--nj-lh-tight);color:var(--nj-text-strong)}
+.ldp-blurb{margin:0 0 var(--nj-space-4);color:var(--nj-text);line-height:var(--nj-lh-body)}
+.ldp-rows{margin:0 0 var(--nj-space-5);padding:0}
+.ldp-row{display:flex;gap:var(--nj-space-4);padding:var(--nj-space-2) 0;border-top:1px solid var(--nj-border)}
+.ldp-row dt{flex:0 0 40%;margin:0;color:var(--nj-text-muted);font-size:var(--nj-fs-sm)}
+.ldp-row dd{flex:1 1 auto;margin:0;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.ldp-h2{margin:var(--nj-space-5) 0 var(--nj-space-2);font-size:var(--nj-fs-h3);color:var(--nj-text-strong)}
+.ldp-desc{margin:0 0 var(--nj-space-4);line-height:var(--nj-lh-body);overflow-wrap:anywhere}
+.ldp-note{margin:0 0 var(--nj-space-3);color:var(--nj-text-muted);font-size:var(--nj-fs-sm)}
+.ldp-alt{margin:0;font-size:var(--nj-fs-sm)}

@@ -51,6 +51,7 @@
       floors: $('f-floors').value,
       zone: $('f-zone').value,
       feats: FEATURES.filter(function (k) { var el = $('f-feat-' + k); return el && el.checked; }),
+      saved: !!($('f-saved') && $('f-saved').checked),
       sort: $('f-sort').value
     };
   }
@@ -67,6 +68,9 @@
           .filter(Boolean).join(' ').toLowerCase();
         if (hay.indexOf(f.q) < 0) return false;
       }
+      // ⚠️ "เฉพาะที่บันทึกไว้" ไม่ใช่ช่องข้อมูลของแปลง จึง **ไม่นับเป็น hiddenUnknown**
+      //    แปลงที่ไม่ได้บันทึกไม่ได้แปลว่า "ยังไม่ได้ระบุ" — มันแค่ไม่ถูกเลือก
+      if (f.saved && !(window.NJSave && NJSave.has(item.id))) return false;
       if (f.type !== 'all' && item.type !== f.type) return false;
 
       // ราคา — แปลงที่ยังไม่ระบุราคา (estValue 0 = "ติดต่อสอบถาม") ตกรอบเมื่อกรองช่วงราคา
@@ -201,6 +205,8 @@
       });
   }
 
+  function savedBoxRef(){ return $('f-saved'); }
+
   buildControls();
 
   $('ls-form').addEventListener('submit', function (e) {
@@ -210,16 +216,68 @@
     if (window.njTrack) window.njTrack('Search', { search_string: f.q, content_category: f.province });
   });
   // ช่องเลือก (ไม่ใช่ช่องพิมพ์) กรองทันทีที่เปลี่ยน — ไม่ต้องกดค้นหาซ้ำ
+  // ⚠️ นับ "มีคนใช้ตัวกรอง" ครั้งเดียวต่อการเปลี่ยนหนึ่งครั้ง และหน่วงไว้ก่อน
+  //    ไม่หน่วง = คนเลื่อนดรอปดาวน์ผ่านหลายตัวเลือกกลายเป็นสิบครั้งใน 2 วินาที
+  var filterTimer = 0;
+  function trackFilter() {
+    if (!window.njTrackInternal) return;
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(function () { njTrackInternal('filter_property'); }, 900);
+  }
   ['f-type', 'f-province', 'f-deed', 'f-zone', 'f-sort', 'f-prop', 'f-floors'].forEach(function (id) {
-    $(id).addEventListener('change', render);
+    $(id).addEventListener('change', function () { render(); trackFilter(); });
   });
-  $('f-features').addEventListener('change', render);
+  $('f-features').addEventListener('change', function () { render(); trackFilter(); });
   $('f-reset').addEventListener('click', function () {
     $('ls-form').reset();
+    if (savedBoxRef()) savedBoxRef().checked = false;
     buildControls();
     fillProvinces();
     render();
   });
+
+  // ---------- ตัวกรอง "เฉพาะที่บันทึกไว้" ----------
+  var savedBox = $('f-saved');
+  function paintSavedCount() {
+    var el = $('f-saved-n');
+    if (!el || !window.NJSave) return;
+    var n = NJSave.count();
+    var txt = n ? '(' + n + ')' : '';
+    if (el.textContent !== txt) el.textContent = txt;   // เทียบก่อนเขียน (กับดัก MutationObserver)
+  }
+  if (savedBox) savedBox.addEventListener('change', render);
+  if (window.NJSave) {
+    paintSavedCount();
+    // กดบันทึก/เอาออกจากการ์ด แล้วตัวเลขกับผลกรองต้องตามทันที
+    NJSave.onChange(function () {
+      paintSavedCount();
+      if (savedBox && savedBox.checked) render();
+    });
+  }
+
+  // ---------- แผงตัวกรองแบบ Bottom Sheet บนจอเล็ก (งานที่ 4) ----------
+  //
+  // ⚠️ **ซ่อนแผงด้วยคลาสที่ JS เป็นคนใส่ (`ls-js`) ไม่ใช่ซ่อนไว้ใน CSS ตั้งแต่แรก**
+  //    ไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ ต้องเหลือแผงตัวกรองที่กางอยู่ใช้งานได้ตามปกติ
+  //    ไม่ใช่แผงที่ถูกซ่อนแล้วไม่มีปุ่มไหนเปิดได้เลย (กติกาเดียวกับ njintro.js)
+  (function () {
+    var form = $('ls-form'), openBtn = $('ls-open'), closeBtn = $('ls-close');
+    if (!form || !openBtn) return;
+    document.body.classList.add('ls-js');
+    function set(on) {
+      document.documentElement.classList.toggle('ls-sheet-open', on);
+      openBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+      if (on) { var f = form.querySelector('input,select,button'); if (f) f.focus(); }
+      else openBtn.focus();
+    }
+    openBtn.addEventListener('click', function () { set(true); });
+    if (closeBtn) closeBtn.addEventListener('click', function () { set(false); });
+    // กดค้นหาบนมือถือ = ปิดแผงแล้วดูผลทันที — ไม่งั้นแผงบังผลที่เพิ่งกรอง
+    form.addEventListener('submit', function () { set(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && document.documentElement.classList.contains('ls-sheet-open')) set(false);
+    });
+  })();
 
   NJL.bindGrid($('listing-grid'), 'listings_page');
   $('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.

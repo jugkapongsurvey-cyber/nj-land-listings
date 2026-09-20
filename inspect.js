@@ -57,7 +57,7 @@
     // วันที่เลือกได้เริ่มจากพรุ่งนี้ — วันนี้ทีมจัดคิวไม่ทันอยู่แล้ว
     var tmr = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 
-    return '<form id="ins-form" class="ins-form" novalidate>' +
+    return '<form id="ins-form" class="ins-form" novalidate data-njform>' +
       '<div class="ins-step"><span class="ins-n">1</span><h2>แปลงที่สนใจ</h2></div>' +
       (listingId
         ? '<p class="ins-lock">รหัสทรัพย์ <b>' + esc(listingId) + '</b> — ระบบกรอกให้จากหน้าประกาศที่คุณกดมา' +
@@ -171,6 +171,9 @@
     var msg = d.getElementById('ins-msg');
     var pdpa = d.getElementById('ins-pdpa');
 
+    // จัดรูปเบอร์โทรให้อ่านง่ายขณะพิมพ์ + เตรียมช่องข้อความผิดพลาดรายช่อง
+    var errs = window.NJForm ? NJForm.attach(form) : null;
+
     function refresh() { send.disabled = !pdpa.checked; }
     pdpa.addEventListener('change', refresh);
     refresh();
@@ -178,9 +181,18 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var b = collect(form);
-      if (!b.name) { msg.textContent = 'กรุณากรอกชื่อผู้ติดต่อ'; msg.className = 'ins-msg err'; form.elements.name.focus(); return; }
-      if (b.phone.replace(/\D/g, '').length < 9) { msg.textContent = 'เบอร์โทรไม่ถูกต้อง'; msg.className = 'ins-msg err'; form.elements.phone.focus(); return; }
-      if (!b.pdpaAt) { msg.textContent = 'กรุณาติ๊กยินยอมก่อนส่งคำขอ'; msg.className = 'ins-msg err'; return; }
+      function bad(field, text) {
+        msg.textContent = text; msg.className = 'ins-msg err';
+        if (errs) { errs.clear(); errs.set(field, text); errs.focusFirst(); }
+        else if (form.elements[field]) form.elements[field].focus();
+      }
+      if (!b.name) { bad('name', 'กรุณากรอกชื่อผู้ติดต่อ'); return; }
+      if (b.phone.replace(/\D/g, '').length < 9) { bad('phone', 'เบอร์โทรไม่ถูกต้อง'); return; }
+      if (!b.pdpaAt) { bad('pdpa', 'กรุณาติ๊กยินยอมก่อนส่งคำขอ'); return; }
+      if (errs) errs.clear();
+
+      // ที่มาของลีด — ไม่มีข้อมูลส่วนบุคคลอยู่ในนี้ (ดูคำเตือนหัวไฟล์ attrib.js)
+      if (window.NJAttrib) b.attrib = NJAttrib.value();
 
       send.disabled = true;
       send.textContent = 'กำลังส่ง...';

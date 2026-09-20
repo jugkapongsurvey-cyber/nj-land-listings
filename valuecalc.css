@@ -55,7 +55,7 @@
   display:flex;align-items:baseline;gap:9px;
   padding:11px 14px;border-radius:11px;margin-bottom:14px;
 }
-.vc-badge b{font-family:Manrope,system-ui,sans-serif;font-size:19px;font-weight:800}
+.vc-badge b{font-family:var(--nj-font);font-size:19px;font-weight:800}
 .vc-badge span{font-size:12.5px;font-weight:600}
 .vc-badge-up{background:#ECFDF5;color:#0B7A43}
 .vc-badge-up b{color:#0B7A43}
@@ -86,7 +86,7 @@
 }
 .vc-row.total b{font-size:15px;font-weight:700;color:#0B1F3A}
 .vc-row.total em{
-  flex:none;font-style:normal;font-family:Manrope,system-ui,sans-serif;
+  flex:none;font-style:normal;font-family:var(--nj-font);
   font-size:19px;font-weight:700;color:#0B1F3A;white-space:nowrap;
 }
 

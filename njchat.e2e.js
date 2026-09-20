@@ -159,7 +159,7 @@ function check(name, cond, extra) {
 
     last = await ask(page, 'ขั้นตอนฝากขายที่ดิน');
     txt = await last.innerText();
-    check('ขั้นตอนฝากขาย + ค่านายหน้า 3% + ลิงก์ฟอร์ม', /3%/.test(txt) && /1 วันทำการ/.test(txt) && await last.locator('a[href="consign.html"]').count() === 1, txt);
+    check('ขั้นตอนฝากขาย + ค่านายหน้าขั้นบันได + ลิงก์ฟอร์ม', /3%/.test(txt) && /2.5%/.test(txt) && /1 วันทำการ/.test(txt) && await last.locator('a[href="consign.html"]').count() === 1, txt);
     last = await ask(page, 'เตรียมเอกสารอะไรบ้าง');
     check('เอกสารรังวัด', /โฉนดที่ดินฉบับจริง/.test(await last.innerText()));
     last = await ask(page, 'ค่าโอนมีอะไรบ้าง');

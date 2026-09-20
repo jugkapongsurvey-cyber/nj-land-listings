@@ -1,0 +1,48 @@
+# ตรวจอัตโนมัติทุกครั้งที่ push และทุก PR
+#
+# ทำไมต้องมี: กติกาของโปรเจกต์คือ "หลังแต่ละ Sprint ให้รัน Build และ Test"
+# ซึ่งที่ผ่านมาอาศัยว่าคนจะจำได้ · ความผิดพลาดที่แพงที่สุดของ repo นี้คือ
+# **ของสองฝั่งเลื่อนออกจากกันโดยไม่มี error ให้เห็น** (ดู contracts.test.js)
+# การตรวจที่ต้องจำว่าต้องรัน ก็คือการตรวจที่วันหนึ่งจะไม่ได้รัน
+#
+# ⚠️ contracts.test.js หา ../nj-survey-system ไม่เจอบน CI จึง **ข้ามเงียบๆ (exit 0)** ตามที่ออกแบบไว้
+#    ข้อที่เทียบข้ามรีโปจึงยังต้องรันเองบนเครื่องก่อน merge ทุกครั้ง
+name: ตรวจเว็บ
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # build/sitemap.js อ่านวันที่ commit ล่าสุดของแต่ละไฟล์ด้วย git log
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ตรวจพื้นฐานทั้ง repo (ไวยากรณ์ · ที่อยู่ไฟล์ · id ซ้ำ · ลำดับสคริปต์)
+        run: node build/lint.js
+
+      - name: ชุดทดสอบทั้งหมด
+        run: |
+          fail=0
+          for f in *.test.js; do
+            echo "── $f"
+            node "$f" || fail=1
+          done
+          exit $fail
+
+      - name: หัวเว็บกับสไตล์ชีตกลางตรงกับ build/pages.js
+        run: node build/pages.js --check
+
+      - name: sitemap.xml ตรงกับไฟล์จริงในเว็บ
+        run: node build/sitemap.js --check
+
+      - name: ลิงก์เสียและหน้ากำพร้า
+        run: node build/linkcheck.js

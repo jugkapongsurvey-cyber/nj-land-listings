@@ -17,7 +17,7 @@
   flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
   width:82px;height:82px;border-radius:50%;background:#fff;border:3px solid var(--line);
 }
-.njsc-total b{font-family:Manrope,sans-serif;font-size:29px;font-weight:800;line-height:1}
+.njsc-total b{font-family:var(--nj-font);font-size:29px;font-weight:800;line-height:1}
 .njsc-total small{font-size:10px;color:#8798A9;margin-top:2px}
 .njsc-total.hi{border-color:#16A34A}   .njsc-total.hi b{color:#15803D}
 .njsc-total.mid{border-color:#D97706}  .njsc-total.mid b{color:#B45309}
@@ -42,7 +42,7 @@
 }
 .njsc-part summary::-webkit-details-marker{display:none}
 .njsc-pname{font-size:13.5px;font-weight:600;color:var(--ink)}
-.njsc-pnum{font-family:Manrope,sans-serif;font-size:13px;font-weight:800;color:var(--navy);white-space:nowrap}
+.njsc-pnum{font-family:var(--nj-font);font-size:13px;font-weight:800;color:var(--navy);white-space:nowrap}
 .njsc-bar{grid-column:1/3;height:5px;border-radius:3px;background:#EEF2F8;overflow:hidden}
 .njsc-bar i{display:block;height:100%;border-radius:3px;background:#CBD5E1}
 .njsc-part.full .njsc-bar i{background:var(--green)}

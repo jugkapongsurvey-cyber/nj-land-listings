@@ -35,34 +35,83 @@
   //
   // จึงประกอบเองจากช่องที่แยกไว้แล้ว: ขาย/เช่า + ตำบล อำเภอ จังหวัด + เนื้อที่
   // ช่องไหนไม่มีก็ข้าม ไม่เติมแทน · ถ้าไม่มีข้อมูลโครงสร้างเลยค่อยถอยไปตัดคำแรกของ parcelInfo
-  function localityOf(l){
-    var d=(l&&l.land)||{};
-    var p=[];
-    if(d.tambon)   p.push('ต.'+d.tambon);
-    if(d.amphoe)   p.push('อ.'+d.amphoe);
-    if(d.province) p.push('จ.'+d.province);
-    return p.join(' ');
+  // ⚠️ ตัวประกอบชื่อจริงย้ายไป `landmeta.js` แล้ว (Sprint 5) เพราะ `build/properties.js`
+  //    ต้องใช้สูตรเดียวกันตอนสร้างหน้าสแตติก · สองที่ประกอบเองแยกกันเมื่อไหร่
+  //    สิ่งที่ Google เห็นกับสิ่งที่ผู้ใช้เห็นจะไม่ตรงกัน ซึ่งเป็นเกณฑ์ที่ Google ตัดสิทธิ์ทั้งเว็บ
+  //    ตัวห่อข้างล่างเก็บไว้ให้โค้ดเดิมในไฟล์นี้เรียกได้เหมือนเดิม
+  function vocab(){ return window.NJVocab || {}; }
+  function localityOf(l){ return NJLandMeta.localityOf(l); }
+  // ---------- คำนำหน้าชื่อหน้า: ขาย/ให้เช่า + ประเภททรัพย์ ----------
+  //
+  // ⚠️ **ห้ามเขียน "ที่ดิน" ตายตัวอีก** (แก้ 20 ก.ย. 2569)
+  // ของเดิมเขียน 'ขายที่ดิน' ตายตัวจาก l.type อย่างเดียว ไม่เคยอ่าน land.propertyType เลย
+  // ผลที่เจอจริง: OP-072 เป็นบ้านแฝด 2 ชั้น แต่ชื่อหน้าขึ้นว่า "ขายที่ดิน · ..."
+  // ส่วน H1 ของแปลงเดียวกันขึ้นว่า "... บ้านแฝด 2 ชั้น" — ขัดกันเองในหน้าเดียว
+  // และ Structured Data ก็ใช้ชื่อชุดนี้ต่อ จึงส่งข้อมูลผิดให้ Google ตามไปด้วย
+  //
+  // ⚠️ **ช่องว่าง = ยังไม่ได้กรอก ไม่ใช่ "ที่ดินเปล่า"** — กติกาเดียวกับป้ายผังสีใน listingcard.js
+  // PROPERTY_TH มีค่า 'land' = 'ที่ดินเปล่า' อยู่แล้วเป็นตัวเลือกหนึ่ง ดังนั้นแปลงที่ยังไม่กรอก
+  // ไม่ได้แปลว่าเป็นที่ดินเปล่า · เดาแทนเมื่อไหร่ = ติดป้ายผิดให้แปลงที่มีบ้านจริง (เคสนี้เป๊ะ)
+  // จึงถอยไปใช้คำกลางว่า "ทรัพย์" แทน ไม่อ้างประเภทที่ไม่รู้
+  //
+  // ⚠️ ตัวแก้จริงของเรื่องนี้อยู่ที่ **ข้อมูล** ไม่ใช่โค้ด — ต้องให้ทีมกรอก propertyType
+  // ให้ครบทุกแปลง (ตรวจ 20 ก.ย. 2569: ว่างทั้ง 22 แปลง) แล้วชื่อหน้าจะถูกต้องเองทันที
+  // ⚠️ ค่าจริงอยู่ที่ `NJLandMeta.FALLBACK_KIND` ที่เดียว — อย่าประกาศซ้ำในไฟล์นี้อีก
+  function kindOf(l){ return NJLandMeta.kindOf(l, vocab()); }
+  function shortLabel(l){ return NJLandMeta.shortLabel(l, vocab()); }
+  // เขียน <meta> ให้ถูกตัว — มี name= กับ property= ปนกัน ถ้าเลือกผิดจะได้แท็กซ้ำ
+  function setMeta(attr, key, value){
+    if(!value) return;
+    var el=document.head.querySelector('meta['+attr+'="'+key+'"]');
+    if(!el){ el=document.createElement('meta'); el.setAttribute(attr,key); document.head.appendChild(el); }
+    if(el.getAttribute('content')!==value) el.setAttribute('content', value);
   }
-  function shortLabel(l){
-    var head=(l&&l.type==='rent')?'ให้เช่าที่ดิน':'ขายที่ดิน';
-    var loc=localityOf(l);
-    if(!loc){
-      // ไม่มีช่องแยก — ใช้ท่อนแรกของ parcelInfo (ท่อนที่ตั้ง) แล้วตัดความยาว
-      var first=String((l&&l.parcelInfo)||'').split(' · ')[0].trim();
-      loc=first.length>60?first.slice(0,60).trim()+'…':first;
-    }
-    var area=(l&&l.land&&l.land.deedArea)?String(l.land.deedArea).trim():'';
-    // ข้อมูลเก่าบางแปลงเก็บเนื้อที่เป็น "14-3-48" เฉยๆ ไม่มีหน่วย — เติมให้อ่านออกในผลค้นหา
-    // เติมเฉพาะรูปแบบ ไร่-งาน-วา ที่ชัดเจนเท่านั้น ข้อความอื่นปล่อยไว้ตามที่ทีมกรอก
-    if(/^\d+-\d+-\d+(\.\d+)?$/.test(area)) area+=' ไร่';
-    return [head, loc, area].filter(Boolean).join(' · ');
-  }
+  // คำอธิบายสั้นของแปลง — ประกอบจากช่องที่มีจริง ไม่เติมแทนช่องที่ว่าง
+  function metaDescOf(l){ return NJLandMeta.metaDesc(l, vocab()); }
+
   function setSeo(l, photos){
     try{
-      var url=SITE_URL+'/land.html?id='+encodeURIComponent(l.id);
+      // ⚠️ **canonical ชี้ไปหน้าสแตติก `p/<รหัส>.html` ไม่ใช่ที่อยู่ของหน้านี้เอง**
+      // หน้าสแตติกมีเนื้อหาอยู่ใน HTML ตั้งแต่ต้นทาง บอตของไลน์/เฟซบุ๊ก/Google จึงอ่านได้จริง
+      // ส่วนหน้านี้ส่ง HTML เปล่าให้บอตเสมอ (เนื้อหามาทีหลังจาก JS)
+      //
+      // ⚠️ การ์ดทุกใบยังลิงก์มาที่ `land.html?id=` เหมือนเดิม **ไม่มีทางพาไป 404**
+      //    แปลงที่เพิ่งขึ้นหลังรอบ build ล่าสุด จะยังไม่มีหน้าสแตติก → canonical ชี้ไปหน้าที่ยังไม่มี
+      //    ซึ่ง Google ถือว่า "ข้ามคำสั่งนี้" แล้วเก็บหน้านี้แทน = เท่ากับพฤติกรรมเดิมก่อน Sprint 5
+      //    พอ build รอบถัดไปวิ่ง ทุกอย่างเข้าที่เอง · ไม่มีจังหวะไหนที่ผู้ใช้เจอหน้าเสีย
+      var url=NJLandMeta.pageUrl(l.id);
       var link=document.querySelector('link[rel="canonical"]');
       if(!link){ link=document.createElement('link'); link.rel='canonical'; document.head.appendChild(link); }
       link.href=url;
+
+      // ⚠️ **og ต้องเปลี่ยนตามแปลง** — ของเดิมเป็นข้อความกลางทุกแปลง
+      // แปลว่าลิงก์ที่พนักงานส่งให้ลูกค้าทางไลน์ทุกแปลง ขึ้นหัวข้อและรูปเหมือนกันหมด
+      // ซึ่งเป็นช่องทางขายหลักของบริษัท (รายงานตรวจ SEO ข้อ H-07)
+      // ⚠️ ข้อจำกัดที่ต้องรู้: ไลน์/เฟซบุ๊กอ่าน og จาก HTML ต้นทาง **ไม่รันสคริปต์**
+      //    การตั้งค่าตรงนี้จึงช่วยได้เฉพาะตัวที่รัน JS · ตัวแก้จริงคือสร้างหน้าแปลงเป็นไฟล์จริง
+      //    ตอน build (ดู build/properties.js) ซึ่งต้องให้เจ้าของอนุมัติรอบ deploy ก่อน
+      var desc=metaDescOf(l);
+      var img=(photos||[]).filter(function(u){return /^https:\/\//.test(u);})[0]||'';
+      setMeta('name','description',desc);
+      setMeta('property','og:title',shortLabel(l)+' | ที่ดินชัวร์');
+      setMeta('property','og:description',desc);
+      setMeta('property','og:url',url);
+      setMeta('property','og:type','website');
+      if(img) setMeta('property','og:image',img);
+
+      // เส้นทางนำทางสำหรับเสิร์ชเอนจิน — ต้องตรงกับที่แสดงบนหน้าจอเป๊ะ
+      var bc={'@context':'https://schema.org','@type':'BreadcrumbList',
+        itemListElement:crumbsOf(l).map(function(c,i){
+          var it={'@type':'ListItem',position:i+1,name:c.t};
+          if(c.h) it.item=SITE_URL+'/'+c.h;
+          return it;
+        })};
+      var oldBc=document.getElementById('ld-breadcrumb');
+      if(oldBc) oldBc.remove();
+      var bs=document.createElement('script');
+      bs.type='application/ld+json'; bs.id='ld-breadcrumb';
+      bs.textContent=JSON.stringify(bc);
+      document.head.appendChild(bs);
 
       var d={
         '@context':'https://schema.org',
@@ -377,6 +426,85 @@
     '</section>';
   }
 
+  // ---------- เส้นทางนำทาง (Breadcrumb) ----------
+  // ⚠️ ลิงก์ทุกอันต้องไปถึงที่ที่ใช้ได้จริง — "จังหวัด" ชี้ไปหน้ารวมประกาศพร้อมคำค้น
+  //    ซึ่งใช้ได้เพราะหน้านั้นรับ ?q= แล้ว (Sprint 2) · ไม่มีจังหวัดก็ข้ามขั้นนั้นไป
+  function crumbsOf(l){
+    var d=(l.land||{});
+    var out=[{t:'หน้าแรก',h:'index.html'},{t:'ประกาศทั้งหมด',h:'listings.html'}];
+    if(d.province) out.push({t:d.province,h:'listings.html?q='+encodeURIComponent(d.province)});
+    out.push({t:l.id,h:''});
+    return out;
+  }
+  function breadcrumbHtml(l){
+    var c=crumbsOf(l);
+    return '<nav class="ld-crumbs" aria-label="เส้นทางนำทาง"><ol>'+
+      c.map(function(x,i){
+        return '<li>'+(x.h?'<a href="'+esc(x.h)+'">'+esc(x.t)+'</a>'
+                          :'<span aria-current="page">'+esc(x.t)+'</span>')+'</li>';
+      }).join('')+'</ol></nav>';
+  }
+
+  // ลิงก์แจ้งข้อมูลไม่ถูกต้อง — เปิดไลน์พร้อมข้อความที่มีรหัสแปลงติดไปแล้ว
+  // ⚠️ ต้องมีรหัสแปลงเสมอ ไม่งั้นทีมงานได้ข้อความว่า "ข้อมูลผิด" โดยไม่รู้ว่าแปลงไหน
+  function reportHref(l){
+    var msg='แจ้งข้อมูลไม่ถูกต้องของประกาศ รหัส '+l.id+' — รายละเอียด: ';
+    return 'https://line.me/R/oaMessage/'+encodeURIComponent('@716lffzt')+'/?'+encodeURIComponent(msg);
+  }
+
+  // ---------- แปลงที่เพิ่งดู ----------
+  // ⚠️ เก็บแค่รหัส ไม่เก็บข้อมูลแปลง — ราคาและสถานะเปลี่ยนได้ตลอด
+  //    เก็บทั้งก้อนไว้ = ผู้ซื้อกลับมาเห็นราคาเก่าที่ไม่ตรงกับความจริงแล้ว
+  var SEEN_KEY='njSeen', SEEN_MAX=8;
+  function seenList(){
+    try{ var v=JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
+      return Array.isArray(v)?v.filter(function(x){return typeof x==='string'&&x;}):[]; }
+    catch(e){ return []; }
+  }
+  function seenPush(id){
+    var list=seenList().filter(function(x){return x!==id;});
+    list.unshift(id);
+    try{ localStorage.setItem(SEEN_KEY, JSON.stringify(list.slice(0,SEEN_MAX))); }catch(e){}
+  }
+
+  // ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ----------
+  // ⚠️ ดึงรายการย่อครั้งเดียวแล้วใช้ทั้งสองบล็อก — ไม่ยิงซ้ำสองรอบ
+  // ⚠️ โหลดไม่สำเร็จ = ซ่อนทั้งหัวข้อไปเลย ห้ามขึ้นกล่องว่าง (กติกาข้อ 5)
+  function renderRelated(current){
+    var host=document.getElementById('ld-related');
+    if(!host||!window.NJListing) return;
+    NJListing.fetchListings().then(function(list){
+      var all=list.filter(function(x){ return x.id!==current.id; });
+      var prov=(current.land||{}).province||'';
+      var near=all.filter(function(x){ return prov && (x.land||{}).province===prov; });
+      var similar=near.concat(all.filter(function(x){ return near.indexOf(x)<0; })).slice(0,3);
+      var seen=seenList().filter(function(id){ return id!==current.id; });
+      var recent=seen.map(function(id){
+        return all.filter(function(x){ return x.id===id; })[0];
+      }).filter(Boolean).slice(0,3);
+
+      var html='';
+      if(similar.length){
+        html+='<section class="ld-rel" aria-labelledby="ld-rel-h">'+
+          '<h2 id="ld-rel-h">แปลงใกล้เคียง'+(prov?' ใน'+esc(prov):'')+'</h2>'+
+          '<div class="ld-rel-grid">'+similar.map(NJListing.card).join('')+'</div>'+
+          '<a class="ld-rel-more" href="listings.html'+(prov?'?q='+encodeURIComponent(prov):'')+'">ดูประกาศทั้งหมด'+(prov?'ใน'+esc(prov):'')+' <span aria-hidden="true">→</span></a>'+
+        '</section>';
+      }
+      if(recent.length){
+        html+='<section class="ld-rel" aria-labelledby="ld-seen-h">'+
+          '<h2 id="ld-seen-h">แปลงที่คุณเพิ่งดู</h2>'+
+          '<div class="ld-rel-grid">'+recent.map(NJListing.card).join('')+'</div>'+
+        '</section>';
+      }
+      if(!html) return;
+      host.innerHTML=html;
+      if(window.NJCompare&&NJCompare.decorate) NJCompare.decorate(host);
+      if(window.NJSave) NJSave.decorate(host);
+      NJListing.bindGrid(host,'land_related');
+    }).catch(function(){ /* ไม่มีแปลงใกล้เคียงก็ไม่ต้องขึ้นอะไร */ });
+  }
+
   function render(l){
     var L=l.land||{};
     var tier=l.tier===2?2:1;
@@ -388,6 +516,7 @@
     var pw=perWa(l.estValue, areaForWa);
 
     document.getElementById('ld-root').innerHTML=
+      breadcrumbHtml(l)+
       '<div class="ld-gal">'+galleryHtml(photos, l.parcelInfo||'แปลงที่ดิน')+
         '<div class="ld-badges"><span class="ld-badge type">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+badge+'</div>'+
         '<div class="ld-wm"><span>ที่ดินชัวร์</span><small>njteedinsure.com</small></div>'+
@@ -396,7 +525,11 @@
         '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
         (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
         '<div id="ld-fee"></div>'+
-        '<h1 class="ld-title">'+esc(l.parcelInfo||'แปลงที่ดิน')+'</h1>'+
+        // ⚠️ **H1 ต้องเป็นชื่อสั้น ไม่ใช่รายละเอียดทั้งย่อหน้า** (งานที่ 8)
+        // ของเดิมใช้ `parcelInfo` ทั้งก้อน ซึ่งคือ "ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่"
+        // ต่อกัน · เจอจริงยาว 200+ ตัวอักษร อ่านบนผลค้นหาไม่รู้เรื่องและกินพื้นที่ครึ่งจอมือถือ
+        // ข้อความเต็มไม่ได้หายไปไหน — ย้ายลงไปเป็นคำอธิบายใต้ข้อมูลแปลงแทน
+        '<h1 class="ld-title">'+esc(shortLabel(l))+'</h1>'+
         codeHtml(l)+
         (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
         factsHtml(l,L,tier)+
@@ -416,6 +549,9 @@
         (window.NJPurpose?NJPurpose.panelHtml(l.purposes):'')+
         mapHtml(L)+
         nearbyHtml(L)+
+        // รายละเอียดเต็ม — ย้ายมาจาก H1 (งานที่ 8) · ขึ้นเฉพาะเมื่อมีข้อความที่ต่างจากชื่อสั้น
+        (l.parcelInfo&&l.parcelInfo!==shortLabel(l)
+          ? '<section class="ld-desc"><h2>รายละเอียดแปลง</h2><p>'+esc(l.parcelInfo)+'</p></section>' : '')+
         (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
         (tier===2?tier2Html(L):tier1Html(L))+
         '<div class="ld-cta">'+
@@ -439,8 +575,27 @@
           '<b>ขอดูเอกสารของแปลงนี้ก่อนตัดสินใจ</b>'+
           '<small>รายงานรังวัด · รายงานตรวจสอบ · แผนที่ · เอกสารทางเข้า–ออก — ทีมงานยืนยันตัวตนแล้วจึงเปิดให้ดู</small>'+
         '</a>'+
+        // แถวเครื่องมือของผู้ซื้อ — บันทึก · แชร์ · แจ้งประกาศไม่ถูกต้อง (งานที่ 8)
+        // ⚠️ ปุ่มแจ้งประกาศ **ไม่ใช่ช่องทางติดต่อ** จึงไม่ใส่ data-contact และไม่ยิงสถิติลีด
+        //    คนที่กดคือคนที่เจอข้อมูลผิด ไม่ใช่คนที่สนใจซื้อ (กติกาเดียวกับหน้าพอร์ทัล)
+        '<div class="ld-tools">'+
+          '<button type="button" class="njsave-btn njsave-wide" data-njsave="'+esc(l.id)+'" aria-pressed="false">'+
+            '<span class="njsave-ico" aria-hidden="true">♥</span><span class="njsave-txt">บันทึก</span></button>'+
+          '<button type="button" class="ld-tool" id="ld-share">'+
+            '<span aria-hidden="true">↗</span> แชร์แปลงนี้</button>'+
+          '<a class="ld-tool" id="ld-report" href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">'+
+            '<span aria-hidden="true">⚑</span> แจ้งข้อมูลไม่ถูกต้อง</a>'+
+        '</div>'+
         inquiryHtml()+
         '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
+        '<div id="ld-related"></div>'+
+      '</div>'+
+      // แถบติดต่อแบบติดหนึบบนมือถือ (งานที่ 8) — ซ่อนบนเดสก์ท็อปและตอนสั่งพิมพ์
+      // ⚠️ ต้องอยู่ต่ำกว่าแบนเนอร์คุกกี้และลิ้นชักเมนู ไม่งั้นไปบังของที่เป็นเรื่องกฎหมาย
+      '<div class="ld-sticky" role="group" aria-label="ติดต่อเรื่องแปลงนี้">'+
+        '<span class="ld-sticky-code">รหัส '+esc(l.id)+'</span>'+
+        '<a class="ld-sticky-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">ทักไลน์</a>'+
+        '<a class="ld-sticky-btn tel" href="'+TEL2+'" data-contact="tel">โทร</a>'+
       '</div>';
 
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
@@ -451,7 +606,11 @@
     // ปุ่มหมุดบนแผนที่แนวเขต — ต้องต่อหลังวาด HTML เสร็จ (ผูก listener ที่กล่อง ไม่ผูกรายปุ่ม)
     if(window.NJParcelMap&&L.plot) NJParcelMap.init(document.getElementById('ld-root'), L.plot);
     var pdfBtn=document.getElementById('ld-pdf-btn');
-    if(pdfBtn) pdfBtn.addEventListener('click', function(){ window.print(); });
+    if(pdfBtn) pdfBtn.addEventListener('click', function(){
+      // ⚠️ นับเป็น "ดาวน์โหลดรายงาน" ไม่ใช่การติดต่อ — ห้ามบวกเข้า leads
+      if(window.njTrackInternal) njTrackInternal('download_report', l.id);
+      window.print();
+    });
 
     // ปุ่มคัดลอกรหัสทรัพย์ — มีทางถอย 2 ชั้น เพราะ clipboard API ใช้ไม่ได้ทุกที่
     var copyBtn=document.getElementById('ld-code-copy');
@@ -472,9 +631,38 @@
     // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน
     if(window.NJCompare){ NJCompare.sync(); NJCompare.renderBar(); }
 
+    // ปุ่มแชร์ — ใช้ตัวแชร์ของเครื่องถ้ามี ไม่มีก็คัดลอกลิงก์ให้
+    // ⚠️ ต้องมีทางถอยเสมอ: navigator.share ใช้ได้เฉพาะ https และบางเบราว์เซอร์เท่านั้น
+    var shareBtn=document.getElementById('ld-share');
+    if(shareBtn) shareBtn.addEventListener('click', function(){
+      var url=location.href, title=shortLabel(l)+' | ที่ดินชัวร์';
+      if(window.njTrackInternal) njTrackInternal('share_property', l.id);
+      var done=function(){ shareBtn.innerHTML='<span aria-hidden="true">✓</span> คัดลอกลิงก์แล้ว';
+        setTimeout(function(){ shareBtn.innerHTML='<span aria-hidden="true">↗</span> แชร์แปลงนี้'; },2200); };
+      if(navigator.share){ navigator.share({title:title,text:title,url:url}).catch(function(){}); return; }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(done, function(){ prompt('คัดลอกลิงก์นี้ไว้', url); });
+      } else { prompt('คัดลอกลิงก์นี้ไว้', url); }
+    });
+    if(window.NJSave) NJSave.sync();
+    seenPush(l.id);
+    renderRelated(l);
+
     document.title=shortLabel(l)+' | ที่ดินชัวร์';
     setSeo(l, photos);
     if(window.njTrack) njTrack('ViewContent',{content_name:'land_detail',content_ids:[l.id],content_category:'tier'+tier});
+  }
+
+  // ⚠️ **แปลงที่ไม่มีอยู่แล้วต้องบอกเสิร์ชเอนจินว่าอย่าเก็บหน้านี้**
+  // เว็บนี้เป็นสแตติกบน GitHub Pages จึงคืนสถานะ 404 จริงไม่ได้ (ทุกคำขอได้ 200 เสมอ)
+  // ผลคือประกาศที่ถอนไปแล้วยังค้างในดัชนีเป็นหน้าว่าง — รายงานตรวจ SEO ข้อ H-08
+  // ทางที่ทำได้จริงคือ noindex + ไม่ใส่ canonical ชี้ไปหาหน้าที่ไม่มีเนื้อหาแล้ว
+  function markGone(){
+    var m=document.head.querySelector('meta[name="robots"]');
+    if(!m){ m=document.createElement('meta'); m.name='robots'; document.head.appendChild(m); }
+    m.setAttribute('content','noindex, follow');
+    var c=document.querySelector('link[rel="canonical"]');
+    if(c) c.remove();
   }
 
   function fail(title,detail){
@@ -488,7 +676,9 @@
   }
 
   function load(){
-    var id=qs('id');
+    // ⚠️ หน้าสแตติก `p/<รหัส>.html` ไม่มี query string — `build/properties.js` ฝังรหัสไว้ใน
+    //    `window.NJ_LISTING_ID` แทน · `?id=` ยังชนะเสมอ เพื่อให้ลิงก์เดิมทุกอันทำงานเหมือนเดิม
+    var id=qs('id')||String(window.NJ_LISTING_ID||'').trim();
     var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
     if(!id){ fail('ไม่พบรหัสแปลงที่ดิน','ลิงก์อาจไม่สมบูรณ์ ลองเลือกแปลงจากหน้ารายการอีกครั้ง'); return; }
     // ⚠️ ดึงเฉพาะแปลงนี้แปลงเดียว (เพิ่ม 2026-09-09)
@@ -506,7 +696,7 @@
       .then(function(d){
         var l=d&&d.listing;
         // ไม่เจอ = อาจขายไปแล้วหรือเจ้าของถอนประกาศ ต้องบอกตามจริง ไม่ใช่บอกว่าเว็บพัง
-        if(!l){ fail('ไม่พบแปลงที่ดินนี้แล้ว','แปลงนี้อาจขายไปแล้ว หรือเจ้าของขอถอนประกาศ — ทักไลน์มาสอบถามแปลงอื่นที่ใกล้เคียงได้'); return; }
+        if(!l){ markGone(); fail('ไม่พบแปลงที่ดินนี้แล้ว','แปลงนี้อาจขายไปแล้ว หรือเจ้าของขอถอนประกาศ — ทักไลน์มาสอบถามแปลงอื่นที่ใกล้เคียงได้'); return; }
         render(l);
         // นับว่ามีคนเปิดดูแปลงนี้ — ยิงหลังจากพบแปลงจริงแล้วเท่านั้น
         // ยิงตั้งแต่ตอนเปิดหน้า = นับรวมลิงก์เสียและแปลงที่ถอนประกาศไปแล้วเข้าไปด้วย

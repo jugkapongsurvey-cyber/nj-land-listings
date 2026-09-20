@@ -1,0 +1,382 @@
+/* ที่ดินชัวร์ — คอมโพเนนต์กลาง (Sprint 1 · 2026-09-20)
+ *
+ * ⚠️ **ทุกคลาสในไฟล์นี้ขึ้นต้นด้วย `nj-` เสมอ** และต้องไม่ชนกับคลาสเดิมของเว็บ
+ * เว็บนี้มีคอมโพเนนต์เดิมอยู่แล้วหลายตัวที่ชื่อไม่มีคำนำหน้า (`.post-btn` `.outline-btn`
+ * `.land-card` `.empty-result` `.cs-field` …) กระจายอยู่ในสามชุดสไตล์
+ * ถ้าไฟล์นี้ไปใช้ชื่อเดียวกัน หน้าเก่าจะเปลี่ยนหน้าตาพร้อมกันทั้งเว็บโดยไม่มีใครตั้งใจ
+ *
+ * ⚠️ **ไฟล์นี้ไม่ได้มาแทนของเดิมทันที** — ของใหม่ให้ใช้ชุดนี้ ส่วนของเดิมจะทยอยย้ายมา
+ * ทีละหน้าในสปรินต์ถัดไป · ห้ามไล่เปลี่ยนคลาสทั้งเว็บในคอมมิตเดียว เพราะทดสอบไม่ไหว
+ *
+ * ⚠️ **ค่าสีและขนาดทั้งหมดต้องมาจาก `tokens.css`** ห้ามเขียนรหัสสีตรงๆ ในไฟล์นี้
+ */
+
+/* =====================================================================
+ * Button
+ * ===================================================================== */
+
+.nj-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nj-space-2);
+  /* ⚠️ 44px คือเกณฑ์เป้ากดบนมือถือ ห้ามลดลงไม่ว่าดีไซน์จะอยากได้ปุ่มบางแค่ไหน
+   *    (รายงาน ACCESSIBILITY ข้อ A11Y-03 — ของเดิมเล็กกว่าเกณฑ์ 73 จาก 178 ชิ้น) */
+  min-height: 44px;
+  padding: 0 var(--nj-space-5);
+  border: 1px solid transparent;
+  border-radius: var(--nj-radius-0);
+  font-size: var(--nj-fs-body);
+  font-weight: var(--nj-fw-semi);
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--nj-dur) var(--nj-ease),
+              border-color var(--nj-dur) var(--nj-ease),
+              color var(--nj-dur) var(--nj-ease);
+}
+
+.nj-btn:focus-visible {
+  outline: 2px solid var(--nj-focus);
+  outline-offset: 2px;
+}
+
+.nj-btn[disabled],
+.nj-btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ปุ่มหลัก — หนึ่งหน้าจอควรมีปุ่มแบบนี้ชิ้นเดียว */
+.nj-btn-primary {
+  background: var(--nj-navy-900);
+  color: var(--nj-white);
+}
+.nj-btn-primary:hover { background: var(--nj-navy-800); }
+
+/* ปุ่มรอง */
+.nj-btn-gold {
+  background: var(--nj-gold-500);
+  color: var(--nj-navy-900);
+}
+.nj-btn-gold:hover { background: var(--nj-gold-600); color: var(--nj-navy-900); }
+
+.nj-btn-outline {
+  background: transparent;
+  border-color: var(--nj-gray-300);
+  color: var(--nj-navy-900);
+}
+.nj-btn-outline:hover { border-color: var(--nj-navy-900); }
+
+/* ปุ่มที่หน้าตาเหมือนลิงก์ — ใช้เมื่อสิ่งนั้นไม่ได้พาไปหน้าไหน */
+.nj-btn-ghost {
+  background: transparent;
+  color: var(--nj-link);
+  padding: 0 var(--nj-space-2);
+  font-weight: var(--nj-fw-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.nj-btn-block { width: 100%; }
+.nj-btn-sm { min-height: 44px; padding: 0 var(--nj-space-4); font-size: var(--nj-fs-sm); }
+
+/* =====================================================================
+ * Form
+ * ===================================================================== */
+
+.nj-field { display: block; margin-bottom: var(--nj-space-4); }
+
+/* ⚠️ ทุกช่องกรอกต้องมี <label> ผูกจริง ไม่ใช่ข้อความลอยข้างบน
+ *    (รายงาน ACCESSIBILITY ข้อ A11Y-02 — ของเดิมมี 7 ช่องที่ไม่มี) */
+.nj-label {
+  display: block;
+  margin-bottom: var(--nj-space-2);
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-medium);
+  color: var(--nj-text-strong);
+}
+.nj-label-req::after {
+  content: " *";
+  color: var(--nj-err-fg);
+}
+
+.nj-input,
+.nj-select,
+.nj-textarea {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px var(--nj-space-3);
+  border: 1px solid var(--nj-gray-300);
+  border-radius: var(--nj-radius-0);
+  background: var(--nj-white);
+  /* ⚠️ ต่ำกว่า 16px บน iOS = Safari ซูมหน้าเข้าเองตอนแตะช่องกรอก แล้วเลย์เอาต์เพี้ยนทั้งหน้า */
+  font-size: 16px;
+  color: var(--nj-text);
+}
+.nj-textarea { min-height: 96px; resize: vertical; line-height: var(--nj-lh-body); }
+
+.nj-input:focus-visible,
+.nj-select:focus-visible,
+.nj-textarea:focus-visible {
+  outline: 2px solid var(--nj-focus);
+  outline-offset: 1px;
+  border-color: var(--nj-navy-600);
+}
+
+.nj-hint {
+  margin-top: var(--nj-space-2);
+  font-size: var(--nj-fs-xs);
+  color: var(--nj-text-muted);
+}
+
+/* ข้อความผิดพลาดของช่องกรอก — ต้องคู่กับ aria-describedby เสมอ
+ * ⚠️ ห้ามบอกความผิดพลาดด้วยกรอบสีแดงอย่างเดียว คนตาบอดสีไม่เห็นความต่าง */
+.nj-error-text {
+  margin-top: var(--nj-space-2);
+  font-size: var(--nj-fs-xs);
+  font-weight: var(--nj-fw-medium);
+  color: var(--nj-err-fg);
+}
+.nj-input[aria-invalid="true"],
+.nj-select[aria-invalid="true"],
+.nj-textarea[aria-invalid="true"] { border-color: var(--nj-err-fg); }
+
+/* =====================================================================
+ * Card
+ * ===================================================================== */
+
+.nj-card {
+  background: var(--nj-surface);
+  border: 1px solid var(--nj-border);
+  border-radius: var(--nj-radius-0);
+  padding: var(--nj-space-5);
+}
+.nj-card-head {
+  margin: 0 0 var(--nj-space-3);
+  font-size: var(--nj-fs-h4);
+  font-weight: var(--nj-fw-semi);
+  color: var(--nj-text-strong);
+}
+.nj-card-alt { background: var(--nj-surface-alt); }
+
+/* =====================================================================
+ * Badge
+ * ===================================================================== */
+
+.nj-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nj-space-1);
+  padding: 3px var(--nj-space-2);
+  border-radius: var(--nj-radius-sm);
+  /* ⚠️ ไม่ต่ำกว่า 13px — ป้ายระดับการตรวจสอบของเดิมใช้ 12px ทองบนทองเข้ม
+   *    ได้ความต่างสี 3.68:1 ซึ่งไม่ผ่านเกณฑ์ (รายงาน ACCESSIBILITY ข้อ A11Y-04) */
+  font-size: var(--nj-fs-xs);
+  font-weight: var(--nj-fw-semi);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.nj-badge-neutral { background: var(--nj-navy-100); color: var(--nj-navy-600); }
+.nj-badge-ok   { background: var(--nj-ok-bg);   color: var(--nj-ok-fg); }
+.nj-badge-warn { background: var(--nj-warn-bg); color: var(--nj-warn-fg); }
+.nj-badge-err  { background: var(--nj-err-bg);  color: var(--nj-err-fg); }
+
+/* =====================================================================
+ * Alert
+ * ===================================================================== */
+
+/* ⚠️ ทุกกล่องต้องมีคำอธิบายเป็นข้อความ ห้ามสื่อความหมายด้วยสีอย่างเดียว
+ *    (กติกาเดียวกับรายงานสุขภาพแปลง 4 สถานะ) */
+.nj-alert {
+  display: block;
+  padding: var(--nj-space-4);
+  border-left: 4px solid;
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-body);
+}
+.nj-alert b { display: block; margin-bottom: var(--nj-space-1); }
+.nj-alert-info { background: var(--nj-info-bg); border-color: var(--nj-navy-600); color: var(--nj-info-fg); }
+.nj-alert-ok   { background: var(--nj-ok-bg);   border-color: var(--nj-ok-fg);    color: var(--nj-ok-fg); }
+.nj-alert-warn { background: var(--nj-warn-bg); border-color: var(--nj-gold-600); color: var(--nj-warn-fg); }
+.nj-alert-err  { background: var(--nj-err-bg);  border-color: var(--nj-err-fg);   color: var(--nj-err-fg); }
+
+/* =====================================================================
+ * Modal
+ * ===================================================================== */
+
+/* ⚠️ ใช้ <dialog> ของเบราว์เซอร์ ไม่เขียนเองด้วย div — ได้การขังโฟกัส
+ *    ปุ่ม Escape และการประกาศให้เครื่องอ่านหน้าจอมาฟรี ซึ่งเขียนเองแล้วมักพลาด
+ *    (เหตุผลเดียวกับที่บันได 5 ระดับใช้ <details>/<summary>) */
+.nj-modal {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 0;
+  border: 1px solid var(--nj-border);
+  border-radius: var(--nj-radius-0);
+  box-shadow: var(--nj-shadow-lg);
+  color: var(--nj-text);
+}
+.nj-modal::backdrop { background: rgba(11, 31, 58, 0.55); }
+.nj-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--nj-space-4);
+  padding: var(--nj-space-5);
+  border-bottom: 1px solid var(--nj-border);
+}
+.nj-modal-title {
+  margin: 0;
+  font-size: var(--nj-fs-h4);
+  font-weight: var(--nj-fw-semi);
+  color: var(--nj-text-strong);
+}
+.nj-modal-body { padding: var(--nj-space-5); overflow-y: auto; }
+.nj-modal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nj-space-3);
+  justify-content: flex-end;
+  padding: var(--nj-space-5);
+  border-top: 1px solid var(--nj-border);
+}
+
+/* =====================================================================
+ * Loading — โครงร่างรอข้อมูล (skeleton)
+ * ===================================================================== */
+
+/* ⚠️ ต้องมี aria-busy="true" บนตัวครอบ และข้อความบอกสถานะสำหรับเครื่องอ่านหน้าจอ
+ *    ลายเทาวิ่งไปมาไม่มีความหมายอะไรเลยถ้ามองไม่เห็น */
+.nj-skeleton {
+  background: linear-gradient(90deg, var(--nj-gray-100) 25%, var(--nj-navy-100) 37%, var(--nj-gray-100) 63%);
+  background-size: 400% 100%;
+  animation: nj-skeleton-shift 1.3s var(--nj-ease) infinite;
+  border-radius: var(--nj-radius-sm);
+}
+.nj-skeleton-line { height: 12px; margin-bottom: var(--nj-space-2); }
+.nj-skeleton-title { height: 20px; width: 60%; margin-bottom: var(--nj-space-3); }
+.nj-skeleton-media { height: 160px; margin-bottom: var(--nj-space-3); border-radius: var(--nj-radius-0); }
+
+@keyframes nj-skeleton-shift {
+  from { background-position: 100% 50%; }
+  to   { background-position: 0 50%; }
+}
+
+/* ⚠️ ผู้ใช้ที่ขอให้ลดการเคลื่อนไหวต้องไม่เจอลายวิ่ง แต่ยังต้องเห็นว่ากำลังโหลดอยู่ */
+@media (prefers-reduced-motion: reduce) {
+  .nj-skeleton { animation: none; background: var(--nj-gray-100); }
+}
+
+.nj-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--nj-gray-300);
+  border-top-color: var(--nj-navy-600);
+  border-radius: var(--nj-radius-pill);
+  animation: nj-spin 0.7s linear infinite;
+}
+@keyframes nj-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .nj-spinner { animation-duration: 2.4s; } }
+
+/* =====================================================================
+ * Empty State
+ * ===================================================================== */
+
+/* ⚠️ "ไม่มีข้อมูล" ต้องมีทางไปต่อเสมอ ห้ามจบที่ทางตัน
+ *    คนที่ค้นแล้วไม่เจอคือคนที่บอกโจทย์ของตัวเองชัดที่สุดในทั้งเว็บ
+ *    (กติกาเดียวกับกล่อง "ไม่พบแปลง" ใน listingcard.js) */
+.nj-empty {
+  padding: var(--nj-space-7) var(--nj-space-5);
+  border: 1px dashed var(--nj-gray-300);
+  background: var(--nj-surface-alt);
+  text-align: center;
+}
+.nj-empty-title {
+  margin: 0 0 var(--nj-space-2);
+  font-size: var(--nj-fs-h4);
+  font-weight: var(--nj-fw-semi);
+  color: var(--nj-text-strong);
+}
+.nj-empty-text {
+  margin: 0 auto var(--nj-space-5);
+  max-width: 52ch;
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-body);
+  color: var(--nj-text-muted);
+}
+.nj-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nj-space-3);
+  justify-content: center;
+}
+
+/* =====================================================================
+ * Error State
+ * ===================================================================== */
+
+/* ⚠️ **"โหลดไม่สำเร็จ" กับ "ไม่มีข้อมูล" คนละเรื่องกัน ห้ามใช้กล่องเดียวกัน**
+ *    อันแรกแปลว่าเว็บมีปัญหา อันหลังแปลว่าไม่มีของ · สลับกันเมื่อไหร่
+ *    ผู้ใช้จะเลิกหาทั้งที่ของมีอยู่ (กติกาข้อ 4 ของ CLAUDE.md) */
+.nj-errorstate {
+  padding: var(--nj-space-6) var(--nj-space-5);
+  border: 1px solid var(--nj-err-fg);
+  border-left-width: 4px;
+  background: var(--nj-err-bg);
+}
+.nj-errorstate-title {
+  margin: 0 0 var(--nj-space-2);
+  font-size: var(--nj-fs-h4);
+  font-weight: var(--nj-fw-semi);
+  color: var(--nj-err-fg);
+}
+.nj-errorstate-text {
+  margin: 0 0 var(--nj-space-4);
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-body);
+  color: var(--nj-text);
+}
+
+/* =====================================================================
+ * ตัวช่วยเล็กๆ
+ * ===================================================================== */
+
+/* จำกัดความกว้างบรรทัดของข้อความยาว ราว 65–75 ตัวอักษร */
+.nj-prose { max-width: var(--nj-measure); line-height: var(--nj-lh-body); }
+
+/* ซ่อนจากสายตาแต่ยังให้เครื่องอ่านหน้าจออ่านได้ */
+.nj-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =====================================================================
+ * ข้อความผิดพลาดรายช่อง (njform.js · Sprint 4 · งานที่ 11)
+ *
+ * ⚠️ ห้ามบอกว่าผิดด้วยสีอย่างเดียว — มีทั้งสัญลักษณ์ ข้อความ และ aria-invalid
+ *    คนที่แยกสีแดงไม่ออกต้องรู้ได้เท่ากับคนที่แยกออก
+ * ===================================================================== */
+
+.njf-err {
+  margin: calc(var(--nj-space-1) * -1) 0 var(--nj-space-3);
+  font-size: var(--nj-fs-sm);
+  line-height: var(--nj-lh-tight);
+  color: var(--nj-err-fg);
+}
+.njf-err::before { content: "⚠ "; }
+.njf-err[hidden] { display: none; }
+
+/* ขอบช่องที่ผิด — มาคู่กับข้อความข้างบนเสมอ ไม่ได้ใช้ลำพัง */
+[aria-invalid="true"] {
+  border-color: var(--nj-err-fg) !important;
+  background: var(--nj-err-bg);
+}

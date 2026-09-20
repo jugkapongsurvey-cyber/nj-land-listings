@@ -21,16 +21,27 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- NJ:CORECSS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="header.css">
+<!-- NJ:CORECSS จบ -->
+<!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="attrib.js" defer></script>
+<!-- NJ:COREJS จบ -->
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="ui.css">
 <link rel="stylesheet" href="feecalc.css">
 <link rel="stylesheet" href="compare.css">
+<link rel="stylesheet" href="save.css">
 <link rel="stylesheet" href="verified.css">
 <link rel="stylesheet" href="njchat.css">
 <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="agency.css">
+<link rel="stylesheet" href="surveyquote.css">
 <link rel="stylesheet" href="zoneguide.css">
+<link rel="stylesheet" href="legal.css">
   <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
   <script type="application/ld+json" data-nj-schema>
   {
@@ -97,25 +108,73 @@
   <!-- nj-schema:end -->
 </head>
 <body class="page-agency page-tools">
-
-<header class="site-header">
-  <div class="wrap header-inner">
-    <a href="index.html" class="brand">
-      <img src="brand/logo-mark.svg" alt="ที่ดินชัวร์" class="brand-logo">
-      <span class="brand-name">ที่ดินชัวร์</span>
+<!-- NJ:HEADER เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<a class="njh-skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
+<header class="njh" data-njh>
+  <div class="njh-in">
+    <a class="njh-brand" href="index.html">
+      <img src="brand/logo-mark.svg" alt="" width="34" height="34">
+      <span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span>
     </a>
-    <nav class="header-nav">
-      <a href="listings.html">แปลงที่ดิน</a>
-      <a href="consign.html">ฝากขายที่ดิน</a>
-      <a href="agency.html">ทรัพย์หน่วยงาน</a>
-      <a href="verify.html">ตรวจทรัพย์ก่อนซื้อ</a>
-      <a class="active" href="tools.html">เครื่องมือคำนวณ</a>
-      <a href="guides.html" data-nav-wide>ความรู้เรื่องที่ดิน</a>
+    <nav class="njh-nav" aria-label="เมนูหลัก">
+      <ul class="njh-list">
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="listings.html">ซื้อ/เช่าทรัพย์<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="listings.html"><b>ประกาศทั้งหมด</b><small>กรองตามทำเล ราคา เนื้อที่ ผังสี</small></a></li>
+              <li><a href="purpose.html"><b>ค้นตามวัตถุประสงค์</b><small>สร้างบ้าน โกดัง เกษตร ลงทุน</small></a></li>
+              <li><a href="agency.html"><b>ทรัพย์หน่วยงาน</b><small>บังคับคดี ธนาคาร BAM SAM</small></a></li>
+              <li><a href="wanted.html"><b>ฝากหาที่ดิน</b><small>บอกโจทย์ไว้ ให้ทีมช่างรังวัดหาให้</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="consign.html">ขาย/ฝากทรัพย์<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="consign.html"><b>ฝากขายที่ดิน</b><small>ไม่มีค่าใช้จ่ายล่วงหน้า</small></a></li>
+              <li><a href="packages.html"><b>แพ็กเกจบริการ</b><small>ตรวจสอบ · เตรียมขาย · ฝากขาย</small></a></li>
+              <li><a href="partner-apply.html"><b>สมัครเป็นพันธมิตร</b><small>ผู้ให้บริการด้านที่ดิน</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="verify.html">ตรวจสอบและรังวัด<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="services.html"><b>บริการของเรา</b><small>รังวัด ตรวจสอบ และดูแลหลังซื้อ</small></a></li>
+              <li><a href="verify.html"><b>ส่งทรัพย์ให้ตรวจก่อนซื้อ</b><small>ตรวจเอกสารและแนวเขต</small></a></li>
+              <li><a href="inspect.html"><b>นัดตรวจแปลงก่อนซื้อ</b><small>ให้ช่างรังวัดไปดูให้ก่อน</small></a></li>
+              <li><a href="terms.html#levels"><b>ระดับการตรวจสอบ 5 ระดับ</b><small>แต่ละระดับหมายถึงอะไร</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item njh-has-menu">
+          <a class="njh-top" href="guides.html" aria-current="page">ความรู้และเครื่องมือ<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <div class="njh-panel">
+            <ul>
+              <li><a href="guides.html"><b>คู่มือที่ดิน</b><small>เอกสารสิทธิ์ การโอน ผังเมือง</small></a></li>
+              <li><a href="tools.html" aria-current="page"><b>เครื่องมือคำนวณ</b><small>ค่างวดสินเชื่อ ค่าโอนวันโอน</small></a></li>
+              <li><a href="videos.html"><b>วิดีโอให้ความรู้</b><small>ดูจบใน 30 วินาที</small></a></li>
+              <li><a href="chat.html"><b>แชทกับน้องเอ็นเจชัวร์</b><small>ผู้ช่วย AI ตอบเรื่องที่ดิน</small></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="njh-item">
+          <a class="njh-top" href="index.html#ทีมเรา">เกี่ยวกับเรา</a>
+        </li>
+        <li class="njh-item">
+          <a class="njh-top" href="portal.html" data-njportal>ติดตามงาน</a>
+        </li>
+      </ul>
     </nav>
-    <a class="nj-portal-link" data-njportal href="portal.html">ติดตามงานรังวัด</a>
-    <a class="header-cta" href="verify.html#form">ส่งทรัพย์ให้ตรวจ</a>
+    <a class="njh-cta" href="consign.html">ฝากขายฟรี</a>
   </div>
 </header>
+<!-- NJ:HEADER จบ -->
+
+<main id="main">
 
 <section class="ag-hero tl-hero">
   <div class="wrap">
@@ -145,6 +204,20 @@
   </div>
 </section>
 
+<!-- เช็กราคางานรังวัด — ย้ายมาจากหน้าแรก 20 ก.ย. 2569 (Sprint 2)
+     หน้าแรกเดิมกางกล่องนี้เต็มบล็อกก่อนถึงช่องค้นหาและก่อนถึงประกาศ ซึ่งเป็นเครื่องมือ
+     ของคนที่ตัดสินใจไปแล้ว ไม่ใช่ของคนที่เพิ่งเข้าเว็บ · ที่นี่คือหน้า "เครื่องมือคำนวณ" จึงเป็นบ้านที่ถูก
+     ⚠️ `surveyquote.js` หา `#survey-quote` ด้วย getElementById และซ่อนกล่องไว้จนกว่าจะกดปุ่ม
+        ปุ่มที่เปิดคือ `[data-sq-open]` — หน้าแรกลิงก์มาที่ `tools.html#survey` แล้วปุ่มในนี้เปิดให้ -->
+<section class="tl-sec" id="survey">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">ค่างานรังวัดโดยประมาณ</h2>
+    <p class="tl-lead">ประเมินจากตารางราคาจริงของสำนักงาน · เลือกจังหวัดด้วยเพราะค่าเดินทางคิดเป็นขั้นตามจังหวัด</p>
+    <p><button type="button" data-sq-open class="cs-final-btn">เปิดเครื่องประเมินค่ารังวัด →</button></p>
+    <div id="survey-quote"></div>
+  </div>
+</section>
+
 <!-- คู่มือผังสี (P3) — อธิบายความหมาย + ลิงก์ไปตรวจที่หน่วยงาน ไม่มีข้อมูลผังรายแปลง (ดูหัวไฟล์ zoneguide.js) -->
 <section class="tl-sec" id="zoning">
   <div class="wrap tl-wrap zg-wrap">
@@ -160,14 +233,21 @@
     <a href="agency.html" class="cs-final-btn">ส่งลิงก์ทรัพย์ให้ตรวจ →</a>
   </div>
 </section>
-
+</main>
 <footer class="site-footer">
   <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
+<nav class="nj-legal" aria-label="นโยบายและข้อกำหนด">
+  <a href="privacy.html">นโยบายความเป็นส่วนตัว</a><span class="nj-legal-sep" aria-hidden="true">·</span>
+  <a href="cookie.html">นโยบายคุกกี้</a><span class="nj-legal-sep" aria-hidden="true">·</span>
+  <a href="terms.html">ข้อกำหนดการใช้งาน</a><span class="nj-legal-sep" aria-hidden="true">·</span>
+  <button type="button" class="nj-legal-btn" data-njconsent>ตั้งค่าคุกกี้</button>
+</nav>
 </footer>
 
 <script src="analytics.js"></script>
 <script src="feecalc.js"></script>
 <script src="loancalc.js"></script>
+<script src="surveyquote.js"></script>
 <script src="landvocab.js"></script>
 <script src="zoneguide.js"></script>
 <script src="tools.js"></script>
@@ -175,7 +255,8 @@
 <script src="verified.js"></script>
 <script src="listingcard.js"></script>
 <script src="compare.js"></script>
-<script src="njchat.js"></script>
+<script src="save.js"></script>
+<script src="njchatload.js"></script>
 <script src="menu.js"></script>
 </body>
 </html>
