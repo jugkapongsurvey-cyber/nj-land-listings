@@ -98,8 +98,15 @@ function consentValue() {
 function setConsent(v) {
   try { localStorage.setItem(CONSENT_KEY, v); } catch (e) { /* โหมดส่วนตัวเขียนไม่ได้ ไม่เป็นไร */ }
   if (v === 'yes') loadTrackers();
+  // ⚠️ กด "ปฏิเสธ" แล้ว **ไม่ถอน Pixel ที่โหลดไปแล้ว** ได้ — ถอนสคริปต์ที่รันไปแล้วไม่ได้จริง
+  // กรณีนี้เกิดได้ทางเดียวคือผู้ใช้เคยกดยอมรับ แล้วเปิดแถบกลับมากดปฏิเสธในหน้าเดียวกัน
+  // จึงต้องโหลดหน้าใหม่ให้ เพื่อให้สภาพจริงตรงกับสิ่งที่ผู้ใช้เพิ่งเลือก
+  var needReload = (v === 'no' && trackersLoaded);
   var bar = document.getElementById('nj-consent');
   if (bar) bar.remove();
+  setConsentH(0);           // คืนพื้นที่ขอบล่างให้แถบติดต่อติดหนึบทันที
+  paintConsentState();
+  if (needReload) location.reload();
 }
 
 var trackersLoaded = false;
@@ -180,6 +187,18 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           // ห้องข้อมูลแปลง (Phase 3) — เปิดหน้าเท่านั้น **ไม่ใช่ลีด**
                           // ส่วน dataroom_request เซิร์ฟเวอร์บันทึกเองตอนสร้างคำขอ ฝั่งนี้จึงไม่ยิงซ้ำ
                           'dataroom_view',
+                          // ---- พฤติกรรมบนหน้าเว็บ (Sprint 3 · 20 ก.ย. 2569) ----
+                          // ⚠️ **ไม่ใช่ลีดสักตัว** ห้ามบวกเข้า leads ทั้งฝั่งนี้และฝั่ง server.js
+                          //    ใช้ตอบว่า "เครื่องมือบนเว็บถูกใช้จริงไหม" ไม่ใช่ "มีคนติดต่อกี่ราย"
+                          // ⚠️ ต้องตรงกับ PUBLIC_EVENT_TYPES ใน server.js เป๊ะ (contracts.test.js เทียบให้)
+                          'homepage_search', 'filter_property', 'save_property',
+                          'share_property', 'use_calculator', 'chat_to_human',
+                          // ---- Sprint 5 (งานที่ 16) — สองตัวที่ยังไม่มีชื่อในระบบเลย ----
+                          // ⚠️ ที่เหลือในรายการ 20 ชื่อของข้อกำหนด **มีอยู่แล้วใต้ชื่อเดิม ห้ามเปลี่ยนชื่อตาม**
+                          //    เปลี่ยนเมื่อไหร่ = ตัวเลขเก่าขาดตอน และยอด leads ใน
+                          //    /api/public/track/summary เพี้ยน · ตารางเทียบชื่ออยู่ใน CLAUDE.md
+                          'view_survey_level',   // กางดูบันไดการตรวจสอบ 5 ระดับในหน้าแปลง
+                          'download_report',    // กดดาวน์โหลด/สั่งพิมพ์ประกาศเป็น PDF
                           // แพ็กเกจบริการ (รอบ 4) — เปิดหน้า/เปิดดูแพ็กเกจ/เทียบ/ทำแบบสอบถาม **ไม่ใช่ลีด**
                           // มีแต่ package_lead ที่เป็นลีดจากฟอร์ม (นับรวมใน formLeads ฝั่งเซิร์ฟเวอร์)
                           // ⚠️ การกดไลน์/โทรบนหน้าแพ็กเกจใช้ line_click/tel_click เดิม ห้ามเพิ่มชนิดใหม่ให้สองอย่างนั้น
@@ -208,25 +227,127 @@ function njTrackInternal(type, listingId) {
 // แบนเนอร์ขอความยินยอม — ขึ้นเฉพาะเมื่อ (ก) ยังไม่เคยตอบ และ (ข) มี ID ให้โหลดจริง
 // ถ้ายังไม่ได้กรอก ID ก็ไม่มีอะไรให้ขอความยินยอม จึงไม่รบกวนผู้ใช้เปล่าๆ
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// แถบขอความยินยอม + ทางกลับมาเปลี่ยนใจ
+//
+// ⚠️ **ต้องมีทางกลับมาเปลี่ยนใจเสมอ** (เพิ่ม 2026-09-20)
+// ของเดิมกดตอบครั้งเดียวแล้วจบถาวร — เปลี่ยนใจได้ทางเดียวคือล้างข้อมูลเว็บไซต์ทิ้งทั้งก้อน
+// ซึ่งลบตั๋วใบฝากขายของลูกค้าไปด้วย · การถอนความยินยอมต้องง่ายพอๆ กับการให้
+// ทางกลับคือลิงก์ "ตั้งค่าคุกกี้" ในแถบนโยบายท้ายทุกหน้า (`[data-njconsent]`)
+//
+// ⚠️ **ปุ่ม "ปฏิเสธ" ต้องอยู่ระดับเดียวกับ "ยอมรับ" ห้ามทำให้หายากกว่า**
+// และต้องไม่มีปุ่มไหนถูกทำให้เด่นกว่าอีกปุ่มจนกลายเป็นการชี้นำ
+//
+// ⚠️ ปุ่ม "ตั้งค่าคุกกี้" ในแถบเป็นทางไปอ่านนโยบายฉบับเต็ม ไม่ใช่แผงติ๊กหลายหมวด
+// เพราะตอนนี้มีของให้เลือกจริงหมวดเดียว (การตลาด) — ทำแผงติ๊กหมวดเดียวคือเพิ่มขั้นตอน
+// ให้ผู้ใช้โดยไม่ได้เพิ่มทางเลือก · วันไหนมีหมวดที่สองค่อยเปลี่ยนเป็นแผงจริง
+// ---------------------------------------------------------------------------
+function buildConsentBar() {
+  var bar = document.createElement('div');
+  bar.id = 'nj-consent';
+  bar.setAttribute('role', 'region');
+  bar.setAttribute('aria-label', 'การตั้งค่าคุกกี้');
+  bar.innerHTML =
+    // ⚠️ **สั้นที่สุดเท่าที่ยังบอกครบ** — วัดจริงที่ 375px แล้วแบนเนอร์กินจอ 17%
+    //    ข้อความยาวขึ้นทุกบรรทัด = พื้นที่อ่านเนื้อหาหายไปอีกหนึ่งบรรทัดบนมือถือ
+    //    คุกกี้ที่จำเป็นไม่ต้องขอความยินยอมอยู่แล้ว รายละเอียดทั้งหมดอยู่ในหน้านโยบาย
+    '<div class="nj-consent-text">เราใช้คุกกี้การตลาดเพื่อวัดผลโฆษณา — เลือก "เฉพาะที่จำเป็น" ก็ใช้งานเว็บได้ครบ ' +
+    '<a class="nj-consent-more" href="cookie.html">ตั้งค่าคุกกี้</a></div>' +
+    '<div class="nj-consent-btns">' +
+      '<button type="button" class="nj-consent-no">เฉพาะที่จำเป็น</button>' +
+      '<button type="button" class="nj-consent-yes">ยอมรับทั้งหมด</button>' +
+    '</div>';
+  document.body.appendChild(bar);
+  // ⚠️ ต้องวัดความสูงจริงแล้วบอกทั้งหน้า ไม่งั้นแบนเนอร์ทับของที่ติดขอบล่างอยู่ก่อนแล้ว
+  measureConsent(bar);
+  bar.querySelector('.nj-consent-yes').addEventListener('click', function () { setConsent('yes'); });
+  bar.querySelector('.nj-consent-no').addEventListener('click', function () { setConsent('no'); });
+  return bar;
+}
+
+// ---------- บอกทั้งหน้าว่าแบนเนอร์สูงเท่าไร ----------
+//
+// ทำไมต้องมี: แบนเนอร์คุกกี้เป็น fixed ที่ขอบล่างและ z-index 900 (สูงที่สุดรองจากลิ้นชักเมนู
+// เพราะเป็นเรื่องกฎหมาย) · ของที่ติดขอบล่างอยู่ก่อนแล้วจึงถูกทับทันที —
+// **แถบติดต่อติดหนึบในหน้ารายละเอียดแปลง** (`.ld-sticky` · z-index 150) เจอเต็มๆ
+// ซึ่งแปลว่าผู้ซื้อที่ยังไม่ตอบแบนเนอร์ กดปุ่มโทร/ไลน์ของแปลงนั้นไม่ได้เลย
+//
+// ⚠️ ให้ค่าเป็นตัวแปร CSS ตัวเดียว (`--nj-consent-h`) แล้วให้แต่ละองค์ประกอบบวกเอง
+//    ดีกว่าให้ analytics.js ไปไล่แก้ style ของคนอื่นทีละตัว (ซึ่งต้องรู้จักทุกหน้า)
+// ⚠️ เทียบค่าเดิมก่อนเขียนเสมอ — กับดัก MutationObserver ชุดเดียวกับที่เคยทำให้สองหน้าค้าง
+function setConsentH(px) {
+  var root = document.documentElement;
+  var want = px > 0 ? px + 'px' : '';
+  if (root.style.getPropertyValue('--nj-consent-h') === want) return;
+  if (want) root.style.setProperty('--nj-consent-h', want);
+  else root.style.removeProperty('--nj-consent-h');
+}
+function measureConsent(bar) {
+  bar = bar || document.getElementById('nj-consent');
+  if (!bar) { setConsentH(0); return; }
+  // ⚠️ DOM ปลอมใน consent.test.js ไม่มี getBoundingClientRect — วัดไม่ได้ก็แค่ไม่ยก ไม่ใช่พังทั้งไฟล์
+  if (typeof bar.getBoundingClientRect !== 'function' || typeof window.innerHeight !== 'number') return;
+  var r = bar.getBoundingClientRect();
+  // ระยะจากขอบล่างจอถึงขอบบนแบนเนอร์ + ช่องไฟ — ไม่ใช่แค่ความสูงของตัวแบนเนอร์
+  // เพราะบนจอเล็กแบนเนอร์ถูกยกขึ้นเหนือแถบเมนูล่างอยู่แล้ว (ดู consent.css)
+  setConsentH(r.height > 0 ? Math.round(window.innerHeight - r.top + 8) : 0);
+}
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('resize', function () { measureConsent(); });
+}
+
+// เปิดแถบอีกครั้งตามคำขอของผู้ใช้ — ใช้ได้แม้เคยตอบไปแล้ว
+function openConsent() {
+  var bar = document.getElementById('nj-consent') || buildConsentBar();
+  var btn = bar.querySelector('.nj-consent-no');
+  if (btn) btn.focus();
+  return bar;
+}
+
 function initConsent() {
   var has = META_PIXEL_ID || GA4_ID;
   var val = consentValue();
+
+  // ⚠️ ผูกลิงก์ "ตั้งค่าคุกกี้" ก่อนเสมอ ไม่ว่าจะเคยตอบไปแล้วหรือไม่
+  // ของเดิม return ออกตั้งแต่บรรทัดถัดไปเมื่อเคยตอบแล้ว — ผูกทีหลังคือลิงก์ตาย
+  bindConsentLinks();
+
   if (val === 'yes') { loadTrackers(); return; }
   if (val === 'no' || !has) return;
 
-  var bar = document.createElement('div');
-  bar.id = 'nj-consent';
-  bar.innerHTML =
-    '<div class="nj-consent-text">เราใช้คุกกี้เพื่อวัดผลโฆษณาและปรับปรุงเว็บไซต์ ' +
-    'คุณเลือกปฏิเสธได้โดยยังใช้งานเว็บได้ครบทุกส่วน</div>' +
-    '<div class="nj-consent-btns">' +
-      '<button type="button" class="nj-consent-no">ปฏิเสธ</button>' +
-      '<button type="button" class="nj-consent-yes">ยอมรับ</button>' +
-    '</div>';
-  document.body.appendChild(bar);
-  bar.querySelector('.nj-consent-yes').addEventListener('click', function () { setConsent('yes'); });
-  bar.querySelector('.nj-consent-no').addEventListener('click', function () { setConsent('no'); });
+  buildConsentBar();
 }
+
+// แถบลิงก์นโยบายท้ายฟุตเตอร์มีปุ่ม [data-njconsent] และช่องบอกสถานะ [data-njconsent-state]
+// ทั้งคู่ไม่บังคับ หน้าไหนไม่มีก็ข้ามไปเงียบๆ
+function bindConsentLinks() {
+  var btns = document.querySelectorAll('[data-njconsent]');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function (e) {
+      e.preventDefault();
+      openConsent();
+    });
+  }
+  paintConsentState();
+}
+
+function consentStateText() {
+  var v = consentValue();
+  if (v === 'yes') return 'ตอนนี้คุณเลือก “ยอมรับคุกกี้เพื่อการตลาด” ไว้';
+  if (v === 'no') return 'ตอนนี้คุณเลือก “ปฏิเสธคุกกี้เพื่อการตลาด” ไว้';
+  return 'คุณยังไม่ได้เลือก — ระบบจะยังไม่โหลดคุกกี้เพื่อการตลาดจนกว่าคุณจะกดยอมรับ';
+}
+function paintConsentState() {
+  var els = document.querySelectorAll('[data-njconsent-state]');
+  var txt = consentStateText();
+  for (var i = 0; i < els.length; i++) {
+    // ⚠️ เขียนทับด้วยค่าเดิมคือลบ text node แล้วสร้างใหม่ ซึ่งนับเป็น childList mutation
+    // เทียบก่อนเขียนเสมอ (กับดัก MutationObserver ที่เคยทำให้สองหน้าค้างทั้งแท็บ)
+    if (els[i].textContent !== txt) els[i].textContent = txt;
+  }
+}
+
+window.NJConsent = { open: openConsent, value: consentValue, stateText: consentStateText };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initConsent);
 else initConsent();

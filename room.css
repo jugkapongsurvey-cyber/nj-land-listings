@@ -47,7 +47,7 @@ body.rm-tracking .rm-sell{display:none}
 .rm-done{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center}
 .rm-done b{display:block;font-size:17px;color:var(--navy);margin-bottom:8px}
 .rm-done p{font-size:14px;line-height:1.9;color:var(--sub);margin:0 0 12px}
-.rm-code{font-family:Manrope,sans-serif;font-weight:700;color:var(--navy)}
+.rm-code{font-family:var(--nj-font);font-weight:700;color:var(--navy)}
 .rm-line{
   display:inline-block;margin-top:14px;font-size:14px;font-weight:600;
   color:var(--navy);text-decoration:underline;

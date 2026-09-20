@@ -29,7 +29,7 @@
 .fc-row b{display:block;font-size:14px;font-weight:600;color:#213A57;line-height:1.5}
 .fc-row span{display:block;font-size:11.5px;color:#8798A9;line-height:1.6;margin-top:2px}
 .fc-row em{
-  flex:none;font-style:normal;font-family:Manrope,system-ui,sans-serif;
+  flex:none;font-style:normal;font-family:var(--nj-font);
   font-size:15px;font-weight:700;color:#213A57;white-space:nowrap;
 }
 .fc-row.total{border-bottom:none;border-top:2px solid #E3EAF1;margin-top:4px;padding-top:13px}
@@ -42,7 +42,7 @@
   display:flex;flex-direction:column;gap:3px;
 }
 .fc-split span{font-size:11.5px;color:#5A6B7D;font-weight:600}
-.fc-split b{font-family:Manrope,system-ui,sans-serif;font-size:16px;font-weight:700;color:#0B1F3A}
+.fc-split b{font-family:var(--nj-font);font-size:16px;font-weight:700;color:#0B1F3A}
 
 .fc-hint{font-size:13px;color:#8798A9;margin:2px 0;line-height:1.8}
 .fc-warn{

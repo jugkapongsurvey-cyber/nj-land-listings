@@ -102,7 +102,7 @@
 
     // opt.wide — วางเต็มความกว้าง (หน้าแรก): รายการบริการกาง 3 คอลัมน์ ส่วนช่องกรอกยุบเป็นการ์ดกลางหน้า
     // ไม่ทำแบบนี้แล้วช่อง "ชื่อ/เบอร์" จะยืดเป็น 1,280px ซึ่งกรอกยากและดูเหมือนหน้าเว็บพัง
-    return '<form class="njsv-form' + (opt.wide ? ' njsv-wide' : '') + '" novalidate>' +
+    return '<form class="njsv-form' + (opt.wide ? ' njsv-wide' : '') + '" novalidate data-njform>' +
       codeField +
       '<div class="njsv-fieldset">' +
         '<span class="njsv-legend">บริการที่อยากให้ดูแลต่อ <i>(เลือกได้หลายข้อ)</i></span>' +
@@ -131,6 +131,9 @@
     if (!host) return null;
     opt = opt || {};
     host.innerHTML = formHtml(opt);
+    // ⚠️ ฟอร์มนี้ถูกวาดหลัง DOMContentLoaded ตัวติดตั้งอัตโนมัติของ njform.js จึงไม่เห็น
+    //    ต้องเรียกเองที่นี่ ไม่งั้นช่องเบอร์โทรไม่ถูกจัดรูปขณะพิมพ์
+    if (window.NJForm) NJForm.attach(host.querySelector('form'));
     var form = host.querySelector('.njsv-form');
     var msg = host.querySelector('[data-njsv-msg]');
     var btn = host.querySelector('.njsv-submit');
@@ -159,11 +162,22 @@
         note: get('note'),
         services: services,
         website: get('website'),
-        ref: location.search ? location.search.slice(1, 60) : (opt.ref || 'services')
+        // ⚠️ ของเดิมยัด query string ดิบเข้าช่องนี้ ซึ่งแปลว่าตั๋วที่ติดมากับลิงก์ (?id=..&t=..)
+        //    มีโอกาสไปโผล่ในใบลีด · ตอนนี้อ่านจาก attrib.js ที่สรุปเฉพาะชื่อแหล่ง/สื่อ/แคมเปญ
+        ref: (window.NJAttrib && NJAttrib.refText()) || (opt.ref || 'services')
       };
+      // ที่มาของลีด — ไม่มีข้อมูลส่วนบุคคลอยู่ในนี้ (ดูคำเตือนหัวไฟล์ attrib.js)
+      if (window.NJAttrib) body.attrib = NJAttrib.value();
+
       // ตรวจฝั่งนี้ก่อนเพื่อบอกเร็ว — เซิร์ฟเวอร์ตรวจซ้ำอยู่ดี ไม่ได้พึ่งฝั่งนี้เป็นด่านความปลอดภัย
-      if (!body.name) { say('bad', 'กรุณากรอกชื่อผู้ติดต่อ'); return; }
-      if (body.phone.replace(/\D/g, '').length < 9) { say('bad', 'กรุณากรอกเบอร์โทรให้ครบ'); return; }
+      var errs = window.NJForm ? NJForm.errors(form) : null;
+      function bad(sel, text) {
+        say('bad', text);
+        if (errs) { errs.clear(); errs.set(sel, text); errs.focusFirst(); }
+      }
+      if (!body.name) { bad('[data-njsv="name"]', 'กรุณากรอกชื่อผู้ติดต่อ'); return; }
+      if (body.phone.replace(/\D/g, '').length < 9) { bad('[data-njsv="phone"]', 'กรุณากรอกเบอร์โทรให้ครบ'); return; }
+      if (errs) errs.clear();
       if (!body.listingId && !services.length) {
         say('bad', 'เลือกบริการที่ต้องการอย่างน้อย 1 รายการ หรือใส่รหัสทรัพย์ที่สนใจ');
         return;

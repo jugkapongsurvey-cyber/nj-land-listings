@@ -1,0 +1,226 @@
+/* หน้าเอกสารนโยบาย (privacy / cookie / terms) + แถบลิงก์นโยบายท้ายทุกหน้า
+ *
+ * ⚠️ ไฟล์นี้ถูกโหลดใน **ทุกหน้า** ของเว็บ ไม่ใช่เฉพาะสามหน้านโยบาย
+ * เพราะแถบ `.nj-legal` ท้ายฟุตเตอร์ต้องมีสไตล์เหมือนกันทั้งเว็บ
+ * · เว็บนี้มีชุดสไตล์ 3 ชุด (home.css / marketplace.css / ui.css) ที่ใช้ตัวแปรสีคนละชุด
+ *   ถ้าเขียนกฎ `.nj-legal` ลงไปในสามไฟล์นั้น จะกลายเป็นของซ้ำสามที่ให้ลืมแก้
+ *   (กับดักเดียวกับสไตล์การ์ดสองไฟล์ และ `.nj-consent` ที่ตอนนี้ซ้ำอยู่สี่ไฟล์)
+ * · จึงรวมไว้ที่นี่ที่เดียว และเขียนสีเป็นค่าคงที่ ไม่พึ่งตัวแปรของชุดใดชุดหนึ่ง
+ *   ค่าที่ใช้คือโทนน้ำเงิน–ทองของแบรนด์ (ดูหัวข้อ Design tokens ใน CLAUDE.md)
+ */
+
+/* ---------- แถบลิงก์นโยบายท้ายฟุตเตอร์ (ทุกหน้า) ---------- */
+
+.nj-legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 6px;
+  padding: 14px 16px 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.nj-legal a,
+.nj-legal .nj-legal-btn {
+  color: inherit;
+  opacity: 0.82;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  /* เป้ากดบนมือถือต้องไม่เล็กกว่า 44px (ACCESSIBILITY_AUDIT ข้อ A11Y-03) */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 6px;
+}
+
+.nj-legal a:hover,
+.nj-legal .nj-legal-btn:hover,
+.nj-legal a:focus-visible,
+.nj-legal .nj-legal-btn:focus-visible { opacity: 1; }
+
+.nj-legal a:focus-visible,
+.nj-legal .nj-legal-btn:focus-visible {
+  outline: 2px solid #D8B96B;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ปุ่มเปิดแถบตั้งค่าคุกกี้ — ต้องเป็น <button> จริง ไม่ใช่ <a href="#">
+ * เพราะมันไม่ได้พาไปหน้าไหน · แต่หน้าตาต้องเหมือนลิงก์ข้างๆ */
+.nj-legal .nj-legal-btn {
+  background: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nj-legal .nj-legal-sep { opacity: 0.4; }
+
+/* ---------- ลิงก์ข้ามไปเนื้อหาหลัก ---------- */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  background: #0B1F3A;
+  color: #FFFFFF;
+  padding: 12px 18px;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+  outline: 2px solid #D8B96B;
+  outline-offset: 2px;
+}
+
+/* ---------- เนื้อหาหน้านโยบาย ---------- */
+
+.lg-body {
+  /* จำกัดความกว้างบรรทัดราว 65–75 ตัวอักษร — ข้อความยาวอ่านง่ายขึ้นมาก */
+  max-width: 76ch;
+  font-size: 17px;
+  line-height: 1.68;
+  color: #31465E;
+}
+
+.lg-body h2 { margin-top: 42px; }
+.lg-body h3 {
+  margin: 28px 0 8px;
+  font-size: 18px;
+  color: #0B1F3A;
+}
+.lg-body p { margin: 0 0 14px; }
+.lg-body ul { margin: 0 0 18px; padding-left: 22px; }
+.lg-body li { margin-bottom: 8px; }
+.lg-body b { color: #0B1F3A; }
+.lg-body code {
+  font-size: 0.92em;
+  background: #EEF3F8;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.lg-updated {
+  font-size: 14px;
+  color: #5A6B7D;
+  margin: 10px 0 0;
+}
+
+/* กล่องบอกสิ่งที่บริษัทต้องเติมก่อนเผยแพร่ — ตั้งใจให้เห็นชัด
+ * ⚠️ ลบกล่องนี้ได้ก็ต่อเมื่อเติมข้อมูลในนั้นครบแล้วจริงเท่านั้น
+ *    ลบทิ้งเฉยๆ = หน้านโยบายที่ขาดข้อมูลตามกฎหมายโดยไม่มีอะไรเตือน */
+.lg-todo {
+  border: 1px solid #E0B94A;
+  background: #FFF9EA;
+  border-left: 4px solid #C79A21;
+  padding: 16px 18px;
+  margin: 0 0 32px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.lg-todo b { display: block; margin-bottom: 6px; color: #7A5A00; }
+.lg-todo ul { margin: 8px 0 0; }
+.lg-todo p { margin: 0; }
+
+.lg-note {
+  font-size: 15px;
+  color: #7A5A00;
+  background: #FFF9EA;
+  border-left: 3px solid #E0B94A;
+  padding: 10px 14px;
+  margin: 0 0 14px;
+}
+
+/* กล่องปุ่มตั้งค่าคุกกี้ในหน้านโยบายคุกกี้ */
+.lg-cta {
+  border: 1px solid #C8D7E6;
+  background: #F4F7FA;
+  padding: 18px;
+  margin: 0 0 32px;
+}
+.lg-cta b { display: block; margin-bottom: 4px; color: #0B1F3A; }
+.lg-cta p { margin: 0 0 12px; font-size: 15px; }
+
+.lg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  background: #0B1F3A;
+  color: #FFFFFF;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lg-btn:hover { background: #163459; }
+.lg-btn:focus-visible { outline: 2px solid #D8B96B; outline-offset: 2px; }
+
+.lg-state {
+  margin: 10px 0 0 !important;
+  font-size: 14px;
+  color: #5A6B7D;
+}
+
+/* ตาราง — ต้องเลื่อนแนวนอนได้เองบนมือถือ ไม่ใช่ดันทั้งหน้าให้ล้น */
+.lg-table-wrap {
+  overflow-x: auto;
+  margin: 0 0 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.lg-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 480px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.lg-table th,
+.lg-table td {
+  border: 1px solid #DCE5EF;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.lg-table th {
+  background: #EEF3F8;
+  color: #0B1F3A;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lg-seealso {
+  margin-top: 40px !important;
+  padding-top: 18px;
+  border-top: 1px solid #DCE5EF;
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  .lg-body { font-size: 16px; }
+  .lg-body h3 { font-size: 17px; }
+  .lg-table { font-size: 14px; }
+}
+
+/* ---------- ลิงก์ "อ่านนโยบายคุกกี้" ในแถบขอความยินยอม ----------
+ * สไตล์ `.nj-consent` ตัวแถบเองยังกระจายอยู่ 4 ไฟล์ (consent.css · home.css · inspect.css · ui.css)
+ * ซึ่งเป็นหนี้ทางเทคนิคที่จะเก็บใน Sprint 1 ตอนรวม design token
+ * ลิงก์ที่เพิ่งเพิ่มเข้ามาจึงวางไว้ที่นี่ที่เดียว ไม่เติมหนี้ก้อนนั้นให้หนักขึ้นอีก
+ */
+#nj-consent .nj-consent-more {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+#nj-consent .nj-consent-more:focus-visible {
+  outline: 2px solid #D8B96B;
+  outline-offset: 2px;
+}

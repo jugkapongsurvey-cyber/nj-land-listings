@@ -229,7 +229,7 @@
 .cs-sv-quote{ margin-top:12px; }
 .cs-sv-quote:empty{ display:none; }
 .cs-sv-box{ background:#F7F9FC; border:1px solid #DCE3EF; border-radius:10px; padding:11px 13px; }
-.cs-sv-price{ font-size:20px; font-weight:700; color:#12315F; font-family:Manrope,system-ui,sans-serif; }
+.cs-sv-price{ font-size:20px; font-weight:700; color:#12315F; font-family:var(--nj-font); }
 .cs-sv-price small{ font-size:13px; font-weight:500; color:#6C7F99; font-family:inherit; margin-left:6px; }
 .cs-sv-cut{ font-size:12.5px; color:#0F8A4F; font-weight:600; margin-top:3px; }
 .cs-sv-sub{ font-size:12.5px; line-height:1.65; color:#6C7F99; margin-top:6px; }

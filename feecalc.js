@@ -361,7 +361,11 @@
     root.hidden = true;
     function open(){
       // mount ครั้งเดียวตลอดอายุหน้า — mount ซ้ำทุกครั้งที่กดปุ่ม ตัวเลขที่ผู้ใช้กรอกค้างไว้จะหายหมด
-      if (!mounted) { mount(root, {}); mounted = true; }
+      if (!mounted) {
+        mount(root, {}); mounted = true;
+        // นับว่ามีคนเปิดใช้เครื่องคำนวณ — ครั้งเดียวต่อการเปิดหน้า (mount ครั้งแรกเท่านั้น)
+        if (window.njTrackInternal) njTrackInternal('use_calculator');
+      }
       root.hidden = false;
       root.scrollIntoView({ behavior:'smooth', block:'nearest' });
       var f = root.querySelector('[data-fc="salePrice"]');
