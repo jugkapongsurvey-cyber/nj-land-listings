@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- ⚠️ ตั๋วติดตามงานอยู่ใน query string ของหน้านี้ — ห้ามให้หลุดไปกับหัว Referer
-     ตอนผู้ใช้กดลิงก์ออกไปเว็บอื่น (เช่นปุ่มทักไลน์) · เบราว์เซอร์รุ่นใหม่ตั้งค่านี้ให้อยู่แล้ว
-     แต่ประกาศไว้เองชัดเจนกว่า และครอบเบราว์เซอร์รุ่นเก่าด้วย -->
+<!-- ⚠️ ตั๋วของลูกค้าอยู่ใน query string ของหน้านี้ — ห้ามให้หลุดไปกับหัว Referer
+     ตอนผู้ใช้กดลิงก์ออกไปเว็บอื่น (กติกาเดียวกับ inspect.html และ partner-apply.html) -->
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>ติดตามการซื้อที่ดินของคุณ | ที่ดินชัวร์</title>
-<meta name="description" content="ดูความคืบหน้าการซื้อที่ดินของคุณทั้ง 11 ขั้น ตั้งแต่สนใจแปลงจนโอนกรรมสิทธิ์ เปิดด้วยลิงก์เฉพาะตัวที่ทีมงานส่งให้">
-<!-- ⚠️ noindex — เนื้อหาขึ้นกับตั๋วในลิงก์ ไม่ใช่หน้าสาธารณะที่ควรถูกจัดทำดัชนี (เหตุผลเดียวกับ compare.html) -->
-<meta name="robots" content="noindex">
+<!-- หน้านี้เป็นของลูกค้าแต่ละราย ไม่ใช่หน้าสาธารณะ — ห้ามให้เสิร์ชเอนจินเก็บ -->
+<meta name="robots" content="noindex, nofollow">
+<title>ติดตามงานแพ็กเกจบริการ | ที่ดินชัวร์</title>
 <link rel="icon" href="brand/logo-favicon.svg">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,15 +24,10 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="ui.css">
-<link rel="stylesheet" href="compare.css">
-<link rel="stylesheet" href="save.css">
-<link rel="stylesheet" href="verified.css">
-<link rel="stylesheet" href="njchat.css">
 <link rel="stylesheet" href="menu.css">
-<link rel="stylesheet" href="deal.css">
-<link rel="stylesheet" href="legal.css">
+<link rel="stylesheet" href="package-order.css">
 </head>
-<body class="page-deal">
+<body class="page-package-order">
 <!-- NJ:HEADER เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
 <a class="njh-skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
 <header class="njh" data-njh>
@@ -103,51 +96,33 @@
 
 <main id="main">
 
-<main class="dl-main">
-  <div class="wrap dl-wrap">
-    <h1>ความคืบหน้าการซื้อที่ดินของคุณ</h1>
-    <p class="dl-lead">
-      เส้นทางนี้มี 11 ขั้น ตั้งแต่วันที่คุณสนใจแปลงจนถึงหลังโอนกรรมสิทธิ์
-      ทีมงานอัปเดตให้ทุกครั้งที่มีความเคลื่อนไหว
-    </p>
-
-    <div class="dl-card">
-      <div id="dl-root">
-        <!-- ⚠️ deal.js วาดเนื้อหาทั้งหมดลงในกล่องนี้
-             ข้อความข้างล่างคือสิ่งที่คนเห็นเมื่อจาวาสคริปต์โหลดไม่สำเร็จ ต้องมีทางติดต่อเสมอ -->
-        <noscript>
-          <p>หน้านี้ต้องใช้จาวาสคริปต์ในการดึงข้อมูลงานของคุณ — ทักไลน์ <b>@716lffzt</b>
-          หรือโทร <b>02-162-0405</b> / <b>084-915-8601</b> แล้วแจ้งเลขงาน ทีมงานบอกความคืบหน้าให้ได้ทันทีครับ</p>
-        </noscript>
-      </div>
+<main class="po-main">
+  <div class="wrap">
+    <div id="po-root" aria-live="polite">
+      <p class="po-note">กำลังเปิดใบสั่งงานของคุณ…</p>
     </div>
 
-    <p class="dl-privacy">
-      ลิงก์หน้านี้เป็นกุญแจของงานคุณ เปิดดูได้เฉพาะคนที่มีลิงก์ อย่าส่งต่อให้คนที่ไม่เกี่ยวข้อง
-      · ต้องการให้ยกเลิกลิงก์เดิมและออกใหม่ แจ้งทีมงานได้ตลอด
-    </p>
+    <noscript>
+      <div class="po-warn">
+        หน้านี้ต้องเปิดจาวาสคริปต์เพื่อดึงสถานะงานของคุณจากระบบ
+        — ทักไลน์ <b>@716lffzt</b> หรือโทร <b>02-162-0405</b> แล้วแจ้งเลขที่ใบสั่งงานกับทีมงานได้เลย
+      </div>
+    </noscript>
   </div>
 </main>
 </main>
 <footer class="site-footer">
   <div class="wrap">© <span id="year"></span> ที่ดินชัวร์ (NJ TEEDINSURE) โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด — สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
-<nav class="nj-legal" aria-label="นโยบายและข้อกำหนด">
-  <a href="privacy.html">นโยบายความเป็นส่วนตัว</a><span class="nj-legal-sep" aria-hidden="true">·</span>
-  <a href="cookie.html">นโยบายคุกกี้</a><span class="nj-legal-sep" aria-hidden="true">·</span>
-  <a href="terms.html">ข้อกำหนดการใช้งาน</a><span class="nj-legal-sep" aria-hidden="true">·</span>
-  <button type="button" class="nj-legal-btn" data-njconsent>ตั้งค่าคุกกี้</button>
-</nav>
 </footer>
 
+<div class="cs-bottombar">
+  <a href="tel:021620405" class="cs-bar-btn" data-contact="tel">☏ สนง.</a>
+  <a href="https://line.me/R/ti/p/@716lffzt" class="cs-bar-btn line" target="_blank" rel="noopener" data-contact="line">💬 ไลน์</a>
+  <a href="packages.html" class="cs-bar-btn primary">แพ็กเกจบริการ</a>
+</div>
+
 <script src="analytics.js"></script>
-<script src="deal.js"></script>
-<!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
-<script src="verified.js"></script>
-<script src="listingcard.js"></script>
-<script src="landvocab.js"></script>
-<script src="compare.js"></script>
-<script src="save.js"></script>
-<script src="njchatload.js"></script>
+<script src="package-order.js"></script>
 <script src="menu.js"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
 </body>

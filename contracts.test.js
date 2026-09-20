@@ -597,5 +597,105 @@ console.log('\n12) ทุกเส้นทางฟอร์มสาธาร�
         !/leads\s*\+=\s*[^;]*attrib/.test(server));
 }
 
+console.log('\nแพ็กเกจบริการ (รอบ 4) — packages.html · package-order.html');
+{
+  const pkgLib = path.join(SRV, 'lib', 'packages', 'pricing.js');
+  if (!fs.existsSync(pkgLib)) {
+    console.log('  ข้าม — ยังไม่มี lib/packages/pricing.js ที่ฝั่งเซิร์ฟเวอร์ (สาขาแพ็กเกจยังไม่ถูก merge · ส่ง path ของ worktree มาเป็นอาร์กิวเมนต์ได้)');
+  } else {
+    const pricing = read(pkgLib);
+    const pkgHtml = read(path.join(WEB, 'packages.html'));
+    const pkgJs = read(path.join(WEB, 'packages.js'));
+    const orderHtml = read(path.join(WEB, 'package-order.html'));
+    const orderJs = read(path.join(WEB, 'package-order.js'));
+    const consignHtml = read(path.join(WEB, 'consign.html'));
+    const indexHtml = read(path.join(WEB, 'index.html'));
+    const njchat = read(path.join(WEB, 'njchat.js'));
+
+    // ---------- ชนิดเหตุการณ์สถิติของหน้าแพ็กเกจ ----------
+    ['packages_view', 'package_view', 'package_compare', 'package_reco_start', 'package_reco_done', 'package_lead']
+      .forEach(function (e) {
+        check('เหตุการณ์ ' + e + ' มีทั้งสองฝั่ง',
+          (srvEvents || []).indexOf(e) >= 0 && (webEvents || []).indexOf(e) >= 0);
+      });
+    // ⚠️ ข้อกำหนดเรียกการกดไลน์/โทรว่า contact_line/call_staff — แต่เว็บใช้ชนิดเดิม ไม่งั้นนับคนเดิมสองครั้ง
+    check('⭐ ไม่มีชนิดใหม่ซ้ำกับ line_click/tel_click',
+      (webEvents || []).indexOf('contact_line') < 0 && (webEvents || []).indexOf('call_staff') < 0);
+    check('หน้าแพ็กเกจยิงเหตุการณ์ผ่าน njTrackInternal ตัวกลาง', /njTrackInternal/.test(pkgJs));
+
+    // ---------- ราคาและรายการต้องมาจากเซิร์ฟเวอร์เท่านั้น (ข้อกำหนดข้อ 4) ----------
+    check('⭐⭐ หน้าแพ็กเกจเรียกแคตตาล็อกจาก /api/public/packages', /\/api\/public\/packages/.test(pkgJs));
+    check('⭐⭐ เครื่องคำนวณราคาเรียก /api/public/package-quote (ไม่คิดราคาเอง)', /\/api\/public\/package-quote/.test(pkgJs));
+    check('แบบสอบถามเรียก /api/public/package-recommend', /\/api\/public\/package-recommend/.test(pkgJs));
+    check('ฟอร์มส่งข้อมูลเรียก /api/public/package-lead', /\/api\/public\/package-lead/.test(pkgJs));
+    check('เซิร์ฟเวอร์มีเส้นทางสาธารณะครบทั้งสี่เส้น',
+      /app\.get\('\/api\/public\/packages'/.test(server) && /app\.post\('\/api\/public\/package-quote'/.test(server) &&
+      /app\.post\('\/api\/public\/package-recommend'/.test(server) && /app\.post\('\/api\/public\/package-lead'/.test(server));
+    // ตัวเลขราคาห้ามอยู่ในไฟล์ของหน้าเว็บ (ยกเว้นเบอร์โทรและเลขที่ใบอนุญาต)
+    // ตัดสิ่งที่เป็นตัวเลขแต่ไม่ใช่ราคา (เบอร์โทร · ความยาวช่องกรอก · ไอดีไลน์) ออกก่อน
+    const moneyInPkg = (pkgJs.replace(/02-162-0405|021620405|716lffzt/g, '')
+      .replace(/maxlength=.\d+.|rows=.\d+./g, '').match(/\b\d{4,}\b/g) || []);
+    check('⭐⭐ packages.js ไม่มีตัวเลขราคาฝังไว้เอง', moneyInPkg.length === 0, moneyInPkg.join(','));
+    check('⭐ packages.js ไม่มีรายการคำถามของแบบสอบถามฝังไว้เอง',
+      !/propertyType/.test(pkgJs) && !/lastSurvey/.test(pkgJs) && /data\.questions|S\.data\.questions/.test(pkgJs));
+    check('⭐ หน้าแพ็กเกจไม่มีชื่อแพ็กเกจฝังใน HTML', !/Sale Readiness|Verified Property|sale_readiness/.test(pkgHtml));
+    check('โหลดราคาไม่ได้ = ให้ทักไลน์/โทร ไม่ใช่โชว์ตัวเลขสำรอง', /ทักไลน์|02-162-0405/.test(pkgJs));
+
+    // ---------- ค่านายหน้าขั้นบันได — ข้อความบนเว็บต้องตรงกับกฎราคาของระบบ ----------
+    const rates = (pricing.match(/ratePct: ([0-9.]+)/g) || []).map(function (s) { return s.replace('ratePct: ', ''); });
+    check('อ่านอัตราขั้นค่านายหน้าจากฝั่งเซิร์ฟเวอร์ได้', rates.length >= 3, rates.join(','));
+    ['3', '2.5', '2'].forEach(function (r) {
+      check('ระบบหลังบ้านมีอัตราขั้น ' + r + '%', rates.indexOf(r) >= 0);
+    });
+    // ⚠️ อัตราเดิมคือ 3% ทุกช่วงราคา · เจ้าของกิจการสั่งแก้ข้อความบนเว็บให้ตรงกับขั้นบันได 18 ก.ย. 2569
+    check('⭐⭐ หน้าฝากขายไม่เหลือข้อความ "ค่านายหน้า 3%" แบบอัตราเดียว',
+      !/ค่านายหน้า 3%/.test(consignHtml) && !/ค่านายหน้าคิด 3%/.test(consignHtml));
+    check('⭐⭐ หน้าแรกไม่เหลือข้อความ "ค่านายหน้า 3%" แบบอัตราเดียว', !/ค่านายหน้า 3%/.test(indexHtml));
+    check('⭐⭐ ฐานความรู้ของแชทไม่เหลืออัตราเดียว', !/ค่านายหน้า 3%/.test(njchat));
+    check('หน้าฝากขายบอกว่าเป็นอัตราขั้นบันได', /ขั้นตามราคาที่ขายได้/.test(consignHtml));
+    check('คำถามที่พบบ่อยของหน้าฝากขายมีอัตราครบทุกขั้น',
+      /2\.5%/.test(consignHtml) && /50,000 บาท/.test(consignHtml));
+    check('ฐานความรู้ของแชทมีอัตราครบทุกขั้น', /2\.5%/.test(njchat) && /50,000 บาท/.test(njchat));
+    check('ค่าบริการขั้นต่ำตรงกับกฎราคาของระบบ',
+      /commission_min[\s\S]{0,200}value: 50000/.test(pricing) && /50,000 บาท/.test(consignHtml));
+
+    // ---------- ห้ามใช้ถ้อยคำรับประกัน (ข้อกำหนดข้อ 9) ----------
+    const banned = ['รับประกันกรรมสิทธิ์', 'การันตี', 'ขายได้แน่นอน', 'ขายออกแน่นอน', 'รับประกันราคาขาย', 'รับประกันผลการขาย'];
+    banned.forEach(function (wtxt) {
+      check('⭐⭐ ไม่มีคำว่า "' + wtxt + '" ในหน้าแพ็กเกจ (นอกข้อความปฏิเสธ)',
+        [pkgHtml, pkgJs, orderHtml, orderJs].every(function (src) {
+          // ประโยคที่ขึ้นต้นด้วย "ไม่ใช่การรับประกัน…" คือคำปฏิเสธ ไม่ใช่คำรับปาก
+          return src.replace(/ไม่ใช่การรับประกัน[^<']*/g, '').indexOf(wtxt) < 0;
+        }));
+    });
+    check('⭐ หน้าแพ็กเกจใช้คำว่า "ตามขอบเขตบริการ"', /ขอบเขตบริการ/.test(pkgHtml) || /ขอบเขตบริการ/.test(pkgJs));
+    check('⭐ บอกตรงๆ ว่าไม่ใช่การรับประกันกรรมสิทธิ์ ราคาขาย หรือผลการขาย',
+      /ไม่ใช่การรับประกันกรรมสิทธิ์ ราคาขาย หรือผลการขาย/.test(pkgJs));
+
+    // ---------- หน้าติดตามใบสั่งงานของลูกค้า ----------
+    check('เซิร์ฟเวอร์มีเส้นทางของลูกค้าครบ',
+      /app\.get\('\/api\/public\/package-order\/:id'/.test(server) &&
+      /'\/api\/public\/package-order\/:id\/status'/.test(server) &&
+      /'\/api\/public\/package-order\/:id\/appointment'/.test(server) &&
+      /'\/api\/public\/package-order\/:id\/files'/.test(server));
+    check('⭐⭐ ปุ่มของลูกค้ามาจาก order.moves ของเซิร์ฟเวอร์', /o\.moves/.test(orderJs));
+    check('⭐⭐ หน้าลูกค้าไม่ก๊อปตารางสถานะมาไว้เอง',
+      !/CUSTOMER_MOVES/.test(orderJs) && !/'waiting_docs'\s*,\s*'under_review'/.test(orderJs));
+    check('⭐ ชนิดเอกสารมาจากเซิร์ฟเวอร์ (docKindTh) ไม่ใช่รายการที่พิมพ์เอง',
+      /docKindTh/.test(orderJs) && !/'id_card'/.test(orderJs) && !/'authorize'/.test(orderJs));
+    check('หน้าลูกค้าไม่ส่งตั๋วไปกับ referrer', /strict-origin-when-cross-origin/.test(orderHtml));
+    check('หน้าลูกค้าประกาศ noindex', /name="robots" content="noindex/.test(orderHtml));
+    check('robots.txt กันหน้าติดตามใบสั่งงาน', /Disallow: \/package-order\.html/.test(read(path.join(WEB, 'robots.txt'))));
+    check('⭐ ไม่เก็บตั๋วลง localStorage', !/localStorage\s*\./.test(orderJs) && !/localStorage\s*\./.test(pkgJs));
+
+    // ---------- ทางเข้าหน้าแพ็กเกจ ----------
+    check('หน้าแพ็กเกจอยู่ในแผนผังเว็บ', /packages\.html/.test(read(path.join(WEB, 'sitemap.xml'))));
+    check('หน้าแรกมีทางเข้าหน้าแพ็กเกจ', /href="packages\.html"/.test(indexHtml));
+    check('⭐ ไม่ติ๊กยินยอม PDPA = ส่งไม่ได้', /pk-l-pdpa/.test(pkgJs) && /disabled/.test(pkgJs) && /pdpa/.test(pkgJs));
+    check('กับดักบอทใช้ช่อง hp ตรงกับเซิร์ฟเวอร์', /pk-l-hp/.test(pkgJs) && /hp:/.test(pkgJs) && /b\.hp/.test(server));
+  }
+}
+
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

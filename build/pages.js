@@ -49,6 +49,7 @@ const NAV = [
   {
     label: 'ขาย/ฝากทรัพย์', href: 'consign.html', items: [
       { label: 'ฝากขายที่ดิน', href: 'consign.html', note: 'ไม่มีค่าใช้จ่ายล่วงหน้า' },
+      { label: 'แพ็กเกจบริการ', href: 'packages.html', note: 'ตรวจสอบ · เตรียมขาย · ฝากขาย' },
       { label: 'สมัครเป็นพันธมิตร', href: 'partner-apply.html', note: 'ผู้ให้บริการด้านที่ดิน' }
     ]
   },

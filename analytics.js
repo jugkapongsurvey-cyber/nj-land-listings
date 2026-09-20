@@ -198,7 +198,12 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           //    เปลี่ยนเมื่อไหร่ = ตัวเลขเก่าขาดตอน และยอด leads ใน
                           //    /api/public/track/summary เพี้ยน · ตารางเทียบชื่ออยู่ใน CLAUDE.md
                           'view_survey_level',   // กางดูบันไดการตรวจสอบ 5 ระดับในหน้าแปลง
-                          'download_report'];    // กดดาวน์โหลด/สั่งพิมพ์ประกาศเป็น PDF
+                          'download_report',    // กดดาวน์โหลด/สั่งพิมพ์ประกาศเป็น PDF
+                          // แพ็กเกจบริการ (รอบ 4) — เปิดหน้า/เปิดดูแพ็กเกจ/เทียบ/ทำแบบสอบถาม **ไม่ใช่ลีด**
+                          // มีแต่ package_lead ที่เป็นลีดจากฟอร์ม (นับรวมใน formLeads ฝั่งเซิร์ฟเวอร์)
+                          // ⚠️ การกดไลน์/โทรบนหน้าแพ็กเกจใช้ line_click/tel_click เดิม ห้ามเพิ่มชนิดใหม่ให้สองอย่างนั้น
+                          'packages_view', 'package_view', 'package_compare',
+                          'package_reco_start', 'package_reco_done', 'package_lead'];
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)
