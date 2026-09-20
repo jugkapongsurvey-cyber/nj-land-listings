@@ -31,6 +31,120 @@
 <link rel="stylesheet" href="njchat.css">
 <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="inspect.css">
+  <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
+  <script type="application/ld+json" data-nj-schema>
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": [
+          "RealEstateAgent",
+          "ProfessionalService"
+        ],
+        "@id": "https://njteedinsure.com/#org",
+        "name": "ที่ดินชัวร์",
+        "url": "https://njteedinsure.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://njteedinsure.com/brand/logo-mark-512.png"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://njteedinsure.com/#website",
+        "url": "https://njteedinsure.com",
+        "name": "ที่ดินชัวร์",
+        "inLanguage": "th-TH",
+        "publisher": {
+          "@id": "https://njteedinsure.com/#org"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://njteedinsure.com/inspect.html#webpage",
+        "url": "https://njteedinsure.com/inspect.html",
+        "name": "นัดตรวจแปลงก่อนซื้อ",
+        "isPartOf": {
+          "@id": "https://njteedinsure.com/#website"
+        },
+        "inLanguage": "th-TH",
+        "description": "ก่อนวางมัดจำที่ดิน ให้ทีมช่างรังวัดเอกชนใบอนุญาตกรมที่ดินของที่ดินชัวร์ไปตรวจเอกสารสิทธิ์ หมุดหลักเขต ทางเข้า–ออก และประเมินค่าใช้จ่ายวันโอนให้ก่อน ส่งคำขอไม่มีค่าใช้จ่าย",
+        "breadcrumb": {
+          "@id": "https://njteedinsure.com/inspect.html#breadcrumb"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://njteedinsure.com/inspect.html#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "หน้าแรก",
+            "item": "https://njteedinsure.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "นัดตรวจแปลงก่อนซื้อ",
+            "item": "https://njteedinsure.com/inspect.html"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://njteedinsure.com/inspect.html#faq",
+        "isPartOf": {
+          "@id": "https://njteedinsure.com/inspect.html#webpage"
+        },
+        "inLanguage": "th-TH",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "ต้องเป็นแปลงที่ประกาศอยู่บนเว็บนี้เท่านั้นไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ไม่จำเป็นครับ เจอแปลงจากที่อื่นหรือยังไม่เจอแปลงที่ถูกใจ ก็ส่งคำขอมาได้ ถ้าเป็นแปลงในเว็บนี้ ใส่รหัสทรัพย์มาด้วยจะช่วยให้ทีมงานเตรียมข้อมูลได้เร็วขึ้น"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ส่งคำขอแล้วต้องจ่ายเงินเลยไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ไม่ต้องครับ การส่งคำขอไม่มีค่าใช้จ่ายและยังไม่ถือเป็นการว่าจ้าง ทีมงานจะดูรายละเอียดแล้วแจ้งขอบเขตงานกับราคาให้ทราบก่อน ตกลงกันแล้วจึงเริ่มงาน"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ที่ดินอยู่ต่างจังหวัด รับไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "รับทั่วประเทศครับ งานที่ต้องเดินทางไกลจะมีค่าดำเนินการนอกพื้นที่เพิ่มตามระยะทาง ซึ่งจะแจ้งรวมอยู่ในราคาที่เสนอก่อนเริ่มงานเสมอ"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ต้องเป็นเจ้าของที่ดินถึงจะให้ตรวจได้ไหม",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "งานที่ตรวจจากเอกสารและดูสภาพหน้างานทำได้โดยผู้ซื้อ ส่วนงานรังวัดสอบเขตต้องให้เจ้าของที่ดินเป็นผู้ยื่นเรื่องต่อสำนักงานที่ดิน ทีมงานจะช่วยประสานกับฝั่งผู้ขายให้ตอนคุยกัน"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ข้อมูลที่กรอกไว้ถูกใช้ทำอะไรบ้าง",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ใช้ติดต่อกลับเรื่องคำขอนี้เท่านั้น และขอให้ลบเมื่อไรก็ได้ แจ้งทางไลน์หรือโทรหาทีมงานได้โดยตรงครับ"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- nj-schema:end -->
 </head>
 <body class="page-inspect">
 
