@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: ตรวจพื้นฐานทั้ง repo (ไวยากรณ์ · ที่อยู่ไฟล์ · id ซ้ำ · ลำดับสคริปต์)
+        run: node build/lint.js
+
       - name: ชุดทดสอบทั้งหมด
         run: |
           fail=0
