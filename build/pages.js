@@ -54,6 +54,7 @@ const NAV = [
   },
   {
     label: 'ตรวจสอบและรังวัด', href: 'verify.html', items: [
+      { label: 'บริการของเรา', href: 'services.html', note: 'รังวัด ตรวจสอบ และดูแลหลังซื้อ' },
       { label: 'ส่งทรัพย์ให้ตรวจก่อนซื้อ', href: 'verify.html', note: 'ตรวจเอกสารและแนวเขต' },
       { label: 'นัดตรวจแปลงก่อนซื้อ', href: 'inspect.html', note: 'ให้ช่างรังวัดไปดูให้ก่อน' },
       { label: 'ระดับการตรวจสอบ 5 ระดับ', href: 'terms.html#levels', note: 'แต่ละระดับหมายถึงอะไร' }
@@ -161,17 +162,31 @@ function build() {
     }
 
     // ---- 2) หัวเว็บ ----
+    //
+    // ⚠️ **ต้องวางเป็นลูกตัวแรกของ `<body>` เสมอ ห้ามวางทับที่เดิมของแต่ละหน้า**
+    // ของเดิมใช้วิธีแทนที่ `<header>` ตรงที่มันอยู่ ซึ่งพังบนหน้าแรก เพราะที่นั่น
+    // `<header>` ซ้อนอยู่ใน `<div style="overflow-x:hidden">` → `<section data-r="hero">`
+    // · บรรพบุรุษที่มี `overflow` ไม่ใช่ `visible` ทำให้ `position:sticky` **ไม่ทำงานเลย**
+    // · และต่อให้ทำงาน มันก็หนึบอยู่ได้แค่ในกรอบของ hero แล้วเลื่อนหายไปพร้อม hero
+    // เจอจริงหลัง Sprint 1 — หัวเว็บบนหน้าแรกไม่หนึบทั้งที่ CSS ถูกต้อง
     const head = headerHtml(file, NL);
+    // ถอดของเก่าออกก่อน (ไม่ว่าจะอยู่ที่ไหน) แล้วค่อยวางใหม่ที่ตำแหน่งที่ถูกต้อง
     if (src.includes(START)) {
-      src = src.replace(new RegExp(START.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + END.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), head);
+      src = src.replace(new RegExp('[ \\t]*' + START.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + END.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\r?\\n?'), '');
     } else {
-      // แทนที่ <header> เดิมของหน้า (ตัวแรกเท่านั้น)
-      const m = src.match(/[ \t]*<header[\s\S]*?<\/header>/);
+      const m = src.match(/[ \t]*<header[\s\S]*?<\/header>\r?\n?/);
       if (!m) { problems.push(file + ' — ไม่พบ <header> ให้แทนที่'); continue; }
-      src = src.replace(m[0], head);
+      src = src.replace(m[0], '');
       // ลิงก์ข้ามไปเนื้อหาหลักซ้ำกับของเดิม (สามหน้านโยบายใส่ไว้เองก่อนหน้านี้)
       src = src.replace(/[ \t]*<a class="skip-link" href="#main">[^<]*<\/a>\r?\n/, '');
     }
+    const bodyOpen = src.match(/<body[^>]*>/);
+    if (!bodyOpen) { problems.push(file + ' — ไม่พบ <body>'); continue; }
+    const at = src.indexOf(bodyOpen[0]) + bodyOpen[0].length;
+    // ⚠️ ต้องล้างช่องว่างหลัง <body> ให้หมดก่อนวางใหม่ทุกครั้ง
+    //    ไม่ล้าง = รันซ้ำแล้วบรรทัดว่างงอกขึ้นเรื่อยๆ และ `--check` จะบอกว่าไฟล์ไม่ตรงตลอดไป
+    const rest = src.slice(at).replace(/^[\s\r\n]+/, '');
+    src = src.slice(0, at) + NL + head + NL + NL + rest;
 
     if (src !== before) {
       changed.push(file);

@@ -35,11 +35,11 @@
 <link rel="stylesheet" href="njchat.css">
 <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="agency.css">
+<link rel="stylesheet" href="surveyquote.css">
 <link rel="stylesheet" href="zoneguide.css">
 <link rel="stylesheet" href="legal.css">
 </head>
 <body class="page-agency page-tools">
-
 <!-- NJ:HEADER เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
 <a class="njh-skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
 <header class="njh" data-njh>
@@ -74,6 +74,7 @@
           <a class="njh-top" href="verify.html">ตรวจสอบและรังวัด<span class="njh-caret" aria-hidden="true">▾</span></a>
           <div class="njh-panel">
             <ul>
+              <li><a href="services.html"><b>บริการของเรา</b><small>รังวัด ตรวจสอบ และดูแลหลังซื้อ</small></a></li>
               <li><a href="verify.html"><b>ส่งทรัพย์ให้ตรวจก่อนซื้อ</b><small>ตรวจเอกสารและแนวเขต</small></a></li>
               <li><a href="inspect.html"><b>นัดตรวจแปลงก่อนซื้อ</b><small>ให้ช่างรังวัดไปดูให้ก่อน</small></a></li>
               <li><a href="terms.html#levels"><b>ระดับการตรวจสอบ 5 ระดับ</b><small>แต่ละระดับหมายถึงอะไร</small></a></li>
@@ -132,6 +133,20 @@
   </div>
 </section>
 
+<!-- เช็กราคางานรังวัด — ย้ายมาจากหน้าแรก 20 ก.ย. 2569 (Sprint 2)
+     หน้าแรกเดิมกางกล่องนี้เต็มบล็อกก่อนถึงช่องค้นหาและก่อนถึงประกาศ ซึ่งเป็นเครื่องมือ
+     ของคนที่ตัดสินใจไปแล้ว ไม่ใช่ของคนที่เพิ่งเข้าเว็บ · ที่นี่คือหน้า "เครื่องมือคำนวณ" จึงเป็นบ้านที่ถูก
+     ⚠️ `surveyquote.js` หา `#survey-quote` ด้วย getElementById และซ่อนกล่องไว้จนกว่าจะกดปุ่ม
+        ปุ่มที่เปิดคือ `[data-sq-open]` — หน้าแรกลิงก์มาที่ `tools.html#survey` แล้วปุ่มในนี้เปิดให้ -->
+<section class="tl-sec" id="survey">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">ค่างานรังวัดโดยประมาณ</h2>
+    <p class="tl-lead">ประเมินจากตารางราคาจริงของสำนักงาน · เลือกจังหวัดด้วยเพราะค่าเดินทางคิดเป็นขั้นตามจังหวัด</p>
+    <p><button type="button" data-sq-open class="cs-final-btn">เปิดเครื่องประเมินค่ารังวัด →</button></p>
+    <div id="survey-quote"></div>
+  </div>
+</section>
+
 <!-- คู่มือผังสี (P3) — อธิบายความหมาย + ลิงก์ไปตรวจที่หน่วยงาน ไม่มีข้อมูลผังรายแปลง (ดูหัวไฟล์ zoneguide.js) -->
 <section class="tl-sec" id="zoning">
   <div class="wrap tl-wrap zg-wrap">
@@ -161,6 +176,7 @@
 <script src="analytics.js"></script>
 <script src="feecalc.js"></script>
 <script src="loancalc.js"></script>
+<script src="surveyquote.js"></script>
 <script src="landvocab.js"></script>
 <script src="zoneguide.js"></script>
 <script src="tools.js"></script>

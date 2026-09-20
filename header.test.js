@@ -30,6 +30,18 @@ ok('⭐ ทุกหน้ามีหัวเว็บชุดกลาง', 
 const noMarker = pages.filter(f => !html[f].includes('NJ:HEADER เริ่ม') || !html[f].includes('NJ:HEADER จบ'));
 ok('ทุกหน้ามีเครื่องหมายของ build ครบคู่', noMarker.length === 0, noMarker.join(', '));
 
+// ⚠️ หัวเว็บต้องเป็นลูกตัวแรกของ <body> เท่านั้น
+// เคยพลาดมาแล้ว: build รอบแรกแทนที่ <header> ตรงที่มันอยู่ ซึ่งบนหน้าแรกคือข้างใน
+// `<div style="overflow-x:hidden">` → `<section data-r="hero">`
+// บรรพบุรุษที่ overflow ไม่ใช่ visible ทำให้ position:sticky **ไม่ทำงานเลย**
+const notFirst = pages.filter(f => {
+  const b = html[f].match(/<body[^>]*>/);
+  if (!b) return true;
+  const after = html[f].slice(html[f].indexOf(b[0]) + b[0].length, html[f].indexOf('<!-- NJ:HEADER เริ่ม'));
+  return after.replace(/<!--[\s\S]*?-->/g, '').trim() !== '';
+});
+ok('⭐ หัวเว็บเป็นลูกตัวแรกของ <body> ทุกหน้า (ไม่งั้น sticky ตาย)', notFirst.length === 0, notFirst.join(', '));
+
 // รายการลิงก์ในเมนูต้องเหมือนกันเป๊ะทุกหน้า
 function navLinks(src) {
   const m = src.match(/<nav class="njh-nav"[\s\S]*?<\/nav>/);
