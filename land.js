@@ -35,14 +35,12 @@
   //
   // จึงประกอบเองจากช่องที่แยกไว้แล้ว: ขาย/เช่า + ตำบล อำเภอ จังหวัด + เนื้อที่
   // ช่องไหนไม่มีก็ข้าม ไม่เติมแทน · ถ้าไม่มีข้อมูลโครงสร้างเลยค่อยถอยไปตัดคำแรกของ parcelInfo
-  function localityOf(l){
-    var d=(l&&l.land)||{};
-    var p=[];
-    if(d.tambon)   p.push('ต.'+d.tambon);
-    if(d.amphoe)   p.push('อ.'+d.amphoe);
-    if(d.province) p.push('จ.'+d.province);
-    return p.join(' ');
-  }
+  // ⚠️ ตัวประกอบชื่อจริงย้ายไป `landmeta.js` แล้ว (Sprint 5) เพราะ `build/properties.js`
+  //    ต้องใช้สูตรเดียวกันตอนสร้างหน้าสแตติก · สองที่ประกอบเองแยกกันเมื่อไหร่
+  //    สิ่งที่ Google เห็นกับสิ่งที่ผู้ใช้เห็นจะไม่ตรงกัน ซึ่งเป็นเกณฑ์ที่ Google ตัดสิทธิ์ทั้งเว็บ
+  //    ตัวห่อข้างล่างเก็บไว้ให้โค้ดเดิมในไฟล์นี้เรียกได้เหมือนเดิม
+  function vocab(){ return window.NJVocab || {}; }
+  function localityOf(l){ return NJLandMeta.localityOf(l); }
   // ---------- คำนำหน้าชื่อหน้า: ขาย/ให้เช่า + ประเภททรัพย์ ----------
   //
   // ⚠️ **ห้ามเขียน "ที่ดิน" ตายตัวอีก** (แก้ 20 ก.ย. 2569)
@@ -58,26 +56,9 @@
   //
   // ⚠️ ตัวแก้จริงของเรื่องนี้อยู่ที่ **ข้อมูล** ไม่ใช่โค้ด — ต้องให้ทีมกรอก propertyType
   // ให้ครบทุกแปลง (ตรวจ 20 ก.ย. 2569: ว่างทั้ง 22 แปลง) แล้วชื่อหน้าจะถูกต้องเองทันที
-  var FALLBACK_KIND='ทรัพย์';
-  function kindOf(l){
-    var pt=(l&&l.land&&l.land.propertyType)||'';
-    var PT=(window.NJVocab&&window.NJVocab.PROPERTY_TH)||{};
-    return (pt&&PT[pt]) ? PT[pt] : FALLBACK_KIND;
-  }
-  function shortLabel(l){
-    var head=((l&&l.type==='rent')?'ให้เช่า':'ขาย')+kindOf(l);
-    var loc=localityOf(l);
-    if(!loc){
-      // ไม่มีช่องแยก — ใช้ท่อนแรกของ parcelInfo (ท่อนที่ตั้ง) แล้วตัดความยาว
-      var first=String((l&&l.parcelInfo)||'').split(' · ')[0].trim();
-      loc=first.length>60?first.slice(0,60).trim()+'…':first;
-    }
-    var area=(l&&l.land&&l.land.deedArea)?String(l.land.deedArea).trim():'';
-    // ข้อมูลเก่าบางแปลงเก็บเนื้อที่เป็น "14-3-48" เฉยๆ ไม่มีหน่วย — เติมให้อ่านออกในผลค้นหา
-    // เติมเฉพาะรูปแบบ ไร่-งาน-วา ที่ชัดเจนเท่านั้น ข้อความอื่นปล่อยไว้ตามที่ทีมกรอก
-    if(/^\d+-\d+-\d+(\.\d+)?$/.test(area)) area+=' ไร่';
-    return [head, loc, area].filter(Boolean).join(' · ');
-  }
+  // ⚠️ ค่าจริงอยู่ที่ `NJLandMeta.FALLBACK_KIND` ที่เดียว — อย่าประกาศซ้ำในไฟล์นี้อีก
+  function kindOf(l){ return NJLandMeta.kindOf(l, vocab()); }
+  function shortLabel(l){ return NJLandMeta.shortLabel(l, vocab()); }
   // เขียน <meta> ให้ถูกตัว — มี name= กับ property= ปนกัน ถ้าเลือกผิดจะได้แท็กซ้ำ
   function setMeta(attr, key, value){
     if(!value) return;
@@ -86,21 +67,19 @@
     if(el.getAttribute('content')!==value) el.setAttribute('content', value);
   }
   // คำอธิบายสั้นของแปลง — ประกอบจากช่องที่มีจริง ไม่เติมแทนช่องที่ว่าง
-  function metaDescOf(l){
-    var L=l.land||{};
-    var bits=[shortLabel(l)];
-    if(Number(l.estValue)>0) bits.push('ราคา '+Number(l.estValue).toLocaleString('th-TH')+' บาท');
-    if(Number(l.pricePerWa)>0) bits.push(Number(l.pricePerWa).toLocaleString('th-TH')+' บาท/ตร.ว.');
-    if(L.deedType&&window.NJVocab&&NJVocab.DEED_TH&&NJVocab.DEED_TH[L.deedType]) bits.push(NJVocab.DEED_TH[L.deedType]);
-    var txt=bits.join(' · ');
-    if(l.blurb) txt+=' — '+String(l.blurb).replace(/\s+/g,' ').trim();
-    txt+=' · รหัสทรัพย์ '+l.id+' · ตรวจสอบโดยสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351';
-    return txt.length>300?txt.slice(0,297).trim()+'…':txt;
-  }
+  function metaDescOf(l){ return NJLandMeta.metaDesc(l, vocab()); }
 
   function setSeo(l, photos){
     try{
-      var url=SITE_URL+'/land.html?id='+encodeURIComponent(l.id);
+      // ⚠️ **canonical ชี้ไปหน้าสแตติก `p/<รหัส>.html` ไม่ใช่ที่อยู่ของหน้านี้เอง**
+      // หน้าสแตติกมีเนื้อหาอยู่ใน HTML ตั้งแต่ต้นทาง บอตของไลน์/เฟซบุ๊ก/Google จึงอ่านได้จริง
+      // ส่วนหน้านี้ส่ง HTML เปล่าให้บอตเสมอ (เนื้อหามาทีหลังจาก JS)
+      //
+      // ⚠️ การ์ดทุกใบยังลิงก์มาที่ `land.html?id=` เหมือนเดิม **ไม่มีทางพาไป 404**
+      //    แปลงที่เพิ่งขึ้นหลังรอบ build ล่าสุด จะยังไม่มีหน้าสแตติก → canonical ชี้ไปหน้าที่ยังไม่มี
+      //    ซึ่ง Google ถือว่า "ข้ามคำสั่งนี้" แล้วเก็บหน้านี้แทน = เท่ากับพฤติกรรมเดิมก่อน Sprint 5
+      //    พอ build รอบถัดไปวิ่ง ทุกอย่างเข้าที่เอง · ไม่มีจังหวะไหนที่ผู้ใช้เจอหน้าเสีย
+      var url=NJLandMeta.pageUrl(l.id);
       var link=document.querySelector('link[rel="canonical"]');
       if(!link){ link=document.createElement('link'); link.rel='canonical'; document.head.appendChild(link); }
       link.href=url;
@@ -627,7 +606,11 @@
     // ปุ่มหมุดบนแผนที่แนวเขต — ต้องต่อหลังวาด HTML เสร็จ (ผูก listener ที่กล่อง ไม่ผูกรายปุ่ม)
     if(window.NJParcelMap&&L.plot) NJParcelMap.init(document.getElementById('ld-root'), L.plot);
     var pdfBtn=document.getElementById('ld-pdf-btn');
-    if(pdfBtn) pdfBtn.addEventListener('click', function(){ window.print(); });
+    if(pdfBtn) pdfBtn.addEventListener('click', function(){
+      // ⚠️ นับเป็น "ดาวน์โหลดรายงาน" ไม่ใช่การติดต่อ — ห้ามบวกเข้า leads
+      if(window.njTrackInternal) njTrackInternal('download_report', l.id);
+      window.print();
+    });
 
     // ปุ่มคัดลอกรหัสทรัพย์ — มีทางถอย 2 ชั้น เพราะ clipboard API ใช้ไม่ได้ทุกที่
     var copyBtn=document.getElementById('ld-code-copy');
@@ -693,7 +676,9 @@
   }
 
   function load(){
-    var id=qs('id');
+    // ⚠️ หน้าสแตติก `p/<รหัส>.html` ไม่มี query string — `build/properties.js` ฝังรหัสไว้ใน
+    //    `window.NJ_LISTING_ID` แทน · `?id=` ยังชนะเสมอ เพื่อให้ลิงก์เดิมทุกอันทำงานเหมือนเดิม
+    var id=qs('id')||String(window.NJ_LISTING_ID||'').trim();
     var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
     if(!id){ fail('ไม่พบรหัสแปลงที่ดิน','ลิงก์อาจไม่สมบูรณ์ ลองเลือกแปลงจากหน้ารายการอีกครั้ง'); return; }
     // ⚠️ ดึงเฉพาะแปลงนี้แปลงเดียว (เพิ่ม 2026-09-09)

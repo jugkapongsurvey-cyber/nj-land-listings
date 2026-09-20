@@ -110,7 +110,9 @@ ok('ไม่มี fetch ไปเว็บปลายทาง (ห้าม 
 ok('ลิงก์ที่ผู้ใช้วางไม่ถูกทำเป็น <a href=d.url>', !/href="'\s*\+\s*esc\(d\.url/.test(pageJs));
 ok('ผลตรวจผ่าน esc() ทุกช่องข้อความ', /esc\(d\.label\)/.test(pageJs) && /esc\(refs/.test(pageJs));
 ok('ลิงก์ออกนอกเว็บมี noopener noreferrer', /rel="noopener noreferrer"/.test(pageJs));
-ok('หน้านี้มีวิดเจ็ตแชทและเมนูมือถือ', /njchat\.js/.test(html) && /menu\.js/.test(html));
+// ⚠️ ตั้งแต่ Sprint 5 หน้าทั่วไปโหลด `njchatload.js` (ตัวโหลดเล็ก) แทน `njchat.js` ตัวเต็ม
+//    เพื่อไม่ให้ทุกคนจ่ายค่าไฟล์ 101 KB ตั้งแต่วินาทีแรก · `chat.html` ยังโหลดตัวเต็มตรงๆ
+ok('หน้านี้มีวิดเจ็ตแชทและเมนูมือถือ', /njchatload\.js/.test(html) && /menu\.js/.test(html));
 ok('verify.js กรอกแหล่งเฉพาะค่าที่อยู่ในรายการ', /PROPCHECK_SOURCES\.indexOf\(src\) >= 0/.test(verifyJs));
 ok('verify.js รับลิงก์เฉพาะ http(s) ไม่เกิน 300', /\^https\?:\\\/\\\//.test(verifyJs) && /url\.length <= 300/.test(verifyJs));
 ok('verify.js ใส่ค่าด้วย .value ไม่ประกอบ HTML', !/innerHTML[^;]*sourceUrl/.test(verifyJs));

@@ -210,6 +210,8 @@
 </header>
 <!-- NJ:HEADER จบ -->
 
+<main id="main">
+
 <div style="overflow-x:hidden">
 
   <!-- HERO — งานที่ 3
@@ -327,7 +329,7 @@
       </div>
       <div style="max-width:330px"><p style="font-size:16px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0">ข้อมูลชัด ตำแหน่งจริง พร้อมนัดดูพื้นที่ — ทุกแปลงขึ้นประกาศเมื่อเจ้าของยินยอมแล้วเท่านั้น</p><a href="listings.html" style="display:inline-block;margin-top:14px;font-size:14px;letter-spacing:0.04em;color:#1B4B7A;border-bottom:1px solid rgba(27,75,122,0.4);padding-bottom:2px" class="hv-gold">ดูประกาศทั้งหมด + ตัวกรอง →</a></div>
     </div>
-    <div id="result-note" class="result-note" hidden></div>
+    <div id="result-note" class="result-note" role="status" aria-live="polite" hidden></div>
     <div id="listing-grid" class="listing-grid" aria-live="polite">
       <div class="loading">กำลังโหลดแปลงที่ดิน...</div>
     </div>
@@ -470,8 +472,8 @@
       <img src="photos/house.jpg" alt="บ้านบนแปลงที่ดินที่รังวัดยืนยันแนวเขตแล้ว" loading="lazy" width="900" height="947" style="width:100%;height:100%;min-height:320px;object-fit:cover">
     </div>
   </section>
-
-  <footer style="background:#0B1F3A;color:#A8B6C4">
+</main>
+<footer style="background:#0B1F3A;color:#A8B6C4">
     <div style="max-width:1280px;margin:0 auto;padding:46px 32px 26px">
       <div data-r="split3" style="display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:44px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,0.14)">
         <div>
@@ -557,7 +559,7 @@
 <script src="compare.js"></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="landvocab.js"></script>
-<script src="njchat.js"></script>
+<script src="njchatload.js"></script>
 <script src="menu.js"></script>
 
 

@@ -459,3 +459,23 @@
 @media print {
   .ld-sticky, .ld-tools, .ld-rel { display: none !important; }
 }
+
+/* ---------------------------------------------------------------------------
+   เนื้อหาที่ฝังไว้ใน HTML ต้นทางของหน้าสแตติก p/<รหัส>.html (Sprint 5 · งานที่ 15)
+
+   ⚠️ กล่องนี้ถูก `land.js` เขียนทับทั้งก้อนทันทีที่ข้อมูลสดโหลดเสร็จ
+      สไตล์จึงต้องทำให้ "จังหวะแรกก่อน JS ทำงาน" อ่านออกและไม่กระโดด ไม่ต้องสวยเท่าของจริง
+   ⚠️ รูปมี width/height กำกับ เพื่อให้เบราว์เซอร์จองที่ไว้ก่อน — กัน layout shift
+--------------------------------------------------------------------------- */
+.ldp{max-width:var(--nj-measure);margin:0 auto}
+.ldp-photo{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:var(--nj-radius-md);background:var(--nj-gray-100)}
+.ldp-title{margin:var(--nj-space-5) 0 var(--nj-space-3);font-size:var(--nj-fs-h2);line-height:var(--nj-lh-tight);color:var(--nj-text-strong)}
+.ldp-blurb{margin:0 0 var(--nj-space-4);color:var(--nj-text);line-height:var(--nj-lh-body)}
+.ldp-rows{margin:0 0 var(--nj-space-5);padding:0}
+.ldp-row{display:flex;gap:var(--nj-space-4);padding:var(--nj-space-2) 0;border-top:1px solid var(--nj-border)}
+.ldp-row dt{flex:0 0 40%;margin:0;color:var(--nj-text-muted);font-size:var(--nj-fs-sm)}
+.ldp-row dd{flex:1 1 auto;margin:0;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.ldp-h2{margin:var(--nj-space-5) 0 var(--nj-space-2);font-size:var(--nj-fs-h3);color:var(--nj-text-strong)}
+.ldp-desc{margin:0 0 var(--nj-space-4);line-height:var(--nj-lh-body);overflow-wrap:anywhere}
+.ldp-note{margin:0 0 var(--nj-space-3);color:var(--nj-text-muted);font-size:var(--nj-fs-sm)}
+.ldp-alt{margin:0;font-size:var(--nj-fs-sm)}

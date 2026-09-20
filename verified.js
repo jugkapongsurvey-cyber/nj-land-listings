@@ -177,5 +177,21 @@
       '<b>ระดับ ' + v.reached + '/' + v.total + '</b> ' + esc(name) + '</span>';
   }
 
+  // ---------- นับตอนผู้ใช้กางดูบันไดการตรวจสอบ (งานที่ 16) ----------
+  //
+  // ⚠️ นับครั้งเดียวต่อหนึ่งการเปิดหน้า ไม่ใช่ทุกครั้งที่กางหุบ — บันไดมี 5 แถว
+  //    ถ้านับทุกแถว คนที่สนใจมากจะถูกนับ 5 ครั้ง แล้วตัวเลขอ่านไม่ได้ว่ามีกี่คน
+  // ⚠️ ผูกที่ document ด้วย event delegation — บันไดถูกวาดหลังโหลดข้อมูลเสร็จ
+  var ladderCounted = false;
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('toggle', function (e) {
+      if (ladderCounted) return;
+      var d = e.target;
+      if (!d || !d.classList || !d.classList.contains('njv-row') || !d.open) return;
+      ladderCounted = true;
+      if (w.njTrackInternal) w.njTrackInternal('view_survey_level');
+    }, true);   // เฟส capture — เหตุการณ์ toggle ไม่ bubble
+  }
+
   w.NJVerified = { LEVELS: LEVELS, levelName: levelName, ladderHtml: ladderHtml, badgeHtml: badgeHtml, stateOf: stateOf, thaiDate: thaiDate };
 })(window, document);

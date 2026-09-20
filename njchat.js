@@ -801,6 +801,9 @@
   function revealLater(el) {
     // เข้ามาที่หน้าแชทเต็มหน้า หรือเปิดลิงก์ที่พาไปแชทโดยตรง = เขาตั้งใจมาคุยอยู่แล้ว ไม่ต้องหน่วง
     if (location.hash === '#chat') return;
+    // ⚠️ ถูกแทรกโดย `njchatload.js` = ผู้ใช้รอครบ 18 วินาทีมาแล้ว (หรือเลื่อน/แตะจอแล้ว)
+    //    หน่วงซ้ำอีกรอบ = เขาต้องรอรวม 36 วินาทีกว่าจะเห็นปุ่ม
+    if (window.NJCHAT_LAZY) return;
     el.classList.add('njchat-hold');
     var fired = false;
     function show() {

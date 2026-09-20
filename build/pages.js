@@ -217,6 +217,30 @@ function build() {
     const rest = src.slice(at).replace(/^[\s\r\n]+/, '');
     src = src.slice(0, at) + NL + head + NL + NL + rest;
 
+    // ---- 3) เนื้อหาหลักต้องมีที่ยึด #main ----
+    //
+    // ⚠️ **สคริปต์นี้เป็นคนใส่ลิงก์ "ข้ามไปเนื้อหาหลัก" (href="#main") จึงต้องรับผิดชอบ
+    //    ให้ปลายทางมีอยู่จริงด้วย** — ตรวจ 20 ก.ย. 2569 พบว่า 21 จาก 25 หน้ามีลิงก์นี้
+    //    แต่ **ไม่มี id="main" เลย** ลิงก์จึงพาไปไหนไม่ได้ตั้งแต่ Sprint 1
+    //    (a11y.test.js หัวข้อ 5 ล็อกไว้แล้ว)
+    // ⚠️ หน้าที่ยังไม่มี <main> ให้ห่อทุกอย่างระหว่างท้ายหัวเว็บกับ <footer> —
+    //    ได้ทั้งที่ยึดของลิงก์ข้าม และได้ landmark ที่เครื่องอ่านหน้าจอใช้กระโดดด้วย
+    if (!/id="main"/.test(src)) {
+      const mainTag = src.match(/<main[^>]*>/);
+      if (mainTag) {
+        src = src.replace(mainTag[0], mainTag[0].replace(/^<main/, '<main id="main"'));
+      } else {
+        const at = src.indexOf(END);
+        const foot = src.indexOf('<footer');
+        if (at < 0 || foot < 0 || foot < at) { problems.push(file + ' — ห่อ <main> ไม่ได้ (ไม่เจอหัวเว็บหรือ <footer>)'); }
+        else {
+          const from = at + END.length;
+          const inner = src.slice(from, foot);
+          src = src.slice(0, from) + NL + '<main id="main">' + inner.replace(/\s+$/, '') + NL + '</main>' + NL + src.slice(foot);
+        }
+      }
+    }
+
     if (src !== before) {
       changed.push(file);
       if (!CHECK) fs.writeFileSync(full, src);
