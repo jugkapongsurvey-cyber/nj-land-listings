@@ -179,7 +179,12 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           'purpose_view',
                           // ห้องข้อมูลแปลง (Phase 3) — เปิดหน้าเท่านั้น **ไม่ใช่ลีด**
                           // ส่วน dataroom_request เซิร์ฟเวอร์บันทึกเองตอนสร้างคำขอ ฝั่งนี้จึงไม่ยิงซ้ำ
-                          'dataroom_view'];
+                          'dataroom_view',
+                          // แพ็กเกจบริการ (รอบ 4) — เปิดหน้า/เปิดดูแพ็กเกจ/เทียบ/ทำแบบสอบถาม **ไม่ใช่ลีด**
+                          // มีแต่ package_lead ที่เป็นลีดจากฟอร์ม (นับรวมใน formLeads ฝั่งเซิร์ฟเวอร์)
+                          // ⚠️ การกดไลน์/โทรบนหน้าแพ็กเกจใช้ line_click/tel_click เดิม ห้ามเพิ่มชนิดใหม่ให้สองอย่างนั้น
+                          'packages_view', 'package_view', 'package_compare',
+                          'package_reco_start', 'package_reco_done', 'package_lead'];
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)
