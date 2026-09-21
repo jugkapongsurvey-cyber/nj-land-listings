@@ -286,6 +286,9 @@ function setLead(d) {
   renderKeep(d);
   if (d && d.submittedAt) markSent();
   applyCancelled(d);
+  // ตัวอย่างประกาศอ่าน LEAD.data ด้วย (รูปที่แนบ · ขึ้นเว็บแล้วหรือยัง · ยกเลิกหรือยัง)
+  // เรียกจากที่นี่ที่เดียวเหมือน applyCancelled — ทุกเส้นทางวิ่งผ่าน setLead หมด
+  if (PV) PV.paint();
 }
 
 // ---------- บอกวันหมดอายุจริงของลิงก์แก้ไข ----------
@@ -687,6 +690,7 @@ var MINE = [];
 // เก็บไว้ระดับไฟล์เพราะ setLead() ก็ต้องสั่งวาดรายการใหม่ แต่ไม่มีพารามิเตอร์ตัวนี้ใน scope
 var AP = null;
 var SV = null;   // ตัวคุมกล่องรังวัด (ดู setupSurvey)
+var PV = null;   // ตัวคุมกล่องตัวอย่างประกาศ (ดู livePreview)
 function renderMine() {
   var box = $('cs-mine'), list = $('cs-mine-list');
   if (!box || !list) return;
@@ -786,6 +790,8 @@ function startNewParcel() {
   // ไม่ล้าง = แปลงใหม่ในต่างจังหวัดจะขึ้นว่าบังคับรังวัด เพราะแปลงก่อนหน้าอยู่ในกรุงเทพฯ
   if (SV) SV.reset();
   if (AP) AP.render();
+  // การ์ดตัวอย่างของแปลงก่อนหน้าต้องหายไปพร้อมกัน ไม่ใช่ค้างอยู่เหนือฟอร์มเปล่า
+  if (PV) PV.reset();
 
   // กล่องหลังบันทึกทั้งกล่องเป็นของแปลงก่อนหน้า — ต้องซ่อนและคืนข้อความเริ่มต้น
   captureDoneDefaults();
@@ -1002,6 +1008,90 @@ function setupSurvey(getProvince, getTotalWa) {
   return { value: value, sync: sync, applyFromLead: applyFromLead, reset: reset };
 }
 
+// ============================================================================
+//  ตัวอย่างประกาศแบบสด — ตัวคุมฝั่ง DOM (ระลอก 2 ข้อ 3)
+// ============================================================================
+//
+// ⚠️ **ตรรกะทั้งหมดอยู่ใน `consignpreview.js` ห้ามตัดสินใจอะไรที่นี่**
+//    ว่าอะไรขึ้นได้ อะไรยังขาด ป้ายเป็นสีไหน — กติกาข้อ 4 · 5 · 10 ล็อกไว้ที่ไฟล์นั้น
+//    พร้อมเทสต์ · เขียนซ้ำที่นี่เมื่อไหร่ = มีสองที่ให้ลืมแก้ (กับดักเดิมของ repo นี้)
+//    ไฟล์นี้ทำแค่ "อ่านค่าจากฟอร์ม → ส่งให้ NJConsignPreview → เขียนลง DOM"
+//
+// ⚠️ `consignpreview.js` โหลดไม่สำเร็จ = ไม่มีกล่องตัวอย่าง **ไม่ใช่ฟอร์มพัง**
+//    กล่องถูกตั้ง hidden ไว้ใน HTML แล้วให้ JS เป็นคนเปิด (กติกาเดียวกับ `#cs-survey`)
+function livePreview(getAddr, getAreaPrice, getSurveyOpt) {
+  var box = $('cs-preview');
+  var P = window.NJConsignPreview;
+  if (!box || !P) return null;
+  var form = $('consign-form');
+  var cardEl = $('cs-pv-card'), todoEl = $('cs-pv-todo');
+  if (!form || !cardEl || !todoEl) return null;
+  // ⚠️ เทียบ HTML เดิมก่อนเขียนเสมอ — เขียนทับด้วยค่าเดิมคือการลบ node แล้วสร้างใหม่
+  //    ซึ่งเป็นครึ่งหนึ่งของกับดักลูป MutationObserver ที่เคยทำให้สองหน้าค้างทั้งแท็บ
+  //    (และกล่องนี้ถูกวาดใหม่ทุกครั้งที่ผู้ใช้พิมพ์ตัวอักษรเดียว)
+  var lastCard = null, lastTodo = null, timer = 0;
+
+  // รูปแรกที่แนบไว้แล้ว — ตรวจแล้วขึ้นได้จริง · รอตรวจต้องติดป้ายบอกว่ายังไม่ผ่านการตรวจ
+  // (กติกาเดียวกับการ์ดไฟล์แนบ: รูปที่ยังไม่ผ่านตรวจไม่มีทางขึ้นหน้าประกาศ)
+  function photos() {
+    var d = LEAD.data;
+    if (!d) return { count: 0, first: null };
+    var ok = d.approvedPhotos || [], wait = d.pendingPhotos || [];
+    var first = ok[0] ? { url: NJ_API_BASE + ok[0].url, pending: false }
+              : (wait[0] ? { url: NJ_API_BASE + wait[0].url, pending: true } : null);
+    return { count: ok.length + wait.length, first: first };
+  }
+
+  function read() {
+    var fd = new FormData(form);
+    var a = getAddr();
+    var ap = getAreaPrice();
+    var detail = String(fd.get('locDetail') || '').trim();
+    var ph = photos();
+    var d = LEAD.data;
+    return {
+      type: String(fd.get('type') || 'sell'),
+      // ชื่อแปลงประกอบด้วย locationText ตัวเดียวกับที่ส่งขึ้นเซิร์ฟเวอร์ตอนกดบันทึก —
+      // ตัวอย่างกับของที่ส่งไปจริงจึงไม่มีทางเป็นคนละข้อความ
+      title: [locationText(a, detail), ap.areaText].filter(Boolean).join(' · '),
+      province: a.province,
+      areaText: ap.areaText, totalWa: ap.totalWa,
+      priceUnit: ap.priceUnit, unitPrice: ap.unitPrice, estValue: ap.estValue,
+      note: String(fd.get('note') || '').trim(),
+      surveyOpt: getSurveyOpt ? getSurveyOpt() : 'undecided',
+      saved: !!(LEAD.id && LEAD.token),
+      photos: ph.count, photo: ph.first,
+      live: !!(d && d.listing && d.listing.live),
+      cancelled: !!(d && d.cancelled)
+    };
+  }
+
+  function paint() {
+    var m = P.model(read());
+    if (!m.show) {
+      if (!box.hidden) box.hidden = true;
+      return;
+    }
+    var card = P.cardHtml(m), todo = P.todoHtml(m);
+    if (card !== lastCard) { lastCard = card; cardEl.innerHTML = card; }
+    if (todo !== lastTodo) { lastTodo = todo; todoEl.innerHTML = todo; }
+    if (box.hidden) box.hidden = false;
+  }
+
+  // หน่วงเล็กน้อย — ตัวนี้ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียวในฟอร์มที่มีหลายสิบช่อง
+  function sync() {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function () { timer = 0; paint(); }, 90);
+  }
+  // ฝากขายแปลงถัดไป / ล้างข้อมูลในเครื่อง — ต้องลืมของเดิมก่อน ไม่งั้นการ์ดค้างของแปลงก่อนหน้า
+  function reset() { lastCard = null; lastTodo = null; paint(); }
+
+  form.addEventListener('input', sync);
+  form.addEventListener('change', sync);
+  paint();
+  return { sync: sync, paint: paint, reset: reset };
+}
+
 function setupForm() {
   var form = $('consign-form');
   if (!form) return;
@@ -1026,6 +1116,16 @@ function setupForm() {
   SV = setupSurvey(
     function () { return addr ? addr.value().province : ''; },
     function () { return areaPrice ? areaPrice.value().totalWa : 0; }
+  );
+  // กล่องตัวอย่างประกาศ — ต้องมาหลัง SV เพราะอ่านตัวเลือกรังวัดที่ SV ตัดสิน
+  // (เขตบังคับ SV.value() คืน 'yes' เสมอ ตัวอย่างจึงพูดตรงกับสิ่งที่จะถูกบันทึกจริง)
+  PV = livePreview(
+    function () { return addr ? addr.value() : { province: '', amphoe: '', tambon: '', zip: '' }; },
+    function () {
+      return areaPrice ? areaPrice.value()
+        : { totalWa: 0, areaText: '', priceUnit: 'wa', unitPrice: 0, estValue: 0 };
+    },
+    function () { return SV ? SV.value() : 'undecided'; }
   );
 
   // แตะช่องแรก = แสดงว่าเริ่มสนใจจริง ใช้เป็นสัญญาณกลางทางให้ Meta เรียนรู้กลุ่มเป้าหมายเร็วขึ้น
