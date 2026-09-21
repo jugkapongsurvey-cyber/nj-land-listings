@@ -124,6 +124,7 @@ const ORDER = [
   ['save.js', 'marketplace.js'],
   ['compare.js', 'comparepage.js'],
   ['landmeta.js', 'land.js'],
+  ['consignpreview.js', 'consign.js'],
   ['analytics.js', 'njchat.js']
 ];
 console.log('\n5) ลำดับการโหลดสคริปต์');

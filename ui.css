@@ -207,6 +207,79 @@
 }
 .cs-calc-wait{color:#8A5A00;background:#FFF8E6;border-color:#FDE68A;font-weight:600}
 
+/* ---------- ตัวอย่างประกาศแบบสด (#cs-preview) ----------
+   ⚠️ อย่าตั้ง display ให้ .cs-preview — กล่องนี้ถูกซ่อน/เปิดด้วยแอตทริบิวต์ hidden
+      เหมือน #cs-survey (ดูกฎ [hidden]{display:none !important} ข้างบน)
+   ⚠️ **ตั้งใจให้ "คล้าย" การ์ดประกาศจริง แต่ไม่ใช่ชุดสไตล์การ์ดชุดที่สี่**
+      หน้าฝากขายใช้ ui.css ซึ่งไม่มีสไตล์ .land-card เลย · คลาสที่นี่จึงขึ้นต้นด้วย .cs-pv-
+      และห้ามมีใครเอาไปใช้นอกหน้านี้ · อยากแก้หน้าตาการ์ดจริงต้องไปที่
+      home.css / marketplace.css / njchat.css เหมือนเดิม
+   ⚠️ กรอบเส้นประ + คำว่า "ตัวอย่าง" มีไว้ให้อ่านออกทันทีว่ายังไม่ใช่ของจริงบนเว็บ
+      ทำให้เนียนเหมือนประกาศจริงเมื่อไหร่ = เจ้าของเข้าใจว่าแปลงขึ้นเว็บแล้ว */
+.cs-preview{
+  border:1.5px dashed #BFD0E4;border-radius:13px;padding:13px;
+  background:#FAFCFF;
+  /* ⚠️ #consign-form เป็น grid — ช่องของ grid มี min-width:auto ซึ่งยอมให้เนื้อหายาวๆ
+     ดันคอลัมน์จนหน้าเลื่อนแนวนอนได้ (บทเรียนเดียวกับ .ld-val ที่เคยทำหน้าแปลงล้น 91px) */
+  min-width:0;
+}
+.cs-pv-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.cs-pv-head b{font-size:12.5px;font-weight:800;color:var(--navy);letter-spacing:.01em}
+.cs-pv-head span{font-size:11.5px;color:var(--muted)}
+.cs-pv-card{
+  background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow-soft);min-width:0;
+}
+.cs-pv-media{
+  position:relative;aspect-ratio:16/10;background:#E9EFF6;
+  display:flex;align-items:center;justify-content:center;
+}
+.cs-pv-media img{width:100%;height:100%;object-fit:cover;display:block}
+.cs-pv-nophoto{font-size:12.5px;color:#7C8DA3}
+/* รูปที่ทีมงานยังไม่ได้ตรวจ ไม่มีทางขึ้นหน้าประกาศ — ต้องบอกไว้บนรูปเลย ไม่ใช่ปล่อยให้เข้าใจเอง */
+.cs-pv-wait{
+  position:absolute;right:8px;bottom:8px;
+  font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;
+  background:rgba(11,31,58,.86);color:#fff;
+}
+.cs-pv-tags{position:absolute;left:8px;top:8px;display:flex;gap:5px}
+.cs-pv-tags span{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px}
+.cs-pv-type{background:rgba(255,255,255,.95);color:#0B2549}
+/* สีป้าย "ข้อมูลเบื้องต้น" ชุดเดียวกับการ์ดจริง (ค่าที่แก้ให้ผ่านเกณฑ์ AA เมื่อ Sprint 3)
+   ⚠️ ไม่มีป้ายเขียวคู่กันที่นี่โดยตั้งใจ — ดูกติกาข้อ 2 หัว consignpreview.js */
+.cs-pv-tier{background:#F5C400;color:#3A2F00}
+.cs-pv-body{padding:11px 12px 12px}
+.cs-pv-price{font-size:19px;font-weight:800;color:var(--navy);line-height:1.3}
+.cs-pv-title{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.5;margin-top:3px}
+.cs-pv-title.empty{font-weight:600;color:var(--muted)}
+.cs-pv-meta{font-size:12px;color:var(--sub);margin-top:5px}
+.cs-pv-blurb{
+  font-size:12px;color:var(--sub);line-height:1.6;margin-top:7px;
+  /* ข้อความอิสระจากเจ้าของ ยาวได้ไม่จำกัด — ต้องตัดคำได้ ไม่งั้นดันการ์ดล้นแนวนอน */
+  overflow-wrap:anywhere;
+}
+.cs-pv-sv{
+  font-size:11.5px;line-height:1.6;color:#14508F;
+  background:#EEF6FF;border-radius:8px;padding:7px 9px;margin-top:9px;
+}
+/* ---- ยังเติมอะไรได้อีก ----
+   ⚠️ โทนฟ้ากลางๆ ไม่ใช่แดง/เหลืองเตือน — ไม่ใช่ความผิดของเจ้าของ และไม่ใช่ช่องบังคับ */
+.cs-pv-todo{margin-top:11px}
+.cs-pv-todo-head{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:6px}
+.cs-pv-todo ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cs-pv-todo li{
+  display:grid;gap:1px;font-size:12px;line-height:1.55;
+  background:#fff;border:1px solid var(--border);border-radius:9px;padding:7px 10px;
+}
+.cs-pv-todo li b{font-weight:700;color:var(--ink)}
+.cs-pv-todo li span{color:var(--muted);font-size:11.5px}
+.cs-pv-ok{
+  font-size:12.5px;font-weight:700;color:#15803D;
+  background:var(--green-light);border:1px solid rgba(22,163,74,.28);
+  border-radius:9px;padding:8px 11px;
+}
+.cs-pv-note{font-size:11px;color:var(--muted);line-height:1.65;margin:10px 0 0}
+
 /* ---------- ตัวเลือก "รังวัดยืนยันเขตก่อนประกาศ" ในฟอร์มฝากขาย ----------
    ⚠️ อย่าตั้ง display ให้ #cs-survey ที่นี่ — กล่องนี้ถูกซ่อน/เปิดด้วยแอตทริบิวต์ hidden
    และกฎ [hidden]{display:none !important} ท้ายไฟล์นี้เป็นตัวเดียวที่กันกับดักเดิมไว้ */
