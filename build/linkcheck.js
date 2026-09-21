@@ -76,10 +76,17 @@ function splitTarget(link) {
   return { file: file, anchor: anchor };
 }
 
+// ⚠️ ที่อยู่ในหน้าเว็บเข้ารหัสแล้ว (`/locations/%E0%B8...`) แต่ชื่อโฟลเดอร์บนดิสก์เป็นภาษาไทย
+//    ต้องถอดรหัสก่อนเทียบ ไม่งั้นหน้าพื้นที่ทุกหน้าถูกรายงานว่าเป็นลิงก์เสียทั้งที่ไฟล์อยู่ครบ
+//    (เจอจริงตอนเพิ่มหน้าพื้นที่ — ลิงก์ภายในที่เข้ารหัสเพิ่งมีครั้งแรกในรอบนั้น)
+function decodePath(rel) {
+  try { return decodeURIComponent(rel); } catch (e) { return rel; }
+}
+
 function exists(rel) {
   if (!rel) return true;                          // ลิงก์ที่มีแต่ ?query หรือ #anchor = หน้าเดิม
   if (rel.endsWith('/')) rel += 'index.html';
-  const p = path.join(ROOT, rel);
+  const p = path.join(ROOT, decodePath(rel));
   if (!p.startsWith(ROOT)) return false;          // กันลิงก์ที่ไต่ออกนอกโฟลเดอร์
   return fs.existsSync(p);
 }

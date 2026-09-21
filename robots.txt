@@ -31,7 +31,7 @@ Disallow: /partner-apply.html?*t=
 # (หน้านี้ประกาศ noindex ไว้ในตัวหน้าด้วยอีกชั้น · หน้า packages.html ยังให้เก็บได้ตามปกติ)
 Disallow: /package-order.html
 
-# แผนผังเว็บแยกสองไฟล์ — Google รับหลายบรรทัดได้
+# แผนผังเว็บแยกหลายไฟล์ — Google รับหลายบรรทัดได้
 #   sitemap.xml            = หน้าคงที่ของเว็บ (สร้างด้วย build/sitemap.js)
 #   sitemaps/properties.xml = หน้าแปลงรายแปลง (สร้างด้วย build/properties.js จากข้อมูลจริง)
 Sitemap: https://njteedinsure.com/sitemap.xml
