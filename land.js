@@ -71,7 +71,7 @@
 
   function setSeo(l, photos){
     try{
-      // ⚠️ **canonical ชี้ไปหน้าสแตติก `p/<รหัส>.html` ไม่ใช่ที่อยู่ของหน้านี้เอง**
+      // ⚠️ **canonical ชี้ไปหน้าจริงที่ `/properties/{ประเภท}/{จังหวัด}/{อำเภอ}/{รหัส}/` ไม่ใช่ที่อยู่ของหน้านี้เอง**
       // หน้าสแตติกมีเนื้อหาอยู่ใน HTML ตั้งแต่ต้นทาง บอตของไลน์/เฟซบุ๊ก/Google จึงอ่านได้จริง
       // ส่วนหน้านี้ส่ง HTML เปล่าให้บอตเสมอ (เนื้อหามาทีหลังจาก JS)
       //
@@ -79,7 +79,9 @@
       //    แปลงที่เพิ่งขึ้นหลังรอบ build ล่าสุด จะยังไม่มีหน้าสแตติก → canonical ชี้ไปหน้าที่ยังไม่มี
       //    ซึ่ง Google ถือว่า "ข้ามคำสั่งนี้" แล้วเก็บหน้านี้แทน = เท่ากับพฤติกรรมเดิมก่อน Sprint 5
       //    พอ build รอบถัดไปวิ่ง ทุกอย่างเข้าที่เอง · ไม่มีจังหวะไหนที่ผู้ใช้เจอหน้าเสีย
-      var url=NJLandMeta.pageUrl(l.id);
+      // ⚠️ ที่อยู่ใหม่ต้องใช้ข้อมูลทั้งใบ (ประเภท/จังหวัด/อำเภออยู่ใน URL) ไม่ใช่แค่รหัส
+      //    และต้องเข้ารหัสก่อนใส่ลง href เพราะที่อยู่เป็นภาษาไทย
+      var url=NJLandMeta.encUrl(NJLandMeta.pageUrl(l, vocab()));
       var link=document.querySelector('link[rel="canonical"]');
       if(!link){ link=document.createElement('link'); link.rel='canonical'; document.head.appendChild(link); }
       link.href=url;

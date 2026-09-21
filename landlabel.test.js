@@ -76,8 +76,21 @@ ok('⭐ แปลงที่ยังไม่ระบุราคา ต้�
 ok('ชื่อหน้าลงท้ายด้วยชื่อแบรนด์', /\| ที่ดินชัวร์$/.test(META.titleOf(FULL, VOCAB)));
 
 console.log('\n5) ที่อยู่ของหน้า');
-ok('หน้าสแตติกอยู่ที่ p/<รหัส>.html', META.pagePath('OP-072') === 'p/OP-072.html');
-ok('canonical เป็นที่อยู่เต็ม', META.pageUrl('OP-072') === 'https://njteedinsure.com/p/OP-072.html');
+// ⚠️ ที่อยู่ชุดใหม่ของสปรินต์ 3 — /properties/{ประเภท}/{จังหวัด}/{อำเภอ}/{รหัส}/
+ok('หน้าจริงอยู่ที่ /properties/…/{รหัส}/',
+   META.pagePath(FULL, VOCAB) === 'properties/' + META.slugSeg(META.kindOf(FULL, VOCAB)) + '/' + FULL.land.province + '/' + FULL.land.amphoe + '/' + FULL.id + '/',
+   META.pagePath(FULL, VOCAB));
+ok('canonical เป็นที่อยู่เต็ม',
+   META.pageUrl(FULL, VOCAB) === 'https://njteedinsure.com/' + META.pagePath(FULL, VOCAB));
+ok('⭐ แปลงที่ยังไม่กรอกประเภท ใช้คำตั้งต้น ไม่เดาว่าเป็นที่ดินเปล่า',
+   META.pagePath({ id: 'OP-001', land: {} }, VOCAB) === 'properties/' + META.FALLBACK_KIND + '/OP-001/',
+   META.pagePath({ id: 'OP-001', land: {} }, VOCAB));
+ok('⭐ ช่องว่างและทับกลายเป็นขีด · อักขระที่ตัดที่อยู่ถูกตัดทิ้ง',
+   META.slugSeg('เมือง สมุทรปราการ/x?y') === 'เมือง-สมุทรปราการ-xy', META.slugSeg('เมือง สมุทรปราการ/x?y'));
+ok('⭐ ที่อยู่ที่จะใส่ลง href ต้องเข้ารหัสแล้ว (ภาษาไทย)',
+   META.encUrl(META.pageUrl(FULL, VOCAB)).indexOf('%E0%B8') >= 0);
+ok('ที่อยู่ชุดเดิม p/<รหัส>.html ยังคำนวณได้ (ใช้วางหน้าพาไป)',
+   META.legacyPath('OP-072') === 'p/OP-072.html');
 ok('ที่อยู่แบบ query ยังใช้ได้ (การ์ดทุกใบชี้มาที่นี่)',
    META.dynamicUrl('OP-072') === 'https://njteedinsure.com/land.html?id=OP-072');
 
