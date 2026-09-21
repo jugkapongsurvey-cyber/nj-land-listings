@@ -32,7 +32,9 @@ const path = require('path');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
-const OUT_DIR = path.join(ROOT, 'p');
+const OUT_DIR = path.join(ROOT, 'p');            // ที่อยู่ชุดเดิม (Sprint 5) — กลายเป็นหน้าพาไปที่ใหม่
+const PROP_DIR = path.join(ROOT, 'properties');  // ที่อยู่ชุดใหม่ (สปรินต์ 3) — หน้าจริงอยู่ที่นี่
+const REDIR_FILE = path.join(ROOT, 'redirects.json');
 const MAP_DIR = path.join(ROOT, 'sitemaps');
 const SITE = 'https://njteedinsure.com';
 
@@ -107,7 +109,7 @@ function schemaFor(l) {
     '@type': 'RealEstateListing',
     name: META.shortLabel(l, VOCAB),
     description: META.metaDesc(l, VOCAB),
-    url: META.pageUrl(l.id),
+    url: META.pageUrl(l, VOCAB),
     identifier: l.id,
     datePosted: l.updatedAt || undefined
   };
@@ -135,7 +137,7 @@ function breadcrumbFor(l) {
   const L = l.land || {};
   const items = [{ t: 'หน้าแรก', h: '' }, { t: 'ประกาศทั้งหมด', h: 'listings.html' }];
   if (L.province) items.push({ t: L.province, h: 'listings.html' });
-  items.push({ t: l.id, h: META.pagePath(l.id) });
+  items.push({ t: l.id, h: META.pagePath(l, VOCAB) });
   return {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: items.map((c, i) => {
@@ -150,7 +152,7 @@ function breadcrumbFor(l) {
 function render(tpl, l) {
   const title = META.titleOf(l, VOCAB);
   const desc = META.metaDesc(l, VOCAB);
-  const url = META.pageUrl(l.id);
+  const url = META.pageUrl(l, VOCAB);
   const photo = (l.photos || []).filter((u) => /^https:\/\//.test(u))[0] || (SITE + '/brand/og-image.png');
   let s = tpl;
 
@@ -160,12 +162,13 @@ function render(tpl, l) {
   // ชื่อหน้า · คำโปรย · canonical
   s = s.replace(/<title>[\s\S]*?<\/title>/, '<title>' + esc(title) + '</title>');
   s = s.replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="' + esc(desc) + '">');
-  if (/rel="canonical"/.test(s)) s = s.replace(/<link rel="canonical"[^>]*>/, '<link rel="canonical" href="' + esc(url) + '">');
-  else s = s.replace('</title>', '</title>\n  <link rel="canonical" href="' + esc(url) + '">');
+  const encoded = META.encUrl(url);
+  if (/rel="canonical"/.test(s)) s = s.replace(/<link rel="canonical"[^>]*>/, '<link rel="canonical" href="' + esc(encoded) + '">');
+  else s = s.replace('</title>', '</title>\n  <link rel="canonical" href="' + esc(encoded) + '">');
 
   // og — ตัวที่มีอยู่แล้วให้ทับ ตัวที่ยังไม่มีให้เติมท้าย <head>
   const og = {
-    'og:title': title, 'og:description': desc, 'og:url': url, 'og:image': photo,
+    'og:title': title, 'og:description': desc, 'og:url': META.encUrl(url), 'og:image': photo,
     'og:type': 'website', 'og:site_name': 'ที่ดินชัวร์'
   };
   Object.keys(og).forEach((k) => {
@@ -189,6 +192,62 @@ function render(tpl, l) {
     (m, open, inner, close) => open + '\n      ' + bodyHtml(l) + '\n    ' + close);
 
   return s;
+}
+
+// ---------- หน้าพาไปที่อยู่ใหม่ ----------
+//
+// ⚠️ **ที่อยู่ที่เคยเผยแพร่ออกไปแล้วต้องไม่ตาย** (ข้อกำหนดข้อ 3)
+//    โฮสต์ปัจจุบันคือ GitHub Pages ซึ่ง **ทำ 301 จริงไม่ได้** จึงใช้สามชั้นพร้อมกัน:
+//      1. `<link rel=canonical>` ชี้ที่อยู่ใหม่ — บอกเสิร์ชเอนจินว่าตัวจริงอยู่ไหน
+//      2. `<meta http-equiv=refresh>` — พาผู้ใช้ไปเองแม้ปิดสคริปต์
+//      3. ลิงก์ที่กดได้จริงบนหน้า — เผื่อทั้งสองอย่างข้างบนถูกบล็อก **ห้ามตัดออก**
+//    ⚠️ ห้ามใส่ noindex ในหน้าพวกนี้ — noindex คู่กับ canonical เป็นคำสั่งที่ขัดกันเอง
+//       และจะทำให้ที่อยู่เดิมหายจากดัชนีโดยไม่ส่งค่าอะไรต่อให้ที่อยู่ใหม่เลย
+function stubHtml(title, toUrl) {
+  const enc = META.encUrl(toUrl);
+  return [
+    '<!doctype html>',
+    '<html lang="th">',
+    '<head>',
+    '  <meta charset="utf-8">',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">',
+    '  <title>' + esc(title) + '</title>',
+    '  <link rel="canonical" href="' + esc(enc) + '">',
+    '  <meta http-equiv="refresh" content="0; url=' + esc(enc) + '">',
+    '  <meta name="robots" content="follow">',
+    '</head>',
+    '<body>',
+    '  <p>ที่อยู่ของหน้านี้เปลี่ยนแล้ว กำลังพาไปที่อยู่ใหม่…</p>',
+    '  <p><a href="' + esc(enc) + '">' + esc(title) + '</a></p>',
+    '  <script>location.replace(' + JSON.stringify(enc) + ');</script>',
+    '</body>',
+    '</html>',
+    ''
+  ].join('\n');
+}
+
+// ลบโฟลเดอร์ที่ไม่มีอะไรเหลือแล้ว ไล่ขึ้นไปจนถึงรากของ properties/
+function pruneEmpty(dir) {
+  let cur = dir;
+  while (cur.startsWith(PROP_DIR) && cur !== PROP_DIR) {
+    let left = [];
+    try { left = fs.readdirSync(cur); } catch (e) { break; }
+    if (left.length) break;
+    fs.rmdirSync(cur);
+    cur = path.dirname(cur);
+  }
+}
+
+// ไล่หาไฟล์ index.html ทุกอันใต้ properties/ (ใช้ตอนเก็บกวาดแปลงที่หายไปจาก API)
+function walkIndexes(dir, out) {
+  let items = [];
+  try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return out; }
+  for (const it of items) {
+    const full = path.join(dir, it.name);
+    if (it.isDirectory()) walkIndexes(full, out);
+    else if (it.name === 'index.html') out.push(full);
+  }
+  return out;
 }
 
 // ---------- ลงมือ ----------
@@ -218,40 +277,105 @@ async function main() {
     process.exit(1);
   }
 
+  // ---------- ทะเบียนที่อยู่เดิม ----------
+  // เก็บ "ที่อยู่เก่า → ที่อยู่ใหม่" ของแปลงที่ย้ายที่อยู่ (เช่นทีมเพิ่งกรอกประเภททรัพย์)
+  // ⚠️ ห้ามลบรายการเก่าทิ้ง — ที่อยู่ที่เคยเผยแพร่ออกไปแล้วต้องพาไปที่ใหม่ได้ตลอดไป
+  let redir = {};
+  try { redir = JSON.parse(fs.readFileSync(REDIR_FILE, 'utf8')); } catch (e) { redir = {}; }
+  if (!redir || typeof redir !== 'object') redir = {};
+
   if (!DRY) {
     fs.mkdirSync(OUT_DIR, { recursive: true });
+    fs.mkdirSync(PROP_DIR, { recursive: true });
     fs.mkdirSync(MAP_DIR, { recursive: true });
   }
 
-  const want = new Set();
-  let wrote = 0, same = 0;
+  const wantIndex = new Set();   // ที่อยู่ของหน้าจริงรอบนี้
+  const wantStub = new Set();    // ที่อยู่ของหน้าพาไปรอบนี้
+  let wrote = 0, same = 0, stubs = 0, moved = 0;
+
   for (const l of list) {
     if (!l || !l.id) continue;
-    const file = String(l.id).replace(/[^A-Za-z0-9-]/g, '') + '.html';
-    want.add(file);
-    const full = path.join(OUT_DIR, file);
+    const id = String(l.id);
+    const dirRel = META.pagePath(l, VOCAB);                 // properties/…/OP-xxx/
+    const indexRel = dirRel + 'index.html';
+    wantIndex.add(indexRel);
+
+    const full = path.join(ROOT, indexRel);
     const html = render(tpl, l);
     const old = fs.existsSync(full) ? fs.readFileSync(full, 'utf8') : null;
-    if (old === html) { same++; continue; }
-    wrote++;
-    if (!DRY) fs.writeFileSync(full, html);
-  }
+    if (old === html) same++;
+    else {
+      wrote++;
+      if (!DRY) { fs.mkdirSync(path.dirname(full), { recursive: true }); fs.writeFileSync(full, html); }
+    }
 
-  // ข้อ 5 — แปลงที่หายจาก API แล้ว
-  let removed = 0;
-  if (fs.existsSync(OUT_DIR)) {
-    for (const f of fs.readdirSync(OUT_DIR)) {
-      if (!f.endsWith('.html') || want.has(f)) continue;
-      removed++;
-      if (!DRY) fs.unlinkSync(path.join(OUT_DIR, f));
+    const newUrl = META.pageUrl(l, VOCAB);
+    const title = META.titleOf(l, VOCAB);
+
+    // หน้าพาไปที่ที่อยู่ชุดเดิมของ Sprint 5 (p/<รหัส>.html)
+    const legacyRel = META.legacyPath(id);
+    wantStub.add(legacyRel);
+    const legacyFull = path.join(ROOT, legacyRel);
+    const stub = stubHtml(title, newUrl);
+    const legacyOld = fs.existsSync(legacyFull) ? fs.readFileSync(legacyFull, 'utf8') : null;
+    if (legacyOld !== stub) { stubs++; if (!DRY) fs.writeFileSync(legacyFull, stub); }
+    redir['/' + legacyRel] = '/' + dirRel;
+
+    // แปลงที่ย้ายที่อยู่ (ข้อมูลที่ใช้ตั้งชื่อเปลี่ยน) — วางหน้าพาไปไว้ที่อยู่เดิมทุกอัน
+    for (const from of Object.keys(redir)) {
+      if (redir[from] !== '/' + dirRel) continue;
+      if (from === '/' + legacyRel || from === '/' + dirRel) continue;
+      const oldRel = from.replace(/^\//, '');
+      if (!/^properties\//.test(oldRel)) continue;
+      const oldFile = path.join(ROOT, oldRel + 'index.html');
+      wantStub.add(oldRel + 'index.html');
+      const cur = fs.existsSync(oldFile) ? fs.readFileSync(oldFile, 'utf8') : null;
+      if (cur !== stub) { stubs++; if (!DRY) { fs.mkdirSync(path.dirname(oldFile), { recursive: true }); fs.writeFileSync(oldFile, stub); } }
     }
   }
 
-  // แผนผังเว็บเฉพาะหน้าแปลง — `build/sitemap.js` อ้างถึงไฟล์นี้
+  // ---------- แปลงที่ย้ายที่อยู่ระหว่างรอบนี้กับรอบก่อน ----------
+  // ไฟล์ index.html เดิมที่ไม่อยู่ในรายการรอบนี้ และยังเป็นของแปลงที่ยังประกาศอยู่ → กลายเป็นหน้าพาไป
+  // ส่วนของแปลงที่หายจาก API แล้ว → ลบทิ้ง (กติกาข้อ 5 ของไฟล์นี้)
+  const liveIds = new Set(list.filter((l) => l && l.id).map((l) => String(l.id)));
+  const urlById = new Map(list.filter((l) => l && l.id).map((l) => [String(l.id), META.pageUrl(l, VOCAB)]));
+  const titleById = new Map(list.filter((l) => l && l.id).map((l) => [String(l.id), META.titleOf(l, VOCAB)]));
+  let removed = 0;
+  for (const file of walkIndexes(PROP_DIR, [])) {
+    const rel = path.relative(ROOT, file).split(path.sep).join('/');
+    if (wantIndex.has(rel) || wantStub.has(rel)) continue;
+    const dirRel = rel.replace(/index\.html$/, '');
+    const idFromPath = dirRel.replace(/\/$/, '').split('/').pop();
+    if (liveIds.has(idFromPath)) {
+      // ย้ายที่อยู่ — วางหน้าพาไปไว้ที่เดิม แล้วจำไว้ในทะเบียน
+      const stub = stubHtml(titleById.get(idFromPath), urlById.get(idFromPath));
+      moved++;
+      if (!DRY) fs.writeFileSync(file, stub);
+      redir['/' + dirRel] = '/' + META.pagePath(list.find((x) => String(x.id) === idFromPath), VOCAB);
+    } else {
+      removed++;
+      if (!DRY) { fs.unlinkSync(file); pruneEmpty(path.dirname(file)); }
+    }
+  }
+  // หน้าพาไปชุดเดิมของแปลงที่ถูกถอดออกแล้ว — ลบทิ้งเหมือนกัน
+  if (fs.existsSync(OUT_DIR)) {
+    for (const fName of fs.readdirSync(OUT_DIR)) {
+      if (!fName.endsWith('.html')) continue;
+      if (wantStub.has('p/' + fName)) continue;
+      removed++;
+      if (!DRY) fs.unlinkSync(path.join(OUT_DIR, fName));
+    }
+  }
+
+  if (!DRY) fs.writeFileSync(REDIR_FILE, JSON.stringify(redir, null, 2) + '\n');
+
+  // ---------- แผนผังเฉพาะหน้าแปลง ----------
+  // ⚠️ ใส่เฉพาะที่อยู่จริงชุดใหม่ · หน้าพาไปห้ามอยู่ในแผนผัง (แผนผังคือรายการหน้าที่อยากให้เก็บดัชนี)
   const xml = ['<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     .concat(list.filter((l) => l && l.id).map((l) =>
-      '  <url>\n    <loc>' + META.pageUrl(l.id) + '</loc>\n' +
+      '  <url>\n    <loc>' + esc(META.encUrl(META.pageUrl(l, VOCAB))) + '</loc>\n' +
       (l.updatedAt ? '    <lastmod>' + String(l.updatedAt).slice(0, 10) + '</lastmod>\n' : '') +
       '  </url>'))
     .concat(['</urlset>', '']).join('\n');
@@ -260,8 +384,9 @@ async function main() {
   if (!DRY && mapOld !== xml) fs.writeFileSync(mapFile, xml);
 
   console.log((DRY ? '[ลองดูเฉยๆ] ' : '') +
-    'หน้าแปลง ' + list.length + ' แปลง — เขียนใหม่ ' + wrote + ' · เหมือนเดิม ' + same + ' · ลบ ' + removed);
-  console.log('แผนผัง: sitemaps/properties.xml (' + list.length + ' URL)');
+    'หน้าแปลง ' + list.length + ' แปลง — เขียนใหม่ ' + wrote + ' · เหมือนเดิม ' + same +
+    ' · หน้าพาไป ' + stubs + ' · ย้ายที่อยู่ ' + moved + ' · ลบ ' + removed);
+  console.log('แผนผัง: sitemaps/properties.xml (' + list.length + ' URL) · ทะเบียนที่อยู่เดิม: redirects.json (' + Object.keys(redir).length + ' รายการ)');
   if (DRY) console.log('\n(ไม่ได้เขียนอะไรลงดิสก์)');
 }
 

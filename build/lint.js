@@ -23,8 +23,23 @@ function bad(msg) { problems++; console.log('  ✗ ' + msg); }
 const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !f.startsWith('__'));
 const scripts = fs.readdirSync(ROOT).filter((f) => f.endsWith('.js'));
 const pDir = path.join(ROOT, 'p');
-const pPages = fs.existsSync(pDir)
+const pStubs = fs.existsSync(pDir)
   ? fs.readdirSync(pDir).filter((f) => f.endsWith('.html') && !f.startsWith('__')).map((f) => 'p/' + f) : [];
+
+// ⚠️ หน้าแปลงตัวจริงย้ายไปอยู่ใต้ properties/{ประเภท}/{จังหวัด}/{อำเภอ}/{รหัส}/index.html (สปรินต์ 3)
+//    ด่านนี้ต้องเดินเข้าไปดูด้วย ไม่งั้นลิงก์เสียในหน้าแปลงจะไม่มีใครเห็นอีกเลย
+//    ส่วน p/*.html กลายเป็นหน้าพาไปที่อยู่ใหม่ — ยังตรวจอยู่ เพราะลิงก์ในนั้นต้องไม่ตาย
+function walkHtml(dir, rel, out) {
+  let items = [];
+  try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return out; }
+  for (const it of items) {
+    if (it.isDirectory()) walkHtml(path.join(dir, it.name), rel + it.name + '/', out);
+    else if (it.name.endsWith('.html') && !it.name.startsWith('__')) out.push(rel + it.name);
+  }
+  return out;
+}
+const propPages = walkHtml(path.join(ROOT, 'properties'), 'properties/', []);
+const pPages = pStubs.concat(propPages);
 
 // ---------- 1) ไวยากรณ์ของไฟล์ JavaScript ทุกไฟล์ ----------
 console.log('\n1) ไวยากรณ์ JavaScript (' + scripts.length + ' ไฟล์)');
@@ -147,7 +162,7 @@ for (const page of pPages) {
     if (/^(https?:|\/\/|#|mailto:|tel:|javascript:)/i.test(u)) continue;
     const file = u.split('?')[0].split('#')[0];
     if (!file || !/\.html$/i.test(file)) continue;
-    const full = file.startsWith('/') ? path.join(ROOT, file.slice(1)) : path.join(ROOT, 'p', file);
+    const full = file.startsWith('/') ? path.join(ROOT, file.slice(1)) : path.join(ROOT, path.dirname(page), file);
     if (!fs.existsSync(full) && !seenBad.has(file)) { seenBad.add(file); bad(page + ' — ลิงก์ไปหน้าที่ไม่มีอยู่: ' + u); }
   }
 }

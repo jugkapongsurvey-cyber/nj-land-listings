@@ -90,19 +90,61 @@
     return txt.length > MAX ? txt.slice(0, MAX - 1).trim() + '…' : txt;
   }
 
+  // ⚠️ **ตัวสะกดใน URL เป็นภาษาไทย** (เจ้าของกิจการตัดสิน 21 ก.ย. 2569 · แผนข้อ 3.2)
+  //    ระบบเก็บชื่อจังหวัด/อำเภอเป็นภาษาไทยเท่านั้น การถอดเป็นอักษรโรมันเองคือการสร้างข้อมูล
+  //    ที่ไม่มีแหล่งอ้างอิง ซึ่งกติกาข้อ 5 ห้ามไว้ · Google รองรับ URL ยูนิโคดเต็มรูปแบบ
+  //
+  // ⚠️ **ห้ามให้มีช่องว่างหรืออักขระที่ทำให้ที่อยู่ขาด** — ช่องว่างกลายเป็นขีด ·
+  //    อักขระที่เป็นตัวแบ่งส่วนของ URL เอง (ทับ ปรัศนี สี่เหลี่ยม แอมเปอร์แซนด์ เปอร์เซ็นต์) ถูกตัดทิ้ง
+  function slugSeg(v) {
+    var t = String(v == null ? '' : v).trim();
+    // ทับ (/) กลายเป็นขีด เพราะชื่อประเภทบางอันมีทับอยู่จริง (ทาวน์เฮาส์/ทาวน์โฮม)
+    // ตัดทิ้งเฉย ๆ จะได้คำที่อ่านไม่ออก · ส่วนอักขระที่เป็นตัวแบ่งส่วนอื่นตัดทิ้งตามเดิม
+    t = t.replace(/[/]+/g, '-').replace(/[?#&%\\]+/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+    return t.replace(/^-+|-+$/g, '');
+  }
+
   // ---------- ที่อยู่ของหน้า ----------
   //
-  // ⚠️ **หน้าสแตติกที่ `build/properties.js` สร้าง คือที่อยู่ที่ใช้อ้างอิง (canonical)**
-  //    `land.html?id=` ยังใช้ได้ตามปกติและเป็นลิงก์ที่การ์ดทุกใบชี้ไป (ไม่มีทางพาไป 404)
-  //    แต่มันชี้ canonical มาที่นี่ เพื่อไม่ให้สองที่อยู่แข่งกันเองในดัชนี
-  function pagePath(id) { return 'p/' + String(id) + '.html'; }
-  function pageUrl(id) { return SITE_URL + '/' + pagePath(id); }
+  // ⚠️ **หน้าที่ `build/properties.js` สร้าง คือที่อยู่ที่ใช้อ้างอิง (canonical)**
+  //    รูปแบบตามข้อกำหนดงานที่ 4: /properties/{ประเภท}/{จังหวัด}/{อำเภอ}/{รหัส}/
+  //    `land.html?id=` และ `p/<รหัส>.html` ยังเปิดได้ตลอดไป (ลิงก์ที่ทีมส่งในไลน์ไปแล้วนับพันลิงก์
+  //    ต้องไม่ตาย) แต่ทั้งคู่ชี้ canonical มาที่นี่ ไม่ให้สามที่อยู่แข่งกันเองในดัชนี
+  //
+  // ⚠️ **ช่องที่ว่างถูกข้ามไป ไม่ใช่เดาแทน** — แปลงที่ยังไม่กรอกจังหวัด/อำเภอจะได้ที่อยู่สั้นลง
+  //    ไม่ใช่เติมคำว่า 'ไม่ระบุ' ลงไป · `kindOf` คืน 'ทรัพย์' เมื่อยังไม่กรอกประเภท
+  //    **ห้ามเดาว่าเป็นที่ดินเปล่า** (กติกาเดิมที่หัวไฟล์)
+  //
+  // ⚠️ **ที่อยู่เปลี่ยนได้เมื่อทีมกรอกข้อมูลเพิ่มทีหลัง** (เช่นเติมประเภททรัพย์)
+  //    `build/properties.js` จะจำที่อยู่เดิมไว้ใน `redirects.json` แล้ววางหน้าพาไปที่ใหม่
+  //    ไว้ที่อยู่เดิมเสมอ — ที่อยู่ที่เคยเผยแพร่ออกไปแล้วต้องไม่ตาย
+  function slugPathWith(l, vocab) {
+    var L = (l && l.land) || {};
+    var parts = ['properties', slugSeg(kindOf(l, vocab))];
+    var prov = slugSeg(L.province), amp = slugSeg(L.amphoe);
+    if (prov) parts.push(prov);
+    if (amp) parts.push(amp);
+    parts.push(slugSeg(l && l.id));
+    return parts.join('/') + '/';
+  }
+  function pagePath(l, vocab) {
+    return slugPathWith(l, vocab || ((typeof window !== 'undefined' && window.NJVocab) || null));
+  }
+  function pageUrl(l, vocab) { return SITE_URL + '/' + pagePath(l, vocab); }
+  // ⚠️ ที่อยู่ที่จะเขียนลง HTML หรือ XML ต้องเข้ารหัสก่อน
+  //    ภาษาไทยที่ไม่ได้เข้ารหัสใน href/loc พังกับตัวอ่านบางตัว (และ sitemap ที่ไม่ผ่านการตรวจ)
+  function encUrl(u) { return encodeURI(String(u == null ? '' : u)); }
+  // ที่อยู่ชุดเดิมของ Sprint 5 — ยังเปิดได้ แต่กลายเป็นหน้าพาไปที่อยู่ใหม่
+  function legacyPath(id) { return 'p/' + String(id) + '.html'; }
+  function legacyUrl(id) { return SITE_URL + '/' + legacyPath(id); }
   function dynamicUrl(id) { return SITE_URL + '/land.html?id=' + encodeURIComponent(String(id)); }
 
   return {
     FALLBACK_KIND: FALLBACK_KIND, SITE_URL: SITE_URL,
     kindOf: kindOf, localityOf: localityOf, shortLabel: shortLabel,
     titleOf: titleOf, metaDesc: metaDesc,
-    pagePath: pagePath, pageUrl: pageUrl, dynamicUrl: dynamicUrl
+    slugSeg: slugSeg, slugPathWith: slugPathWith,
+    pagePath: pagePath, pageUrl: pageUrl, encUrl: encUrl,
+    legacyPath: legacyPath, legacyUrl: legacyUrl, dynamicUrl: dynamicUrl
   };
 });

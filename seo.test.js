@@ -17,14 +17,25 @@ function ok(label, cond, extra) {
   else { fail++; console.log('  ✗ ' + label + (extra !== undefined ? '  → ' + String(extra).slice(0, 200) : '')); }
 }
 
-const P_DIR = path.join(__dirname, 'p');
-const PROPS = fs.existsSync(P_DIR)
-  ? fs.readdirSync(P_DIR).filter(f => f.endsWith('.html') && !f.startsWith('__')) : [];
+// ⚠️ สปรินต์ 3 ย้ายหน้าแปลงไปอยู่ที่ properties/{ประเภท}/{จังหวัด}/{อำเภอ}/{รหัส}/index.html
+//    ส่วน p/*.html กลายเป็น 'หน้าพาไปที่อยู่ใหม่' — ข้อ 1–3 จึงต้องอ่านของใหม่
+//    (ข้อที่ตรวจหน้าพาไปโดยเฉพาะอยู่ใน propurl.test.js)
+function walkProps(dir, rel, out) {
+  let items = [];
+  try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return out; }
+  for (const it of items) {
+    if (it.isDirectory()) walkProps(path.join(dir, it.name), rel + it.name + '/', out);
+    else if (it.name === 'index.html') out.push(rel + 'index.html');
+  }
+  return out;
+}
+const PROPS = walkProps(path.join(__dirname, 'properties'), 'properties/', []);
+const idOf = (rel) => rel.replace(/\/index\.html$/, '').split('/').pop();
 
 console.log('\n1) ⭐ หน้าแปลงมีเนื้อหาอยู่ใน HTML ต้นทางจริง');
 // บอตของไลน์และเฟซบุ๊ก **ไม่รันสคริปต์** — เนื้อหาที่มาทีหลังจาก JS เท่ากับไม่มี
 ok('มีไฟล์หน้าแปลงอยู่จริง', PROPS.length > 0, PROPS.length + ' ไฟล์');
-const sample = PROPS.length ? read('p/' + PROPS[0]) : '';
+const sample = PROPS.length ? read(PROPS[0]) : '';
 ok('ชื่อหน้าไม่ใช่ข้อความกลางของ land.html', !/<title>รายละเอียดแปลงที่ดิน \| ที่ดินชัวร์<\/title>/.test(sample));
 ok('มี <h1> อยู่ใน HTML ต้นทาง', /<h1[^>]*>[^<]{10,}/.test(sample));
 ok('มีรหัสทรัพย์อยู่ในเนื้อหา', /รหัสทรัพย์/.test(sample));
@@ -34,13 +45,14 @@ ok('⭐ บอกให้ชัดว่า "กำลังโหลดข้�
 console.log('\n2) ทุกหน้าแปลงมีข้อมูลหัวหน้าครบและไม่ซ้ำกัน');
 const titles = new Set(), canons = new Set();
 PROPS.forEach(f => {
-  const s = read('p/' + f);
-  const id = f.replace(/\.html$/, '');
+  const s = read(f);
+  const id = idOf(f);
   const t = (s.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '';
   const c = (s.match(/<link rel="canonical" href="([^"]*)"/) || [])[1] || '';
   const d = (s.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
   titles.add(t); canons.add(c);
-  ok(id + ': canonical ชี้มาที่ตัวเอง', c === 'https://njteedinsure.com/p/' + id + '.html', c);
+  const selfUrl = encodeURI('https://njteedinsure.com/' + f.replace(/index\.html$/, ''));
+  ok(id + ': canonical ชี้มาที่ตัวเอง', c === selfUrl, c + ' ควรเป็น ' + selfUrl);
   ok(id + ': มีคำโปรยของตัวเอง', d.length > 40 && d.indexOf(id) >= 0);
   ok(id + ': og:image ไม่ใช่ภาพกลางของเว็บ หรือไม่มีรูปก็ยอมรับได้',
      /<meta property="og:image" content="[^"]+"/.test(s));
@@ -51,8 +63,8 @@ ok('⭐ canonical ไม่ซ้ำกันสักคู่', canons.size ==
 
 console.log('\n3) ⭐ Structured Data ต้องตรงกับความจริง');
 PROPS.forEach(f => {
-  const s = read('p/' + f);
-  const id = f.replace(/\.html$/, '');
+  const s = read(f);
+  const id = idOf(f);
   const blocks = (s.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g) || [])
     .map(b => b.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, ''));
   let parsed = [];
@@ -79,8 +91,8 @@ PROPS.forEach(f => {
 
 console.log('\n4) ⭐ ห้ามอ้างว่ารังวัดแล้วทั้งที่ยังไม่ได้ (กติกาข้อ 10)');
 PROPS.forEach(f => {
-  const s = read('p/' + f);
-  const id = f.replace(/\.html$/, '');
+  const s = read(f);
+  const id = idOf(f);
   const claimsSurvey = /ตรวจเชิงลึกแล้ว — มีผลรังวัดยืนยันแนวเขต/.test(s);
   const saysBasic = /ข้อมูลเบื้องต้น — ยังไม่ได้รังวัดยืนยันแนวเขต/.test(s);
   ok(id + ': บอกระดับข้อมูลไว้ชัดเจนข้างเดียว', claimsSurvey !== saysBasic);
@@ -96,7 +108,7 @@ ok('มีไฟล์ sitemaps/properties.xml', pmap.length > 0);
 const locs = (pmap.match(/<loc>[^<]*<\/loc>/g) || []).length;
 ok('จำนวน URL ในแผนผังเท่ากับจำนวนหน้าแปลง', locs === PROPS.length, locs + ' vs ' + PROPS.length);
 PROPS.forEach(f => {
-  const u = 'https://njteedinsure.com/p/' + f;
+  const u = encodeURI('https://njteedinsure.com/' + f.replace(/index.html$/, ''));
   if (pmap.indexOf(u) < 0) ok('แผนผังมี ' + f, false);
 });
 ok('⭐ แผนผังไม่มี priority / changefreq ที่แต่งขึ้น', !/priority|changefreq/.test(pmap));
@@ -123,9 +135,10 @@ ok('หน้ารวมประกาศมี canonical คงที่ช�
    read('listings.html').indexOf('<link rel="canonical" href="https://njteedinsure.com/listings.html">') >= 0);
 ok('⭐ ตัวซิงก์ที่อยู่หน้าไม่ไปแก้ canonical', !/canonical/.test(read('marketplace.js')));
 
-console.log('\n8) land.html ยังเป็นทางเข้าที่ใช้ได้ และชี้ canonical มาหน้าสแตติก');
+console.log('\n8) land.html ยังเป็นทางเข้าที่ใช้ได้ และชี้ canonical มาที่อยู่ชุดใหม่');
 const landJs = read('land.js');
-ok('⭐ canonical ของ land.html ชี้ไปหน้าสแตติก', /NJLandMeta\.pageUrl\(l\.id\)/.test(landJs));
+ok('⭐ canonical ของ land.html ชี้ไปที่อยู่ชุดใหม่ (ส่งทั้งใบ ไม่ใช่แค่รหัส)',
+   /NJLandMeta\.pageUrl\(l,\s*vocab\(\)\)/.test(landJs));
 ok('รับรหัสแปลงได้ทั้งจาก ?id= และจากหน้าสแตติก',
    /qs\('id'\)\|\|String\(window\.NJ_LISTING_ID/.test(landJs.replace(/\s/g, '')));
 ok('⭐ แปลงที่ถูกถอดแล้วยัง noindex เหมือนเดิม', /function markGone/.test(landJs) && /noindex, follow/.test(landJs));
