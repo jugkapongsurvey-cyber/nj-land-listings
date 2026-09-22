@@ -128,6 +128,16 @@ h1,h2,h3,p{margin:0}
   .hero-lead{font-size:15px}
 }
 
+/* ⚠️ บนมือถือรูป hero เหลือแค่ 343×193 css px — การ์ดเช็กลิสต์ที่ลอยทับกินพื้นที่
+   เกือบทั้งใบจนเห็นแต่หลังคากับท้องฟ้า ภาพครอบครัวซึ่งเป็นหัวใจของ hero ถูกบังหมด
+   (เจ้าของกิจการสั่งตัดออกได้ 22 ก.ย. 69 · วัดจากของจริงที่ 375px)
+   ข้อความ 4 ข้อนี้ไม่ได้หายจากหน้า — หัวข้อ "มาตรฐาน" ด้านล่างเขียนไว้ละเอียดกว่าเดิมอยู่แล้ว
+   ⚠️ ซ่อนด้วย display:none ไม่ใช่ย้ายลงมาไว้ใต้ภาพ เพราะการ์ดเป็นลูกของ .hero-media
+      ซึ่ง overflow:hidden + aspect-ratio ตายตัว — ทำให้เป็น static แล้วจะถูกตัดหายไปเฉยๆ */
+@media (max-width:767px){
+  .hero-check{display:none}
+}
+
 /* ========== SEARCH BOX ========== */
 .search{margin-top:8px;display:flex;flex-direction:column;gap:10px;background:#fff;border:1.5px solid var(--line-2);border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow-sm)}
 .seg{display:flex;gap:6px}
