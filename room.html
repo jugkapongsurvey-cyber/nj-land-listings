@@ -19,9 +19,12 @@
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="fontcss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
+  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="compare.css">
@@ -123,18 +126,18 @@
   </nav>
   </footer>
 
-  <script src="analytics.js"></script>
-  <script src="save.js"></script>
-  <script src="njform.js"></script>
-  <script src="room.js"></script>
+  <script src="analytics.js" defer></script>
+  <script src="save.js" defer></script>
+  <script src="njform.js" defer></script>
+  <script src="room.js" defer></script>
   <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js
        ⚠️ หน้านี้มีตั๋วอยู่ใน URL — แชทส่งแค่ชื่อไฟล์ (location.pathname) ไปเซิร์ฟเวอร์ ไม่ได้ส่ง query string
        ตั๋วจึงไม่หลุดไปกับคำถาม (กติกาเดียวกับ deal.html/inspect.html ที่เป็นหน้ามีตั๋วเหมือนกัน) -->
-  <script src="verified.js"></script>
-  <script src="landvocab.js"></script>
-  <script src="listingcard.js"></script>
-  <script src="compare.js"></script>
-  <script src="njchatload.js"></script>
-  <script src="menu.js"></script>
+  <script src="verified.js" defer></script>
+  <script src="landvocab.js" defer></script>
+  <script src="listingcard.js" defer></script>
+  <script src="compare.js" defer></script>
+  <script src="njchatload.js" defer></script>
+  <script src="menu.js" defer></script>
 </body>
 </html>

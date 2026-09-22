@@ -25,9 +25,12 @@
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="fontcss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
+  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="guides.css">
@@ -511,237 +514,241 @@
 
   <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a href="listings.html"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a class="active" href="videos.html"><span>▶</span>วิดีโอ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
 
-  <script src="analytics.js"></script>
+  <script src="analytics.js" defer></script>
   <script>
+  /* สคริปต์ของหน้าถูกโหลดแบบ defer แล้ว จึงต้องรอ DOMContentLoaded
+     ซึ่งยิงหลังสคริปต์ defer ทุกตัวทำงานเสร็จ — ไม่งั้นเรียกของที่ยังไม่มี */
+  document.addEventListener('DOMContentLoaded', function () {
   (function () {
-    var PAGE = 'https://njteedinsure.com/videos.html';
-    var TEAM = [
-      { id: 'team1', dir: 'video/team/', who: 'ตอนที่ 1',
-        title: 'ออกเดินทางถึงแปลงจริง',
-        desc: 'ทุกงานทีมเราลงพื้นที่จริง ไม่มีการรังวัดจากโต๊ะ — แปลงที่อยู่ห่างไกล ต้องเผื่อเวลาเดินทางไว้ในแผนงาน' },
-      { id: 'team2', dir: 'video/team/', who: 'ตอนที่ 2',
-        title: 'ประสานงานราชการ',
-        desc: 'ยื่นเรื่องตามขั้นตอนราชการ ไม่มีทางลัด — งานรังวัดต้องนัดหมายล่วงหน้า วางแผนเวลาไว้ให้พอ' },
-      { id: 'team3', dir: 'video/team/', who: 'ตอนที่ 3',
-        title: 'ตั้งเครื่องรับดาวเทียม',
-        desc: 'เครื่องมือสำรวจที่ใช้งานจริงหน้างาน — ค่าพิกัดที่แม่นยำ เริ่มจากการตั้งเครื่องให้ถูกจุดแรก' },
-      { id: 'team4', dir: 'video/team/', who: 'ตอนที่ 4',
-        title: 'เก็บค่าพิกัดทีละหมุด',
-        desc: 'บันทึกค่าทุกจุดลงเครื่อง ตรวจย้อนหลังได้ — แนวเขตที่ถูกต้องมาจากค่าที่วัดจริง ไม่ใช่การกะจากภาพถ่าย' }
-    ];
-    var OFFICE = [
-      { id: 'office1', dir: 'video/office/', who: 'ตอนที่ 1',
-        title: 'สำนักงานรังวัดเอกชน ที่มีช่างขึ้นทะเบียน 13 ท่าน',
-        desc: 'พาเดินดูสำนักงานทั้งออฟฟิศ ว่าใครทำอะไรบ้าง ตั้งแต่รับเรื่องจนส่งรายงานถึงมือลูกค้า' },
-      { id: 'office2', dir: 'video/office/', who: 'ตอนที่ 2',
-        title: 'จะสร้างกำแพงทั้งที ต้องรู้ก่อนว่าเขตอยู่ตรงไหน',
-        desc: 'หัวหน้าทีมรังวัดเล่าวิธีเตรียมข้อมูลก่อนออกหน้างาน — สอบแนวเขตให้ชัดก่อน ค่อยลงเสาเข็ม' },
-      { id: 'office3', dir: 'video/office/', who: 'ตอนที่ 3',
-        title: 'แปลง 207 ไร่ ที่ไม่เหลือหลักฐานรังวัดเดิมเลย',
-        desc: 'งานที่ชลบุรี 207 ไร่ ที่ไม่มีหลักฐานรังวัดเดิมให้อ้างอิงสักชิ้น ช่างรังวัดเริ่มต้นจากอะไร' },
-      { id: 'office4', dir: 'video/office/', who: 'ตอนที่ 4',
-        title: 'ทุกงานรังวัดอยู่ในระบบ ไม่ได้จดใส่กระดาษ',
-        desc: 'ตารางงานที่บอกได้ทุกแปลงว่าวันไหนรังวัด วันไหนยื่นเรื่อง วันไหนรับเอกสาร ตรวจย้อนหลังได้' },
-      { id: 'office5', dir: 'video/office/', who: 'ตอนที่ 5',
-        title: 'ใบเสนอราคากับสัญญาว่าจ้าง ออกจากระบบ ไม่ใช่เขียนมือ',
-        desc: 'เจ้าหน้าที่ที่ดูแลใบเสนอราคาและสัญญาว่าจ้าง เล่าว่าเอกสารของลูกค้าออกมาจากไหน' },
-      { id: 'office6', dir: 'video/office/', who: 'ตอนที่ 6',
-        title: 'รังวัดเสร็จแล้ว งานเอกสารเพิ่งเริ่ม',
-        desc: 'ฝ่ายประสานงานราชการ — ตามเซ็นเอกสาร ตามเรื่องที่สำนักงานที่ดิน งานที่ลูกค้าไม่ค่อยเห็น' },
-      { id: 'office7', dir: 'video/office/', who: 'ตอนที่ 7',
-        title: 'รังวัดเสร็จแล้ว ลูกค้าได้อะไรกลับไปบ้าง',
-        desc: 'รายงานที่ส่งให้ลูกค้ามีอะไรอยู่ในนั้นบ้าง และทำไมถึงเอาไปก่อสร้างต่อได้เลย' },
-      { id: 'office8', dir: 'video/office/', who: 'ตอนที่ 8',
-        title: 'รายการรังวัดเก่า ที่หลักฐานไม่ครบ',
-        desc: 'ก่อนยื่นเรื่องต้องตรวจอะไรบ้าง — เอกสารครบไหม รายการรังวัดเดิมมีอะไรติดค้างอยู่หรือเปล่า' },
-      { id: 'office9', dir: 'video/office/', who: 'ตอนที่ 9',
-        title: 'ที่ดินหน้าแปลง ถูกถนนกินไปโดยไม่รู้ตัว',
-        desc: 'เคสที่ตั้งใจมาสอบเขต แต่พบว่าที่ดินหน้าแปลงกลายเป็นทางสาธารณะไปแล้ว จึงต้องเปลี่ยนเป็นแบ่งหัก' },
-      { id: 'office10', dir: 'video/office/', who: 'ตอนที่ 10',
-        title: 'มีที่ดินว่างเปล่า ฝากขายกับเราได้ฟรี',
-        desc: 'ที่ดินว่างเปล่าที่ยังไม่ได้ใช้ประโยชน์ ฝากขายกับเราได้ ไม่มีค่าใช้จ่ายในการฝาก' }
-    ];
-    var VIDEOS = [
-      { id: 'clip1', who: 'เจ้าของที่ดิน',
-        title: 'โฉนดบอกว่า 5 ไร่ — แล้วที่คุณถืออยู่จริง กี่ไร่?',
-        desc: 'ตัวเลขในโฉนดกับหมุดที่ปักอยู่จริงในดิน ไม่ได้ตรงกันเสมอไป รั้วที่ล้อมมา 30 ปีก็อาจไม่ใช่แนวเขตจริง — งานสอบเขตคือการหาแนวเขตที่แท้จริงของที่ดินคุณ' },
-      { id: 'clip2', who: 'กำลังจะซื้อ–ขาย',
-        title: 'รังวัดก่อนโอน ไม่ใช่หลังโอน',
-        desc: 'ก่อนโอน ถ้าเนื้อที่ไม่ตรงคุณยังต่อรองได้ ยังถอยได้ แต่หลังโอนแล้ว เรื่องเดียวกันนี้กลายเป็นภาระของคุณคนเดียว' },
-      { id: 'clip3', who: 'นายหน้า / นักลงทุน',
-        title: 'แปลงที่มีข้อมูล ขายเร็วกว่า',
-        desc: 'ลูกค้าไม่ได้กลัวราคา ลูกค้ากลัวสิ่งที่คุณตอบไม่ได้ — แปลงที่มีรายงานรังวัด แนวเขตชัด เนื้อที่วัดจริง ปิดดีลง่ายกว่าแปลงที่บอกได้แค่ "ประมาณ"' },
-      { id: 'clip4', who: 'ผู้รับเหมา / จัดสรร',
-        title: 'ยิ่งแบ่งเยอะ ยิ่งพลาดไม่ได้',
-        desc: 'แปลงเดียวคลาดเคลื่อน กระทบทั้งผังโครงการ ทั้งการขาย ทั้งการโอน — งานสเกลนี้ต้องใช้ระบบ ไม่ใช่ความจำของช่างคนเดียว' }
-    ];
+      var PAGE = 'https://njteedinsure.com/videos.html';
+      var TEAM = [
+        { id: 'team1', dir: 'video/team/', who: 'ตอนที่ 1',
+          title: 'ออกเดินทางถึงแปลงจริง',
+          desc: 'ทุกงานทีมเราลงพื้นที่จริง ไม่มีการรังวัดจากโต๊ะ — แปลงที่อยู่ห่างไกล ต้องเผื่อเวลาเดินทางไว้ในแผนงาน' },
+        { id: 'team2', dir: 'video/team/', who: 'ตอนที่ 2',
+          title: 'ประสานงานราชการ',
+          desc: 'ยื่นเรื่องตามขั้นตอนราชการ ไม่มีทางลัด — งานรังวัดต้องนัดหมายล่วงหน้า วางแผนเวลาไว้ให้พอ' },
+        { id: 'team3', dir: 'video/team/', who: 'ตอนที่ 3',
+          title: 'ตั้งเครื่องรับดาวเทียม',
+          desc: 'เครื่องมือสำรวจที่ใช้งานจริงหน้างาน — ค่าพิกัดที่แม่นยำ เริ่มจากการตั้งเครื่องให้ถูกจุดแรก' },
+        { id: 'team4', dir: 'video/team/', who: 'ตอนที่ 4',
+          title: 'เก็บค่าพิกัดทีละหมุด',
+          desc: 'บันทึกค่าทุกจุดลงเครื่อง ตรวจย้อนหลังได้ — แนวเขตที่ถูกต้องมาจากค่าที่วัดจริง ไม่ใช่การกะจากภาพถ่าย' }
+      ];
+      var OFFICE = [
+        { id: 'office1', dir: 'video/office/', who: 'ตอนที่ 1',
+          title: 'สำนักงานรังวัดเอกชน ที่มีช่างขึ้นทะเบียน 13 ท่าน',
+          desc: 'พาเดินดูสำนักงานทั้งออฟฟิศ ว่าใครทำอะไรบ้าง ตั้งแต่รับเรื่องจนส่งรายงานถึงมือลูกค้า' },
+        { id: 'office2', dir: 'video/office/', who: 'ตอนที่ 2',
+          title: 'จะสร้างกำแพงทั้งที ต้องรู้ก่อนว่าเขตอยู่ตรงไหน',
+          desc: 'หัวหน้าทีมรังวัดเล่าวิธีเตรียมข้อมูลก่อนออกหน้างาน — สอบแนวเขตให้ชัดก่อน ค่อยลงเสาเข็ม' },
+        { id: 'office3', dir: 'video/office/', who: 'ตอนที่ 3',
+          title: 'แปลง 207 ไร่ ที่ไม่เหลือหลักฐานรังวัดเดิมเลย',
+          desc: 'งานที่ชลบุรี 207 ไร่ ที่ไม่มีหลักฐานรังวัดเดิมให้อ้างอิงสักชิ้น ช่างรังวัดเริ่มต้นจากอะไร' },
+        { id: 'office4', dir: 'video/office/', who: 'ตอนที่ 4',
+          title: 'ทุกงานรังวัดอยู่ในระบบ ไม่ได้จดใส่กระดาษ',
+          desc: 'ตารางงานที่บอกได้ทุกแปลงว่าวันไหนรังวัด วันไหนยื่นเรื่อง วันไหนรับเอกสาร ตรวจย้อนหลังได้' },
+        { id: 'office5', dir: 'video/office/', who: 'ตอนที่ 5',
+          title: 'ใบเสนอราคากับสัญญาว่าจ้าง ออกจากระบบ ไม่ใช่เขียนมือ',
+          desc: 'เจ้าหน้าที่ที่ดูแลใบเสนอราคาและสัญญาว่าจ้าง เล่าว่าเอกสารของลูกค้าออกมาจากไหน' },
+        { id: 'office6', dir: 'video/office/', who: 'ตอนที่ 6',
+          title: 'รังวัดเสร็จแล้ว งานเอกสารเพิ่งเริ่ม',
+          desc: 'ฝ่ายประสานงานราชการ — ตามเซ็นเอกสาร ตามเรื่องที่สำนักงานที่ดิน งานที่ลูกค้าไม่ค่อยเห็น' },
+        { id: 'office7', dir: 'video/office/', who: 'ตอนที่ 7',
+          title: 'รังวัดเสร็จแล้ว ลูกค้าได้อะไรกลับไปบ้าง',
+          desc: 'รายงานที่ส่งให้ลูกค้ามีอะไรอยู่ในนั้นบ้าง และทำไมถึงเอาไปก่อสร้างต่อได้เลย' },
+        { id: 'office8', dir: 'video/office/', who: 'ตอนที่ 8',
+          title: 'รายการรังวัดเก่า ที่หลักฐานไม่ครบ',
+          desc: 'ก่อนยื่นเรื่องต้องตรวจอะไรบ้าง — เอกสารครบไหม รายการรังวัดเดิมมีอะไรติดค้างอยู่หรือเปล่า' },
+        { id: 'office9', dir: 'video/office/', who: 'ตอนที่ 9',
+          title: 'ที่ดินหน้าแปลง ถูกถนนกินไปโดยไม่รู้ตัว',
+          desc: 'เคสที่ตั้งใจมาสอบเขต แต่พบว่าที่ดินหน้าแปลงกลายเป็นทางสาธารณะไปแล้ว จึงต้องเปลี่ยนเป็นแบ่งหัก' },
+        { id: 'office10', dir: 'video/office/', who: 'ตอนที่ 10',
+          title: 'มีที่ดินว่างเปล่า ฝากขายกับเราได้ฟรี',
+          desc: 'ที่ดินว่างเปล่าที่ยังไม่ได้ใช้ประโยชน์ ฝากขายกับเราได้ ไม่มีค่าใช้จ่ายในการฝาก' }
+      ];
+      var VIDEOS = [
+        { id: 'clip1', who: 'เจ้าของที่ดิน',
+          title: 'โฉนดบอกว่า 5 ไร่ — แล้วที่คุณถืออยู่จริง กี่ไร่?',
+          desc: 'ตัวเลขในโฉนดกับหมุดที่ปักอยู่จริงในดิน ไม่ได้ตรงกันเสมอไป รั้วที่ล้อมมา 30 ปีก็อาจไม่ใช่แนวเขตจริง — งานสอบเขตคือการหาแนวเขตที่แท้จริงของที่ดินคุณ' },
+        { id: 'clip2', who: 'กำลังจะซื้อ–ขาย',
+          title: 'รังวัดก่อนโอน ไม่ใช่หลังโอน',
+          desc: 'ก่อนโอน ถ้าเนื้อที่ไม่ตรงคุณยังต่อรองได้ ยังถอยได้ แต่หลังโอนแล้ว เรื่องเดียวกันนี้กลายเป็นภาระของคุณคนเดียว' },
+        { id: 'clip3', who: 'นายหน้า / นักลงทุน',
+          title: 'แปลงที่มีข้อมูล ขายเร็วกว่า',
+          desc: 'ลูกค้าไม่ได้กลัวราคา ลูกค้ากลัวสิ่งที่คุณตอบไม่ได้ — แปลงที่มีรายงานรังวัด แนวเขตชัด เนื้อที่วัดจริง ปิดดีลง่ายกว่าแปลงที่บอกได้แค่ "ประมาณ"' },
+        { id: 'clip4', who: 'ผู้รับเหมา / จัดสรร',
+          title: 'ยิ่งแบ่งเยอะ ยิ่งพลาดไม่ได้',
+          desc: 'แปลงเดียวคลาดเคลื่อน กระทบทั้งผังโครงการ ทั้งการขาย ทั้งการโอน — งานสเกลนี้ต้องใช้ระบบ ไม่ใช่ความจำของช่างคนเดียว' }
+      ];
 
-    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-    function card(v) {
-      var dir = v.dir || 'video/';
-      var url = PAGE + '#' + v.id;
-      return '<article class="vd-card" id="' + v.id + '">' +
-        '<div class="vd-media"><video controls preload="none" playsinline ' +
-          'poster="' + dir + v.id + '.jpg" data-vid="' + v.id + '">' +
-          '<source src="' + dir + v.id + '.mp4" type="video/mp4">' +
-          'เบราว์เซอร์ของคุณเปิดวิดีโอนี้ไม่ได้ ' +
-          '<a href="' + dir + v.id + '.mp4">ดาวน์โหลดคลิป</a></video></div>' +
-        '<div class="vd-info">' +
-          '<span class="vd-for">' + esc(v.who) + '</span>' +
-          '<h2>' + esc(v.title) + '</h2>' +
-          '<p>' + esc(v.desc) + '</p>' +
-          '<div class="vd-share">' +
-            '<a class="line" target="_blank" rel="noopener" ' +
-              'href="https://line.me/R/msg/text/?' + encodeURIComponent(v.title + ' ' + url) + '">แชร์ LINE</a>' +
-            '<a class="fb" target="_blank" rel="noopener" ' +
-              'href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
-            '<button type="button" data-copy="' + url + '">คัดลอกลิงก์</button>' +
-          '</div>' +
-        '</div></article>';
-    }
-    document.getElementById('grid').innerHTML = VIDEOS.map(card).join('');
-    document.getElementById('gridteam').innerHTML = TEAM.map(card).join('');
-    document.getElementById('gridoffice').innerHTML = OFFICE.map(card).join('');
+      function card(v) {
+        var dir = v.dir || 'video/';
+        var url = PAGE + '#' + v.id;
+        return '<article class="vd-card" id="' + v.id + '">' +
+          '<div class="vd-media"><video controls preload="none" playsinline ' +
+            'poster="' + dir + v.id + '.jpg" data-vid="' + v.id + '">' +
+            '<source src="' + dir + v.id + '.mp4" type="video/mp4">' +
+            'เบราว์เซอร์ของคุณเปิดวิดีโอนี้ไม่ได้ ' +
+            '<a href="' + dir + v.id + '.mp4">ดาวน์โหลดคลิป</a></video></div>' +
+          '<div class="vd-info">' +
+            '<span class="vd-for">' + esc(v.who) + '</span>' +
+            '<h2>' + esc(v.title) + '</h2>' +
+            '<p>' + esc(v.desc) + '</p>' +
+            '<div class="vd-share">' +
+              '<a class="line" target="_blank" rel="noopener" ' +
+                'href="https://line.me/R/msg/text/?' + encodeURIComponent(v.title + ' ' + url) + '">แชร์ LINE</a>' +
+              '<a class="fb" target="_blank" rel="noopener" ' +
+                'href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
+              '<button type="button" data-copy="' + url + '">คัดลอกลิงก์</button>' +
+            '</div>' +
+          '</div></article>';
+      }
+      document.getElementById('grid').innerHTML = VIDEOS.map(card).join('');
+      document.getElementById('gridteam').innerHTML = TEAM.map(card).join('');
+      document.getElementById('gridoffice').innerHTML = OFFICE.map(card).join('');
 
-    // คัดลอกลิงก์ — มี fallback ให้เบราว์เซอร์ที่ไม่รองรับ clipboard API
-    document.body.addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-copy]');
-      if (!b) return;
-      var done = function () {
-        var t = b.textContent; b.textContent = 'คัดลอกแล้ว'; b.classList.add('ok');
-        setTimeout(function () { b.textContent = t; b.classList.remove('ok'); }, 1600);
-      };
-      if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function () { prompt('คัดลอกลิงก์นี้:', b.dataset.copy); });
-      else prompt('คัดลอกลิงก์นี้:', b.dataset.copy);
-    });
+      // คัดลอกลิงก์ — มี fallback ให้เบราว์เซอร์ที่ไม่รองรับ clipboard API
+      document.body.addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-copy]');
+        if (!b) return;
+        var done = function () {
+          var t = b.textContent; b.textContent = 'คัดลอกแล้ว'; b.classList.add('ok');
+          setTimeout(function () { b.textContent = t; b.classList.remove('ok'); }, 1600);
+        };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function () { prompt('คัดลอกลิงก์นี้:', b.dataset.copy); });
+        else prompt('คัดลอกลิงก์นี้:', b.dataset.copy);
+      });
 
-    // เล่นได้ทีละคลิป — กันเสียงซ้อนกันเวลาผู้ใช้กดหลายอัน
-    var vids = document.querySelectorAll('#grid video, #gridteam video, #gridoffice video');
-    vids.forEach(function (v) {
-      v.addEventListener('play', function () {
-        vids.forEach(function (o) { if (o !== v) o.pause(); });
-        // ปิดคลิป YouTube ที่เปิดค้างอยู่ด้วย ไม่งั้นเสียงจะซ้อนกัน
-        document.querySelectorAll('.vd-media.yt iframe').forEach(function (n) { n.remove(); });
-        // นับยอดเล่นแยกจากลีด — ดูคลิปไม่ใช่การติดต่อ ห้ามนับรวมเป็นลีด
-        if (window.njTrackInternal) njTrackInternal('video_play_' + v.dataset.vid);
-      }, { once: false });
-    });
+      // เล่นได้ทีละคลิป — กันเสียงซ้อนกันเวลาผู้ใช้กดหลายอัน
+      var vids = document.querySelectorAll('#grid video, #gridteam video, #gridoffice video');
+      vids.forEach(function (v) {
+        v.addEventListener('play', function () {
+          vids.forEach(function (o) { if (o !== v) o.pause(); });
+          // ปิดคลิป YouTube ที่เปิดค้างอยู่ด้วย ไม่งั้นเสียงจะซ้อนกัน
+          document.querySelectorAll('.vd-media.yt iframe').forEach(function (n) { n.remove(); });
+          // นับยอดเล่นแยกจากลีด — ดูคลิปไม่ใช่การติดต่อ ห้ามนับรวมเป็นลีด
+          if (window.njTrackInternal) njTrackInternal('video_play_' + v.dataset.vid);
+        }, { once: false });
+      });
 
-    // ---------- คลิปจากช่อง YouTube ----------
-    // ดึงจาก "playlist อัปโหลด" ของช่อง = ทุกคลิปที่อัปขึ้นช่องจะมาเองอัตโนมัติ
-    // คีย์นี้จำกัดให้เรียกได้เฉพาะจาก njteedinsure.com เว็บอื่นก๊อปไปใช้ไม่ได้
-    var YT_KEY = 'AIzaSyDQmcGIMG5SoRFasQ0ojxzEju_BR2EBunM';
-    var YT_PL  = 'UUJCF_jDIU2FQQ_fBWRcS4qw';
-    var YT_TTL = 600000;   // แคช 10 นาที — โควตาฟรีมี 10,000 หน่วย/วัน ถ้ายิงทุกครั้งที่รีเฟรชจะหมดเร็ว
+      // ---------- คลิปจากช่อง YouTube ----------
+      // ดึงจาก "playlist อัปโหลด" ของช่อง = ทุกคลิปที่อัปขึ้นช่องจะมาเองอัตโนมัติ
+      // คีย์นี้จำกัดให้เรียกได้เฉพาะจาก njteedinsure.com เว็บอื่นก๊อปไปใช้ไม่ได้
+      var YT_KEY = 'AIzaSyDQmcGIMG5SoRFasQ0ojxzEju_BR2EBunM';
+      var YT_PL  = 'UUJCF_jDIU2FQQ_fBWRcS4qw';
+      var YT_TTL = 600000;   // แคช 10 นาที — โควตาฟรีมี 10,000 หน่วย/วัน ถ้ายิงทุกครั้งที่รีเฟรชจะหมดเร็ว
 
-    function ytCache(val) {
-      try {
-        if (val === undefined) {
-          var c = JSON.parse(localStorage.getItem('njyt') || 'null');
-          return (c && Date.now() - c.t < YT_TTL) ? c.v : null;
-        }
-        localStorage.setItem('njyt', JSON.stringify({ t: Date.now(), v: val }));
-      } catch (e) { return null; }   // Safari โหมดส่วนตัวเขียน localStorage ไม่ได้ — ข้ามแคชไปเลย
-    }
+      function ytCache(val) {
+        try {
+          if (val === undefined) {
+            var c = JSON.parse(localStorage.getItem('njyt') || 'null');
+            return (c && Date.now() - c.t < YT_TTL) ? c.v : null;
+          }
+          localStorage.setItem('njyt', JSON.stringify({ t: Date.now(), v: val }));
+        } catch (e) { return null; }   // Safari โหมดส่วนตัวเขียน localStorage ไม่ได้ — ข้ามแคชไปเลย
+      }
 
-    function ytCard(v) {
-      var url = 'https://youtu.be/' + v.id;
-      return '<article class="vd-card" id="yt' + v.id + '">' +
-        '<div class="vd-media yt">' +
-          '<button type="button" class="yt-fac" data-yt="' + v.id + '" ' +
-            'aria-label="เล่นคลิป ' + esc(v.title) + '">' +
-            '<img src="' + esc(v.thumb) + '" alt="" loading="lazy">' +
-            '<span class="yt-play" aria-hidden="true">▶</span></button></div>' +
-        '<div class="vd-info">' +
-          '<span class="vd-for">คลิปใหม่</span>' +
-          '<h2>' + esc(v.title) + '</h2>' +
-          '<p>' + esc(v.desc) + '</p>' +
-          '<div class="vd-share">' +
-            '<a class="line" target="_blank" rel="noopener" ' +
-              'href="https://line.me/R/msg/text/?' + encodeURIComponent(v.title + ' ' + url) + '">แชร์ LINE</a>' +
-            '<a class="fb" target="_blank" rel="noopener" ' +
-              'href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
-            '<button type="button" data-copy="' + url + '">คัดลอกลิงก์</button>' +
-            '<a class="ytb" target="_blank" rel="noopener" href="' + url + '">ดูบน YouTube</a>' +
-          '</div>' +
-        '</div></article>';
-    }
+      function ytCard(v) {
+        var url = 'https://youtu.be/' + v.id;
+        return '<article class="vd-card" id="yt' + v.id + '">' +
+          '<div class="vd-media yt">' +
+            '<button type="button" class="yt-fac" data-yt="' + v.id + '" ' +
+              'aria-label="เล่นคลิป ' + esc(v.title) + '">' +
+              '<img src="' + esc(v.thumb) + '" alt="" loading="lazy">' +
+              '<span class="yt-play" aria-hidden="true">▶</span></button></div>' +
+          '<div class="vd-info">' +
+            '<span class="vd-for">คลิปใหม่</span>' +
+            '<h2>' + esc(v.title) + '</h2>' +
+            '<p>' + esc(v.desc) + '</p>' +
+            '<div class="vd-share">' +
+              '<a class="line" target="_blank" rel="noopener" ' +
+                'href="https://line.me/R/msg/text/?' + encodeURIComponent(v.title + ' ' + url) + '">แชร์ LINE</a>' +
+              '<a class="fb" target="_blank" rel="noopener" ' +
+                'href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
+              '<button type="button" data-copy="' + url + '">คัดลอกลิงก์</button>' +
+              '<a class="ytb" target="_blank" rel="noopener" href="' + url + '">ดูบน YouTube</a>' +
+            '</div>' +
+          '</div></article>';
+      }
 
-    function ytRender(list) {
-      if (!list || !list.length) return;          // ไม่มีคลิป = ซ่อนทั้งหมวด ไม่ให้เห็นหัวข้อโล่ง
-      document.getElementById('gridyt').innerHTML = list.map(ytCard).join('');
-      document.getElementById('ytsec').hidden = false;
-      gotoHash();                                 // เผื่อเปิดมาพร้อม #yt<id> จากลิงก์ที่แชร์
-    }
+      function ytRender(list) {
+        if (!list || !list.length) return;          // ไม่มีคลิป = ซ่อนทั้งหมวด ไม่ให้เห็นหัวข้อโล่ง
+        document.getElementById('gridyt').innerHTML = list.map(ytCard).join('');
+        document.getElementById('ytsec').hidden = false;
+        gotoHash();                                 // เผื่อเปิดมาพร้อม #yt<id> จากลิงก์ที่แชร์
+      }
 
-    // กดปุ่มเล่นถึงค่อยโหลด iframe — ก่อนกด YouTube ยังไม่ได้ตั้งคุกกี้ใดๆ (PDPA)
-    // ใช้ youtube-nocookie เพื่อไม่ให้เก็บพฤติกรรมผู้ชมไปทำโฆษณา
-    document.body.addEventListener('click', function (e) {
-      var f = e.target.closest('.yt-fac');
-      if (!f) return;
-      vids.forEach(function (o) { o.pause(); });                                  // หยุดคลิปในเว็บ
-      document.querySelectorAll('.vd-media.yt iframe').forEach(function (n) { n.remove(); });  // ปิดคลิป YouTube อันอื่น
-      var ifr = document.createElement('iframe');
-      ifr.src = 'https://www.youtube-nocookie.com/embed/' + f.dataset.yt +
-                '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-      ifr.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-      ifr.allowFullscreen = true;
-      ifr.title = f.getAttribute('aria-label');
-      f.parentNode.appendChild(ifr);
-      if (window.njTrackInternal) njTrackInternal('video_play_yt_' + f.dataset.yt);
-    });
+      // กดปุ่มเล่นถึงค่อยโหลด iframe — ก่อนกด YouTube ยังไม่ได้ตั้งคุกกี้ใดๆ (PDPA)
+      // ใช้ youtube-nocookie เพื่อไม่ให้เก็บพฤติกรรมผู้ชมไปทำโฆษณา
+      document.body.addEventListener('click', function (e) {
+        var f = e.target.closest('.yt-fac');
+        if (!f) return;
+        vids.forEach(function (o) { o.pause(); });                                  // หยุดคลิปในเว็บ
+        document.querySelectorAll('.vd-media.yt iframe').forEach(function (n) { n.remove(); });  // ปิดคลิป YouTube อันอื่น
+        var ifr = document.createElement('iframe');
+        ifr.src = 'https://www.youtube-nocookie.com/embed/' + f.dataset.yt +
+                  '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+        ifr.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        ifr.allowFullscreen = true;
+        ifr.title = f.getAttribute('aria-label');
+        f.parentNode.appendChild(ifr);
+        if (window.njTrackInternal) njTrackInternal('video_play_yt_' + f.dataset.yt);
+      });
 
-    (function () {
-      var c = ytCache();
-      if (c) { ytRender(c); return; }
-      fetch('https://www.googleapis.com/youtube/v3/playlistItems' +
-            '?part=snippet&maxResults=12&playlistId=' + YT_PL + '&key=' + YT_KEY)
-        .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
-        .then(function (d) {
-          var list = (d.items || []).map(function (it) {
-            var s = it.snippet || {}, t = s.thumbnails || {};
-            var th = t.maxres || t.standard || t.high || t.medium || t.default;
-            return {
-              id: (s.resourceId || {}).videoId,
-              title: s.title || '',
-              desc: (s.description || '').split('\n')[0].slice(0, 170),
-              thumb: th && th.url
-            };
-          }).filter(function (v) {
-            // คลิปที่ตั้งเป็นส่วนตัวหรือถูกลบ ยังค้างอยู่ใน playlist แต่ไม่มีรูป — คัดออก
-            return v.id && v.thumb && v.title !== 'Private video' && v.title !== 'Deleted video';
-          });
-          ytCache(list);
-          ytRender(list);
-        })
-        .catch(function (err) { console.warn('ดึงคลิป YouTube ไม่ได้:', err); });
+      (function () {
+        var c = ytCache();
+        if (c) { ytRender(c); return; }
+        fetch('https://www.googleapis.com/youtube/v3/playlistItems' +
+              '?part=snippet&maxResults=12&playlistId=' + YT_PL + '&key=' + YT_KEY)
+          .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+          .then(function (d) {
+            var list = (d.items || []).map(function (it) {
+              var s = it.snippet || {}, t = s.thumbnails || {};
+              var th = t.maxres || t.standard || t.high || t.medium || t.default;
+              return {
+                id: (s.resourceId || {}).videoId,
+                title: s.title || '',
+                desc: (s.description || '').split('\n')[0].slice(0, 170),
+                thumb: th && th.url
+              };
+            }).filter(function (v) {
+              // คลิปที่ตั้งเป็นส่วนตัวหรือถูกลบ ยังค้างอยู่ใน playlist แต่ไม่มีรูป — คัดออก
+              return v.id && v.thumb && v.title !== 'Private video' && v.title !== 'Deleted video';
+            });
+            ytCache(list);
+            ytRender(list);
+          })
+          .catch(function (err) { console.warn('ดึงคลิป YouTube ไม่ได้:', err); });
+      })();
+
+      // เปิดมาพร้อม #clipN / #teamN ให้เลื่อนไปที่การ์ดนั้น
+      // ต้องรอ layout นิ่งก่อน — การ์ด 9 ใบสูงใบละ ~800px ถ้าเลื่อนตอน layout
+      // ยังไม่เสร็จจะคำนวณตำแหน่งผิดแล้วค้างอยู่บนสุด (เจอจริงบนเว็บ production)
+      function gotoHash() {
+        if (!location.hash) return;
+        var el = document.getElementById(location.hash.slice(1));
+        if (el) el.scrollIntoView({ block: 'center' });
+      }
+      requestAnimationFrame(function () { requestAnimationFrame(gotoHash); });
+      window.addEventListener('load', gotoHash);
+      window.addEventListener('hashchange', gotoHash);
     })();
 
-    // เปิดมาพร้อม #clipN / #teamN ให้เลื่อนไปที่การ์ดนั้น
-    // ต้องรอ layout นิ่งก่อน — การ์ด 9 ใบสูงใบละ ~800px ถ้าเลื่อนตอน layout
-    // ยังไม่เสร็จจะคำนวณตำแหน่งผิดแล้วค้างอยู่บนสุด (เจอจริงบนเว็บ production)
-    function gotoHash() {
-      if (!location.hash) return;
-      var el = document.getElementById(location.hash.slice(1));
-      if (el) el.scrollIntoView({ block: 'center' });
-    }
-    requestAnimationFrame(function () { requestAnimationFrame(gotoHash); });
-    window.addEventListener('load', gotoHash);
-    window.addEventListener('hashchange', gotoHash);
-  })();
-
-  document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
-  if (window.njTrackInternal) njTrackInternal('pageview');
-  </script>
+    document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
+    if (window.njTrackInternal) njTrackInternal('pageview');
+  });
+</script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
-<script src="verified.js"></script>
-<script src="listingcard.js"></script>
-<script src="landvocab.js"></script>
-<script src="compare.js"></script>
-<script src="save.js"></script>
-<script src="njchatload.js"></script>
-<script src="menu.js"></script>
+<script src="verified.js" defer></script>
+<script src="listingcard.js" defer></script>
+<script src="landvocab.js" defer></script>
+<script src="compare.js" defer></script>
+<script src="save.js" defer></script>
+<script src="njchatload.js" defer></script>
+<script src="menu.js" defer></script>
 </body>
 </html>

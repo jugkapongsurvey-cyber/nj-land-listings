@@ -27,9 +27,12 @@
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="fontcss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
+  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="ui.css">
 <link rel="stylesheet" href="feecalc.css">
@@ -256,23 +259,23 @@
 </nav>
 </footer>
 
-<script src="analytics.js"></script>
-<script src="feecalc.js"></script>
-<script src="loancalc.js"></script>
-<script src="surveyquote.js"></script>
-<script src="landvocab.js"></script>
-<script src="zoneguide.js"></script>
+<script src="analytics.js" defer></script>
+<script src="feecalc.js" defer></script>
+<script src="loancalc.js" defer></script>
+<script src="surveyquote.js" defer></script>
+<script src="landvocab.js" defer></script>
+<script src="zoneguide.js" defer></script>
 <!-- ⚠️ arealink.js อ่านคณิตหน่วยที่ดินจาก NJLandForm.calc — landform.js ต้องมาก่อนเสมอ
      ไม่มา = ส่วนวัดพื้นที่ขึ้นแค่ลิงก์ ไม่มีช่องแปลงหน่วย โดยไม่มี error ให้เห็น -->
-<script src="landform.js"></script>
-<script src="arealink.js"></script>
-<script src="tools.js"></script>
+<script src="landform.js" defer></script>
+<script src="arealink.js" defer></script>
+<script src="tools.js" defer></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
-<script src="verified.js"></script>
-<script src="listingcard.js"></script>
-<script src="compare.js"></script>
-<script src="save.js"></script>
-<script src="njchatload.js"></script>
-<script src="menu.js"></script>
+<script src="verified.js" defer></script>
+<script src="listingcard.js" defer></script>
+<script src="compare.js" defer></script>
+<script src="save.js" defer></script>
+<script src="njchatload.js" defer></script>
+<script src="menu.js" defer></script>
 </body>
 </html>

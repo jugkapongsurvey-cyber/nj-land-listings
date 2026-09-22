@@ -26,6 +26,7 @@ function srcOf(html) { const m = html.match(/<img src="([^"]*)"/); return m ? m[
 const BIG = 'https://app.njteedinsure.com/uploads/up-111.jpg';
 const BIG2 = 'https://app.njteedinsure.com/uploads/up-222.jpg';
 const SMALL = 'https://app.njteedinsure.com/uploads/up-111-800x600.webp';
+const TINY = 'https://app.njteedinsure.com/uploads/up-111-400x300.webp';
 
 console.log('\n1) มีไฟล์ย่อ → ต้องใช้ไฟล์ย่อ ไม่ใช่ไฟล์ต้นฉบับ');
 let h = cardOf({ photos: [BIG], thumbs: [SMALL] });
@@ -63,6 +64,31 @@ h = cardOf({ photos: [BIG], thumbs: ['a" onerror="alert(1)'] });
 ok('⭐ เครื่องหมายคำพูดถูก escape ไม่ปิด src ก่อนกำหนด', /src="a&quot; onerror=&quot;alert\(1\)"/.test(h), h.match(/<img[^>]*/) || '');
 ok('⭐ ไม่มีแอตทริบิวต์ onerror จริงเกิดขึ้น', !/onerror="/.test(h), h.match(/<img[^>]*/) || '');
 ok('alt ยังมาจาก parcelInfo ตามเดิม', /alt="แปลงทดสอบ"/.test(cardOf({ photos: [BIG], thumbs: [SMALL] })));
+
+console.log('\n7) ⭐ ขนาดที่สอง 400×300 สำหรับการ์ดแนวนอนบนมือถือ');
+// กรอบรูปบนมือถือกว้าง 120px แต่เดิมได้ไฟล์ 800px มาวาง = ใหญ่เกิน 6.7 เท่า
+// Lighthouse ชี้ตรงนี้เป็นรายการเดียวที่เหลือ 620 ms และเป็นตัวกั้นไม่ให้คะแนนถึงเกณฑ์ 85
+h = cardOf({ photos: [BIG], thumbs: [SMALL], thumbsSm: [TINY] });
+ok('src ยังเป็นไฟล์ 800×600 (เบราว์เซอร์ที่ไม่รู้จัก srcset ได้ของเดิม)', srcOf(h) === SMALL, srcOf(h));
+ok('srcset มีทั้งสองขนาดพร้อมความกว้างจริง',
+  h.indexOf('srcset="' + TINY + ' 400w, ' + SMALL + ' 800w"') >= 0, h.match(/<img[^>]*/) || '');
+ok('⭐ sizes บอกว่ากรอบบนมือถือกว้าง 120px (ไม่งั้นเบราว์เซอร์เลือกไฟล์ใหญ่อยู่ดี)',
+  h.indexOf('sizes="(max-width:767px) 120px, 400px"') >= 0, h.match(/<img[^>]*/) || '');
+ok('width/height ยังเป็น 800×600 — สัดส่วน 4:3 ของกรอบ ไม่ใช่ขนาดไฟล์ที่เบราว์เซอร์เลือก',
+  h.indexOf('width="800" height="600"') >= 0);
+
+h = cardOf({ photos: [BIG], thumbs: [SMALL] });
+ok('⚠️ API รุ่นเก่าไม่ส่ง thumbsSm มา → ไม่มี srcset แต่รูปยังขึ้นตามเดิม',
+  h.indexOf('srcset') < 0 && srcOf(h) === SMALL, h.match(/<img[^>]*/) || '');
+h = cardOf({ photos: [BIG], thumbs: [SMALL], thumbsSm: 'เอ๊ะ' });
+ok('thumbsSm ค่าผิดรูป → ไม่มี srcset ไม่พัง', h.indexOf('srcset') < 0 && srcOf(h) === SMALL);
+h = cardOf({ photos: [BIG], thumbsSm: [BIG] });
+ok('⭐ ใบที่ยังไม่มีไฟล์ย่อ (สองช่องเป็นไฟล์ต้นฉบับเหมือนกัน) → ไม่ใส่ srcset ที่ชี้ไฟล์เดียวกันสองบรรทัด',
+  h.indexOf('srcset') < 0 && srcOf(h) === BIG, h.match(/<img[^>]*/) || '');
+h = cardOf({ photos: [BIG], thumbs: [SMALL], thumbsSm: ['a" onerror="alert(1)'] });
+ok('⭐ ค่าใน srcset ถูก escape เหมือน src', !/onerror="/.test(h), h.match(/<img[^>]*/) || '');
+ok('normalize คืน thumbsSm เป็นอาร์เรย์เสมอ',
+  Array.isArray(NJL.normalize({ id: 'x' }, 0).thumbsSm) && NJL.normalize({ id: 'x', thumbsSm: 9 }, 0).thumbsSm.length === 0);
 
 console.log('\n== สรุป: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail + ' ==');
 process.exit(fail ? 1 : 0);

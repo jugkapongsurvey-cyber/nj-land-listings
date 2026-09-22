@@ -89,7 +89,7 @@ const CSS_END = '<!-- NJ:CORECSS จบ -->';
 //    คนคลิกโฆษณาเข้าหน้าแปลง อ่านสามหน้า แล้วค่อยไปกรอกฟอร์ม — ถ้าโหลดเฉพาะหน้าฟอร์ม
 //    เราจะบันทึกว่าเขามาจาก "ในเว็บเราเอง" ทุกราย ซึ่งไร้ประโยชน์ทั้งหมด
 // ⚠️ ใช้ `defer` เพื่อไม่ให้บล็อกการวาดหน้า และให้รันก่อน DOMContentLoaded เสมอ
-const CORE_JS = ['attrib.js'];
+const CORE_JS = ['fontcss.js', 'attrib.js'];
 
 const JS_START = '<!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->';
 const JS_END = '<!-- NJ:COREJS จบ -->';

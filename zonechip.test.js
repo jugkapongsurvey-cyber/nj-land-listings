@@ -42,8 +42,12 @@ ok('อ่านสีจาก NJVocab', /NJVocab/.test(cardSrc) && /ZONE_HEX\[
 h = cardOf({ zoneColor: 'yellow' });
 ok('title ถูก escape (ไม่มีเครื่องหมายคำพูดหลุด)', (h.match(/title="[^"]*"/) || [''])[0].indexOf('ผังสี') > 0);
 
-console.log('\n4) สไตล์ป้ายต้องมีครบทั้งสามชุด (กติกาการ์ดสองชุดสี + การ์ดในแชท)');
-['home.css', 'marketplace.css'].forEach(f => ok(f + ' มี .card-zone', /\.card-zone\{/.test(read(f))));
+console.log('\n4) สไตล์ป้ายต้องมีครบทุกชุดที่วาดการ์ด');
+// ⚠️ ตั้งแต่หน้าแรกเปลี่ยนดีไซน์ (2026-09-22) สไตล์การ์ดของหน้าแรกกับหน้ารวมประกาศ
+//    ย้ายมารวมอยู่ที่ `listingcard.css` ไฟล์เดียว (โหลดทั้งสองหน้า) — ไม่ต้องเขียนซ้ำใน home.css อีก
+//    เหลือที่ต้องเขียนซ้ำแค่ marketplace.css (หน้าที่ยังใช้ชุดสีเดิม) และการ์ดในกล่องแชท
+['listingcard.css', 'marketplace.css'].forEach(f => ok(f + ' มี .card-zone', /\.card-zone\{/.test(read(f))));
+['index.html', 'listings.html'].forEach(f => ok(f + ' โหลด listingcard.css', read(f).indexOf('listingcard.css') >= 0));
 ok('njchat.css มี .njchat-cards .card-zone', /\.njchat-cards \.card-zone\{/.test(read('njchat.css')));
 
 console.log('\n5) ตัวกรอง "ตรวจผังสีแล้ว" ในหน้ารวมประกาศ');

@@ -9,20 +9,65 @@
   var NJL = window.NJListing;
   var card = NJL.card;   // ตัวเรนเดอร์การ์ดตัวเดียวกับหน้ารวมประกาศ
 
-  var state={listings:[],loaded:false,query:'',price:'all',type:'all',page:1};
+  // ⚠️ `tier:'all'` = หน้าแรกโชว์ทุกแปลงก่อน แล้วให้ผู้ซื้อกดกรองเอง (เจ้าของกิจการสั่ง 22 ก.ย. 69)
+  //    เดิมตั้งเป็น '2' (เฉพาะรังวัดยืนยันแล้ว) ซึ่งซ่อนของไปครึ่งคลังตั้งแต่โหลดหน้า
+  //    วัดตอนนั้น: รังวัดยืนยันแล้ว 5 · ข้อมูลเบื้องต้น 5 — ผู้ซื้อเห็นแค่ 5 จาก 10 โดยไม่รู้ว่ามีอีก
+  //    ⚠️ สามค่านี้ต้องตรงกันเสมอ: ปุ่มใน index.html · ค่าตั้งต้นตรงนี้ · ค่าถอยใน readUrl()
+  //       ไม่ตรงกันเมื่อไหร่ = ปุ่มขึ้นว่าเปิดอยู่แต่ผลไม่ได้ถูกกรอง (หรือกลับกัน) โดยไม่มี error
+  var DEFAULT_TIER='all';
+  var state={listings:[],loaded:false,query:'',price:'all',size:'all',type:'all',tier:DEFAULT_TIER,sort:'new',page:1};
+
+  // "0-5000000" · "5000000-10000000" · "10000000-"  → {min,max}
+  // ⚠️ ค่าที่อ่านไม่ออกคืน null = ไม่กรอง (ไม่ใช่กรองจนว่าง) — คนกดลิงก์เก่าที่ค่าเปลี่ยนไปแล้ว
+  //    ควรได้ประกาศตามปกติ ไม่ใช่หน้าว่างที่ดูเหมือนเว็บพัง
+  function range(v){
+    if(!v||v==='all')return null;
+    var m=String(v).match(/^(\d*)-(\d*)$/);
+    if(!m)return null;
+    return { min: m[1]?Number(m[1]):0, max: m[2]?Number(m[2]):Infinity };
+  }
+  var WA_PER_RAI=400;
   // ⚠️ **6 ใบ ไม่ใช่ 9** (เจ้าของสั่งใหม่ 19 ก.ย. 2569 · งานที่ 6 ข้อ 5 "ทรัพย์แนะนำ 6 รายการ")
   // ของเดิมเป็น 9 ตามคำสั่งเมื่อ 13 ก.ย. — คำสั่งใหม่กว่าจึงทับของเดิม
   // หน้าแรกเป็นหน้า "แนะนำ" ไม่ใช่หน้าไล่ดูของ · คนที่อยากดูครบมีปุ่มไปหน้ารวมประกาศ
   var PAGE_SIZE=6;
 
   function filtered(){
-    return state.listings.filter(function(item){
+    var pr=range(state.price), sz=range(state.size);
+    var list=state.listings.filter(function(item){
       var q=state.query.toLowerCase();
-      var text=(item.parcelInfo+' '+item.blurb).toLowerCase();
+      // ค้นจากที่ตั้งที่แยกช่องด้วย ไม่ใช่แค่ข้อความก้อนเดียว — ช่องเติมคำอัตโนมัติเสนอชื่อ
+      // จังหวัด/อำเภอ/ตำบล ให้ ซึ่งบางแปลงไม่มีคำนั้นอยู่ใน parcelInfo เลย
+      var d=item.land||{};
+      var text=[item.parcelInfo,item.blurb,d.province,d.amphoe,d.tambon].filter(Boolean).join(' ').toLowerCase();
       var qOk=!q||text.indexOf(q)>-1;
-      var priceOk=state.price==='all'||(item.estValue>0&&item.estValue<=Number(state.price));
+      // ⚠️ "ยังไม่ได้ระบุ" ไม่นับว่าตรงเงื่อนไข (บอกว่าตรงทั้งที่ไม่รู้ = โกหกผู้ซื้อ)
+      //    กติกาเดียวกับตัวกรองในหน้ารวมประกาศ
+      var priceOk=!pr||(item.estValue>0&&item.estValue>=pr.min&&item.estValue<=pr.max);
+      var rai=item.totalWa/WA_PER_RAI;
+      var sizeOk=!sz||(item.totalWa>0&&rai>=sz.min&&rai<=sz.max);
       var typeOk=state.type==='all'||item.type===state.type;
-      return qOk&&priceOk&&typeOk;
+      var tierOk=state.tier==='all'||item.tier===Number(state.tier);
+      return qOk&&priceOk&&sizeOk&&typeOk&&tierOk;
+    });
+    return sorted(list);
+  }
+
+  // เรียงลำดับตามที่ผู้ใช้เลือก — แปลงที่ไม่มีค่าในช่องที่ใช้เรียงจะไปอยู่ท้ายเสมอ
+  // ⚠️ ไม่ตัดแปลงเหล่านั้นทิ้ง "ยังไม่ระบุราคา" ไม่ใช่เหตุผลที่จะทำให้แปลงหายจากหน้าแรก
+  function sorted(list){
+    var by=state.sort;
+    if(by==='new')return list.slice().sort(function(a,b){
+      return String(b.updatedAt||'').localeCompare(String(a.updatedAt||''));
+    });
+    var key=(by==='area-desc')?'totalWa':'estValue';
+    var desc=(by!=='price-asc');
+    return list.slice().sort(function(a,b){
+      var x=Number(a[key]||0), y=Number(b[key]||0);
+      if(!x&&!y)return 0;
+      if(!x)return 1;           // ไม่มีค่า → ท้ายสุดเสมอ ไม่ว่าจะเรียงทางไหน
+      if(!y)return -1;
+      return desc?y-x:x-y;
     });
   }
 
@@ -87,24 +132,36 @@
     if(state.query) p.push('q='+encodeURIComponent(state.query));
     if(state.type!=='all') p.push('type='+encodeURIComponent(state.type));
     if(state.price!=='all') p.push('price='+encodeURIComponent(state.price));
+    if(state.size!=='all') p.push('size='+encodeURIComponent(state.size));
+    if(state.tier!=='all') p.push('tier='+encodeURIComponent(state.tier));
+    if(state.sort!=='new') p.push('sort='+encodeURIComponent(state.sort));
     return location.pathname+(p.length?'?'+p.join('&'):'')+'#listings';
   }
   function syncUrl(push){
     if(!window.history||!history.pushState)return;
-    var snap={q:state.query,type:state.type,price:state.price};
+    var snap={q:state.query,type:state.type,price:state.price,size:state.size,tier:state.tier,sort:state.sort};
     try{ push ? history.pushState(snap,'',urlOf()) : history.replaceState(snap,'',urlOf()); }
     catch(e){ /* บางเบราว์เซอร์ในเว็บวิวห้ามแก้ที่อยู่ — ค้นหายังทำงานได้ตามปกติ */ }
   }
   // อ่านค่าจากที่อยู่หน้าเว็บ — รับเฉพาะค่าที่ช่องนั้นมีจริง ห้ามเชื่อค่าจาก URL ตรงๆ
+  // รับเฉพาะค่าที่ช่องนั้นมีจริง — ห้ามเชื่อค่าจาก URL ตรงๆ
+  function optionOf(id,v,dflt){
+    var el=document.getElementById(id);
+    if(!el||!v)return dflt;
+    var allowed=Array.prototype.map.call(el.options,function(o){return o.value;});
+    return allowed.indexOf(v)>-1?v:dflt;
+  }
   function readUrl(){
     var u=new URLSearchParams(location.search);
     var q=(u.get('q')||'').slice(0,80);
-    var t=u.get('type'), pr=u.get('price');
+    var t=u.get('type'), tier=u.get('tier');
     state.query=q;
     state.type=(t==='sell'||t==='rent')?t:'all';
-    var priceEl=document.getElementById('price-filter');
-    var allowed=Array.prototype.map.call(priceEl.options,function(o){return o.value;});
-    state.price=(pr&&allowed.indexOf(pr)>-1)?pr:'all';
+    state.price=optionOf('price-filter',u.get('price'),'all');
+    state.size=optionOf('size-filter',u.get('size'),'all');
+    state.sort=optionOf('sort-filter',u.get('sort'),'new');
+    // 'all' มาจาก URL ได้ (ผู้ใช้กดปิดตัวกรองแล้วแชร์ลิงก์) · ค่าที่อ่านไม่ออกถึงจะถอยไปค่าตั้งต้น
+    state.tier=(tier==='1'||tier==='2'||tier==='all')?tier:DEFAULT_TIER;
     state.page=1;
     paintControls();
   }
@@ -113,8 +170,18 @@
     document.getElementById('search-input').value=state.query;
     document.getElementById('type-filter').value=state.type;
     document.getElementById('price-filter').value=state.price;
+    var sizeEl=document.getElementById('size-filter'); if(sizeEl)sizeEl.value=state.size;
+    var sortEl=document.getElementById('sort-filter'); if(sortEl)sortEl.value=state.sort;
+    // ปุ่มซื้อ/เช่าเป็น <button aria-pressed> ไม่ใช่แท็บที่ใช้คลาส — สถานะจึงต้องอยู่ใน
+    // แอตทริบิวต์ที่เครื่องอ่านหน้าจอเห็นด้วย ไม่ใช่แค่สีที่คนมองเห็นเท่านั้น
     document.querySelectorAll('[data-purpose]').forEach(function(x){
-      x.classList.toggle('selected',x.dataset.purpose===state.type);
+      x.setAttribute('aria-pressed', x.dataset.purpose===state.type ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-tier]').forEach(function(x){
+      var on = x.dataset.tier===state.tier;
+      x.setAttribute('aria-pressed', on ? 'true' : 'false');
+      x.classList.toggle('is-on', on);
+      x.classList.toggle('is-outline', !on);
     });
   }
   // ⚠️ ย้อนกลับมาที่ "ไม่มีตัวกรอง" ต้องเก็บข้อความสรุปผลเดิมทิ้งด้วย
@@ -122,7 +189,7 @@
   //    ซึ่งอ่านแล้วขัดกับสิ่งที่เห็นตรงหน้า (เจอจริงตอนทดสอบปุ่มย้อนกลับ)
   function noteFor(){
     if(state.query) return 'ผลการค้นหา “'+state.query+'”';
-    if(state.type!=='all'||state.price!=='all') return 'ผลการกรอง';
+    if(state.type!=='all'||state.price!=='all'||state.size!=='all'||state.tier!=='all') return 'ผลการกรอง';
     return '';
   }
   window.addEventListener('popstate',function(){
@@ -161,12 +228,28 @@
     box.appendChild(frag);
   }
 
+  // ช่องสถิติที่สามในแถบทีมงาน — ดีไซน์เขียนไว้ว่า "[จำนวน] แปลงที่รังวัดแล้ว"
+  // ⚠️ เรายังไม่มีตัวเลขนั้นที่ตรวจสอบได้ จึงแสดง "จำนวนแปลงที่เปิดประกาศอยู่" ซึ่งนับสดจาก API
+  //    ได้ตัวเลขจริงจากเจ้าของเมื่อไหร่ ใส่ `surveyedParcels` ใน config.js แล้วช่องนี้สลับให้เอง
+  //    **ห้ามเดาตัวเลขลงไปตรงๆ** — หน้านี้ขายด้วยคำว่า "ข้อมูลที่ตรวจสอบได้"
+  function paintStat(n){
+    var el=document.getElementById('stat-count');
+    if(!el)return;
+    var cfg=window.NJ_CONFIG||{};
+    var surveyed=Number(cfg.surveyedParcels);
+    var label=document.getElementById('stat-count-label');
+    var txt = surveyed>0 ? surveyed.toLocaleString('th-TH') : Number(n||0).toLocaleString('th-TH');
+    if(el.textContent!==txt) el.textContent=txt;   // เทียบก่อนเขียนเสมอ (กับดัก MutationObserver)
+    if(label&&surveyed>0&&label.textContent!=='แปลงที่รังวัดแล้ว') label.textContent='แปลงที่รังวัดแล้ว';
+  }
+
   function load(){
     NJL.fetchListings()
       .then(function(list){
         state.listings=list;
         state.loaded=true;
         fillLocations(list);
+        paintStat(list.length);
         readUrl();               // เปิดลิงก์ที่มีตัวกรองติดมา ต้องได้ผลเดิม
         syncUrl(false);
         render(noteFor());
@@ -178,21 +261,41 @@
   }
 
   // ---------- ตัวกรอง ----------
+  var TYPE_NOTE={all:'ทรัพย์ทั้งหมด',sell:'ทรัพย์ประกาศขาย',rent:'ทรัพย์ให้เช่า'};
   document.querySelectorAll('[data-purpose]').forEach(function(btn){
     btn.addEventListener('click',function(){
-      document.querySelectorAll('[data-purpose]').forEach(function(x){x.classList.remove('selected');});
-      btn.classList.add('selected');
       state.type=btn.dataset.purpose;
       document.getElementById('type-filter').value=state.type;
+      paintControls();
       syncUrl(true);
-      render(state.type==='rent'?'ที่ดินให้เช่า':'ที่ดินขาย');
+      render(TYPE_NOTE[state.type]||'');
     });
+  });
+
+  // ปุ่มกรองระดับข้อมูล — กดซ้ำที่ปุ่มเดิม = ปิดตัวกรอง (ไม่ใช่ติดค้างจนหาทางออกไม่เจอ)
+  // ⚠️ เริ่มต้นต้องเป็น "ไม่กรอง" เสมอ · เปิดค้างไว้ = ผู้ซื้อเห็นของน้อยกว่าที่มีจริงโดยไม่รู้ตัว
+  document.querySelectorAll('[data-tier]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      state.tier = (state.tier===btn.dataset.tier) ? 'all' : btn.dataset.tier;
+      paintControls();
+      syncUrl(true);
+      render(state.tier==='all' ? 'ทุกระดับข้อมูล' : btn.textContent.trim());
+    });
+  });
+
+  var sortSel=document.getElementById('sort-filter');
+  if(sortSel)sortSel.addEventListener('change',function(){
+    state.sort=sortSel.value;
+    syncUrl(true);
+    render();          // เรียงใหม่ ไม่ใช่กรองใหม่ — ไม่ต้องขึ้นข้อความสรุปผลและไม่ต้องกลับหน้า 1
   });
 
   document.getElementById('search-form').addEventListener('submit',function(e){
     e.preventDefault();
     state.query=document.getElementById('search-input').value.trim();
     state.price=document.getElementById('price-filter').value;
+    var szEl=document.getElementById('size-filter');
+    state.size=szEl?szEl.value:'all';
     state.type=document.getElementById('type-filter').value;
     state.page=1;
     syncUrl(true);
@@ -209,11 +312,11 @@
       var q=link.dataset.quick;
       state.query='';
       document.getElementById('search-input').value='';
+      state.size='all'; state.tier='all';
       if(q==='sell'||q==='rent'){ state.type=q; state.price='all'; }
-      else if(q==='under5'){ state.type='all'; state.price='5000000'; }
+      else if(q==='under5'){ state.type='all'; state.price='0-5000000'; }
       else { state.type='all'; state.price='all'; }
-      document.getElementById('type-filter').value=state.type;
-      document.getElementById('price-filter').value=state.price;
+      paintControls();
       syncUrl(true);
       render(link.querySelector('b').textContent);
     });
