@@ -52,6 +52,10 @@
       estValue: Number(item.estValue || 0),
       blurb: item.blurb || '',
       photos: Array.isArray(item.photos) ? item.photos : [],
+      // ไฟล์ย่อ 800x600 ของแต่ละรูป เรียงตรงกับ photos ทุกใบ (ฝั่งระบบสร้างให้)
+      // ⚠️ ใบที่ยังไม่มีไฟล์ย่อ ฝั่งระบบส่งไฟล์ต้นฉบับกลับมาแทน ไม่ใช่ค่าว่าง
+      //    API รุ่นเก่าที่ยังไม่ส่งช่องนี้มาเลย = อาร์เรย์ว่าง แล้วการ์ดถอยไปใช้ photos เอง
+      thumbs: Array.isArray(item.thumbs) ? item.thumbs : [],
       updatedAt: item.updatedAt || '',
       // ระดับความน่าเชื่อถือจาก API — ไม่มีข้อมูล = ระดับ 1 เสมอ ห้ามเดาเป็น 2
       tier: item.tier === 2 ? 2 : 1,
@@ -80,8 +84,11 @@
   }
 
   function card(item) {
-    var media = item.photos[0]
-      ? '<img src="' + esc(item.photos[0]) + '" alt="' + esc(item.parcelInfo || 'แปลงที่ดิน') + '" loading="lazy">'
+    // รูปการ์ดใช้ไฟล์ย่อก่อนเสมอ แล้วค่อยถอยไปไฟล์ต้นฉบับ
+    // วัดจริง 22 ก.ย. 69: การ์ด 6 ใบหน้าแรก 1,924 KB -> 526 KB (เล็กลง 73%)
+    var src = item.thumbs[0] || item.photos[0] || '';
+    var media = src
+      ? '<img src="' + esc(src) + '" alt="' + esc(item.parcelInfo || 'แปลงที่ดิน') + '" loading="lazy">'
       : '<div class="fallback-land" aria-hidden="true"></div>';
     // นับรูปตามจริง ไม่มีรูปก็ไม่ต้องขึ้นตัวเลข
     var count = item.photos.length > 1 ? '<span class="photo-count">▣ ' + item.photos.length + '</span>' : '';
