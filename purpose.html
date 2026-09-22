@@ -16,28 +16,28 @@
   <!-- nj-seo:start — สร้างด้วย build/seo.js จากทะเบียน SEO กลาง · ห้ามแก้ด้วยมือ -->
   <meta name="twitter:card" content="summary_large_image">
   <!-- nj-seo:end -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- NJ:CORECSS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<link rel="preconnect" href="https://app.njteedinsure.com" crossorigin>
+<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="components.css">
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
-<script src="fontcss.js" defer></script>
+<script src="lazycss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
-  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="listings.css">
-  <link rel="stylesheet" href="njchat.css">
+  <link rel="preload" as="style" data-njcss href="njchat.css">
+  <noscript><link rel="stylesheet" href="njchat.css"></noscript>
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="consent.css">
-  <link rel="stylesheet" href="verified.css">
-  <link rel="stylesheet" href="landscore.css">
+  <link rel="preload" as="style" data-njcss href="verified.css">
+  <noscript><link rel="stylesheet" href="verified.css"></noscript>
+  <link rel="preload" as="style" data-njcss href="landscore.css">
+  <noscript><link rel="stylesheet" href="landscore.css"></noscript>
   <link rel="stylesheet" href="landpurpose.css">
 <link rel="stylesheet" href="legal.css">
   <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
