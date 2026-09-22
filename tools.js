@@ -29,6 +29,7 @@
   });
 
   NJZoneGuide.mount(document.getElementById('tl-zoning'));
+  NJAreaLink.mount(document.getElementById('tl-area'));
 
   document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
   njTrack('ViewContent', { content_name: 'tools_page' });

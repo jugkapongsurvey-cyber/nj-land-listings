@@ -41,6 +41,7 @@
 <link rel="stylesheet" href="agency.css">
 <link rel="stylesheet" href="surveyquote.css">
 <link rel="stylesheet" href="zoneguide.css">
+<link rel="stylesheet" href="arealink.css">
 <link rel="stylesheet" href="legal.css">
   <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
   <script type="application/ld+json" data-nj-schema>
@@ -185,6 +186,7 @@
       <a href="#loan">ค่างวดสินเชื่อ</a>
       <a href="#fee">ค่าใช้จ่ายวันโอน</a>
       <a href="#zoning">ผังสีผังเมือง</a>
+      <a href="#area">วัดพื้นที่แปลง</a>
       <a href="guides.html#valuation">หลักการประเมินราคาที่ดิน</a>
     </div>
   </div>
@@ -226,6 +228,16 @@
   </div>
 </section>
 
+<!-- วัดพื้นที่แปลง (arealink.js) — ลิงก์ไปวัดที่ระบบของเจ้าของข้อมูล แล้วแปลงหน่วยกลับมาที่นี่
+     ⚠️ เว็บนี้ "ไม่ฝังแผนที่" เป็นข้อตัดสินของเจ้าของกิจการ 22 ก.ย. 69 ไม่ใช่งานที่ยังทำไม่เสร็จ
+        เหตุผลและข้อห้ามอยู่หัวไฟล์ arealink.js -->
+<section class="tl-sec tl-alt" id="area">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">วัดพื้นที่แปลงจากแผนที่</h2>
+    <div id="tl-area"></div>
+  </div>
+</section>
+
 <section class="cs-final">
   <div class="wrap">
     <h2>ตัวเลขลงตัวแล้ว เหลือตรวจตัวแปลง</h2>
@@ -250,6 +262,10 @@
 <script src="surveyquote.js"></script>
 <script src="landvocab.js"></script>
 <script src="zoneguide.js"></script>
+<!-- ⚠️ arealink.js อ่านคณิตหน่วยที่ดินจาก NJLandForm.calc — landform.js ต้องมาก่อนเสมอ
+     ไม่มา = ส่วนวัดพื้นที่ขึ้นแค่ลิงก์ ไม่มีช่องแปลงหน่วย โดยไม่มี error ให้เห็น -->
+<script src="landform.js"></script>
+<script src="arealink.js"></script>
 <script src="tools.js"></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="verified.js"></script>

@@ -1,0 +1,41 @@
+/* วัดพื้นที่แปลง — ทางลิงก์ออก (arealink.js) · ใช้บน tools.html (ชุดสี style.css + ui.css)
+   โครงเดียวกับคู่มือผังสี (zoneguide.css) ตั้งใจให้สองส่วนบนหน้าเดียวกันดูเป็นชุดเดียว */
+.al-intro{margin:0 auto 16px;max-width:68ch;text-align:center;color:var(--sub);font-size:14.5px;line-height:1.75}
+.al-links{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;counter-reset:al}
+.al-link{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 15px}
+.al-link a{color:var(--blue);font-weight:700;font-size:15.5px;text-decoration:none;overflow-wrap:anywhere}
+.al-link a:hover{text-decoration:underline}
+.al-gov{display:inline-block;margin-left:8px;background:#EAF3FF;color:var(--blue);border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700;vertical-align:2px}
+.al-what{margin:6px 0 0;font-size:13.5px;color:var(--ink);line-height:1.6}
+.al-how{margin:6px 0 0;font-size:13px;color:var(--sub);line-height:1.6}
+.al-k{display:block;font-size:11.5px;font-weight:700;color:var(--sub)}
+
+.al-conv{margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+.al-conv h3{margin:0 0 6px;font-size:17px;color:var(--navy)}
+.al-conv-lead{margin:0 0 12px;font-size:13.5px;color:var(--sub);line-height:1.65}
+.al-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+.al-f{display:flex;flex-direction:column;gap:4px;flex:1 1 140px;min-width:0}
+.al-f.al-sm{flex:1 1 84px}
+.al-f span{font-size:12px;font-weight:700;color:var(--sub)}
+.al-f input{
+  width:100%;box-sizing:border-box;font:inherit;font-size:16px;   /* 16px กัน iOS ซูมเองตอนโฟกัสช่อง */
+  padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--ink);
+}
+.al-f input:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+.al-eq{align-self:center;padding-bottom:10px;font-size:19px;font-weight:700;color:var(--muted)}
+.al-out{margin:12px 0 0;min-height:1.5em;font-size:16px;font-weight:700;color:var(--navy)}
+
+.al-warn{margin:14px 0 0;background:#FFF4E5;color:var(--amber);border-radius:10px;padding:10px 13px;font-size:13px;line-height:1.65}
+.al-cta{
+  display:inline-block;margin-top:14px;text-decoration:none;
+  background:var(--green);color:#fff;font-weight:700;font-size:15px;padding:12px 20px;border-radius:12px;
+}
+.al-link a:focus-visible,.al-cta:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* ≤560px: แถวแปลงหน่วยหักลงเป็นสองบรรทัด ตร.ม. เต็มบรรทัด แล้ว ไร่-งาน-วา เรียงกันข้างล่าง
+   เครื่องหมาย = ซ่อนไปเพราะไม่ได้อยู่ระหว่างสองฝั่งอีกแล้ว ปล่อยไว้จะลอยเดี่ยวกลางจอ */
+@media (max-width:560px){
+  .al-f{flex:1 1 100%}
+  .al-f.al-sm{flex:1 1 30%}
+  .al-eq{display:none}
+}
