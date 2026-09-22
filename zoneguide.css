@@ -11,6 +11,7 @@
 .zg-warn{margin:14px 0 0;background:#FFF4E5;color:var(--amber);border-radius:10px;padding:10px 13px;font-size:13px;line-height:1.65}
 .zg-check{margin-top:18px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px}
 .zg-check h3{margin:0 0 8px;font-size:17px;color:var(--navy)}
+.zg-nomap{margin:0 0 12px;font-size:13px;color:var(--sub);line-height:1.7}
 .zg-links{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .zg-links li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:14px;border-bottom:1px solid var(--border);padding-bottom:7px}
 .zg-links a{color:var(--blue);font-weight:600;text-decoration:none;overflow-wrap:anywhere}
