@@ -101,13 +101,63 @@ const dupSkip = pages.filter(f => (html[f].match(/href="#main"/g) || []).length 
 ok('ไม่มีหน้าที่มีลิงก์ข้ามซ้ำสองอัน', dupSkip.length === 0, dupSkip.join(', '));
 
 console.log('\n6) สไตล์ชีตกลางต้องมาก่อนไฟล์อื่น');
-const CORE = ['tokens.css', 'components.css', 'header.css'];
+// (*) อ่านรายชื่อจาก build/pages.js ตรงๆ ไม่พิมพ์ซ้ำไว้ที่นี่ —
+//     สองที่เลื่อนออกจากกันเมื่อไหร่คือความผิดพลาดที่แพงที่สุดของรีโปนี้
+const CORE = (function () {
+  const m = /const CORE_CSS = \[([^\]]*)\]/.exec(read('build/pages.js'));
+  return m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
+})();
+ok('อ่าน CORE_CSS จาก build/pages.js ได้', CORE.length >= 3, CORE.join(', '));
+ok('⭐ fonts.css มาก่อนเสมอ (เป็น @font-face ที่เสิร์ฟเอง ต้องประกาศก่อนไฟล์ที่ใช้ฟอนต์)',
+   CORE[0] === 'fonts.css', CORE.join(', '));
 pages.forEach(f => {
   const links = [...html[f].matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]*)"/g)].map(x => x[1]);
-  const localFirst = links.filter(h => !/^https?:/.test(h)).slice(0, 3);
-  ok(f + ' โหลด tokens/components/header เป็นสามตัวแรก',
+  const localFirst = links.filter(h => !/^https?:/.test(h)).slice(0, CORE.length);
+  ok(f + ' โหลดสไตล์ชีตกลางเป็นชุดแรก',
      CORE.every((c, i) => localFirst[i] === c), localFirst.join(', '));
 });
+
+console.log('\n6c) ⭐ สไตล์ชีตของของที่ JS สร้างทีหลัง ต้องไม่บล็อกการวาดหน้า');
+// กติกาและตัวเลือกหน้าอยู่ที่ build/lazycss.js (ดูเหตุผลในไฟล์นั้น) · ตัวสลับ rel คือ lazycss.js
+const lazyPages = pages.filter(f => html[f].indexOf('data-njcss') >= 0);
+ok('⭐ มีหน้าที่โหลดสไตล์ชีตแบบไม่บล็อกจริง', lazyPages.length >= 15, String(lazyPages.length) + ' หน้า');
+const noFallback = [];
+lazyPages.forEach(f => {
+  for (const m of html[f].matchAll(/data-njcss href="([^"]+)"/g)) {
+    if (html[f].indexOf('<noscript><link rel=\"stylesheet\" href=\"' + m[1] + '\">') < 0) noFallback.push(f + ':' + m[1]);
+  }
+});
+ok('⭐ ทุกอันมี <noscript> คู่กัน (ปิด JS แล้วต้องยังได้สไตล์ครบ)', noFallback.length === 0, noFallback.join(', '));
+const swap = read('lazycss.js');
+ok('lazycss.js สลับ rel ให้ลิงก์ที่ติด data-njcss', swap.indexOf('data-njcss') >= 0);
+// ⚠️ ตัดคอมเมนต์ออกก่อน — หัวไฟล์อธิบายไว้เองว่าห้ามใช้ onload= จึงมีคำนั้นอยู่
+ok('⚠️ ห้ามกลับไปใช้ on* บนแท็ก link (กติกา CSP ของรีโป)',
+   !/on[a-z]+=/.test(swap.replace(/\/\*[\s\S]*?\*\//g, '')));
+const coreJs = /const CORE_JS = \[([^\]]*)\]/.exec(read('build/pages.js'))[1];
+ok('⭐ lazycss.js เป็นสคริปต์ตัวแรกของทุกหน้า (ไม่งั้นเห็นของที่ยังไม่มีสไตล์แวบหนึ่ง)',
+   coreJs.split(',')[0].indexOf('lazycss.js') >= 0, coreJs);
+
+console.log('\n6d) ⭐ เปิดการเชื่อมต่อไปโดเมนของระบบหลังบ้านล่วงหน้า');
+// รูปการ์ดและข้อมูลทุกหน้ามาจาก app.njteedinsure.com ซึ่งเป็นคนละโดเมน
+// ไม่ preconnect ไว้ เบราว์เซอร์ต้องทำ DNS+TLS ก่อนโหลดรูปใบแรก (Lighthouse ตีราว 310 ms)
+const noPre = pages.filter(f => !/rel="preconnect" href="https:\/\/app\.njteedinsure\.com" crossorigin/.test(html[f]));
+ok('⭐ ทุกหน้ามี preconnect ไป app.njteedinsure.com พร้อม crossorigin', noPre.length === 0, noPre.join(', '));
+
+console.log('\n6b) ⭐ ฟอนต์ต้องเสิร์ฟจากโดเมนเดียวกับเว็บ ไม่ใช่ดึงจาก Google');
+// ของเดิมดึงจาก fonts.googleapis.com + fonts.gstatic.com = ต้องเปิดการเชื่อมต่อใหม่ 2 โดเมน
+// วัดบนเครื่อง 22 ก.ย. 69: ดึงจาก Google 85 คะแนน · เสิร์ฟเอง 89 คะแนน (LCP 3,500 -> 3,340 ms)
+const gf = pages.filter(f => /fonts\.(googleapis|gstatic)\.com/.test(html[f]));
+ok('⭐ ไม่มีหน้าไหนดึงฟอนต์จาก Google อีก', gf.length === 0, gf.join(', '));
+const fcss = read('fonts.css');
+ok('fonts.css ชี้ไฟล์ในโฟลเดอร์ fonts/ เท่านั้น',
+   /url\(fonts\//.test(fcss) && !/url\(https?:/.test(fcss));
+ok('ยังตั้ง font-display:swap (ตัวหนังสืออ่านได้ทันทีด้วยฟอนต์สำรองระหว่างรอ)',
+   (fcss.match(/font-display:\s*swap/g) || []).length >= 4);
+ok('⭐ มีไฟล์สัญญาอนุญาต fonts/OFL.txt (SIL OFL 1.1 บังคับให้แนบไปด้วย)',
+   fs.existsSync(path.join(__dirname, 'fonts', 'OFL.txt')));
+const missingFont = [...fcss.matchAll(/url\((fonts\/[^)]+)\)/g)]
+  .map(m => m[1]).filter(u => !fs.existsSync(path.join(__dirname, u)));
+ok('ไฟล์ฟอนต์ทุกตัวที่ fonts.css อ้างถึงมีอยู่จริง', missingFont.length === 0, missingFont.join(', '));
 
 console.log('\n7) Design Token');
 const tok = read('tokens.css');
@@ -132,13 +182,14 @@ cssFiles.concat(pages).forEach(f => {
   if (/Trirong|Sarabun/.test(body)) strays.push(f);
 });
 ok('ไม่มี Trirong / Sarabun เหลืออยู่ที่ไหนอีก', strays.length === 0, strays.join(', '));
-const fontLinks = new Set();
-pages.forEach(f => {
-  const m = read(f).match(/fonts\.googleapis\.com\/css2\?([^"']*)/);
-  if (m) fontLinks.add(m[1].replace(/&display=swap/, ''));
-});
-ok('⭐ ทุกหน้าโหลดชุดฟอนต์ชุดเดียวกัน', fontLinks.size === 1, [...fontLinks].join(' | '));
-ok('ชุดฟอนต์คือ IBM Plex Sans Thai', [...fontLinks][0] && [...fontLinks][0].indexOf('IBM+Plex+Sans+Thai') >= 0);
+// ตั้งแต่ย้ายมาเสิร์ฟฟอนต์เอง ทุกหน้าได้ชุดเดียวกันโดยอัตโนมัติ เพราะ fonts.css
+// อยู่ใน CORE_CSS ที่ build/pages.js ใส่ให้ทุกหน้า (ข้อ 6 ตรวจไว้แล้ว)
+// เหลือตรวจว่าในไฟล์นั้นมีตระกูลฟอนต์เดียวจริง
+const fams = new Set([...read('fonts.css').matchAll(/font-family:\s*'([^']+)'/g)].map(m => m[1]));
+ok('⭐ fonts.css ประกาศตระกูลฟอนต์เดียว', fams.size === 1, [...fams].join(' | '));
+ok('ชุดฟอนต์คือ IBM Plex Sans Thai', [...fams][0] === 'IBM Plex Sans Thai', [...fams][0]);
+const noFontCss = pages.filter(f => read(f).indexOf("href=\"fonts.css\"") < 0);
+ok('ทุกหน้าลิงก์ fonts.css', noFontCss.length === 0, noFontCss.join(', '));
 
 console.log('\n9) หัวเว็บ — กติกาที่ห้ามผ่อน');
 const hcss = read('header.css');

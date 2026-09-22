@@ -76,7 +76,18 @@ const NAV = [
 const CTA = { label: 'ฝากขายฟรี', href: 'consign.html' };
 
 // สไตล์ชีตกลาง — ต้องมาก่อนไฟล์อื่นเสมอ (tokens ถูกทับได้ แต่ทับใครไม่ได้)
-const CORE_CSS = ['tokens.css', 'components.css', 'header.css'];
+// ⚠️ fonts.css ต้องมาก่อนเสมอ — เป็น @font-face ที่เสิร์ฟเอง (ดู build/fonts.js)
+//    ของเดิมดึงจาก Google Fonts ซึ่งเป็นคนละโดเมน 2 โดเมน ทำให้ LCP ช้ากว่า ~160 ms
+const CORE_CSS = ['fonts.css', 'tokens.css', 'components.css', 'header.css'];
+
+// เปิดการเชื่อมต่อไปโดเมนของระบบหลังบ้านล่วงหน้า
+//
+// ⚠️ รูปการ์ดประกาศและข้อมูลทุกหน้ามาจาก app.njteedinsure.com ซึ่งเป็น **คนละโดเมน**
+//    เบราว์เซอร์จึงต้องทำ DNS + TLS ก่อนจะเริ่มโหลดรูปใบแรกได้
+//    Lighthouse (mobile) ตีว่าเสียเวลาไปกับเรื่องนี้ราว 310 ms
+//    ⚠️ ต้องมี `crossorigin` เพราะรูปและ fetch เป็นคำขอข้ามโดเมน — ไม่ใส่แล้วได้การเชื่อมต่อ
+//       ผิดชนิด เบราว์เซอร์ต้องเปิดใหม่อยู่ดี (เตือนไว้เพราะมองไม่เห็นจากหน้าจอ)
+const PRECONNECT = ['https://app.njteedinsure.com'];
 
 const START = '<!-- NJ:HEADER เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->';
 const END = '<!-- NJ:HEADER จบ -->';
@@ -89,7 +100,7 @@ const CSS_END = '<!-- NJ:CORECSS จบ -->';
 //    คนคลิกโฆษณาเข้าหน้าแปลง อ่านสามหน้า แล้วค่อยไปกรอกฟอร์ม — ถ้าโหลดเฉพาะหน้าฟอร์ม
 //    เราจะบันทึกว่าเขามาจาก "ในเว็บเราเอง" ทุกราย ซึ่งไร้ประโยชน์ทั้งหมด
 // ⚠️ ใช้ `defer` เพื่อไม่ให้บล็อกการวาดหน้า และให้รันก่อน DOMContentLoaded เสมอ
-const CORE_JS = ['fontcss.js', 'attrib.js'];
+const CORE_JS = ['lazycss.js', 'attrib.js'];
 
 const JS_START = '<!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->';
 const JS_END = '<!-- NJ:COREJS จบ -->';
@@ -149,6 +160,7 @@ function rx(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 function cssHtml(NL) {
   return [CSS_START]
+    .concat(PRECONNECT.map(u => '<link rel="preconnect" href="' + u + '" crossorigin>'))
     .concat(CORE_CSS.map(f => '<link rel="stylesheet" href="' + f + '">'))
     .concat([CSS_END]).join(NL);
 }

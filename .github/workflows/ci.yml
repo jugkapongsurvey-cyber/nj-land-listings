@@ -41,6 +41,9 @@ jobs:
       - name: หัวเว็บกับสไตล์ชีตกลางตรงกับ build/pages.js
         run: node build/pages.js --check
 
+      - name: สไตล์ชีตของ JS ต้องไม่บล็อกการวาดหน้า
+        run: node build/lazycss.js --check
+
       - name: sitemap.xml ตรงกับไฟล์จริงในเว็บ
         run: node build/sitemap.js --check
 
