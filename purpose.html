@@ -24,9 +24,12 @@
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="fontcss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
+  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
   <link rel="stylesheet" href="listings.css">
@@ -195,17 +198,17 @@
 
   <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a class="active" href="listings.html"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
 
-  <script src="analytics.js"></script>
+  <script src="analytics.js" defer></script>
   <!-- ต้องมาก่อน listingcard.js — card() อ่าน window.NJVerified ตอนวาดป้ายระดับตรวจสอบ -->
-  <script src="verified.js"></script>
-  <script src="landscore.js"></script>
-  <script src="listingcard.js"></script>
+  <script src="verified.js" defer></script>
+  <script src="landscore.js" defer></script>
+  <script src="listingcard.js" defer></script>
   <!-- ต้องมาก่อน purpose.js — purpose.js อ่าน window.NJPurpose ตอนวาดปุ่มและเหตุผล -->
-  <script src="landpurpose.js"></script>
-  <script src="purpose.js"></script>
+  <script src="landpurpose.js" defer></script>
+  <script src="purpose.js" defer></script>
   <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js และก่อน menu.js -->
-  <script src="landvocab.js"></script>
-  <script src="njchatload.js"></script>
-  <script src="menu.js"></script>
+  <script src="landvocab.js" defer></script>
+  <script src="njchatload.js" defer></script>
+  <script src="menu.js" defer></script>
 </body>
 </html>

@@ -18,9 +18,12 @@
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="fontcss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
+  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="compare.css">
   <link rel="stylesheet" href="save.css">
@@ -121,22 +124,28 @@
 
   <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a class="active" href="listings.html"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
 
-  <script src="analytics.js"></script>
+  <script src="analytics.js" defer></script>
   <!-- landvocab.js = คำศัพท์ชุดกลาง · verified.js = แปลงวันที่/สถานะบันได 5 ระดับ
        ทั้งคู่ต้องมาก่อน comparepage.js ซึ่งอ่านทั้งสองตัวตอนวาดตาราง -->
-  <script src="landvocab.js"></script>
-  <script src="verified.js"></script>
-  <script src="listingcard.js"></script>
+  <script src="landvocab.js" defer></script>
+  <script src="verified.js" defer></script>
+  <script src="listingcard.js" defer></script>
   <!-- compare.js เก็บ/อ่านรายการที่เลือก · comparepage.js วาดตาราง — ลำดับนี้สลับไม่ได้ -->
-  <script src="compare.js"></script>
-  <script src="save.js"></script>
-  <script src="comparepage.js"></script>
+  <script src="compare.js" defer></script>
+  <script src="save.js" defer></script>
+  <script src="comparepage.js" defer></script>
   <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
   <!-- verified.js กับ landvocab.js โหลดไปแล้วด้านบน (comparepage.js ต้องใช้) จึงไม่ต้องโหลดซ้ำที่นี่
        ⚠️ เคยซ้ำมาแล้วเมื่อ 11 ก.ย. 69 — ตอนเติมแชท สองไฟล์นี้ยังไม่มีในหน้านี้ แล้วมาถูกเติมด้านบนทีหลัง
        ตรวจด้วย: grep -oE 'src="[a-z0-9]+\.js"' compare.html | sort | uniq -d -->
-  <script src="njchatload.js"></script>
-  <script src="menu.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear() + 543;</script>
+  <script src="njchatload.js" defer></script>
+  <script src="menu.js" defer></script>
+  <script>
+  /* สคริปต์ของหน้าถูกโหลดแบบ defer แล้ว จึงต้องรอ DOMContentLoaded
+     ซึ่งยิงหลังสคริปต์ defer ทุกตัวทำงานเสร็จ — ไม่งั้นเรียกของที่ยังไม่มี */
+  document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('year').textContent = new Date().getFullYear() + 543;
+  });
+</script>
 </body>
 </html>

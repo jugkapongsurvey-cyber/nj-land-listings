@@ -97,9 +97,15 @@ ok('⭐ "ยังไม่ระบุ" ไม่นับว่าตรงเ
 //    ปุ่มใน index.html (คลาส + aria-pressed) · state.tier ใน marketplace.js · ค่าถอยใน readUrl()
 //    ไม่ตรงกันเมื่อไหร่ = ปุ่มขึ้นว่าเปิดอยู่แต่ผลไม่ได้ถูกกรอง (หรือกลับกัน) โดยไม่มี error ให้เห็น
 ok('มีปุ่มกรองระดับข้อมูลครบสองระดับ', (home.match(/data-tier="[12]"/g) || []).length === 2);
-ok('⭐ ปุ่ม "รังวัดยืนยันแล้ว" ตั้งต้นเปิด และตรงกันทั้งสามที่',
-   /class="chip is-on" type="button" aria-pressed="true" data-tier="2"/.test(home) &&
-   /var DEFAULT_TIER='2';/.test(mk) && /tier:DEFAULT_TIER/.test(mk) && /: *DEFAULT_TIER;/.test(mk));
+// ⚠️ ตั้งต้น "โชว์ทุกแปลง" (เจ้าของกิจการสั่ง 22 ก.ย. 69) — เดิมตั้งต้นกรองเฉพาะรังวัดยืนยันแล้ว
+//    ซึ่งซ่อนของไปครึ่งคลังตั้งแต่โหลดหน้า โดยผู้ซื้อไม่มีทางรู้ว่ามีอีก
+ok('⭐ ไม่มีปุ่มกรองระดับข้อมูลปุ่มไหนตั้งต้นเปิด',
+   !/data-tier="[12]"[^>]*class="[^"]*is-on/.test(home) &&
+   !/class="[^"]*is-on[^"]*"[^>]*data-tier="[12]"/.test(home) &&
+   !/aria-pressed="true"[^>]*data-tier="[12]"/.test(home) &&
+   !/data-tier="[12]"[^>]*aria-pressed="true"/.test(home));
+ok('⭐ ค่าตั้งต้นเป็น all และตรงกันทั้งสามที่',
+   /var DEFAULT_TIER='all';/.test(mk) && /tier:DEFAULT_TIER/.test(mk) && /: *DEFAULT_TIER;/.test(mk));
 // ⚠️ ต้องกดปิดได้เสมอ — ตัวกรองที่เปิดค้างโดยไม่มีทางปิดคือตัวกรองที่ซ่อนของโดยผู้ใช้ไม่รู้ตัว
 ok('⭐ กดซ้ำที่ปุ่มเดิมแล้วปิดตัวกรองได้', /state\.tier===btn\.dataset\.tier\) \? 'all'/.test(mk));
 ok('เปิดลิงก์ที่มี tier=all ติดมาได้ (แชร์ผลที่ปิดตัวกรองไว้)', /tier==='all'\)\?tier:DEFAULT_TIER/.test(mk));

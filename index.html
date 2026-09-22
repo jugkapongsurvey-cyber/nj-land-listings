@@ -136,9 +136,12 @@
 <link rel="stylesheet" href="header.css">
 <!-- NJ:CORECSS จบ -->
 <!-- NJ:COREJS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
+<script src="fontcss.js" defer></script>
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ฟอนต์โหลดแบบไม่บล็อกการวาดหน้า — fontcss.js สลับ rel ให้ (ดูเหตุผลในไฟล์นั้น) -->
+  <link rel="preload" as="style" data-njfont href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"></noscript>
   <link rel="stylesheet" href="home.css">
   <link rel="stylesheet" href="listingcard.css">
   <link rel="stylesheet" href="njchat.css">
@@ -367,7 +370,7 @@
                   และ `#result-note` ขึ้นข้อความบอกทุกครั้งว่ากำลังกรองอะไรอยู่
                ⚠️ วันไหนแปลงระดับ 2 เหลือน้อยจนหน้าแรกโล่ง ให้กลับไปตั้งต้นเป็นปิด
                   (แก้ 3 จุด: ที่นี่ · state.tier ใน marketplace.js · ค่าตั้งต้นใน readUrl) -->
-          <button class="chip is-on" type="button" aria-pressed="true" data-tier="2">✓ รังวัดยืนยันแล้ว</button>
+          <button class="chip is-outline" type="button" aria-pressed="false" data-tier="2">✓ รังวัดยืนยันแล้ว</button>
           <button class="chip is-outline" type="button" aria-pressed="false" data-tier="1">ข้อมูลเบื้องต้น</button>
           <label class="visually-hidden" for="sort-filter">เรียงตาม</label>
           <select id="sort-filter">
@@ -600,25 +603,25 @@
 
 <!-- ค่าติดต่อของบริษัท (เบอร์ · ไลน์ · ที่อยู่ · เวลาทำการ) — แหล่งเดียวของทั้งเว็บ
      ต้องมาก่อนสคริปต์อื่นทุกตัว เพราะ listingcard.js / analytics.js อ่านค่าจากที่นี่ -->
-<script src="config.js"></script>
-<script src="analytics.js"></script>
+<script src="config.js" defer></script>
+<script src="analytics.js" defer></script>
 <!-- ต้องมาก่อน listingcard.js — card() อ่าน window.NJVerified ตอนวาดป้ายระดับตรวจสอบ -->
-  <script src="verified.js"></script>
-  <script src="landscore.js"></script>
+  <script src="verified.js" defer></script>
+  <script src="landscore.js" defer></script>
   <!-- ชื่อทำเลสั้นบนหัวการ์ด — listingcard.js เรียก NJLandMeta.localityOf ตัวเดียวกับหน้ารายละเอียด -->
-<script src="landmeta.js"></script>
-<script src="listingcard.js"></script>
-<script src="save.js"></script>
-<script src="marketplace.js"></script>
+<script src="landmeta.js" defer></script>
+<script src="listingcard.js" defer></script>
+<script src="save.js" defer></script>
+<script src="marketplace.js" defer></script>
 <!-- บริการเพิ่มเติม + เปรียบเทียบแปลง — ต้องมาหลัง listingcard.js เพราะ compare.js
      แปะปุ่ม "เทียบ" ลงบนการ์ดที่ listingcard.js เป็นคนวาด -->
-<script src="compare.js"></script>
+<script src="compare.js" defer></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
-<script src="landvocab.js"></script>
-<script src="njchatload.js"></script>
-<script src="menu.js"></script>
+<script src="landvocab.js" defer></script>
+<script src="njchatload.js" defer></script>
+<script src="menu.js" defer></script>
 <!-- ฟอร์มฝากขายบนหน้าแรก — ยิงเข้าเส้นทางรับลีดเดิม /api/public/consign -->
-<script src="sellform.js"></script>
+<script src="sellform.js" defer></script>
 
 
 </body>

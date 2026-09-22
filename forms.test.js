@@ -56,7 +56,10 @@ console.log('\n3) ⭐ attrib.js ต้องโหลดทุกหน้า �
 const pages = fs.readdirSync(__dirname).filter(f => f.endsWith('.html') && !f.startsWith('__'));
 const noAttrib = pages.filter(f => read(f).indexOf('src="attrib.js"') < 0);
 ok('ทุกหน้า (' + pages.length + ' หน้า) โหลด attrib.js', noAttrib.length === 0, noAttrib.join(', '));
-ok('⭐ build/pages.js เป็นคนใส่ให้ ไม่ได้ใส่มือทีละหน้า', /CORE_JS = \['attrib\.js'\]/.test(read('build/pages.js')));
+// ⚠️ เช็กว่า attrib.js อยู่ใน CORE_JS ไม่ใช่ล็อกทั้งบรรทัด — CORE_JS มีไฟล์อื่นร่วมได้
+//    (fontcss.js ถูกเพิ่มเข้ามาตอนแก้ performance 22 ก.ย. 69) แต่ attrib.js ต้องอยู่เสมอ
+const coreJs = (read('build/pages.js').match(/CORE_JS = \[([^\]]*)\]/) || [])[1] || '';
+ok('⭐ build/pages.js เป็นคนใส่ให้ ไม่ได้ใส่มือทีละหน้า', /'attrib\.js'/.test(coreJs), coreJs);
 ok('ใช้ defer — ไม่บล็อกการวาดหน้า', read('index.html').indexOf('src="attrib.js" defer') >= 0);
 
 console.log('\n4) ตัวช่วยฟอร์มกลาง (njform.js)');
