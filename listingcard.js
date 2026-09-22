@@ -11,10 +11,16 @@
 (function () {
   'use strict';
 
-  var LINE = 'https://line.me/R/ti/p/@716lffzt';
-  var FB = window.NJ_MESSENGER_URL || 'https://m.me/NJTeeDinSure';   // ตั้งค่าไว้ใน analytics.js
-  var TEL = 'tel:021620405';
-  var TEL2 = 'tel:0849158601';
+  // ช่องทางติดต่อ — อ่านจาก `config.js` (window.NJ_CONFIG) ก่อนเสมอ
+  // ⚠️ ค่าที่เขียนไว้ตรงนี้เป็น **ค่าถอย** สำหรับหน้าที่ยังไม่ได้โหลด config.js
+  //    ไม่ใช่แหล่งข้อมูล — เปลี่ยนเบอร์/ไอดีไลน์ให้แก้ที่ config.js ที่เดียว
+  var CFG = window.NJ_CONFIG || {};
+  var LINE = CFG.lineUrl || 'https://line.me/R/ti/p/@716lffzt';
+  var FB = CFG.messengerUrl || window.NJ_MESSENGER_URL || 'https://m.me/NJTeeDinSure';
+  var TEL_TXT = CFG.tel || '02-162-0405';
+  var TEL2_TXT = CFG.tel2 || '084-915-8601';
+  var TEL = 'tel:' + TEL_TXT.replace(/[^0-9+]/g, '');
+  var TEL2 = 'tel:' + TEL2_TXT.replace(/[^0-9+]/g, '');
 
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
@@ -65,10 +71,31 @@
       pricePerWa: Number(item.pricePerWa || 0),
       pricePerRai: Number(item.pricePerRai || 0),
       land: item.land || null,
+      // ชื่อทำเลสั้นบรรทัดเดียวสำหรับหัวการ์ด — คนละช่องกับ parcelInfo ซึ่งเป็นก้อนยาว
+      // (ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่) ที่เจ้าของบางรายใส่โฆษณาทั้งชุดลงไป
+      // ⚠️ ไม่มีค่า = ให้ shortTitleOf() ประกอบจากช่องที่ตั้งแทน ห้ามถอยไปใช้ parcelInfo ทั้งก้อน
+      shortTitle: String(item.shortTitle || '').trim(),
+      // รูปย่อ 800×600 ที่เซิร์ฟเวอร์สร้างให้ — เรียงลำดับตรงกับ photos ทุกใบ
+      // ⚠️ ไม่มี = ใช้ไฟล์ต้นฉบับไปก่อน (แปลงที่อัปโหลดก่อนมีตัวย่อรูป) ห้ามซ่อนรูปทิ้ง
+      thumbs: Array.isArray(item.thumbs) ? item.thumbs : [],
       // คะแนนความพร้อมของข้อมูล (Phase 3) — เซิร์ฟเวอร์ส่ง null มาเมื่อยังไม่มีใครกรอกผลตรวจอะไรเลย
       // ⚠️ ห้ามแปลง null เป็น 0 ที่นี่ — 0 กับ "ยังไม่มีใครไปตรวจ" คนละเรื่องกันโดยสิ้นเชิง
       score: item.score || null
     };
+  }
+
+  // ชื่อทำเลสั้นบรรทัดเดียวสำหรับหัวการ์ด
+  // ลำดับ: ช่อง shortTitle ที่ทีมกรอกเอง → ที่ตั้งที่ประกอบจาก ต./อ./จ. → ท่อนแรกของ parcelInfo
+  // ⚠️ ใช้ `NJLandMeta.localityOf` ตัวเดียวกับที่หน้ารายละเอียดและตัวสร้างหน้าสแตติกใช้
+  //    ประกอบเองที่นี่อีกชุดเมื่อไหร่ = ชื่อบนการ์ดกับชื่อบนหน้าแปลงเพี้ยนจากกันโดยไม่มีอะไรเตือน
+  function shortTitleOf(item) {
+    if (item.shortTitle) return item.shortTitle;
+    var LM = window.NJLandMeta;
+    var loc = LM && LM.localityOf ? LM.localityOf(item) : '';
+    if (loc) return loc;
+    var first = String(item.parcelInfo || '').split(' · ')[0].trim();
+    if (!first) return 'แปลงที่ดิน';
+    return first.length > 60 ? first.slice(0, 60).trim() + '…' : first;
   }
 
   // ป้ายผังสีบนการ์ด · สี/ลายอ่านจาก NJVocab ที่เดียว (ห้ามพิมพ์รหัสสีซ้ำที่นี่)
@@ -83,77 +110,99 @@
       '<i style="background:' + bg + '" aria-hidden="true"></i>ผัง' + esc(V.zoneShort ? V.zoneShort(key) : key) + '</span>';
   }
 
+  // ระดับคะแนนความพร้อม → คลาสของตัวเลขท้ายการ์ด (เขียว/ส้ม ตามดีไซน์)
+  // ⚠️ อ่าน `band` ที่เซิร์ฟเวอร์ตัดสินมาแล้ว ห้ามตั้งเกณฑ์เองจากตัวเลข
+  //    ตั้งเองเมื่อไหร่ = เว็บกับระบบหลังบ้านแบ่งระดับคนละแบบโดยไม่มีอะไรเตือน
+  function scoreClass(band) {
+    return (band === 'low' || band === 'weak') ? 'score is-low' : 'score';
+  }
+
   function card(item) {
-    // รูปการ์ดใช้ไฟล์ย่อก่อนเสมอ แล้วค่อยถอยไปไฟล์ต้นฉบับ
-    // วัดจริง 22 ก.ย. 69: การ์ด 6 ใบหน้าแรก 1,924 KB -> 526 KB (เล็กลง 73%)
+    // รูปการ์ด — ใช้ตัวย่อ 800×600 ที่เซิร์ฟเวอร์สร้างให้ ทุกใบจึงสูงเท่ากันและไม่กินเน็ตมือถือ
+    // วัดบน production จริง 22 ก.ย. 69: การ์ด 6 ใบหน้าแรก 1,924 KB -> 526 KB (เล็กลง 73%)
+    // ⚠️ ใบที่ยังไม่มีไฟล์ย่อ ฝั่งระบบส่งไฟล์ต้นฉบับกลับมาในช่อง thumbs ให้แล้ว ไม่ใช่ค่าว่าง
+    // ⚠️ ต้องมี width/height ตรงกับสัดส่วนจริงของกรอบ (4:3) เสมอ ไม่งั้นหน้ากระโดดตอนรูปโหลดเสร็จ
     var src = item.thumbs[0] || item.photos[0] || '';
     var media = src
-      ? '<img src="' + esc(src) + '" alt="' + esc(item.parcelInfo || 'แปลงที่ดิน') + '" loading="lazy">'
+      ? '<img src="' + esc(src) + '" width="800" height="600" loading="lazy" decoding="async" alt="' +
+        esc(shortTitleOf(item)) + '">'
       : '<div class="fallback-land" aria-hidden="true"></div>';
     // นับรูปตามจริง ไม่มีรูปก็ไม่ต้องขึ้นตัวเลข
     var count = item.photos.length > 1 ? '<span class="photo-count">▣ ' + item.photos.length + '</span>' : '';
-    // คำโปรยมาจากที่ทีมงานเขียนเองในระบบ ไม่มีก็เว้นไว้
-    var facts = item.blurb ? '<div class="card-facts"><span>' + esc(item.blurb) + '</span></div>' : '';
-    // เนื้อที่ + ราคาต่อตารางวา — เพิ่งเริ่มมีใน API (ก่อนหน้านี้ไม่ส่งมา จึงเคยถูกถอดออกจากการ์ด)
-    // แสดงเฉพาะแปลงที่มีค่าจริง · แปลงที่ยังไม่รู้เนื้อที่จะไม่มีสองบรรทัดนี้ ไม่ใช่ขึ้นเป็น 0
-    var bits = [];
-    var a = areaTh(item.totalWa);
-    if (a) bits.push(esc(a));
-    if (item.pricePerWa > 0) bits.push('฿' + num(item.pricePerWa) + '/ตร.ว.');
-    // ประเภทสิ่งปลูกสร้าง + จำนวนชั้น — แสดงเฉพาะที่กรอกแล้ว แปลงที่ยังว่างต้องไม่ขึ้นอะไรเลย
-    // (ว่าง = ยังไม่ได้กรอก ไม่ใช่ "ที่ดินเปล่า" — เขียนแทนเมื่อไหร่คือติดป้ายผิดให้แปลงที่มีบ้านจริง)
+
+    // ---------- ราคา ----------
+    var perWa = item.pricePerWa > 0 ? '<span>฿' + num(item.pricePerWa) + '/ตร.ว.</span>' : '';
+
+    // ---------- แถวป้ายใต้คำโปรย ----------
+    // แสดงเฉพาะช่องที่มีค่าจริง · ช่องว่าง = "ยังไม่ได้กรอก" ไม่ใช่ "ไม่มี" จึงต้องไม่ขึ้นป้ายอะไรเลย
     var LP = (item.land || {});
-    var PT = (window.NJVocab && window.NJVocab.PROPERTY_TH) || {};
-    if (LP.propertyType && PT[LP.propertyType]) {
-      bits.push(esc(PT[LP.propertyType]) + (LP.floors > 0 ? ' ' + LP.floors + ' ชั้น' : ''));
-    } else if (LP.floors > 0) { bits.push(LP.floors + ' ชั้น'); }
-    var meta = bits.length ? '<div class="card-meta">' + bits.join(' · ') + '</div>' : '';
-    // ป้ายผังสี — ขึ้นเฉพาะแปลงที่ทีมงานอ่านผังแล้วกดบันทึกเอง (เพิ่ม 2026-09-18)
-    // ⚠️ ไม่มี zoneColor = ยังไม่ได้ตรวจ ต้องไม่ขึ้นป้ายอะไรเลย ห้ามขึ้นป้าย "ไม่มีผังสี"
-    // ⚠️ เป็นข้อมูลของบริษัทเอง (ทีมกรอก) ไม่ใช่ภาพผังของหน่วยงาน — จึงเผยแพร่ได้
+    var V = window.NJVocab || {};
+    var tags = [];
+    var a = areaTh(item.totalWa);
+    if (a) tags.push('<span class="tag">' + esc(a) + '</span>');
     var zone = zoneChip(LP.zoneColor);
+    if (zone) tags.push(zone);
+    if (LP.deedType && V.DEED_TH && V.DEED_TH[LP.deedType]) {
+      tags.push('<span class="tag">' + esc(V.DEED_TH[LP.deedType]) + '</span>');
+    }
+    var PT = V.PROPERTY_TH || {};
+    if (LP.propertyType && PT[LP.propertyType]) {
+      tags.push('<span class="tag">' + esc(PT[LP.propertyType]) + (LP.floors > 0 ? ' ' + LP.floors + ' ชั้น' : '') + '</span>');
+    } else if (LP.floors > 0) {
+      tags.push('<span class="tag">' + LP.floors + ' ชั้น</span>');
+    }
+
+    // ---------- ป้ายบันได 5 ระดับ ----------
+    // ⚠️ **ไม่ได้แทนที่** ป้ายเขียว/ทองบนรูป สองอย่างตอบคนละคำถาม
+    //    ป้ายบนรูป = "รังวัดยืนยันแล้วหรือยัง" · ป้ายนี้ = "ตรวจไปแล้วกี่ระดับจาก 5"
+    //    คืนสตริงว่างเมื่อยังไม่ถึงระดับใดเลย — การ์ดของแปลงเก่าจึงหน้าตาเหมือนเดิม
+    var marks = (window.NJVerified && item.land ? NJVerified.badgeHtml(item.land.verify) : '');
+
+    // ---------- แถวท้ายการ์ด ----------
+    // ⚠️ **รหัสทรัพย์ต้องเห็นบนการ์ด ไม่ใช่ซ่อนไว้ใน data-id**
+    // ผู้ซื้อทักไลน์มาว่า "สนใจแปลงนึงในเว็บ" โดยไม่บอกว่าแปลงไหน ทีมจับคู่กลับไม่ได้
+    // แปลว่าเจ้าของที่ดินไม่เคยรู้ว่ามีคนสนใจแปลงตัวเอง
     var when = ago(item.updatedAt);
+    var footL = 'รหัส <b>' + esc(item.id) + '</b>' + (when ? ' · ' + esc(when) : '');
+    // คะแนนความพร้อม — เซิร์ฟเวอร์ส่ง null มาเมื่อยังไม่มีใครกรอกผลตรวจอะไรเลย
+    // ⚠️ null ≠ 0 · ศูนย์บนแปลงที่ยังไม่มีใครไปตรวจ อ่านแล้วเหมือนแปลงถูกตัดสินไปแล้ว
+    var footR = item.score && typeof item.score.total === 'number'
+      ? '<span class="' + scoreClass(item.score.band) + '">ข้อมูลพร้อม ' + item.score.total + '/100</span>'
+      : '';
+
     var href = 'land.html?id=' + encodeURIComponent(item.id);
-    return '<article class="land-card" data-href="' + esc(href) + '" data-id="' + esc(item.id) + '">' +
+    // ⚠️ เป็น <article> ไม่ใช่ <a> ครอบทั้งใบ — save.js/compare.js ยัด <button> เข้าไปใน .card-media
+    //    ปุ่มซ้อนในลิงก์เป็น HTML ที่ใช้ไม่ได้ และคลิกจะทะลุไปเปิดหน้ารายละเอียดแทน
+    //    ทั้งใบยังกดได้อยู่ดีผ่าน data-href ที่ bindGrid() ดักให้ (และชื่อแปลงเป็นลิงก์จริงสำหรับคีย์บอร์ด)
+    return '<article class="land-card is-compact" data-href="' + esc(href) + '" data-id="' + esc(item.id) + '">' +
       '<div class="card-media">' + media +
-        '<div class="card-tags"><span>' + (item.type === 'rent' ? 'ให้เช่า' : 'ขาย') + '</span>' +
+        '<div class="card-badges">' +
+          '<span class="badge">' + (item.type === 'rent' ? 'ให้เช่า' : 'ขาย') + '</span>' +
           (item.tier === 2
-            ? '<span class="verified">✓ รังวัดยืนยันแล้ว</span>'
-            : '<span class="basic">◐ ข้อมูลเบื้องต้น</span>') + '</div>' +
-        count +
+            ? '<span class="badge badge-verified">✓ รังวัดยืนยันแล้ว</span>'
+            : '<span class="badge badge-basic">ข้อมูลเบื้องต้น</span>') +
+        '</div>' + count +
       '</div>' +
       '<div class="card-body">' +
-        '<div><span class="card-price">' + money(item.estValue) + '</span></div>' +
-        // ป้ายระดับการตรวจสอบ 5 ระดับ (เพิ่ม 2026-09-09)
-        // ⚠️ คืนสตริงว่างเมื่อยังไม่ถึงระดับใดเลย — การ์ดของแปลงเก่าจึงหน้าตาเหมือนเดิมเป๊ะ
-        // ⚠️ วางไว้ใน card-body ไม่ใช่ card-tags บนรูป เพราะแถบบนรูปเต็มแล้วด้วยป้าย
-        //    "ขาย/ให้เช่า" กับ "รังวัดยืนยันแล้ว" ยัดอันที่สามเข้าไป = ตัดบรรทัดบนจอ 375px
-        // ⚠️ ป้ายนี้ **ไม่ได้แทนที่** ป้ายเหลือง-เขียวเดิม สองอย่างตอบคนละคำถาม
-        //    ป้ายเดิม = "รังวัดแล้วหรือยัง" · ป้ายนี้ = "ตรวจไปแล้วกี่ระดับจาก 5"
-        (window.NJVerified && item.land ? NJVerified.badgeHtml(item.land.verify) : '') +
-        // ป้ายคะแนนความพร้อมของข้อมูล (Phase 3) — คืนสตริงว่างเมื่อยังไม่มีคะแนน
-        // ⚠️ อยู่ข้างป้ายบันได 5 ระดับเพราะตอบคนละคำถาม: ป้ายนั้น = "ตรวจไปกี่ระดับ"
-        //    ป้ายนี้ = "ข้อมูลทั้งใบครบแค่ไหน" (รวมเอกสาร ทางเข้าออก ผังเมือง ความใหม่ ฯลฯ)
-        (window.NJScore ? NJScore.badgeHtml(item.score) : '') +
-        '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(item.parcelInfo || 'แปลงที่ดิน') + '</a></h3>' +
-        // ⚠️ **รหัสทรัพย์ต้องเห็นบนการ์ด ไม่ใช่ซ่อนไว้ใน data-id** (งานที่ 7)
-        // เหตุผลเดียวกับแถบรหัสในหน้ารายละเอียด: ผู้ซื้อทักไลน์มาว่า "สนใจแปลงนึงในเว็บ"
-        // โดยไม่บอกว่าแปลงไหน ทีมจับคู่กลับไม่ได้ แปลว่าเจ้าของที่ดินไม่เคยรู้ว่ามีคนสนใจแปลงตัวเอง
-        '<div class="card-code">รหัส <b>' + esc(item.id) + '</b></div>' +
-        meta +
-        zone +
-        facts +
-        // ปุ่ม "ดูรายละเอียด" แบบเห็นชัด — ทั้งการ์ดกดได้อยู่แล้วก็จริง แต่ไม่มีอะไรบอกผู้ใช้
-        // โดยเฉพาะคนที่ใช้คีย์บอร์ดหรือโปรแกรมอ่านหน้าจอ ซึ่งไม่เห็นเคอร์เซอร์เปลี่ยนรูป
-        '<a class="card-more" href="' + esc(href) + '">ดูรายละเอียดแปลง <span aria-hidden="true">→</span></a>' +
+        '<div class="card-price"><b>' + money(item.estValue) + '</b>' + perWa + '</div>' +
+        '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(shortTitleOf(item)) + '</a></h3>' +
+        (item.blurb ? '<div class="card-desc">' + esc(item.blurb) + '</div>' : '') +
+        (tags.length ? '<div class="card-tags">' + tags.join('') + '</div>' : '') +
+        (marks ? '<div class="card-marks">' + marks + '</div>' : '') +
+        '<div class="card-foot"><span>' + footL + '</span>' + footR + '</div>' +
+        // ⚠️ **ปุ่มติดต่อต้องอยู่ในการ์ดทุกใบ** — ผู้สนใจไม่ต้องเลื่อนกลับไปหาเบอร์ที่ท้ายหน้า
+        //    เป็นของที่ประกาศเจ้าอื่นไม่ให้ และเป็นจุดที่ลีดเข้ามาจริงมากที่สุดจุดหนึ่ง
+        //    (ดีไซน์ชุดใหม่ไม่ได้วาดแถวนี้ไว้ — เจ้าของสั่งให้เอากลับ 22 ก.ย. 69)
+        // ⚠️ **เบอร์สำนักงานกับเบอร์มือถือต้องมาคู่กันเสมอ** (กติกาข้อ 6) ตัดอันใดอันหนึ่งไม่ได้
+        // ⚠️ `data-contact` คือสิ่งที่ `bindGrid()` ใช้นับลีด และใช้กันไม่ให้คลิกทะลุไปหน้ารายละเอียด
         '<div class="card-agent">' +
-          '<span class="agent-avatar">NJ</span>' +
+          '<span class="agent-avatar" aria-hidden="true">NJ</span>' +
           '<div><b>ทีมที่ดินชัวร์</b>' + (when ? '<small>' + esc(when) + '</small>' : '') + '</div>' +
           '<span class="contact-mini">' +
-            '<a href="' + LINE + '" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์">●</a>' +
-            '<a href="' + FB + '" target="_blank" rel="noopener" class="fb" data-contact="messenger" aria-label="ติดต่อทางเมสเซนเจอร์">f</a>' +
-            '<a href="' + TEL + '" data-contact="tel" aria-label="โทรสอบถาม 02-162-0405">☎</a>' +
-            '<a href="' + TEL2 + '" data-contact="tel" aria-label="โทรสอบถาม 084-915-8601">📱</a>' +
+            '<a href="' + LINE + '" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์ เรื่องแปลง ' + esc(item.id) + '">●</a>' +
+            '<a href="' + FB + '" target="_blank" rel="noopener" class="fb" data-contact="messenger" aria-label="ติดต่อทางเมสเซนเจอร์ เรื่องแปลง ' + esc(item.id) + '">f</a>' +
+            '<a href="' + TEL + '" data-contact="tel" aria-label="โทรสอบถาม ' + TEL_TXT + '">☎</a>' +
+            '<a href="' + TEL2 + '" data-contact="tel" aria-label="โทรสอบถาม ' + TEL2_TXT + '">📱</a>' +
           '</span>' +
         '</div>' +
       '</div>' +
@@ -193,9 +242,9 @@
   function loadFailedHtml() {
     // โหลดไม่ได้ ≠ ไม่มีแปลง — ต้องบอกตามจริงและให้ช่องทางติดต่อ ไม่ใช่แสดงว่าว่างเปล่า
     return '<div class="empty-result"><b>ตอนนี้โหลดรายการที่ดินไม่สำเร็จ</b>' +
-      'กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ 02-162-0405 / 084-915-8601' +
-      '<span class="empty-actions"><a class="outline-btn" href="' + TEL + '" data-contact="tel">โทร 02-162-0405</a>' +
-      '<a class="outline-btn" href="' + TEL2 + '" data-contact="tel">โทร 084-915-8601</a></span></div>';
+      'กรุณาลองใหม่อีกครั้ง หรือโทรสอบถามได้ที่ ' + TEL_TXT + ' / ' + TEL2_TXT +
+      '<span class="empty-actions"><a class="outline-btn" href="' + TEL + '" data-contact="tel">โทร ' + TEL_TXT + '</a>' +
+      '<a class="outline-btn" href="' + TEL2 + '" data-contact="tel">โทร ' + TEL2_TXT + '</a></span></div>';
   }
 
   // ดึงรายการสด · ผู้เรียกต้องจัดการทั้งกรณีสำเร็จและล้มเหลว (สองกรณีนี้ห้ามแสดงเหมือนกัน)
@@ -230,7 +279,7 @@
   window.NJListing = {
     LINE: LINE, FB: FB, TEL: TEL, TEL2: TEL2,
     esc: esc, money: money, num: num, ago: ago, areaTh: areaTh,
-    normalize: normalize, card: card,
+    normalize: normalize, card: card, shortTitleOf: shortTitleOf,
     emptyHtml: emptyHtml, loadFailedHtml: loadFailedHtml,
     fetchListings: fetchListings, bindGrid: bindGrid
   };

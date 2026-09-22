@@ -24,15 +24,42 @@ const lst = read('listings.js');
 const ana = read('analytics.js');
 
 console.log('\n1) การ์ดประกาศ (งานที่ 7)');
-ok('⭐ แสดงรหัสทรัพย์ให้ผู้ใช้เห็น', /class="card-code"/.test(card) && /esc\(item\.id\)/.test(card));
-ok('มีปุ่มดูรายละเอียดแบบเห็นชัด', /class="card-more"/.test(card));
-['home.css', 'marketplace.css', 'njchat.css'].forEach(f => {
+// ⚠️ รหัสทรัพย์ย้ายไปอยู่แถวท้ายการ์ด (.card-foot) ตามดีไซน์ใหม่ 2026-09-22 แต่ **ยังต้องเห็นด้วยตา**
+//    เหตุผลเดิมไม่เปลี่ยน: ผู้ซื้อทักไลน์มาว่า "สนใจแปลงนึงในเว็บ" โดยไม่บอกว่าแปลงไหน
+//    ทีมจับคู่กลับไม่ได้ เจ้าของที่ดินจึงไม่เคยรู้ว่ามีคนสนใจแปลงตัวเอง
+ok('⭐ แสดงรหัสทรัพย์ให้ผู้ใช้เห็น', /รหัส <b>' \+ esc\(item\.id\)/.test(card));
+// ⚠️ ดีไซน์ใหม่ไม่มีลิงก์ "ดูรายละเอียดแปลง" แยกต่างหาก — ชื่อแปลงเป็นลิงก์จริงแทน
+//    สิ่งที่ข้อนี้คุ้มครองคือ "ต้องมีลิงก์จริงที่คีย์บอร์ดและโปรแกรมอ่านหน้าจอเดินไปถึงได้"
+//    ไม่ใช่คลาสชื่อใดชื่อหนึ่ง · การ์ดที่กดได้ด้วยเมาส์อย่างเดียวคือการ์ดที่คนใช้คีย์บอร์ดเปิดไม่ได้
+ok('⭐ มีลิงก์จริงไปหน้ารายละเอียด (ไม่ใช่กดได้ด้วยเมาส์อย่างเดียว)',
+   /class="card-title"><a href="' \+ esc\(href\)/.test(card));
+['listingcard.css', 'marketplace.css', 'njchat.css'].forEach(f => {
   const css = read(f);
-  ok('สไตล์ .card-code อยู่ใน ' + f, css.indexOf('.card-code') >= 0);
-  ok('สไตล์ .card-more อยู่ใน ' + f, css.indexOf('.card-more') >= 0);
+  ok('สไตล์รหัสทรัพย์บนการ์ดอยู่ใน ' + f, /\.card-code|\.card-foot b/.test(css));
 });
-ok('⭐ ป้าย "ข้อมูลเบื้องต้น" ใช้ตัวอักษรสีขาว (ของเดิมได้ความต่างสี 3.68:1)',
-   read('home.css').indexOf('.card-tags .basic{background:#6B571E;color:#FFFFFF}') >= 0);
+// ความต่างสีของป้ายระดับข้อมูล — ตรวจด้วยการคำนวณจริง ไม่ใช่จับคู่รหัสสีตายตัว
+// (ของเดิมล็อกสตริง `#6B571E` ไว้ พอเปลี่ยนดีไซน์ก็แดงทั้งที่สีใหม่ยังผ่านเกณฑ์)
+function lum(hex) {
+  const v = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255)
+    .map(c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
+  return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+}
+function contrast(a, b) {
+  const x = lum(a), y = lum(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+const lcCss = read('listingcard.css');
+function bgOf(cls) {
+  const m = lcCss.match(new RegExp('\\.' + cls + '\\{background:(#[0-9a-fA-F]{6})\\}'));
+  return m ? m[1] : '';
+}
+['badge-verified', 'badge-basic'].forEach(cls => {
+  const bg = bgOf(cls);
+  ok('อ่านสีพื้นของ .' + cls + ' ได้', !!bg, bg);
+  // ป้ายบนรูปเป็นตัวอักษรขาว 12px ตัวหนา = ข้อความขนาดปกติ ต้องได้ 4.5:1 ขึ้นไป
+  ok('⭐ .' + cls + ' ความต่างสีผ่าน AA (4.5:1)', bg && contrast('#ffffff', bg) >= 4.5,
+     bg ? contrast('#ffffff', bg).toFixed(2) + ':1' : '');
+});
 
 console.log('\n2) ระดับการตรวจสอบ 1–5 (งานที่ 7)');
 [['owner', 'ข้อมูลจากเจ้าของ'], ['document', 'ตรวจเอกสารเบื้องต้น'], ['site', 'ลงพื้นที่ตรวจสอบ'],

@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="consent.css">
   <link rel="stylesheet" href="verified.css">
   <link rel="stylesheet" href="landscore.css">
+  <link rel="stylesheet" href="listingcard.css">
 <link rel="stylesheet" href="legal.css">
   <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
   <script type="application/ld+json" data-nj-schema>
@@ -276,7 +277,9 @@
   <!-- คำศัพท์ (NJVocab) ต้องมาก่อน listingcard.js/listings.js — ทั้งคู่อ่านชื่อไทยของประเภททรัพย์
        ตอนวาดการ์ดและตอนเติมตัวเลือกในตัวกรอง ถ้ามาทีหลัง ตัวกรอง "ประเภททรัพย์" จะว่างเงียบๆ -->
   <script src="landvocab.js"></script>
-  <script src="listingcard.js"></script>
+  <!-- ชื่อทำเลสั้นบนหัวการ์ด — listingcard.js เรียก NJLandMeta.localityOf ตัวเดียวกับหน้ารายละเอียด -->
+<script src="landmeta.js"></script>
+<script src="listingcard.js"></script>
   <script src="save.js"></script>
   <script src="listings.js"></script>
   <!-- ปุ่ม "เทียบ" บนการ์ด — ต้องมาหลัง listingcard.js/listings.js เพราะไปแปะบนการ์ดที่สองไฟล์นั้นวาด

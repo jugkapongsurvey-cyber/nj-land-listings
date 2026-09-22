@@ -1,718 +1,349 @@
-/* หน้าแรก "ที่ดินชัวร์" — ชุดสีและเลย์เอาต์ (โทนน้ำเงินเข้ม–ทอง)
-   หน้านี้ไม่โหลด marketplace.css โดยตั้งใจ — คนละชุดสี ถ้าโหลดคู่กันฟอนต์และพื้นหลังจะตีกัน
-   การ์ดแปลงที่ดินที่ marketplace.js สร้าง จึงมีสไตล์ของตัวเองอยู่ในไฟล์นี้ */
+/* หน้าแรก "ที่ดินชัวร์" — ดีไซน์ใหม่ (ส่งมอบ 2026-09-22)
+ *
+ * ที่มา: ไฟล์ `index.html` ที่ฝ่ายออกแบบส่งมา (HTML+CSS ก้อนเดียว) — บล็อก <style> ทั้งก้อน
+ * ถูกยกมาไว้ที่นี่ **โดยไม่แก้ค่าเลย์เอาต์ สี ระยะ หรือฟอนต์ที่ออกแบบไว้**
+ *
+ * ⚠️ ไฟล์นี้โหลดที่ `index.html` หน้าเดียว — มันตั้ง body/reset ของทั้งหน้า
+ *    หน้าอื่นที่เคยยืมสไตล์จากไฟล์นี้ (services.html) ย้ายไปใช้ `services.css` แล้ว
+ *
+ * ⚠️ หัวเว็บ (.njh) กับฟุตเตอร์ยังเป็นชุดเดิมของทั้งเว็บ (header.css + inline ใน index.html)
+ *    สไตล์ .nav / .footer ของดีไซน์ใหม่จึงไม่ได้ยกมา — ยกมาแล้วหน้าแรกจะมีหัวคนละแบบกับอีก 24 หน้า
+ *
+ * ⚠️ ท้ายไฟล์มีบล็อก "เชื่อมกับของเดิม" — สไตล์ของสิ่งที่ JS ของโปรเจกต์สร้างขึ้นเอง
+ *    (แบนเนอร์คุกกี้ · ปุ่มบันทึก/เทียบบนการ์ด · ป้ายระดับตรวจสอบ · ตัวแบ่งหน้า · กล่องว่าง)
+ *    ซึ่งดีไซน์ไม่ได้ออกแบบไว้ให้ จึงเขียนให้เข้าชุดกันโดยใช้ token ชุดเดียวกับด้านบน
+ */
 
+/* =========================================================
+   DESIGN TOKENS — ปรับที่นี่ที่เดียว
+   ========================================================= */
 :root{
-  --ink:#0B1F3A;         /* ตัวหนังสือหลัก / พื้นเข้ม */
-  --paper:#F4F7FA;       /* พื้นหลังหน้า */
-  --card:#FFFFFF;
-  --sand:#E7EEF5;        /* พื้นหลังส่วนบริการ */
-  --line:#D8E1EA;
-  --line2:#E3EAF1;
-  --gold:#D8B96B;        /* ทองอ่อน — ใช้บนพื้นเข้ม */
-  --bronze:#1B4B7A;      /* ทองเข้ม — ใช้บนพื้นสว่าง */
-  --brass:#B08D57;
-  --muted:#5A6B7D;
-}
+  --navy:#0b1f3a;
+  --navy-2:#132b4d;
+  --gold:#b8912e;
+  --gold-light:#e5c76b;
+  /* ⚠️ ทองสำหรับ **ข้อความ** บนพื้นสว่าง — #b8912e ได้ 2.95:1 ซึ่งต่ำกว่าเกณฑ์ 3:1
+   *    ของข้อความขนาดใหญ่อยู่นิดเดียว (Lighthouse จับได้ที่คำเน้นในพาดหัว)
+   *    #b08a26 ได้ 3.23:1 และเข้มขึ้นจากเดิมแค่ระดับที่ต้องเอามาวางเทียบกันถึงจะเห็น
+   *    --gold ตัวเดิมยังใช้เป็น "สีพื้น" ของปุ่มเหมือนเดิมทุกจุด (กรมท่าบนทองได้ 5.61:1) */
+  --gold-ink:#b08a26;
+  --green:#1ca45c;
+  --green-dark:#15803d;
+  --green-bg:#e8f7ee;
+  --orange:#b45309;
+  --orange-bg:#fff4e5;
+  --bronze:#8a6d1f;
 
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--nj-font);font-weight:400;
+  --ink:#0b1f3a;
+  --ink-2:#4a5568;
+  /* ⚠️ ค่าที่ดีไซน์ส่งมาคือ #7a8699 ซึ่งได้ความต่างสีบนพื้นขาว 3.69:1 — ต่ำกว่าเกณฑ์ AA (4.5:1)
+   *    และโทเคนนี้ถูกใช้กับ "ข้อความจริงที่ต้องอ่าน" เช่น ราคาต่อตารางวา รหัสทรัพย์ และป้ายช่องกรอก
+   *    ไม่ใช่แค่ของประดับ · ขยับเป็น #68758a (4.67:1) ซึ่งตาเปล่าแทบแยกไม่ออกจากค่าเดิม
+   *    (กติกาเดียวกับ A11Y-04 ที่ห้ามใช้สีทองเป็นสีข้อความบนพื้นสว่าง — ดู tokens.css) */
+  --ink-3:#646f84;
+  --line:#e6eaf0;
+  --line-2:#d5dce6;
+  --bg:#ffffff;
+  --bg-2:#f7f9fc;
+  --bg-3:#f2f6fb;
+
+  --font:'IBM Plex Sans Thai',system-ui,-apple-system,sans-serif;
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+  --shadow-sm:0 8px 24px rgba(11,31,58,.08);
+  --shadow-md:0 12px 32px rgba(11,31,58,.14);
+  --container:1280px;
+  --gutter:64px;
 }
-*{box-sizing:border-box}
-a{color:var(--bronze);text-decoration:none}
-a:hover{color:var(--ink)}
+@media (max-width:1023px){ :root{ --gutter:32px; } }
+@media (max-width:767px){ :root{ --gutter:16px; } }
+
+/* ========== RESET ========== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
-button,input,select{font:inherit}
-button{cursor:pointer}
-[hidden]{display:none !important}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+.container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-/* สไตล์ hover — ต้องเป็น !important เพราะดีไซน์ใช้ inline style ซึ่งชนะ class เสมอ */
-.hv-gold:hover{color:var(--gold) !important}
-.hv-goldbg:hover{background:var(--gold) !important;color:var(--ink) !important}
-.hv-white:hover{background:#FFFFFF !important;color:var(--ink) !important}
-.hv-glass:hover{background:rgba(255,255,255,.12) !important;color:#FFFFFF !important}
-.hv-card:hover{border-color:var(--brass) !important;color:var(--ink) !important}
-.hv-outline:hover{border-color:var(--brass) !important;color:var(--bronze) !important}
-.hv-bronze:hover{background:var(--bronze) !important;color:#FFFFFF !important}
-.hv-bronzetext:hover{color:var(--bronze) !important}
+/* ========== BUTTONS ========== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:8px;font-weight:600;font-size:15px;border:1.5px solid transparent;cursor:pointer;transition:.15s;min-height:44px}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy-2)}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:700}
+.btn-gold:hover{filter:brightness(1.06)}
+.btn-gold-light{background:var(--gold-light);color:var(--navy);font-weight:700}
+.btn-outline{border-color:var(--navy);color:var(--navy);background:transparent}
+.btn-outline:hover{background:var(--bg-3)}
+.btn-ghost{color:var(--ink);background:transparent}
+.btn-block{width:100%}
 
-/* ---------------------------------------------------------------------------
-   ค้นหา + ประกาศที่ดิน (โครงสร้าง DOM ผูกกับ marketplace.js — ห้ามเปลี่ยน id)
---------------------------------------------------------------------------- */
-.search-box{
-  position:relative;z-index:20;max-width:1280px;margin:40px auto 0;
-  background:var(--card);border:1px solid var(--line);
-  box-shadow:0 30px 70px rgba(11,31,58,.12);
-  display:grid;grid-template-columns:auto 1.5fr 1fr 1fr auto;align-items:end;gap:1px;
-}
-.search-box > *{padding:18px 22px}
-.purpose-tabs{display:flex;gap:8px;align-items:center}
-.purpose-tabs button{
-  background:transparent;border:1px solid var(--line);color:var(--muted);
-  padding:11px 18px;font-size:14px;letter-spacing:.06em;
-}
-.purpose-tabs button.selected{background:var(--ink);border-color:var(--ink);color:var(--gold)}
-.search-box label{display:grid;gap:9px;border-left:1px solid var(--line2)}
-.field-label{font-size:12px;letter-spacing:.14em;color:var(--bronze)}
-.field-line{display:flex;align-items:center;gap:9px}
-.field-line b{color:var(--brass)}
-.search-box input,.search-box select{
-  width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;
-  padding:7px 0;font-size:15px;font-weight:400;color:var(--ink);
-}
-.search-box input:focus,.search-box select:focus{outline:0;border-bottom-color:var(--brass)}
-.search-submit{
-  border:0;background:var(--ink);color:var(--gold);
-  font-size:14px;font-weight:500;letter-spacing:.16em;align-self:stretch;
-}
-.search-submit:hover{background:var(--bronze);color:#FFFFFF}
+/* ========== CHIPS / TAGS ========== */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--bg-3);color:var(--ink);border:1.5px solid transparent}
+.chip.is-on{background:var(--green-bg);color:var(--green-dark);border-color:var(--green)}
+.chip.is-outline{background:#fff;border-color:var(--line-2);font-weight:500}
+.tag{display:inline-block;padding:4px 8px;border-radius:var(--r-sm);font-size:13px;background:var(--bg-3);color:var(--ink-2)}
+.tag-orange{background:var(--orange-bg);color:var(--orange)}
+.tag-green{background:var(--green-bg);color:var(--green-dark)}
+.badge{display:inline-block;padding:4px 8px;border-radius:var(--r-sm);font-size:12px;font-weight:600;color:#fff;background:var(--navy)}
+/* ⚠️ ป้ายนี้ใช้ --green-dark ไม่ใช่ --green — ขาวบน #1ca45c ได้ความต่างสีแค่ 3.22:1
+ *    ซึ่งตกเกณฑ์ AA · และนี่คือป้ายที่บอกจุดขายเดียวของแบรนด์ ("รังวัดยืนยันแล้ว")
+ *    ขาวบน #15803d ได้ 5.02:1 · สีเขียวสดยังใช้อยู่ที่จุดที่ไม่ใช่ข้อความ (จุดติ๊ก · เม็ดใน hero-pill) */
+.badge-verified{background:var(--green-dark)}
+.badge-basic{background:var(--bronze)}
 
-.quick{
-  max-width:1280px;margin:0 auto;padding:26px 32px 0;
-  /* 8 ช่องพอดี 2 แถว (เดิม 5 คอลัมน์กับ 6 ช่อง เหลือช่องเดียวค้างแถวล่าง) */
-  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
-}
-.quick a{
-  background:var(--paper);padding:18px 22px;display:grid;gap:4px;color:var(--ink);
-  border:1px solid transparent;
-}
-.quick a:hover{border-color:var(--brass)}
-.quick-icon{font-family:var(--nj-font);font-size:15px;color:var(--bronze)}
-.quick b{font-family:var(--nj-font);font-weight:600;font-size:18px}
-.quick small{font-size:14px;font-weight:400;color:var(--muted)}
+/* ========== SECTION HEADERS ========== */
+/* ⚠️ ป้ายเหนือหัวข้อใช้ --bronze ไม่ใช่ --gold — ทอง #b8912e บนพื้นขาวได้ 2.95:1
+ *    ซึ่งตกเกณฑ์ AA สำหรับข้อความขนาดปกติ · --bronze #8a6d1f ได้ 4.90:1 และอยู่ในตระกูลสีเดียวกัน
+ *    (บนพื้นเข้มยังใช้ทองได้ตามเดิม — ดู .eyebrow-light) */
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:1.5px;color:var(--bronze)}
+.eyebrow-light{color:var(--gold-light);letter-spacing:3px;font-size:12px}
+.h2{font-size:clamp(26px,3vw,36px);font-weight:700;line-height:1.15}
+.section{padding:56px 0}
+@media (max-width:767px){ .section{padding:36px 0} }
 
-.result-note{
-  margin-bottom:22px;padding:13px 20px;background:var(--sand);
-  font-size:14px;font-weight:400;color:#3D5470;
-}
-.listing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.loading{
-  grid-column:1/-1;padding:60px 0;text-align:center;
-  font-size:15px;font-weight:400;color:var(--muted);
+/* ========== HERO ========== */
+.hero{padding:56px 0 48px}
+.hero .container{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.hero-copy{display:flex;flex-direction:column;gap:20px}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:var(--bg-3);font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
+.hero-pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green)}
+.hero h1{font-size:clamp(30px,4vw,52px);line-height:1.12;font-weight:700;letter-spacing:-.5px}
+.hero h1 span{color:var(--gold-ink)}
+.hero-lead{font-size:18px;line-height:1.6;color:var(--ink-2);max-width:520px}
+.hero-media{position:relative;aspect-ratio:4/3;border-radius:var(--r-xl);overflow:hidden;background:linear-gradient(160deg,#cfe3d4,#8fb59a 45%,#5c8f6d)}
+.hero-media img{width:100%;height:100%;object-fit:cover}
+.hero-check{position:absolute;right:24px;bottom:24px;width:230px;background:#fff;border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow-md);display:flex;flex-direction:column;gap:10px;font-size:14px}
+.hero-check b{font-size:12px;color:var(--ink-3);letter-spacing:1px}
+.hero-check div{display:flex;gap:8px;align-items:center}
+.check-dot{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;display:inline-grid;place-items:center;font-size:11px;flex-shrink:0}
+@media (max-width:1023px){
+  .hero{padding:32px 0 24px}
+  .hero .container{grid-template-columns:1fr;gap:24px}
+  .hero-media{aspect-ratio:16/9;order:2}
+  .hero-check{left:12px;right:12px;bottom:12px;width:auto;flex-direction:row;flex-wrap:wrap;gap:8px 16px;padding:10px 12px;font-size:12px}
+  .hero-check b{display:none}
+  .hero-lead{font-size:15px}
 }
 
-.land-card{background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column}
-.land-card:hover{border-color:var(--brass)}
-.land-card[data-href]{cursor:pointer}
-.card-media{position:relative;background:var(--ink)}
-/* รูปการ์ดเตี้ยลงจาก 220 → 160px (เจ้าของสั่ง 2026-09-13 — รูปกินพื้นที่เกินไป) */
-.card-media img{display:block;width:100%;height:160px;object-fit:cover}
-.fallback-land{height:160px;background:var(--ink)}
-.fallback-land::after{
-  content:"";position:absolute;inset:0;
-  background-image:
-    repeating-linear-gradient(58deg,rgba(216,185,107,.16) 0 1px,transparent 1px 58px),
-    repeating-linear-gradient(148deg,rgba(216,185,107,.12) 0 1px,transparent 1px 48px);
+/* ========== SEARCH BOX ========== */
+.search{margin-top:8px;display:flex;flex-direction:column;gap:10px;background:#fff;border:1.5px solid var(--line-2);border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow-sm)}
+.seg{display:flex;gap:6px}
+.seg button{border:0;background:var(--bg-3);padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff;font-weight:600}
+.search-grid{display:grid;grid-template-columns:2fr 1fr 1fr 132px;gap:8px}
+.field{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.field label{font-size:11px;color:var(--ink-3);font-weight:600}
+.field input,.field select{border:0;outline:0;background:transparent;font-size:15px;min-width:0;width:100%;padding:0}
+.field:focus-within{border-color:var(--navy)}
+.search-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--ink-3)}
+.search-foot a{background:var(--bg-3);color:var(--ink);padding:3px 10px;border-radius:999px}
+.search-foot .more{margin-left:auto;background:none;font-weight:600;padding:0}
+@media (max-width:767px){
+  .search-grid{grid-template-columns:1fr 1fr}
+  .search-grid .field:first-child,.search-grid .btn{grid-column:1/-1}
+  .search-foot .more{display:none}
 }
-.card-tags{position:absolute;top:14px;left:14px;display:flex;gap:8px;flex-wrap:wrap}
-.card-tags span{
-  background:rgba(11,31,58,.78);color:#FFFFFF;
-  font-size:12px;letter-spacing:.06em;padding:5px 10px;
-}
-.card-tags .verified{background:#1F4D2E;color:#BFE6CB}
-/* ⚠️ ความต่างสีต้องไม่ต่ำกว่า 4.5:1 — ของเดิม (ทองบนทองเข้ม) ได้ 3.68:1 ที่ 12px
-   ซึ่งไม่ผ่านเกณฑ์ AA ทั้งที่เป็นป้ายบอกระดับความน่าเชื่อถือ (ACCESSIBILITY ข้อ A11Y-04)
-   ขาวบน #6B571E ได้ 8.6:1 */
-.card-tags .basic{background:#6B571E;color:#FFFFFF}
-.photo-count{
-  position:absolute;bottom:14px;right:14px;background:rgba(11,31,58,.72);
-  color:var(--gold);font-size:12px;padding:5px 10px;
-}
-.card-body{padding:20px 24px;display:grid;gap:10px}
-.card-price{font-family:var(--nj-font);font-size:24px;color:var(--ink)}
-.card-title{margin:0;font-family:var(--nj-font);font-weight:600;font-size:19px;line-height:1.5}
-.card-title a{color:var(--ink)}
-.card-facts{font-size:15px;font-weight:400;line-height:1.7;color:var(--muted)}
-.card-agent{
-  display:flex;align-items:center;gap:12px;
-  border-top:1px solid var(--line2);padding-top:18px;
-}
-.agent-avatar{
-  width:38px;height:38px;flex:none;border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--nj-font);font-size:13px;color:var(--bronze);
-}
-.card-agent > div{flex:1;display:grid;gap:3px}
-.card-agent b{font-size:14px;font-weight:500}
-.card-agent small{font-size:12px;font-weight:400;color:var(--muted)}
-.contact-mini{display:flex;gap:7px}
-.contact-mini a{
-  width:32px;height:32px;border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;color:var(--bronze);
-}
-.contact-mini a:hover{border-color:var(--brass);color:var(--ink)}
 
-/* ปุ่มเปลี่ยนหน้าใต้ตะแกรงแปลง (marketplace.js สร้างให้ · หน้าละ 9 แปลง) */
-.listing-pager{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;margin-top:30px}
-.listing-pager button{
-  min-width:42px;height:42px;padding:0 14px;border:1px solid var(--line);background:var(--card);
-  font:inherit;font-size:14px;color:var(--ink);cursor:pointer;
+/* ========== TRUST BAR ========== */
+.trust .container{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-top:24px;padding-bottom:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trust .container{margin-left:auto;margin-right:auto}
+.trust-item{display:flex;gap:14px;align-items:flex-start}
+.trust-icon{width:44px;height:44px;border-radius:12px;background:var(--bg-3);display:grid;place-items:center;flex-shrink:0}
+.trust-item b{display:block;font-size:18px}
+.trust-item span{font-size:13px;color:var(--ink-2)}
+@media (max-width:1023px){ .trust .container{grid-template-columns:repeat(2,1fr);gap:12px;border:0;padding-top:0}
+  .trust-item{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px}
+  .trust-icon{display:none} .trust-item b{font-size:16px} .trust-item span{font-size:12px} }
+
+/* ========== QUICK ENTRY ========== */
+.quick .container{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding-top:40px}
+.quick a{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:6px;transition:.15s}
+.quick a:hover{border-color:var(--navy);transform:translateY(-2px)}
+.quick a small{font-size:12px;font-weight:700;color:var(--bronze)}
+.quick a b{font-size:18px}
+.quick a span{font-size:13px;color:var(--ink-2)}
+.quick a.is-dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.quick a.is-dark small{color:var(--gold-light)}
+.quick a.is-dark span{color:rgba(255,255,255,.7)}
+@media (max-width:767px){ .quick .container{grid-template-columns:repeat(2,1fr);gap:8px;padding-top:16px}
+  .quick a{padding:14px} .quick a b{font-size:15px} .quick a span{font-size:12px} }
+
+/* ========== LISTINGS ========== */
+.listings-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.listings-head p{font-size:15px;color:var(--ink-2);margin-top:4px}
+.listings-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.listings-tools select{border:1.5px solid var(--line-2);border-radius:999px;padding:8px 12px;background:#fff;font-size:13px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media (max-width:1023px){ .grid-3{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:767px){ .grid-3{grid-template-columns:1fr;gap:12px} }
+
+
+/* ========== STANDARD ========== */
+.standard{background:var(--navy);color:#fff}
+.standard .container{display:grid;grid-template-columns:480px 1fr;gap:56px;align-items:center;padding-top:64px;padding-bottom:64px}
+.standard-copy{display:flex;flex-direction:column;gap:20px}
+.standard-copy p{font-size:16px;line-height:1.65;color:rgba(255,255,255,.75)}
+.standard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.std{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-lg);padding:24px 20px;display:flex;flex-direction:column;gap:14px}
+.std-icon{width:48px;height:48px;border-radius:12px;background:rgba(229,199,107,.15);display:grid;place-items:center}
+.std small{font-size:13px;color:var(--gold-light);font-weight:700}
+.std b{font-size:18px;line-height:1.3}
+.std p{font-size:14px;line-height:1.6;color:rgba(255,255,255,.72)}
+@media (max-width:1023px){ .standard .container{grid-template-columns:1fr;gap:24px;padding-top:40px;padding-bottom:40px} .standard-grid{grid-template-columns:1fr;gap:10px} .std{flex-direction:row;padding:16px} .std-icon{display:none} }
+
+/* ========== GUIDE ========== */
+.guide-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.guide-head p{font-size:15px;color:var(--ink-2);max-width:380px}
+.guide-grid{display:grid;grid-template-columns:1fr 460px;gap:24px}
+.feature{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr}
+.feature-media{background:linear-gradient(160deg,#e8dfc4,#b8a67a);min-height:300px}
+.feature-media img{width:100%;height:100%;object-fit:cover}
+.feature-body{padding:32px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.feature-body small{font-size:12px;color:var(--bronze);font-weight:600;letter-spacing:1px}
+.feature-body b{font-size:28px;line-height:1.2}
+.feature-body p{font-size:15px;line-height:1.6;color:var(--ink-2)}
+.guide-list{display:flex;flex-direction:column;gap:10px}
+.guide-list a{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;gap:16px;align-items:center;transition:.15s}
+.guide-list a:hover{border-color:var(--navy)}
+.guide-list a small{font-size:13px;font-weight:700;color:var(--bronze);width:24px;flex-shrink:0}
+.guide-list a span{display:block;font-size:12px;color:var(--ink-3)}
+.guide-list a b{font-size:16px}
+@media (max-width:1023px){ .guide-grid{grid-template-columns:1fr} .feature{grid-template-columns:1fr} .feature-media{min-height:170px;aspect-ratio:16/9} .feature-body{padding:16px} .feature-body b{font-size:20px} .guide-list a{padding:14px 16px} .guide-list a b{font-size:14px} }
+
+/* ========== TEAM ========== */
+.team{background:var(--bg-2)}
+.team .container{display:grid;grid-template-columns:1fr 560px;gap:56px;align-items:center;padding-top:64px;padding-bottom:64px}
+.team-copy{display:flex;flex-direction:column;gap:20px}
+.team-copy p{font-size:16px;line-height:1.65;color:var(--ink-2)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat b{display:block;font-size:26px}
+.stat span{font-size:12px;color:var(--ink-2)}
+.team-media{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:300px 180px;gap:12px}
+.team-media > *{border-radius:var(--r-lg);overflow:hidden;background:#c9d8c8}
+.team-media > *:first-child{grid-column:1/-1}
+.team-media img{width:100%;height:100%;object-fit:cover}
+@media (max-width:1023px){ .team .container{grid-template-columns:1fr;gap:20px;padding-top:40px;padding-bottom:40px} .team-media{grid-template-rows:200px 120px} .stats{gap:8px} .stat{padding:12px} .stat b{font-size:22px} .stat span{font-size:11px} }
+
+/* ========== SELL ========== */
+.sell .container{display:grid;grid-template-columns:1fr 520px;gap:56px;align-items:start;padding-top:64px;padding-bottom:64px}
+.sell-copy{display:flex;flex-direction:column;gap:20px}
+.sell-copy h2{font-size:clamp(26px,3.2vw,40px)}
+.sell-copy p{font-size:16px;line-height:1.65;color:var(--ink-2);max-width:540px}
+.steps{display:flex;flex-direction:column;gap:14px}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--gold-light);display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0}
+.step b{display:block;font-size:16px}
+.step span{font-size:14px;color:var(--ink-2)}
+.contact-line{display:flex;gap:20px;flex-wrap:wrap;font-size:14px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:16px}
+.form{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;box-shadow:var(--shadow-md);display:flex;flex-direction:column;gap:14px}
+.form h3{font-size:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f{display:flex;flex-direction:column;gap:4px}
+.f label{font-size:13px;font-weight:600}
+.f input,.f select,.f textarea{border:1px solid var(--line-2);border-radius:8px;padding:11px 12px;font-size:15px;background:#fff;width:100%}
+.f textarea{resize:vertical;min-height:80px}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--navy);outline-offset:0;border-color:var(--navy)}
+.form-note{font-size:12px;color:var(--ink-3);text-align:center}
+/* ผลการส่งฟอร์ม — ⚠️ ห้ามบอกสถานะด้วยสีอย่างเดียว ข้อความเปลี่ยนตามสถานะอยู่แล้ว
+   และช่องข้อความประกาศ aria-live ไว้ เครื่องอ่านหน้าจอจึงได้ยินผลทันทีโดยไม่ต้องไล่หา */
+.form-note.is-error{color:var(--orange);font-weight:600;font-size:13px}
+.form-note.is-ok{color:var(--green-dark);font-weight:600;font-size:13px}
+.f input[aria-invalid="true"],.f select[aria-invalid="true"]{border-color:var(--orange);outline:2px solid var(--orange);outline-offset:0}
+@media (max-width:1023px){ .sell .container{grid-template-columns:1fr;gap:24px;padding-top:40px;padding-bottom:40px} .form{padding:18px} }
+
+/* ========== MOBILE TAB BAR ========== */
+/* ⚠️ element เดียวกันนี้ต้องมีคลาส `mobile-nav` ติดอยู่ด้วยเสมอ — `menu.js` ใช้คลาสนั้น
+ *    "ข้าม" แถบล่างตอนมองหา <nav> ตัวหลักไปทำลิ้นชัก ถอดออกเมื่อไหร่ ลิ้นชักมือถือจะกลาย
+ *    เป็นสำเนาของแถบล่างแทนเมนูจริง (ดู menu.js findNav) */
+.tabbar{display:none}
+@media (max-width:767px){
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;height:64px;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;font-size:11px;padding-bottom:env(safe-area-inset-bottom)}
+  .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-3)}
+  .tabbar a.is-active{color:var(--ink);font-weight:600}
+  .tabbar a svg{width:22px;height:22px}
+  .tabbar .fab{width:44px;height:44px;border-radius:50%;background:var(--gold);display:grid;place-items:center;font-size:22px;font-weight:700;color:var(--navy);margin-top:-22px;box-shadow:0 6px 16px rgba(184,145,46,.4)}
 }
-.listing-pager button:hover:not(:disabled){border-color:var(--brass);color:var(--bronze)}
-.listing-pager button[aria-current="page"]{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+
+/* =========================================================
+   เชื่อมกับของเดิม — สไตล์ของสิ่งที่ JS ของโปรเจกต์สร้างขึ้นเอง
+   (ดีไซน์ไม่ได้ออกแบบไว้ให้ จึงเขียนด้วย token ชุดเดียวกับด้านบน)
+   ========================================================= */
+
+/* ---------- hover ของลิงก์ในฟุตเตอร์ชุดเดิม (ฟุตเตอร์ใช้ inline style จึงต้อง !important) ---------- */
+.hv-gold:hover{color:var(--gold-light) !important}
+.hv-white:hover{background:#FFFFFF !important;color:var(--navy) !important}
+.hv-bronze:hover{background:var(--navy-2) !important;color:#FFFFFF !important}
+.hv-outline:hover{border-color:var(--gold) !important;color:var(--navy) !important}
+.hv-card:hover{border-color:var(--gold) !important}
+.hv-goldbg:hover{background:var(--gold) !important;color:var(--navy) !important}
+
+/* ---------- แถบบอกผลการค้นหา / กล่องว่าง / ตัวแบ่งหน้า (marketplace.js สร้างให้) ---------- */
+.result-note{margin-bottom:16px;padding:12px 18px;border-radius:var(--r-md);background:var(--bg-3);font-size:14px;color:var(--ink-2)}
+.loading{grid-column:1/-1;padding:56px 0;text-align:center;font-size:15px;color:var(--ink-3)}
+.empty-result{grid-column:1/-1;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:36px 32px;font-size:15px;line-height:1.7;color:var(--ink-2)}
+.empty-result b{display:block;font-size:22px;line-height:1.35;color:var(--ink);margin-bottom:12px}
+.empty-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.outline-btn,.post-btn{display:inline-flex;align-items:center;min-height:44px;padding:0 22px;border-radius:8px;font-size:14px;font-weight:600}
+.outline-btn{border:1.5px solid var(--line-2);color:var(--navy)}
+.outline-btn:hover{border-color:var(--navy)}
+.post-btn{background:var(--navy);color:#fff}
+.post-btn:hover{background:var(--navy-2)}
+@media (max-width:767px){ .empty-result{padding:24px 18px} }
+
+.listing-pager{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;margin-top:24px}
+.listing-pager button{min-width:44px;height:44px;padding:0 14px;border:1px solid var(--line-2);border-radius:8px;background:#fff;font-size:14px;color:var(--ink);cursor:pointer}
+.listing-pager button:hover:not(:disabled){border-color:var(--navy)}
+.listing-pager button[aria-current="page"]{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
 .listing-pager button:disabled{opacity:.4;cursor:default}
-.listing-pager .pager-info{flex-basis:100%;text-align:center;font-size:13px;font-weight:400;color:var(--muted);margin-top:4px}
+.listing-pager .pager-info{flex-basis:100%;text-align:center;font-size:13px;color:var(--ink-3);margin-top:4px}
 
-.empty-result{
-  grid-column:1/-1;background:var(--card);border:1px solid var(--line);
-  padding:42px 38px;font-size:16px;font-weight:400;line-height:1.7;color:var(--muted);
-}
-.empty-result b{
-  display:block;font-family:var(--nj-font);font-weight:600;font-size:26px;
-  line-height:1.45;color:var(--ink);margin-bottom:14px;
-}
-.empty-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
-.outline-btn,.post-btn{
-  font-size:14px;font-weight:500;letter-spacing:.16em;padding:15px 30px;
-}
-.outline-btn{border:1px solid #CBD8E4;color:var(--ink)}
-.outline-btn:hover{border-color:var(--brass);color:var(--bronze)}
-.post-btn{background:var(--ink);color:var(--paper)}
-.post-btn:hover{background:var(--bronze);color:#FFFFFF}
-
-/* เมนูล่างสำหรับมือถือ */
-.mobile-nav{display:none}
-
-/* แบนเนอร์ขอความยินยอม (analytics.js สร้างเอง สไตล์อยู่ที่นี่) */
+/* ---------- แบนเนอร์ขอความยินยอมคุกกี้ (analytics.js สร้างเอง) ----------
+ * ⚠️ ต้องเป็น "แถบล่างเตี้ย" เท่านั้น ห้ามทำเป็นกล่องกลางจอหรือแผงเต็มความสูง
+ *    หน้าแรกขายด้วย hero + ช่องค้นหา ถ้าแบนเนอร์บังตั้งแต่วินาทีแรก คนปิดหน้าไปก่อนจะได้อ่าน
+ * ⚠️ บนมือถือต้องอยู่เหนือ .tabbar (สูง 64px) ไม่งั้นแถบล่างกดไม่ได้จนกว่าจะตอบแบนเนอร์
+ */
 #nj-consent{
-  position:fixed;left:12px;right:12px;bottom:12px;z-index:200;
-  background:var(--ink);color:#BFCAD6;border:1px solid rgba(216,185,107,.32);
-  padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  font-size:13px;font-weight:400;line-height:1.7;
+  position:fixed;left:0;right:0;bottom:0;z-index:70;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:var(--navy);color:rgba(255,255,255,.82);
+  border-top:1px solid rgba(229,199,107,.32);
+  padding:12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+  font-size:13px;line-height:1.6;
 }
 .nj-consent-text{flex:1;min-width:220px}
-.nj-consent-btns{display:flex;gap:9px;flex:none}
-#nj-consent button{
-  border:0;padding:11px 22px;font-size:13px;font-weight:500;letter-spacing:.1em;
-}
-.nj-consent-no{background:transparent;color:#8798A9;border:1px solid rgba(255,255,255,.28) !important}
-.nj-consent-yes{background:var(--gold);color:var(--ink)}
-
-/* ---------------------------------------------------------------------------
-   จอเล็ก — ค่า breakpoint เดียวกับที่ดีไซน์ใหม่กำหนดไว้
---------------------------------------------------------------------------- */
-@media (max-width:1040px){
-  header nav{display:none !important}
-  [data-r="bar"]{grid-template-columns:repeat(2,1fr) !important}
-  [data-r="split"],[data-r="steps"],[data-r="split3"],[data-r="g3"],[data-r="team"]{
-    grid-template-columns:1fr !important;gap:30px !important;
-  }
-  [data-r="rules3"]{grid-template-columns:1fr !important}
-  [data-r="g4"]{grid-template-columns:repeat(2,1fr) !important}
-  [data-r="sticky"]{position:static !important}
-  [data-r="hero"]{min-height:560px !important}
-  [data-r="display"]{font-size:var(--nj-fs-h1) !important}
-  [data-r="stats"]{grid-template-columns:repeat(3,1fr) !important}
-  .search-box{grid-template-columns:1fr 1fr}
-  .search-box label{border-left:0;border-top:1px solid var(--line2)}
-  .quick{grid-template-columns:repeat(2,1fr)}
-  .listing-grid{grid-template-columns:repeat(2,1fr)}
+.nj-consent-btns{display:flex;gap:8px;flex:none}
+#nj-consent button{border:0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.nj-consent-no{background:transparent;color:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-yes{background:var(--gold-light);color:var(--navy)}
+@media (max-width:767px){
+  #nj-consent{bottom:calc(64px + env(safe-area-inset-bottom));padding:12px var(--gutter);font-size:12.5px}
+  .nj-consent-btns{width:100%}
+  #nj-consent button{flex:1;padding:11px 6px}
 }
 
-/* แท็บเล็ต — ภาพ hero ถูกครอบแคบลงจนครอบครัวเลื่อนมาทับพาดหัวพอดี และการ์ดเช็กลิสต์
-   ฝั่งขวาโดนตัดหาย ดันจุดโฟกัสของภาพไปทางขวา 76% แล้วทั้งสองอย่างกลับมาเข้าที่
-   ไม่แตะช่วง <=640px เพราะช่วงนั้นสลับไปใช้ไฟล์แนวตั้งที่จัดองค์ประกอบมาให้ครอบตรงกลางแล้ว */
-@media (min-width:641px) and (max-width:1040px){
-  .hero-ken{object-position:76% center}
+/* ปุ่มแชท "น้องเอ็นเจชัวร์" ต้องลอยเหนือแถบล่าง (.tabbar สูง 64px) ไม่ใช่ทับ
+ * ⚠️ `njchat.css` ยกให้เองที่ ≤640px เท่านั้น แต่แถบล่างของหน้านี้โผล่ตั้งแต่ ≤767px
+ *    ช่วง 641–767px จึงต้องยกให้เองที่นี่ ไม่งั้นปุ่มแชททับปุ่ม "ฝากขาย" กลางแถบพอดี
+ * ⚠️ ตอนแบนเนอร์คุกกี้ยังไม่ถูกตอบ `njchat.js` จะยกปุ่มให้อีกชั้นเอง (dodgeConsent) ไม่ต้องคิดเผื่อที่นี่
+ */
+@media (min-width:641px) and (max-width:767px){
+  .njchat-launcher{ bottom:calc(84px + env(safe-area-inset-bottom)); right:12px; }
 }
 
-@media (max-width:640px){
-  [data-r="display"]{font-size:var(--nj-fs-h1) !important}
-  h2{font-size:27px !important}
-  /* การ์ดสั้นๆ เรียง 2 คอลัมน์ได้แม้จอ 375px — ถ้าเรียงคอลัมน์เดียวทั้งหมด
-     หน้าจะยาวขึ้นเกือบ 2,000px ต้องปัดนิ้วผ่านการ์ดซ้ำๆ กว่าจะถึงเนื้อหาถัดไป */
-  [data-r="bar"],[data-r="g4"]{grid-template-columns:repeat(2,1fr) !important}
-  [data-r="bar"] > div{padding:18px 16px !important;border-right:0 !important}
-  [data-r="bar"] > div + div{border-left:1px solid var(--line2)}
-  [data-r="g4"] > div{padding:22px 18px !important}
-  .quick{grid-template-columns:repeat(2,1fr);padding-left:18px;padding-right:18px}
-  .quick a{padding:16px 16px}
+/* แถบล่างมือถือกินพื้นที่ท้ายหน้า — ต้องกันที่ไว้ ไม่งั้นบรรทัดสุดท้ายของฟุตเตอร์ถูกทับ */
+@media (max-width:767px){ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))} }
 
-  /* ตารางเทียบและการ์ดคู่มือต้องใช้ความกว้างเต็ม อ่านไม่ออกถ้าบีบเป็น 2 คอลัมน์ */
-  [data-r="table"],[data-r="stats"],[data-r="guides"]{grid-template-columns:1fr !important}
-  [data-r="table"] > div{border-top:1px solid var(--line) !important;padding:14px 20px !important}
-  section{padding-left:18px !important;padding-right:18px !important}
-  [data-r="ctapad"]{padding:34px 22px !important}
-  .search-box{grid-template-columns:1fr;margin-left:18px;margin-right:18px}
-  .search-box > *{padding:18px}
-  .listing-grid{grid-template-columns:1fr}
-  .empty-result{padding:34px 22px}
-
-  /* เมนูล่างมือถือ — เว็บเดิมมีอยู่ ถ้าตัดออกคนบนมือถือจะกดฝากขายไม่เจอ */
-  .mobile-nav{
-    display:grid;grid-template-columns:repeat(5,1fr);
-    position:fixed;left:0;right:0;bottom:0;z-index:150;
-    background:var(--ink);border-top:1px solid rgba(216,185,107,.28);
-  }
-  .mobile-nav a{
-    display:grid;gap:3px;justify-items:center;padding:10px 4px;
-    font-size:11px;font-weight:400;color:#A8B6C4;
-  }
-  .mobile-nav a span{font-size:16px;color:var(--gold)}
-  .mobile-nav .mobile-post{background:var(--gold);color:var(--ink)}
-  .mobile-nav .mobile-post span{color:var(--ink)}
-  body{padding-bottom:64px}
-  #nj-consent{bottom:76px}
-
-  /* ภาพปกคลิปสูง 280px คูณ 4 ใบ กินความสูงหน้าจอมือถือไปเกือบ 1,200px */
-  #วิดีโอ img{height:190px !important}
-  #ทีมเรา img{height:170px !important}
+/* ---------- ฟุตเตอร์ชุดเดิม (inline style ใน index.html) บนจอเล็ก ---------- */
+@media (max-width:767px){
+  .footer-legacy [data-r="split3"]{grid-template-columns:1fr !important;gap:28px !important}
 }
 
-/* ---------------------------------------------------------------------------
-   เครื่องคำนวณค่าใช้จ่ายวันโอน (feecalc.css) เมื่อมาอยู่บนหน้าแรก
-   feecalc.css ออกแบบมาสำหรับหน้ารองซึ่งใช้มุมมน 16px — หน้าแรกเป็นดีไซน์มุมเหลี่ยมล้วน
-   จึงลบมุมมนและใส่กรอบ/เงาชุดเดียวกับกล่อง .sq ให้สองเครื่องมือบนหน้าเดียวกันหน้าตาเข้าชุดกัน
---------------------------------------------------------------------------- */
-#fee-calc.fc{
-  border-radius:0;border-color:#D8E1EA;margin-top:0;
-  box-shadow:0 30px 70px rgba(11,31,58,.12);
+/* ---------- ลดการเคลื่อนไหวตามค่าที่ผู้ใช้ตั้งไว้ในเครื่อง ---------- */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+  .card:hover,.quick a:hover{transform:none}
 }
-
-/* ---------------------------------------------------------------------------
-   โรงฉายระบบ njsurvey (.nj-stage) — แถบเต็มจอสีเข้มคั่นกลางหน้าสว่าง
-   แทนที่การ์ดวิดีโอมุมขวาบนของ hero ซึ่งทับเมนูและเล็กเกินกว่าจะดูรู้เรื่อง (2026-08-30)
-   หลักการ: ทั้งหน้าเป็นพื้นสว่าง แถบนี้เป็นจุดเดียวที่มืด สายตาจึงหยุดเองโดยไม่ต้องใช้ป้ายเรียก
-   · แสงฟุ้งรอบจอใช้ "โปสเตอร์เบลอ" ไม่ใช่วิดีโอซ้อนสองชั้น — คลิปนี้โทนสีคงที่ทั้งเรื่อง
-     ตาแยกไม่ออกอยู่แล้ว แต่ประหยัดการถอดรหัสวิดีโอไปหนึ่งชุดเต็มๆ
-   · มุมทองสี่มุมคือหมุดกล้องรังวัด ไม่ใช่กรอบตกแต่งเฉยๆ — เข้ากับงานของบริษัท
-   · ห้ามใส่ border-radius ดีไซน์หน้าแรกเป็นมุมเหลี่ยมล้วน
---------------------------------------------------------------------------- */
-.nj-stage{position:relative;overflow:hidden;margin-top:58px;background:#050F1D;color:#fff}
-.nj-stage-bg{
-  position:absolute;inset:0;pointer-events:none;
-  /* พื้นเข้มกว่าตัวคลิป — คลิปเป็นน้ำเงินกลาง ถ้าพื้นเข้มเท่ากันขอบจอจะกลืนหายไปทั้งกรอบ */
-  background:
-    radial-gradient(120% 88% at 50% 0%,rgba(27,75,122,.5) 0%,rgba(5,15,29,0) 60%),
-    radial-gradient(78% 62% at 50% 104%,rgba(216,185,107,.14) 0%,rgba(5,15,29,0) 68%);
-}
-.nj-stage-in{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:72px 32px 78px;text-align:center}
-.nj-stage-eyebrow{font-size:13px;letter-spacing:.22em;color:var(--gold);margin-bottom:20px}
-.nj-stage h2{
-  font-family:var(--nj-font);font-weight:600;font-size:42px;line-height:1.34;
-  letter-spacing:-.01em;color:#fff;margin:0 0 18px;
-}
-.nj-stage-lede{
-  max-width:640px;margin:0 auto 42px;font-size:17px;font-weight:400;line-height:1.75;
-  color:rgba(255,255,255,.78);text-wrap:pretty;
-}
-
-/* จอ */
-.nj-screen{position:relative;max-width:960px;margin:0 auto}
-/* แสงจอสาดออกรอบกรอบ — วาดด้วย gradient ไม่ใช่รูปโปสเตอร์เบลอ
-   เคยลองแบบ img + filter:blur(58px) แล้วเบราว์เซอร์ต้องเบลอภาพเกือบเต็มความกว้างจอทุกเฟรม
-   หนักจนหน้าเรนเดอร์ไม่ทันตอนเลื่อนผ่าน · คลิปนี้โทนสีคงที่ทั้งเรื่องอยู่แล้ว
-   gradient สีเดียวจึงให้ผลตาเปล่าเหมือนกันโดยไม่มีต้นทุนการเบลอเลย */
-.nj-screen::before{
-  content:"";position:absolute;left:-8%;right:-8%;top:-10%;bottom:-10%;z-index:0;pointer-events:none;
-  background:radial-gradient(56% 52% at 50% 50%,rgba(37,96,153,.55) 0%,rgba(27,75,122,.28) 46%,rgba(5,15,29,0) 72%);
-}
-.nj-screen-frame{
-  position:relative;z-index:1;background:#0B1F3A;
-  border:1px solid rgba(216,185,107,.42);
-  box-shadow:
-    0 0 130px rgba(27,75,122,.5),          /* แสงจอสาดออกมาโดยรอบ */
-    0 42px 92px rgba(0,0,0,.6),
-    inset 0 0 0 1px rgba(255,255,255,.05);
-}
-.nj-screen-frame video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#0B1F3A}
-
-/* หมุดมุมทอง — วาดด้วย pseudo-element สองตัว (ซ้ายบน + ขวาล่าง) ไม่เพิ่ม element ใน HTML */
-.nj-screen-frame::before,.nj-screen-frame::after{
-  content:"";position:absolute;width:26px;height:26px;border:1px solid var(--gold);pointer-events:none;
-}
-.nj-screen-frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
-.nj-screen-frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
-
-/* แสงกวาดผ่านจอครั้งเดียวตอนเลื่อนมาถึง — เป็นสัญญาณว่า "ตรงนี้กำลังเล่นอยู่" */
-.nj-screen-sheen{
-  position:absolute;inset:0;pointer-events:none;opacity:0;
-  background:linear-gradient(105deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.13) 50%,rgba(255,255,255,0) 62%);
-  transform:translateX(-60%);
-}
-
-.nj-stage-points{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:960px;
-  margin:40px auto 0;border-top:1px solid rgba(216,185,107,.28);padding-top:24px;text-align:left;
-}
-.nj-stage-points b{display:block;font-family:var(--nj-font);font-weight:600;font-size:18px;color:var(--gold);margin-bottom:6px}
-.nj-stage-points i{display:block;font-style:normal;font-size:14px;font-weight:400;line-height:1.65;color:rgba(255,255,255,.72)}
-
-.nj-stage-cta{
-  display:inline-block;margin-top:34px;border:1px solid rgba(216,185,107,.7);color:var(--gold);
-  font-size:14px;font-weight:500;letter-spacing:.16em;padding:15px 32px;
-}
-.nj-stage-cta:hover{background:var(--gold);color:#0B1F3A}
-
-/* การเผยตัว — เข้าแบบขยายเข้ามาหาคนดู ไม่ใช่เลื่อนขึ้นแบบการ์ดทั่วไป
-   **ซ่อนได้ต่อเมื่อ surveyquote.js ใส่คลาส js-reveal ให้แล้วเท่านั้น** ถ้าเขียนเป็น
-   `.nj-stage .nj-screen{opacity:0}` ลอยๆ แล้ว JS ตาย/โหลดไม่ทัน วิดีโอกับข้อความใต้จอ
-   จะหายไปทั้งดุ้นโดยไม่มี error ให้เห็น — เหลือแค่แถบสีน้ำเงินเปล่าๆ กลางหน้า
-   จากนั้น is-in ถูกใส่ตอนเลื่อนมาถึงจริง */
-@media (prefers-reduced-motion:no-preference){
-  .nj-stage.js-reveal .nj-screen,.js-reveal .nj-stage-points,.js-reveal .nj-stage-cta{
-    opacity:0;transform:scale(1.045) translateY(18px);
-    transition:opacity .9s ease,transform 1.1s cubic-bezier(.16,.84,.28,1);
-  }
-  .js-reveal .nj-stage-points,.js-reveal .nj-stage-cta{transform:translateY(16px)}
-  .nj-stage.is-in .nj-screen{opacity:1;transform:none}
-  .nj-stage.is-in .nj-stage-points{opacity:1;transform:none;transition-delay:.22s}
-  .nj-stage.is-in .nj-stage-cta{opacity:1;transform:none;transition-delay:.34s}
-  .nj-stage.is-in .nj-screen-sheen{animation:njSheen 1.5s .55s ease-out 1}
-
-  /* hero ขยับช้าๆ ให้ฉากแรกไม่นิ่งสนิท — 26 วินาทีต่อรอบ ช้าจนไม่รู้ตัวว่าขยับ
-     ต้องช้าระดับนี้เท่านั้น เร็วกว่านี้จะกวนสายตาตอนอ่านหัวข้อ */
-  /* ไม่ใส่ will-change — ภาพ hero กว้าง 2000px ถ้าปักเป็นเลเยอร์ GPU ค้างไว้ทั้งชีวิตหน้า
-     จะกินหน่วยความจำจอฟรีๆ ตลอดเวลาที่คนอ่านส่วนอื่น ทั้งที่ขยับช้าระดับ 26 วินาทีต่อรอบ */
-  .hero-ken{animation:njKen 26s ease-in-out infinite alternate}
-}
-@keyframes njSheen{from{opacity:0;transform:translateX(-60%)}22%{opacity:1}to{opacity:0;transform:translateX(60%)}}
-@keyframes njKen{from{transform:scale(1)}to{transform:scale(1.07)}}
-
-@media (max-width:900px){
-  /* กฎ section{padding:18px !important} ของเบรก 640px จะเจาะเข้ามาที่แถบนี้ด้วย
-     ทำให้พื้นเข้มไม่เต็มจอ เหลือขอบสีกระดาษสองข้าง — ต้องล้างด้วย !important เท่านั้น */
-  .nj-stage{margin-top:40px;padding-left:0 !important;padding-right:0 !important}
-  .nj-stage-in{padding:56px 18px 62px}
-  .nj-stage h2{font-size:28px !important}
-  .nj-stage-lede{font-size:16px;margin-bottom:32px}
-  .nj-stage-points{grid-template-columns:1fr;gap:18px;margin-top:30px;padding-top:20px}
-  .nj-stage-cta{margin-top:30px;padding:14px 26px}
-}
-
-/* เนื้อที่ + ราคาต่อตารางวา — เพิ่งเริ่มมีใน API (ก่อนหน้านี้ไม่ส่งมา การ์ดจึงเคยไม่มีบรรทัดนี้)
-   แปลงที่ยังไม่รู้เนื้อที่จะไม่มี element นี้เลย ไม่ใช่ขึ้นเป็น 0 */
-.card-meta{font-size:14px;font-weight:500;color:var(--bronze);letter-spacing:.2px}
-
-/* ---------- แนะนำระบบทำงาน (คลิปแนวตั้ง 9:16) ---------- */
-/* คลิปนี้ถ่ายเป็นแนวตั้ง 1080×1920 — ยัดลงกรอบ 16:9 แบบ .nj-screen ไม่ได้
-   จะเหลือแถบดำสองข้างกินพื้นที่กว่าครึ่งจอ · จึงวางเป็นสองคอลัมน์
-   คลิปแนวตั้งซ้าย + เนื้อความขวา แล้วซ้อนกันเมื่อจอแคบ */
-.nj-intro{position:relative;overflow:hidden;margin-top:58px;background:#050F1D;color:#fff}
-.nj-intro-bg{
-  position:absolute;inset:0;pointer-events:none;
-  background:
-    radial-gradient(90% 70% at 22% 0%,rgba(27,75,122,.55) 0%,rgba(5,15,29,0) 62%),
-    radial-gradient(70% 60% at 88% 100%,rgba(216,185,107,.13) 0%,rgba(5,15,29,0) 66%);
-}
-.nj-intro-in{
-  position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:72px 32px 78px;
-  display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:56px;align-items:center;
-}
-
-/* จอแนวตั้ง */
-.nj-intro-player{position:relative}
-/* แสงสาดรอบกรอบ — วาดด้วย gradient ไม่ใช่ blur ของรูป (เหตุผลเดียวกับ .nj-screen::before) */
-.nj-intro-player::before{
-  content:"";position:absolute;left:-14%;right:-14%;top:-8%;bottom:-8%;z-index:0;pointer-events:none;
-  background:radial-gradient(56% 52% at 50% 50%,rgba(37,96,153,.5) 0%,rgba(27,75,122,.26) 46%,rgba(5,15,29,0) 72%);
-}
-.nj-intro-frame{
-  position:relative;z-index:1;background:#0B1F3A;
-  border:1px solid rgba(216,185,107,.42);
-  box-shadow:0 0 110px rgba(27,75,122,.45),0 34px 76px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,255,255,.05);
-}
-/* หมุดมุมทอง ชุดเดียวกับกรอบจอของแถบ "ระบบติดตามงาน" ให้เป็นภาษาเดียวกันทั้งหน้า */
-.nj-intro-frame::before,.nj-intro-frame::after{
-  content:"";position:absolute;width:24px;height:24px;border:1px solid var(--gold);pointer-events:none;z-index:3;
-}
-.nj-intro-frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
-.nj-intro-frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
-/* ⚠️ ต้องมี height:auto — <video> มี width/height เป็นแอตทริบิวต์ (กัน layout shift ตอนโหลด)
-   ซึ่งเบราว์เซอร์แปลงเป็น height:1920px แล้วชนะ aspect-ratio ทำให้จอสูง 1920px เต็มหน้า
-   ตอนแรกเจอเป็นแถบขาวเปล่าๆ กลางหน้า เพราะโปสเตอร์เป็นสตูดิโอสีขาวถูกยืดจนเต็มจอ */
-.nj-intro-frame video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;background:#0B1F3A}
-
-/* ปุ่มเล่น — ซ้อนทับทั้งกรอบ
-   ⚠️ ซ่อนไว้ก่อน แล้วให้ JS ใส่คลาส .js-ready ถึงจะโผล่
-   ถ้า JS ตาย/โหลดไม่ทัน ปุ่มจะไม่ขึ้นมาบังจอ คนยังกดเล่นจากปุ่มควบคุมของเบราว์เซอร์ได้ตามปกติ */
-.nj-intro-play{display:none}
-.nj-intro.js-ready .nj-intro-play{
-  display:flex;position:absolute;inset:0;z-index:2;
-  flex-direction:column;align-items:center;justify-content:flex-end;gap:14px;
-  padding:0 0 34px;border:0;cursor:pointer;color:#fff;font-family:inherit;
-  background:linear-gradient(180deg,rgba(5,15,29,.12) 0%,rgba(5,15,29,.06) 42%,rgba(5,15,29,.78) 100%);
-}
-.nj-intro-play-ring{
-  width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(216,185,107,.85);background:rgba(11,31,58,.5);color:var(--gold);
-  backdrop-filter:blur(2px);transition:background .25s ease,transform .25s ease;
-}
-.nj-intro-play-txt{font-size:14px;font-weight:500;letter-spacing:.06em;text-align:center;line-height:1.5}
-.nj-intro-play-txt b{display:block;font-weight:400;font-size:12px;letter-spacing:.1em;color:rgba(255,255,255,.72);margin-top:5px}
-.nj-intro-play:hover .nj-intro-play-ring{background:var(--gold);color:#0B1F3A;transform:scale(1.06)}
-.nj-intro-play:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-
-/* เนื้อความ */
-.nj-intro-eyebrow{font-size:13px;letter-spacing:.22em;color:var(--gold);margin-bottom:18px}
-.nj-intro h2{
-  font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.34;
-  letter-spacing:-.01em;color:#fff;margin:0 0 18px;
-}
-.nj-intro-lede{font-size:17px;font-weight:400;line-height:1.75;color:rgba(255,255,255,.78);margin:0 0 26px;max-width:560px;text-wrap:pretty}
-.nj-intro-points{list-style:none;margin:0 0 30px;padding:0;display:grid;gap:1px}
-.nj-intro-points li{border-top:1px solid rgba(216,185,107,.26);padding:15px 0}
-.nj-intro-points b{display:block;font-family:var(--nj-font);font-weight:600;font-size:18px;color:var(--gold);margin-bottom:5px}
-.nj-intro-points span{display:block;font-size:14px;font-weight:400;line-height:1.65;color:rgba(255,255,255,.72)}
-.nj-intro-cta{
-  display:inline-block;border:1px solid rgba(216,185,107,.7);color:var(--gold);
-  font-size:14px;font-weight:500;letter-spacing:.16em;padding:15px 32px;
-}
-.nj-intro-cta:hover{background:var(--gold);color:#0B1F3A}
-
-@media (max-width:900px){
-  /* กฎ section{padding:18px !important} ของเบรก 640px เจาะเข้ามาที่แถบนี้ด้วย
-     ทำให้พื้นเข้มไม่เต็มจอ เหลือขอบสีกระดาษสองข้าง — ต้องล้างทิ้งเหมือน .nj-stage */
-  .nj-intro{margin-top:40px;padding-left:0 !important;padding-right:0 !important}
-  .nj-intro-in{grid-template-columns:1fr;gap:34px;padding:56px 18px 62px}
-  /* คลิปแนวตั้งเต็มความกว้างมือถือจะสูงเกินจอ (375px → 667px) ต้องคุมความกว้างไว้ */
-  .nj-intro-player{max-width:300px;margin:0 auto}
-  .nj-intro h2{font-size:28px !important}
-  .nj-intro-lede{font-size:16px;margin-bottom:22px}
-  .nj-intro-points{margin-bottom:24px}
-  .nj-intro-cta{padding:14px 26px}
-}
-
-/* ป้ายผังสีบนการ์ด (2026-09-18) — สีมาจาก NJVocab.ZONE_HEX ผ่าน inline style ของ listingcard.js */
-.card-zone{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;color:var(--muted)}
-.card-zone i{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.3);flex:none}
-
-/* =====================================================================
- * Sprint 2 — Hero · Search · Trust Bar · หัวหน้ารอง  (2026-09-20)
- *
- * ⚠️ บล็อกนี้ใช้ token จาก `tokens.css` ทั้งหมด **ห้ามเขียนรหัสสีดิบเพิ่ม**
- *    ส่วนที่เหลือของไฟล์นี้ยังเป็นค่าที่ฝังไว้จากดีไซน์เดิม รอไล่เปลี่ยนในสปรินต์ถัดไป
- * ===================================================================== */
-
-/* ---------- HERO ---------- */
-/* ⚠️ min-height ถูกลดจาก 600 → 470 โดยตั้งใจ (งานที่ 3)
- *    เป้าหมายคือให้ "ช่องค้นหา" ขึ้นมาอยู่ในจอแรกของเดสก์ท็อป และอยู่ใกล้จอแรกที่สุดบนมือถือ
- *    เพิ่มกลับเมื่อไหร่ ปัญหาเดิมที่รายงานตรวจชี้ไว้ (H-02) กลับมาทันที */
-.nj-hero {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 470px;
-  padding: var(--nj-space-8) 0 var(--nj-space-7);
-  background: var(--nj-navy-900);
-  color: var(--nj-white);
-  overflow: hidden;
-}
-.nj-hero-bg { position: absolute; inset: 0; display: block; }
-.nj-hero-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.92; }
-
-/* ม่านไล่สี — ต้องทึบพอให้พาดหัวขาวอ่านออกบนท้องฟ้าสว่าง
- * แต่ต้องจางหมดก่อนถึงกลางภาพ ไม่งั้นไปบังครอบครัวกับการ์ดเช็กลิสต์ซึ่งเป็นจุดขายของภาพ */
-.nj-hero-veil {
-  position: absolute; inset: 0;
-  background:
-    linear-gradient(90deg, rgba(11,31,58,0.92) 0%, rgba(11,31,58,0.72) 34%, rgba(11,31,58,0) 62%),
-    linear-gradient(180deg, rgba(11,31,58,0.55) 0%, rgba(11,31,58,0) 45%);
-}
-
-.nj-hero-in {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 var(--nj-space-6);
-}
-
-.nj-hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  margin: 0 0 var(--nj-space-4);
-  padding: 6px var(--nj-space-3);
-  border: 1px solid rgba(216,185,107,0.55);
-  font-size: var(--nj-fs-xs);
-  letter-spacing: 0.06em;
-  color: var(--nj-gold-500);
-}
-
-.nj-hero-h1 {
-  max-width: 17ch;              /* พาดหัวไม่เกิน 2 บรรทัดบนเดสก์ท็อป */
-  margin: 0 0 var(--nj-space-4);
-  font-size: var(--nj-fs-h1);
-  font-weight: var(--nj-fw-semi);
-  line-height: var(--nj-lh-tight);
-  letter-spacing: -0.01em;
-  text-shadow: 0 4px 30px rgba(12,15,10,0.5);
-}
-.nj-hero-h1 span { color: var(--nj-gold-500); }
-
-.nj-hero-lead {
-  max-width: 54ch;              /* คำอธิบายไม่เกิน 2–3 บรรทัด (งานที่ 3) */
-  margin: 0 0 var(--nj-space-5);
-  font-size: var(--nj-fs-lead);
-  line-height: var(--nj-lh-body);
-  color: rgba(255,255,255,0.92);
-  text-shadow: 0 2px 18px rgba(12,15,10,0.45);
-}
-
-.nj-hero-cta { display: flex; flex-wrap: wrap; gap: var(--nj-space-3); }
-.nj-hero-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 var(--nj-space-6);
-  font-size: var(--nj-fs-body);
-  font-weight: var(--nj-fw-semi);
-  text-decoration: none;
-}
-.nj-hero-btn-1 { background: var(--nj-gold-500); color: var(--nj-navy-900); }
-.nj-hero-btn-1:hover { background: var(--nj-white); }
-.nj-hero-btn-2 { border: 1px solid rgba(255,255,255,0.55); color: var(--nj-white); }
-.nj-hero-btn-2:hover { border-color: var(--nj-white); background: rgba(255,255,255,0.10); }
-.nj-hero-btn:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 3px; }
-
-/* ทางที่สาม — เป็น "ลิงก์" ไม่ใช่ปุ่ม เพื่อไม่ให้แถวกลายเป็นสามทางเลือกที่ดูสำคัญเท่ากัน
- * (เหตุผลเดียวกับที่ปุ่มดูคลิปของเดิมถูกทำเป็นลิงก์ ดู CLAUDE.md) */
-.nj-hero-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  margin-top: var(--nj-space-4);
-  color: var(--nj-white);
-  font-size: var(--nj-fs-sm);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.nj-hero-link:hover { color: var(--nj-gold-500); }
-.nj-hero-link:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 3px; }
-
-/* ---------- โมดูลค้นหา ---------- */
-.nj-search { background: var(--nj-navy-050); padding: var(--nj-space-7) 0 var(--nj-space-5); }
-.nj-search-in { max-width: 1280px; margin: 0 auto; padding: 0 var(--nj-space-6); }
-.nj-search-h {
-  margin: 0 0 var(--nj-space-4);
-  font-size: var(--nj-fs-h3);
-  font-weight: var(--nj-fw-semi);
-  color: var(--nj-navy-900);
-}
-.nj-search-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--nj-space-3);
-  margin: var(--nj-space-3) 0 0;
-  font-size: var(--nj-fs-sm);
-  color: var(--nj-text-muted);
-}
-.nj-search-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 44px;
-  color: var(--nj-link);
-  font-weight: var(--nj-fw-medium);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.nj-search-more:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
-
-/* ---------- แถบความน่าเชื่อถือ ---------- */
-.nj-trust { background: var(--nj-white); border-bottom: 1px solid var(--nj-border); }
-.nj-trust-in {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--nj-space-5);
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: var(--nj-space-5) var(--nj-space-6);
-  list-style: none;
-}
-.nj-trust-in li { border-left: 3px solid var(--nj-gold-500); padding-left: var(--nj-space-3); }
-.nj-trust-in b {
-  display: block;
-  font-size: var(--nj-fs-body);
-  font-weight: var(--nj-fw-semi);
-  color: var(--nj-navy-900);
-  line-height: 1.35;
-}
-.nj-trust-in span {
-  display: block;
-  margin-top: 4px;
-  font-size: var(--nj-fs-xs);
-  line-height: 1.5;
-  color: var(--nj-text-muted);
-}
-
-/* ---------- หัวหน้ารอง (services.html) ---------- */
-.nj-pagehead { background: var(--nj-navy-900); color: var(--nj-white); }
-.nj-pagehead-in { max-width: 1280px; margin: 0 auto; padding: var(--nj-space-8) var(--nj-space-6); }
-.nj-pagehead h1 {
-  margin: 0 0 var(--nj-space-3);
-  font-size: var(--nj-fs-h1);
-  font-weight: var(--nj-fw-semi);
-  line-height: var(--nj-lh-tight);
-}
-.nj-pagehead-lead {
-  max-width: var(--nj-measure);
-  margin: 0;
-  font-size: var(--nj-fs-lead);
-  line-height: var(--nj-lh-body);
-  color: rgba(255,255,255,0.88);
-}
-
-/* ---------- จอกลาง ---------- */
-@media (max-width: 900px) {
-  .nj-trust-in { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ---------- จอเล็ก ---------- */
-@media (max-width: 640px) {
-  /* ⚠️ กฎรวม `section{padding:18px !important}` ของไฟล์นี้ที่ 640px กินทุก <section>
-   *    บล็อกใหม่จึงต้องประกาศทับเอง ไม่งั้นระยะขอบหายหมดแล้วข้อความชิดขอบจอ */
-  /* ⚠️ ต้องมี !important — ไฟล์นี้มีกฎเก่า `[data-r="hero"]{min-height:560px !important}`
-   *    อยู่ในบล็อก @media (max-width:1040px) ซึ่งชนะกฎธรรมดาของเรา
-   *    ถอด !important ออกเมื่อไหร่ hero กลับไปสูง 560px บนมือถือทันที (เจอจริงตอนวัด) */
-  .nj-hero { min-height: 420px !important; padding: var(--nj-space-7) 0 var(--nj-space-6) !important; }
-  .nj-hero-in { padding: 0 var(--nj-space-4); }
-  .nj-hero-h1 { max-width: none; }
-  .nj-hero-lead { font-size: var(--nj-fs-body); }
-  .nj-hero-cta { gap: var(--nj-space-2); }
-  .nj-hero-btn { flex: 1 1 46%; padding: 0 var(--nj-space-4); }
-
-  .nj-search { padding: var(--nj-space-6) 0 var(--nj-space-4) !important; }
-  .nj-search-in { padding: 0 var(--nj-space-4); }
-  .nj-search-foot { flex-direction: column; align-items: flex-start; gap: 0; }
-
-  /* 2 คอลัมน์ ไม่ใช่ 1 — สี่ข้อเรียงเดี่ยวกินความสูงเกือบ 250px บนจอ 390px
-   * ข้อความสั้นพอที่จะอ่านออกใน 2 คอลัมน์ (วัดแล้วไม่ตัดกลางคำ) */
-  .nj-trust-in { grid-template-columns: repeat(2, 1fr); gap: var(--nj-space-3); padding: var(--nj-space-4); }
-
-  .nj-pagehead-in { padding: var(--nj-space-6) var(--nj-space-4) !important; }
-}
-
-/* ---------- การ์ดประกาศ: รหัสทรัพย์ + ปุ่มดูรายละเอียด (Sprint 3 · งานที่ 7) ----------
- * ⚠️ สไตล์การ์ดยังแยกสามชุดตามชุดสี — เพิ่มคลาสใหม่ต้องเพิ่มครบทั้งสามไฟล์
- *    ใส่ที่เดียว = อีกหน้าไม่มีสไตล์โดยไม่มี error (กติกาใน CLAUDE.md หัวข้อ listingcard.js) */
-.card-code {
-  margin: 6px 0 2px;
-  font-size: var(--nj-fs-xs);
-  color: var(--nj-text-muted);
-  letter-spacing: 0.02em;
-}
-.card-code b { color: var(--nj-navy-600); font-weight: var(--nj-fw-semi); }
-
-.card-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 44px;
-  margin-top: 4px;
-  color: var(--nj-navy-600);
-  font-size: var(--nj-fs-sm);
-  font-weight: var(--nj-fw-semi);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.card-more:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }

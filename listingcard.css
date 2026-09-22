@@ -1,0 +1,145 @@
+/* การ์ดแปลงที่ดิน — สไตล์ชุดเดียวที่ใช้ร่วมกันทุกหน้าที่วาดการ์ด
+ *
+ * คู่กับตัวเรนเดอร์กลาง `listingcard.js` — โครง HTML อยู่ที่นั่น สไตล์อยู่ที่นี่
+ * ที่มาของหน้าตา: ดีไซน์หน้าแรกชุดใหม่ (2026-09-22) บล็อก `.card`
+ *
+ * ⚠️ **ต้องโหลดเป็นไฟล์ท้ายๆ ของหน้า** — หน้ารวมประกาศยังมีกฎ `.land-card` / `.card-media`
+ *    ชุดเดิมอยู่ใน `marketplace.css` ซึ่งความจำเพาะเท่ากัน ไฟล์ที่มาทีหลังจึงเป็นตัวชนะ
+ *
+ * ⚠️ เคยมีสไตล์การ์ดแยกกันสามชุดตามชุดสีของแต่ละหน้า เพิ่มคลาสใหม่ทีหนึ่งต้องไล่แก้ครบสามไฟล์
+ *    และมีที่ที่ลืมทุกครั้ง — ไฟล์นี้มีไว้เพื่อยุติเรื่องนั้น ห้ามเขียนสไตล์การ์ดที่อื่นอีก
+ */
+
+.land-card{position:relative;background:#fff;border:1px solid var(--line,#e6eaf0);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:.15s;color:#0b1f3a}
+.land-card:hover{box-shadow:0 12px 32px rgba(11,31,58,.14);transform:translateY(-2px)}
+.land-card[data-href]{cursor:pointer}
+
+.card-media{position:relative;aspect-ratio:4/3;background:#dde5df;overflow:hidden;height:auto}
+.card-media img{display:block;width:100%;height:100%;object-fit:cover}
+/* ไม่มีรูป = พื้นลายเส้นแทน ไม่ใช่ไอคอนรูปแตกหรือช่องว่าง */
+.fallback-land{position:absolute;inset:0;background:#0b1f3a}
+.fallback-land::after{
+  content:"";position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(58deg,rgba(229,199,107,.16) 0 1px,transparent 1px 58px),
+    repeating-linear-gradient(148deg,rgba(229,199,107,.12) 0 1px,transparent 1px 48px);
+}
+
+.card-badges{position:absolute;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.badge{display:inline-block;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;color:#fff;background:#0b1f3a}
+/* ⚠️ เขียวเข้ม ไม่ใช่เขียวสด — ขาวบน #1ca45c ได้ 3.22:1 (ตก AA) · บน #15803d ได้ 5.02:1
+ *    เหตุผลเต็มอยู่ที่ .badge-verified ใน home.css */
+.badge-verified{background:#15803d}
+.badge-basic{background:#8a6d1f}
+.photo-count{position:absolute;right:12px;top:12px;background:rgba(11,31,58,.72);color:#e5c76b;font-size:12px;padding:4px 8px;border-radius:6px}
+
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px}
+.card-price{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card-price b{font-size:24px;font-weight:700}
+.card-price span{font-size:13px;color:#646f84}
+.card-title{margin:0;font-size:15px;font-weight:600;line-height:1.4}
+.card-title a{color:inherit}
+.card-desc{font-size:13px;color:#4a5568}
+.card-tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;padding:4px 8px;border-radius:6px;font-size:13px;background:#f2f6fb;color:#4a5568}
+.tag-orange{background:#fff4e5;color:#b45309}
+.tag-green{background:#e8f7ee;color:#15803d}
+.card-foot{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #eef1f5;padding-top:10px;margin-top:4px;font-size:12px;color:#646f84}
+.card-foot .score{font-weight:600;color:#15803d;white-space:nowrap}
+.card-foot .score.is-low{color:#b45309}
+
+/* ⚠️ รหัสทรัพย์ต้องเห็นบนการ์ด ไม่ใช่ซ่อนไว้ใน data-id — ผู้ซื้อทักไลน์มาว่า "สนใจแปลงนึงในเว็บ"
+ *    โดยไม่บอกว่าแปลงไหน ทีมจับคู่กลับไม่ได้ เจ้าของที่ดินจึงไม่เคยรู้ว่ามีคนสนใจแปลงตัวเอง */
+.card-foot b{color:#0b1f3a;font-weight:600}
+
+/* ป้ายผังสี — สีมาจาก NJVocab.ZONE_HEX ผ่าน inline style ของ listingcard.js
+   ⚠️ ไม่มี zoneColor = ยังไม่ได้ตรวจ ต้องไม่ขึ้นป้ายอะไรเลย ห้ามขึ้นป้าย "ไม่มีผังสี" */
+.card-zone{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:#f2f6fb;font-size:13px;color:#4a5568}
+.card-zone i{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.3);flex:none}
+
+/* ป้ายบันได 5 ระดับ (verified.js) — สไตล์ฐานอยู่ใน verified.css ที่นี่แค่จัดแถว
+   ⚠️ ป้ายนี้ **ไม่ได้แทนที่** ป้ายเขียว/ทองบนรูป สองอย่างตอบคนละคำถาม
+      ป้ายบนรูป = "รังวัดแล้วหรือยัง" · ป้ายนี้ = "ตรวจไปแล้วกี่ระดับจาก 5" */
+.card-marks{display:flex;gap:6px;flex-wrap:wrap}
+.card-marks:empty{display:none}
+
+/* ---------- แถวติดต่อท้ายการ์ด ----------
+ * ⚠️ ดีไซน์ชุดใหม่ไม่ได้วาดแถวนี้ไว้ แต่เจ้าของสั่งให้คงไว้ (22 ก.ย. 69) — เป็นจุดรับลีดจริง
+ *    จึงเขียนใหม่ด้วยโทเคนชุดเดียวกับการ์ด ไม่ได้ยกสไตล์เดิมจาก marketplace.css มาทั้งก้อน
+ * ⚠️ ปุ่มติดต่อทั้งสี่ต้องมี `data-contact` เสมอ ไม่งั้นลีดไม่ถูกนับและคลิกจะทะลุไปหน้ารายละเอียด */
+.card-agent{
+  display:flex;align-items:center;gap:10px;
+  border-top:1px solid #eef1f5;padding-top:10px;margin-top:2px;
+}
+.agent-avatar{
+  width:32px;height:32px;flex:none;border-radius:50%;background:#f2f6fb;
+  display:grid;place-items:center;font-size:11px;font-weight:700;color:#0b1f3a;letter-spacing:.02em;
+}
+.card-agent > div{flex:1;min-width:0;display:grid;gap:1px}
+.card-agent b{font-size:12.5px;font-weight:600}
+.card-agent small{font-size:11.5px;color:#646f84}
+.contact-mini{display:flex;gap:6px;flex:none}
+.contact-mini a{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--line-2,#d5dce6);
+  display:grid;place-items:center;font-size:13px;color:#0b1f3a;background:#fff;
+}
+.contact-mini a:hover{border-color:#0b1f3a;background:#f2f6fb}
+.contact-mini a:focus-visible{outline:2px solid #b08a26;outline-offset:2px}
+.contact-mini .line{color:#15803d}
+
+/* ปุ่มบันทึก (save.js) และปุ่มเทียบแปลง (compare.js) ถูกยัดเข้าไปใน .card-media หลังการ์ดถูกวาด
+ * ⚠️ **ห้ามเขียนทับตำแหน่ง/หน้าตาของสองปุ่มนี้ที่นี่** — ดีไซน์วาดปุ่ม ♡ กลม ๆ ไว้มุมขวาบน
+ *    แต่ปุ่มจริงเป็นเม็ดยาที่มี **ข้อความ** กำกับ ("บันทึก" → "บันทึกแล้ว") ซึ่งเป็นข้อบังคับ:
+ *    สถานะต้องต่างทั้งสีและข้อความ เพราะคนตาบอดสีแยกแดง-เทาไม่ออก (ดู save.css)
+ *    บีบให้เหลือไอคอนกลมเมื่อไหร่ = ถอดข้อความนั้นทิ้ง · สไตล์อยู่ที่ compare.css / save.css ที่เดียว
+ */
+
+/* ---------- การ์ดแนวนอนบนมือถือ ----------
+ * รูป 4:3 เต็มความกว้าง × การ์ดหลายใบ = ต้องปัดนิ้วผ่านรูปอย่างเดียวเกือบสองพันพิกเซล
+ * จึงสลับเป็นการ์ดแนวนอน รูปเล็กซ้าย ข้อความขวา ตามที่ดีไซน์กำหนด */
+@media (max-width:767px){
+  .land-card.is-compact{display:grid;grid-template-columns:120px 1fr}
+  .land-card.is-compact .card-media{aspect-ratio:auto;height:100%;min-height:112px}
+  /* เว้นที่ท้ายการ์ดให้ปุ่มบันทึก/เทียบที่ลอยอยู่มุมล่างขวา ไม่งั้นมันทับบรรทัดรหัสทรัพย์
+     ซึ่งเป็นบรรทัดที่ทีมใช้จับคู่ผู้ซื้อกับเจ้าของ (เจอจริงตอนวัดบนจอ 375px)
+     ⚠️ ตัวเลข 58px = ความสูงปุ่มบันทึก 44px + ช่องไฟบนล่าง — **วัดจากของจริงที่ 360px**
+        ไม่ใช่ตัวเลขที่เดา · ลดลงเมื่อไหร่ปุ่มจะทับแถวไอคอนติดต่อที่อยู่เหนือมันพอดี */
+  .land-card.is-compact .card-body{padding:10px 12px 58px;gap:3px}
+  .land-card.is-compact .card-price b{font-size:18px}
+  .land-card.is-compact .card-desc,
+  .land-card.is-compact .card-tags,
+  .land-card.is-compact .card-marks,
+  .land-card.is-compact .photo-count,
+  .land-card.is-compact .card-badges .badge:not(.badge-verified):not(.badge-basic){display:none}
+
+  /* ปุ่มบันทึก/เทียบบนการ์ดแนวนอน — ช่องรูปเหลือกว้าง 120px วางปุ่มทับไม่ได้
+   * ⚠️ **ห้ามซ่อนปุ่มทั้งสองบนมือถือ** ผู้ซื้อที่ดินส่วนใหญ่เปิดจากมือถือ ซ่อนแล้วเท่ากับ
+   *    ตัดฟีเจอร์ "เก็บแปลงที่สนใจ" กับ "เทียบแปลง" ออกจากคนกลุ่มใหญ่ที่สุด
+   * วิธี: ปลดตำแหน่งอ้างอิงออกจากช่องรูป ให้ปุ่มไปเกาะขอบล่างขวาของทั้งการ์ดแทน
+   * (ช่องรูปเริ่มที่ขอบซ้ายของการ์ดพอดี ป้ายมุมซ้ายบนจึงยังอยู่ที่เดิมเป๊ะ) */
+  .land-card.is-compact .card-media{position:static;overflow:visible}
+  .land-card.is-compact .card-badges{left:6px;top:6px}
+  .land-card.is-compact .njsave-btn,
+  .land-card.is-compact .njcmp-btn{bottom:8px;font-size:11px;padding:5px 9px 5px 7px}
+  .land-card.is-compact .njsave-btn{left:auto;right:92px}
+  .land-card.is-compact .njcmp-btn{right:8px}
+
+  /* แถวติดต่อบนการ์ดแนวนอน — ช่องข้อความกว้างจริงแค่ ~200px ที่จอ 360px
+   * จึงเหลือเฉพาะไอคอนติดต่อ 4 ปุ่ม ตัดรูปโปรไฟล์กับชื่อ "ทีมที่ดินชัวร์" ทิ้ง
+   * (วันอัปเดตยังอยู่ในแถว .card-foot ด้านบนเหมือนเดิม ไม่ได้หายไปไหน)
+   * ⚠️ **ตัดปุ่มติดต่อให้เหลือบางปุ่มไม่ได้** — เบอร์สำนักงานกับเบอร์มือถือต้องมาคู่กันเสมอ
+   *    (กติกาข้อ 6) ถ้าที่ไม่พอให้ย่อขนาดปุ่ม ไม่ใช่ตัดปุ่มทิ้ง
+   * ⚠️ ไอคอนติดต่ออยู่แถวล่างซ้าย ปุ่มบันทึก/เทียบอยู่แถวล่างขวา — วัดที่ 360px แล้วไม่ชนกัน */
+  /* ช่องข้อความแคบ — วางรหัสทรัพย์กับคะแนนคนละบรรทัด ไม่งั้นข้อความซ้ายไหลอ้อมข้อความขวา
+     แล้วอ่านออกมาเป็น "รหัส OP-050 [ข้อมูลพร้อม 52/100] · อัปเดตเมื่อวาน" ซึ่งสลับที่กัน */
+  .land-card.is-compact .card-foot{flex-direction:column;align-items:flex-start;gap:2px}
+
+  .land-card.is-compact .card-agent{border:0;padding:0;margin-top:6px;gap:6px}
+  .land-card.is-compact .agent-avatar,
+  .land-card.is-compact .card-agent > div{display:none}
+  .land-card.is-compact .contact-mini a{width:28px;height:28px;font-size:12px}
+  .land-card.is-compact .card-title{font-size:13px}
+  .land-card.is-compact .card-badges{left:6px;top:6px}
+  .land-card.is-compact .badge{font-size:10.5px;padding:3px 6px}
+  .land-card:not(.is-compact) .card-media{aspect-ratio:16/9}
+}

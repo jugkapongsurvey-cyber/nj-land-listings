@@ -140,6 +140,7 @@
 <!-- NJ:COREJS จบ -->
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="listingcard.css">
   <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="compare.css">
@@ -237,268 +238,288 @@
 
 <main id="main">
 
-<div style="overflow-x:hidden">
+  <!-- ================= HERO ================= -->
+  <!-- ⚠️ ภาพ hero ปัจจุบันเป็นไฟล์เดิมของเว็บ (แนวนอน 16:9) ถูกครอบลงกรอบ 4:3 ด้วย object-fit
+       ดีไซน์ขอไฟล์ใหม่ 1200×900 โดยให้จุดสนใจอยู่กลาง–ขวา เพราะการ์ดเช็กลิสต์ทับมุมล่างขวา
+       ได้ไฟล์ใหม่เมื่อไหร่เปลี่ยนแค่ <source>/<img> ตรงนี้ CSS ไม่ต้องแตะ -->
+  <section class="hero" id="ค้นหา">
+    <div class="container">
+      <div class="hero-copy">
+        <span class="hero-pill">ทุกแปลงแสดงระดับข้อมูลที่ตรวจสอบแล้ว</span>
+        <h1>ซื้อ–ขายที่ดิน มั่นใจกว่า<br><span>ด้วยข้อมูลที่ตรวจสอบได้</span></h1>
+        <p class="hero-lead">ค้นหาทรัพย์ ฝากขาย ตรวจเอกสารและแนวเขตก่อนตัดสินใจ พร้อมทีมช่างรังวัดเอกชนดูแลทุกขั้นตอน</p>
 
-  <!-- HERO — งานที่ 3
-       ⚠️ ความสูงถูกลดลงโดยตั้งใจ (min-height 600 → 470) เพื่อให้ "ช่องค้นหา" กับ "แถบความน่าเชื่อถือ"
-          ขึ้นมาอยู่ในจอแรก · ตอนตรวจ 19 ก.ย. 69 ช่องค้นหาอยู่ลึกถึง 1,494 px บนจอ 390 px
-       ⚠️ ตัวเลข 351 / 12 ปี ถูกย้ายออกไปอยู่ใน `.nj-trust` ข้างล่าง ไม่ใช่ซ้อนอยู่ท้าย hero อีกแล้ว
-          ของเดิมอยู่ใน hero ซึ่งบนมือถือถูกดันตกจอแรกไปทั้งแถบ -->
-  <section data-r="hero" class="nj-hero">
-    <!-- ภาพ 3 ขนาด × 2 รูปแบบ (WebP ก่อน แล้วค่อยถอยเป็น JPEG)
-         ⚠️ ไฟล์แนวตั้งสำหรับจอ ≤640px ต้องคงไว้ — ภาพแนวนอนถูก object-fit ครอบจนเหลือแถบกลางแคบ
-            เห็นแต่ตัวคนไม่เห็นฉาก (เหตุผลเดิมตั้งแต่รอบก่อน)
-         ⚠️ ลำดับ <source> สำคัญ: เบราว์เซอร์หยิบอันแรกที่เข้าเงื่อนไข สลับที่แล้วจอใหญ่จะได้ไฟล์เล็ก -->
-    <picture class="nj-hero-bg">
-      <source type="image/webp" media="(max-width:640px)"  srcset="photos/hero-mobile.webp">
-      <source                   media="(max-width:640px)"  srcset="photos/hero-mobile.jpg">
-      <source type="image/webp" media="(max-width:1366px)" srcset="photos/hero-1280.webp">
-      <source                   media="(max-width:1366px)" srcset="photos/hero-1280.jpg">
-      <source type="image/webp" srcset="photos/hero.webp">
-      <img src="photos/hero.jpg" alt="" class="hero-ken" fetchpriority="high" width="2000" height="1126">
-    </picture>
-    <!-- ม่านไล่สี — ภาพสว่างทั้งใบ พาดหัวขาวลอยบนท้องฟ้าอ่านไม่ออกถ้าไม่มีอันนี้
-         จางหมดที่ 62% เพื่อไม่ให้บังครอบครัวกับการ์ดเช็กลิสต์ซึ่งเป็นจุดขายของภาพ -->
-    <div class="nj-hero-veil" aria-hidden="true"></div>
-    <div class="nj-hero-in">
-      <p class="nj-hero-eyebrow">ข้อมูลแนวเขตผ่านการตรวจสอบ</p>
-      <h1 data-r="display" class="nj-hero-h1">ซื้อ–ขายที่ดิน มั่นใจกว่า<br><span>ด้วยข้อมูลที่ตรวจสอบได้</span></h1>
-      <p class="nj-hero-lead">ค้นหาทรัพย์ ฝากขาย ตรวจเอกสารและแนวเขตก่อนตัดสินใจ พร้อมทีมช่างรังวัดเอกชนดูแล</p>
-      <!-- ⚠️ **ปุ่มหลักได้ไม่เกิน 2 ปุ่ม** (งานที่ 3) — ของเดิมมี 3 ปุ่มขนาดใกล้กัน
-           ทำให้ไม่มีปุ่มไหนเด่นจริง และไม่มีปุ่มไหนพาไป "ค้นหาทรัพย์" เลยสักปุ่ม
-           อันที่สามจึงกลายเป็นลิงก์ข้อความ ไม่ใช่ปุ่ม -->
-      <div class="nj-hero-cta">
-        <a class="nj-hero-btn nj-hero-btn-1" href="listings.html">ค้นหาทรัพย์</a>
-        <a class="nj-hero-btn nj-hero-btn-2" href="consign.html">ฝากขายกับเรา</a>
+        <!-- ⚠️ **id ทุกตัวในฟอร์มนี้ถูก `marketplace.js` อ่านแบบไม่เช็ก null**
+             `search-form` `search-input` `type-filter` `price-filter` `size-filter` + `[data-purpose]`
+             ขาดตัวใดตัวหนึ่ง = JS ตายทั้งไฟล์ ประกาศไม่ขึ้นเลยทั้งหน้า
+             ⚠️ ไม่มี action= โดยตั้งใจ — ปิด JS แล้วกดค้นหาจะกลับมาที่หน้าเดิมพร้อม ?q=&type=&price=&size=
+                ซึ่ง `marketplace.js` อ่านตอนโหลดอยู่แล้ว (ดู readUrl) -->
+        <form class="search" id="search-form" method="get" role="search">
+          <div class="seg" role="group" aria-label="ประเภทประกาศ">
+            <button type="button" aria-pressed="true" data-purpose="all">ทั้งหมด</button>
+            <button type="button" aria-pressed="false" data-purpose="sell">ซื้อ</button>
+            <button type="button" aria-pressed="false" data-purpose="rent">เช่า</button>
+            <!-- ค่าประเภทเก็บในช่องซ่อน ไม่ใช่ <select> — ปุ่มสามอันด้านบนคือตัวเลือกจริงที่ผู้ใช้เห็น
+                 ค่าที่ใช้ต้องเป็น sell/rent ตามที่ API ส่งมา ห้ามใช้ sale -->
+            <input type="hidden" id="type-filter" name="type" value="all">
+          </div>
+          <div class="search-grid">
+            <div class="field">
+              <label for="search-input">ทำเลที่ต้องการ</label>
+              <!-- ⚠️ `list=` ให้เบราว์เซอร์เติมชื่อทำเลให้เอง — รายการถูกสร้างจาก **แปลงที่มีอยู่จริง**
+                   ใน marketplace.js ไม่ใช่รายชื่อ 77 จังหวัด · เลือกทำเลที่ไม่มีของแล้วเจอผลว่าง
+                   จะดูเหมือนเว็บพัง (กติกาเดียวกับ listings.js) -->
+              <input id="search-input" name="q" type="search" list="nj-locations" placeholder="จังหวัด อำเภอ หรือตำบล" autocomplete="off" aria-describedby="nj-search-hint">
+            </div>
+            <div class="field">
+              <label for="price-filter">ช่วงราคา</label>
+              <select id="price-filter" name="price">
+                <option value="all">ทุกช่วงราคา</option>
+                <option value="0-5000000">ไม่เกิน 5 ล้าน</option>
+                <option value="5000000-10000000">5–10 ล้าน</option>
+                <option value="10000000-">10 ล้านขึ้นไป</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="size-filter">ขนาด</label>
+              <!-- หน่วยเป็น "ไร่" — marketplace.js แปลงเป็นตารางวา (×400) แล้วเทียบกับ totalWa ที่ API ส่งมา
+                   ⚠️ แปลงที่ยังไม่รู้เนื้อที่ (totalWa = 0) จะไม่ถูกนับว่าตรงเงื่อนไขขนาด
+                      บอกว่าตรงทั้งที่ไม่รู้ = โกหกผู้ซื้อ (กติกาเดียวกับตัวกรองใน listings.js) -->
+              <select id="size-filter" name="size">
+                <option value="all">ทุกขนาด</option>
+                <option value="0-1">ต่ำกว่า 1 ไร่</option>
+                <option value="1-5">1–5 ไร่</option>
+                <option value="5-">5 ไร่ขึ้นไป</option>
+              </select>
+            </div>
+            <button class="btn btn-gold" type="submit">ค้นหาที่ดิน</button>
+          </div>
+          <datalist id="nj-locations"></datalist>
+          <div class="search-foot">
+            <span id="nj-search-hint">พิมพ์ทำเลแล้วระบบจะเติมชื่อที่มีแปลงอยู่จริงให้เลือก</span>
+            <!-- ⚠️ ทางเข้าเครื่องมือคำนวณ — ดีไซน์ถอดแถบ "จุดเด่น" ที่เคยมีลิงก์สองอันนี้ออกทั้งก้อน
+                 เหลือทางเข้าทางเดียวคือเมนูหัวเว็บ ซึ่งบนมือถือต้องกดแฮมเบอร์เกอร์ก่อนถึงจะเห็น
+                 วางไว้แถวนี้เพราะเป็นแถบ pill ที่ดีไซน์ออกแบบไว้อยู่แล้ว ไม่ต้องแตะเลย์เอาต์ที่ไหนเลย
+                 ⚠️ ห้ามเอาไปต่อท้ายรายการใน "คู่มือคนซื้อที่ดิน" — หัวข้อนั้นเขียนว่า "ห้าเรื่อง"
+                    และมีของครบห้าพอดีแล้ว (บทความเด่น 1 + รายการ 4) -->
+            <a href="tools.html#loan">คำนวณค่างวด</a>
+            <a href="tools.html#fee">ค่าใช้จ่ายวันโอน</a>
+            <a class="more" href="listings.html">ตัวกรองเพิ่มเติม →</a>
+          </div>
+        </form>
       </div>
-      <a class="nj-hero-link" href="verify.html">ส่งทรัพย์ให้ตรวจก่อนซื้อ <span aria-hidden="true">→</span></a>
-    </div>
-  </section>
 
-  <!-- โมดูลค้นหา — งานที่ 4
-       ⚠️ **id ทุกตัวในฟอร์มนี้ถูก `marketplace.js` อ่านแบบไม่เช็ก null**
-          `search-form` `search-input` `type-filter` `price-filter` + `[data-purpose]`
-          ขาดตัวใดตัวหนึ่ง = JS ตายทั้งไฟล์ ประกาศไม่ขึ้นเลย (ดู CLAUDE.md หัวข้อ marketplace.js)
-       ⚠️ ย้ายขึ้นมาอยู่ใต้ hero ทันที — ของเดิมอยู่เป็นบล็อกที่ 6 ถัดจากเครื่องคำนวณสองตัว -->
-  <section class="nj-search" id="ค้นหา" aria-labelledby="nj-search-h">
-    <div class="nj-search-in">
-      <h2 class="nj-search-h" id="nj-search-h">ค้นหาทรัพย์</h2>
-      <form id="search-form" class="search-box" role="search">
-        <div class="purpose-tabs" role="tablist" aria-label="ซื้อหรือเช่า">
-          <button type="button" class="selected" data-purpose="sell">ซื้อ</button>
-          <button type="button" data-purpose="rent">เช่า</button>
+      <div class="hero-media">
+        <picture>
+          <source type="image/webp" media="(max-width:640px)" srcset="photos/hero-mobile.webp">
+          <source media="(max-width:640px)" srcset="photos/hero-mobile.jpg">
+          <source type="image/webp" srcset="photos/hero-1280.webp">
+          <img src="photos/hero-1280.jpg" width="1200" height="900" alt="ครอบครัวเดินดูแปลงที่ดินที่ผ่านการรังวัดยืนยันแนวเขตแล้ว" fetchpriority="high">
+        </picture>
+        <div class="hero-check" aria-label="สิ่งที่เราตรวจให้ทุกแปลง">
+          <b>สิ่งที่เราตรวจให้ทุกแปลง</b>
+          <div><span class="check-dot" aria-hidden="true">✓</span>ตำแหน่งและแนวเขตจริง</div>
+          <div><span class="check-dot" aria-hidden="true">✓</span>ขนาดพื้นที่ตรงโฉนด</div>
+          <div><span class="check-dot" aria-hidden="true">✓</span>เอกสารสิทธิ์ · ภาระผูกพัน</div>
+          <div><span class="check-dot" aria-hidden="true">✓</span>ผังเมือง · ทางเข้าออก</div>
         </div>
-        <label>
-          <span class="field-label">ทำเลที่ต้องการ</span>
-          <!-- ⚠️ `list=` ให้เบราว์เซอร์เติมชื่อจังหวัด/อำเภอ/ตำบลให้เอง — รายการถูกสร้างจาก
-               **แปลงที่มีอยู่จริง** ใน `marketplace.js` ไม่ใช่รายชื่อ 77 จังหวัด
-               เลือกทำเลที่ไม่มีของแล้วเจอผลว่างเปล่าจะดูเหมือนเว็บพัง (กติกาเดียวกับ listings.js) -->
-          <span class="field-line"><b aria-hidden="true">⌖</b><input id="search-input" type="search" list="nj-locations" placeholder="จังหวัด อำเภอ หรือตำบล" autocomplete="off" aria-describedby="nj-search-hint"></span>
-        </label>
-        <label>
-          <span class="field-label">ประเภททรัพย์</span>
-          <select id="type-filter">
-            <option value="all">ทุกประเภท</option>
-            <option value="sell">ประกาศขาย</option>
-            <option value="rent">ประกาศให้เช่า</option>
-          </select>
-        </label>
-        <label>
-          <span class="field-label">ช่วงราคา</span>
-          <select id="price-filter">
-            <option value="all">ทุกช่วงราคา</option>
-            <option value="3000000">ไม่เกิน 3 ล้านบาท</option>
-            <option value="5000000">ไม่เกิน 5 ล้านบาท</option>
-            <option value="10000000">ไม่เกิน 10 ล้านบาท</option>
-          </select>
-        </label>
-        <button class="search-submit" type="submit">ค้นหา</button>
-      </form>
-      <datalist id="nj-locations"></datalist>
-      <p class="nj-search-foot">
-        <span id="nj-search-hint">พิมพ์ทำเลแล้วระบบจะเติมชื่อที่มีแปลงอยู่จริงให้เลือก</span>
-        <a class="nj-search-more" href="listings.html">ตัวกรองเพิ่มเติม <span aria-hidden="true">→</span></a>
-      </p>
+      </div>
     </div>
   </section>
 
-  <!-- ทางลัด 4 ช่อง — ของเดิมมี 8 ช่องซึ่งกลายเป็นเมนูซ้อนเมนู
-       ที่เหลือย้ายไปอยู่ในเมนูหัวเว็บชุดใหม่แล้ว (ซื้อ/เช่าทรัพย์ · ตรวจสอบและรังวัด · ความรู้และเครื่องมือ)
-       ⚠️ `[data-quick]` ถูก `marketplace.js` ผูกไว้ — เหลือไว้อย่างน้อยตัวที่ใช้จริง -->
+  <!-- ================= TRUST BAR =================
+       ⚠️ **สี่ข้อนี้เท่านั้น ห้ามเพิ่ม** และทุกข้อต้องเป็นสิ่งที่ตรวจสอบได้จริง
+       ⚠️ ห้ามเขียนอะไรที่อ่านแล้วเข้าใจว่า "ทุกแปลงรังวัดแล้ว" — การ์ดบนหน้าเดียวกันติดป้าย
+          "ข้อมูลเบื้องต้น" อยู่ ซึ่งแปลว่ายังไม่ได้รังวัด ข้อความจึงต้องพูดถึง "ระดับที่ตรวจแล้ว" -->
+  <section class="trust" aria-label="มาตรฐานการทำงานของที่ดินชัวร์">
+    <div class="container">
+      <div class="trust-item"><span class="trust-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><div><b>ใบอนุญาต 351</b><span>สำนักงานช่างรังวัดเอกชน</span></div></div>
+      <div class="trust-item"><span class="trust-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>มากกว่า 12 ปี</b><span>ประสบการณ์ทำงานในสนาม</span></div></div>
+      <div class="trust-item"><span class="trust-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><div><b>เจ้าของยินยอมก่อนเผยแพร่</b><span>ทุกแปลงขึ้นเว็บได้ต่อเมื่อเจ้าของที่ดินยินยอมแล้ว</span></div></div>
+      <div class="trust-item"><span class="trust-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><b>บอกระดับที่ตรวจแล้วทุกแปลง</b><span>แสดงระดับข้อมูลที่ตรวจสอบและวันที่ตรวจไว้บนการ์ด</span></div></div>
+    </div>
+  </section>
+
+  <!-- ================= QUICK ENTRY =================
+       ⚠️ `[data-quick]` ถูก marketplace.js ผูกไว้ (กรองจริงในตะแกรงด้านล่าง ไม่ใช่ขึ้นข้อความเฉยๆ) -->
   <nav class="quick" aria-label="ทางลัด">
-    <a href="#listings" data-quick="all"><span class="quick-icon" aria-hidden="true">01</span><b>ทุกแปลง</b><small>ประกาศทั้งหมดที่เปิดอยู่</small></a>
-    <a href="#listings" data-quick="under5"><span class="quick-icon" aria-hidden="true">02</span><b>ไม่เกิน 5 ล้าน</b><small>งบเริ่มต้น</small></a>
-    <a href="wanted.html"><span class="quick-icon" aria-hidden="true">03</span><b>ฝากหาที่ดิน</b><small>ไม่เจอแปลงที่ใช่ ให้เราหาให้</small></a>
-    <a href="verify.html"><span class="quick-icon" aria-hidden="true">04</span><b>ตรวจทรัพย์ก่อนซื้อ</b><small>บังคับคดี · ธนาคาร · BAM/SAM</small></a>
+    <div class="container">
+      <a href="#listings" data-quick="all"><small>01</small><b>ทุกแปลง</b><span>ประกาศทั้งหมดที่เปิดอยู่</span></a>
+      <a href="#listings" data-quick="under5"><small>02</small><b>ไม่เกิน 5 ล้าน</b><span>งบเริ่มต้น เหมาะสร้างบ้าน</span></a>
+      <a href="wanted.html"><small>03</small><b>ฝากหาที่ดิน</b><span>ไม่เจอแปลงที่ใช่ ให้เราหาให้</span></a>
+      <a class="is-dark" href="verify.html"><small>04</small><b>ตรวจทรัพย์ก่อนซื้อ</b><span>ทรัพย์บังคับคดี · ธนาคาร · BAM/SAM</span></a>
+    </div>
   </nav>
 
-  <!-- แถบความน่าเชื่อถือ — งานที่ 5
-       ⚠️ **สี่ข้อนี้เท่านั้น ห้ามเพิ่ม** และทุกข้อต้องเป็นสิ่งที่ตรวจสอบได้จริง
-       ⚠️ ห้ามเขียนอะไรที่อ่านแล้วเข้าใจว่า "ทุกแปลงรังวัดแล้ว" — ข้อ 4 จึงพูดถึง
-          "ระดับข้อมูลที่ตรวจสอบแล้ว" ไม่ใช่ "ตรวจสอบครบแล้ว" (ดู C-02 ในรายงานตรวจ) -->
-  <section class="nj-trust" aria-label="มาตรฐานการทำงานของที่ดินชัวร์">
-    <ul class="nj-trust-in">
-      <li><b>ใบอนุญาต 351</b><span>สำนักงานช่างรังวัดเอกชน</span></li>
-      <li><b>มากกว่า 12 ปี</b><span>ประสบการณ์ทำงานในสนาม</span></li>
-      <li><b>เจ้าของยินยอมก่อนเผยแพร่</b><span>ทุกแปลงขึ้นเว็บได้ต่อเมื่อเจ้าของที่ดินยินยอมแล้ว</span></li>
-      <li><b>บอกระดับที่ตรวจแล้วทุกแปลง</b><span>แสดงระดับข้อมูลที่ตรวจสอบและวันที่ตรวจไว้บนการ์ด</span></li>
-    </ul>
-  </section>
+  <!-- ================= LISTINGS ================= -->
+  <section class="section listings" id="listings">
+    <div class="container">
+      <div class="listings-head">
+        <div>
+          <span class="eyebrow">คัดสรรโดยทีมรังวัด</span>
+          <h2 class="h2">ที่ดินประกาศขาย</h2>
+          <p>ทุกแปลงขึ้นประกาศเมื่อเจ้าของยินยอมแล้วเท่านั้น · ข้อมูลชัด ตำแหน่งจริง พร้อมนัดดูพื้นที่</p>
+        </div>
+        <div class="listings-tools">
+          <!-- ⚠️ ปุ่มแรก "เปิดค้างไว้" ตามภาพดีไซน์ (เจ้าของยืนยัน 22 ก.ย. 69)
+               หน้าแรกเป็นหน้า "แนะนำ" จึงชูแปลงที่รังวัดยืนยันแล้วขึ้นก่อน
+               ⚠️ **กดปุ่มซ้ำที่ปุ่มเดิม = ปิดตัวกรอง** ต้องมีทางออกเสมอ ไม่ใช่กรองค้างจนหาทางปิดไม่เจอ
+                  และ `#result-note` ขึ้นข้อความบอกทุกครั้งว่ากำลังกรองอะไรอยู่
+               ⚠️ วันไหนแปลงระดับ 2 เหลือน้อยจนหน้าแรกโล่ง ให้กลับไปตั้งต้นเป็นปิด
+                  (แก้ 3 จุด: ที่นี่ · state.tier ใน marketplace.js · ค่าตั้งต้นใน readUrl) -->
+          <button class="chip is-on" type="button" aria-pressed="true" data-tier="2">✓ รังวัดยืนยันแล้ว</button>
+          <button class="chip is-outline" type="button" aria-pressed="false" data-tier="1">ข้อมูลเบื้องต้น</button>
+          <label class="visually-hidden" for="sort-filter">เรียงตาม</label>
+          <select id="sort-filter">
+            <option value="new">ล่าสุด</option>
+            <option value="price-asc">ราคาต่ำ–สูง</option>
+            <option value="price-desc">ราคาสูง–ต่ำ</option>
+            <option value="area-desc">ขนาดใหญ่สุด</option>
+          </select>
+        </div>
+      </div>
 
+      <div id="result-note" class="result-note" role="status" aria-live="polite" hidden></div>
+      <!-- การ์ดทั้งหมดถูกวาดโดย listingcard.js จากข้อมูลจริงที่ API ส่งมา — ไม่มีการ์ดตัวอย่างในไฟล์นี้ -->
+      <div class="grid-3" id="listing-grid" aria-live="polite">
+        <div class="loading">กำลังโหลดแปลงที่ดิน...</div>
+      </div>
+      <!-- ⚠️ ตัวแบ่งหน้าต้องอยู่ **นอก** #listing-grid — compare.js เฝ้า DOM ในตะแกรงนั้นอยู่ -->
+      <nav id="listing-pager" class="listing-pager" aria-label="เปลี่ยนหน้าประกาศ" hidden></nav>
 
-  <section id="listings" style="max-width:1280px;margin:0 auto;padding:52px 32px 0">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:36px;flex-wrap:wrap;margin-bottom:32px">
-      <div>
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:18px">คัดสรรโดยทีมรังวัด</div>
-        <h2 style="font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.38;letter-spacing:-0.01em;margin:0">ที่ดินประกาศขาย</h2>
-      </div>
-      <div style="max-width:330px"><p style="font-size:16px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0">ข้อมูลชัด ตำแหน่งจริง พร้อมนัดดูพื้นที่ — ทุกแปลงขึ้นประกาศเมื่อเจ้าของยินยอมแล้วเท่านั้น</p><a href="listings.html" style="display:inline-block;margin-top:14px;font-size:14px;letter-spacing:0.04em;color:#1B4B7A;border-bottom:1px solid rgba(27,75,122,0.4);padding-bottom:2px" class="hv-gold">ดูประกาศทั้งหมด + ตัวกรอง →</a></div>
-    </div>
-    <div id="result-note" class="result-note" role="status" aria-live="polite" hidden></div>
-    <div id="listing-grid" class="listing-grid" aria-live="polite">
-      <div class="loading">กำลังโหลดแปลงที่ดิน...</div>
-    </div>
-    <nav id="listing-pager" class="listing-pager" aria-label="เปลี่ยนหน้าประกาศ" hidden></nav>
-  </section>
-
-  <section id="มาตรฐาน" style="max-width:1280px;margin:0 auto;padding:52px 32px 0">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:36px;flex-wrap:wrap;margin-bottom:34px">
-      <div style="max-width:680px">
-        <div style="font-size:11px;letter-spacing:0.34em;color:#1B4B7A;margin-bottom:18px">TEEDIN SURE STANDARD</div>
-        <h2 style="font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.38;letter-spacing:-0.01em;margin:0">ไม่ได้มีแค่ประกาศ<br>เราช่วยให้คุณซื้อได้อย่างมั่นใจ</h2>
-      </div>
-      <p style="font-size:16px;font-weight:400;line-height:1.65;color:#5A6B7D;max-width:340px;margin:0">ทุกข้อมูลสำคัญถูกจัดให้อ่านง่าย พร้อมผู้เชี่ยวชาญช่วยตรวจสิ่งที่คนซื้อที่ดินมักมองข้าม</p>
-    </div>
-    <div data-r="rules3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#D8E1EA;border-top:1px solid #D8E1EA;border-bottom:1px solid #D8E1EA">
-      <div style="background:#F4F7FA;padding:28px 28px">
-        <div style="font-family:var(--nj-font);font-size:15px;color:#1B4B7A;margin-bottom:20px">01</div>
-        <h3 style="font-family:var(--nj-font);font-weight:600;font-size:20px;margin:0 0 12px">แนวเขตและเนื้อที่จริง</h3>
-        <p style="font-size:15px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0">ตรวจหมุด แนวเขต และขนาดพื้นที่โดยทีมช่างรังวัด</p>
-      </div>
-      <div style="background:#F4F7FA;padding:28px 28px">
-        <div style="font-family:var(--nj-font);font-size:15px;color:#1B4B7A;margin-bottom:20px">02</div>
-        <h3 style="font-family:var(--nj-font);font-weight:600;font-size:20px;margin:0 0 12px">เอกสารและภาระผูกพัน</h3>
-        <p style="font-size:15px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0">สรุปประเภทเอกสารสิทธิ์และประเด็นที่ควรตรวจเพิ่มเติม</p>
-      </div>
-      <div style="background:#F4F7FA;padding:28px 28px">
-        <div style="font-family:var(--nj-font);font-size:15px;color:#1B4B7A;margin-bottom:20px">03</div>
-        <h3 style="font-family:var(--nj-font);font-weight:600;font-size:20px;margin:0 0 12px">ทางเข้าออกและสภาพแวดล้อม</h3>
-        <p style="font-size:15px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0">เห็นภาพถนน สาธารณูปโภค และบริบทรอบแปลงก่อนนัดดู</p>
-      </div>
+      <div class="listings-more"><a class="btn btn-outline" href="listings.html">ดูประกาศทั้งหมด →</a></div>
     </div>
   </section>
 
-  <section id="จุดเด่น" style="max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:20">
-    <div data-r="bar" style="display:grid;grid-template-columns:repeat(4,1fr);background:#FFFFFF;border:1px solid #D8E1EA;box-shadow:0 30px 70px rgba(11,31,58,0.12);margin-top:-40px">
-      <div style="padding:26px 26px;border-right:1px solid #E3EAF1">
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">01</div>
-        <div style="font-family:var(--nj-font);font-weight:600;font-size:18px;margin-bottom:7px">งานฝากขายฟรี</div>
-        <div style="font-size:14px;font-weight:400;line-height:1.65;color:#5A6B7D">ประเมินเบื้องต้นฟรี ไม่มีค่าใช้จ่ายล่วงหน้า</div>
+  <!-- ================= STANDARD ================= -->
+  <section class="standard" id="มาตรฐาน">
+    <div class="container">
+      <div class="standard-copy">
+        <span class="eyebrow eyebrow-light">TEEDIN SURE STANDARD</span>
+        <h2 class="h2">ไม่ได้มีแค่ประกาศ<br>เราช่วยให้คุณซื้อได้อย่างมั่นใจ</h2>
+        <p>ทุกข้อมูลสำคัญถูกจัดให้อ่านง่าย พร้อมผู้เชี่ยวชาญช่วยตรวจสิ่งที่คนซื้อที่ดินมักมองข้าม ก่อนวางเงินจอง</p>
+        <a class="btn btn-gold-light" href="verify.html">ส่งทรัพย์ให้ตรวจก่อนซื้อ →</a>
       </div>
-      <div style="padding:26px 26px;border-right:1px solid #E3EAF1">
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">02</div>
-        <div style="font-family:var(--nj-font);font-weight:600;font-size:18px;margin-bottom:7px">งานรังวัดที่ดิน</div>
-        <div style="font-size:14px;font-weight:400;line-height:1.65;color:#5A6B7D">สอบเขต แบ่งแยก รวมโฉนด และจัดสรร</div>
-        <a class="sq-open" href="tools.html#survey">เช็กราคางานรังวัด →</a>
-      </div>
-      <div style="padding:26px 26px;border-right:1px solid #E3EAF1">
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">03</div>
+      <div class="standard-grid">
+        <div class="std"><span class="std-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e5c76b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-12 6 8 6-4v8H3z"/></svg></span><div><small>01</small><b>แนวเขตและเนื้อที่จริง</b><p>ตรวจหมุด แนวเขต และขนาดพื้นที่โดยทีมช่างรังวัด เทียบกับโฉนดจริง</p></div></div>
         <!-- ⚠️ ห้ามกลับไปใช้คำว่า "ตรวจสอบกรรมสิทธิ์" — ผู้ซื้ออ่านว่าบริษัทรับรองกรรมสิทธิ์ให้
-             ซึ่งเกินขอบเขตบริการจริง · คำปฏิเสธความรับผิดชุดเดียวกับที่ verify.html ใช้อยู่แล้ว -->
-        <div style="font-family:var(--nj-font);font-weight:600;font-size:18px;margin-bottom:7px">ตรวจข้อมูลเอกสารสิทธิ์</div>
-        <div style="font-size:14px;font-weight:400;line-height:1.65;color:#5A6B7D">โฉนด ภาระผูกพัน ทางเข้า–ออก ผังเมือง — ตามขอบเขตบริการและข้อมูล ณ วันที่ตรวจ</div>
-        <a class="sq-open" href="tools.html#fee">คำนวณค่าใช้จ่ายวันโอน →</a>
-      </div>
-      <div style="padding:30px 28px">
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:14px">04</div>
-        <div style="font-family:var(--nj-font);font-weight:600;font-size:18px;margin-bottom:7px">ติดตามผลผ่านระบบ</div>
-        <div style="font-size:14px;font-weight:400;line-height:1.65;color:#5A6B7D">ดูสถานะงานและคิวสำนักงานที่ดินได้ตลอด</div>
-        <!-- ทางเข้าพอร์ทัลลูกค้าของหน้าแรก — การ์ดใบนี้สัญญาเรื่องนี้ไว้อยู่แล้วแต่เดิมไม่มีลิงก์ให้กด
-             ⚠️ [data-njportal] ต้องมีแค่จุดเดียวต่อหน้า (menu.js ใช้ querySelector หยิบไปใส่ลิ้นชัก) -->
-        <a class="sq-open" data-njportal href="portal.html" style="display:inline-block;text-decoration:none">เข้าระบบติดตามงานรังวัด →</a>
+             ซึ่งเกินขอบเขตบริการจริง (คำเดียวกับที่ verify.html ใช้อยู่) -->
+        <div class="std"><span class="std-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e5c76b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span><div><small>02</small><b>เอกสารและภาระผูกพัน</b><p>สรุปประเภทเอกสารสิทธิ์ จำนอง ภาระจำยอม และประเด็นที่ควรตรวจเพิ่ม ตามขอบเขตบริการและข้อมูล ณ วันที่ตรวจ</p></div></div>
+        <div class="std"><span class="std-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e5c76b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M6 19V9l6-5 6 5v10"/><path d="M10 19v-5h4v5"/></svg></span><div><small>03</small><b>ทางเข้าออกและสภาพแวดล้อม</b><p>เช็กทางสาธารณะ สาธารณูปโภค และบริเวณรอบแปลงก่อนนัดดู</p></div></div>
       </div>
     </div>
   </section>
 
-  <section id="คู่มือ" style="max-width:1280px;margin:0 auto;padding:52px 32px 0">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:36px;flex-wrap:wrap;margin-bottom:32px">
-      <div>
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:18px">อ่านก่อนตัดสินใจ</div>
-        <h2 style="font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.38;letter-spacing:-0.01em;margin:0">คู่มือคนซื้อที่ดิน</h2>
+  <!-- ================= GUIDE ================= -->
+  <section class="section guide" id="คู่มือ">
+    <div class="container">
+      <div class="guide-head">
+        <div><span class="eyebrow">อ่านก่อนตัดสินใจ</span><h2 class="h2">คู่มือคนซื้อที่ดิน</h2></div>
+        <p>ห้าเรื่องที่ผู้ซื้อและเจ้าของที่ดินถามเรามากที่สุด สรุปให้อ่านจบได้ก่อนวางเงินจอง</p>
       </div>
-      <p style="font-size:16px;font-weight:400;line-height:1.65;color:#5A6B7D;max-width:330px;margin:0">ห้าเรื่องที่ผู้ซื้อและเจ้าของที่ดินถามเรามากที่สุด สรุปให้อ่านจบได้ก่อนวางเงินจอง</p>
-    </div>
-    <div data-r="guides" style="display:grid;grid-template-columns:1.25fr 1fr;gap:20px">
-      <a href="guides.html#deed" style="display:block;background:#FFFFFF;border:1px solid #D8E1EA;padding:32px 32px;color:#0B1F3A" class="hv-card">
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:22px">เอกสารสิทธิ์ · 8 นาที</div>
-        <div style="font-family:var(--nj-font);font-weight:600;font-size:32px;line-height:1.38;margin-bottom:18px">โฉนด · น.ส.3 · ส.ค.1<br>ต่างกันอย่างไร</div>
-        <p style="font-size:16px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0 0 22px;max-width:460px">เอกสารที่ดินแต่ละแบบซื้อขายได้หรือไม่ เช็กสิทธิและข้อจำกัดให้เข้าใจก่อนวางเงินจอง</p>
-        <span style="font-size:13px;letter-spacing:0.16em;color:#1B4B7A">อ่านบทความ →</span>
-      </a>
-      <div style="display:grid;gap:20px">
-        <a href="guides.html#survey" style="display:block;background:#FFFFFF;border:1px solid #D8E1EA;padding:22px 26px;color:#0B1F3A" class="hv-card">
-          <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:10px">01 · รังวัดที่ดิน</div>
-          <div style="font-family:var(--nj-font);font-weight:600;font-size:20px;line-height:1.45">ทำไมต้องรังวัดสอบเขตก่อนซื้อขายที่ดิน</div>
+      <div class="guide-grid">
+        <a class="feature" href="guides.html#deed">
+          <!-- ยังไม่มีภาพประกอบบทความในคลังของเว็บ — ปล่อยเป็นพื้นไล่สีตามที่ดีไซน์วางไว้
+               ได้ไฟล์ 1200×675 เมื่อไหร่ ใส่ <img width="1200" height="675" loading="lazy"> ตรงนี้ -->
+          <div class="feature-media"></div>
+          <div class="feature-body">
+            <small>เอกสารสิทธิ์ · อ่าน 8 นาที</small>
+            <b>โฉนด · น.ส.3 · ส.ค.1 ต่างกันอย่างไร</b>
+            <p>เอกสารที่ดินแต่ละแบบซื้อขายได้หรือไม่ เช็กสิทธิและข้อจำกัดให้เข้าใจก่อนวางเงินจอง</p>
+            <span style="font-weight:600;font-size:14px">อ่านบทความ →</span>
+          </div>
         </a>
-        <a href="guides.html#valuation" style="display:block;background:#FFFFFF;border:1px solid #D8E1EA;padding:22px 26px;color:#0B1F3A" class="hv-card">
-          <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:10px">02 · ราคาประเมิน</div>
-          <div style="font-family:var(--nj-font);font-weight:600;font-size:20px;line-height:1.45">ราคาประเมินที่ดินคำนวณอย่างไร</div>
-        </a>
-        <a href="guides.html#fee" style="display:block;background:#FFFFFF;border:1px solid #D8E1EA;padding:22px 26px;color:#0B1F3A" class="hv-card">
-          <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:10px">03 · ค่าใช้จ่ายวันโอน</div>
-          <div style="font-family:var(--nj-font);font-weight:600;font-size:20px;line-height:1.45">มีค่าธรรมเนียมและภาษีอะไรบ้าง</div>
-        </a>
-        <a href="guides.html#check" style="display:block;background:#FFFFFF;border:1px solid #D8E1EA;padding:22px 26px;color:#0B1F3A" class="hv-card">
-          <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:10px">04 · ตรวจสอบ</div>
-          <div style="font-family:var(--nj-font);font-weight:600;font-size:20px;line-height:1.45">ตรวจสอบข้อมูลที่ดินออนไลน์ได้ที่ไหน</div>
-        </a>
+        <div class="guide-list">
+          <a href="guides.html#survey"><small>01</small><div><span>รังวัดที่ดิน</span><b>ทำไมต้องรังวัดสอบเขตก่อนซื้อขายที่ดิน</b></div></a>
+          <a href="guides.html#valuation"><small>02</small><div><span>ราคาประเมิน</span><b>ราคาประเมินที่ดินคำนวณอย่างไร</b></div></a>
+          <a href="guides.html#fee"><small>03</small><div><span>ค่าใช้จ่ายวันโอน</span><b>มีค่าธรรมเนียมและภาษีอะไรบ้าง</b></div></a>
+          <a href="guides.html#check"><small>04</small><div><span>ตรวจสอบ</span><b>ตรวจสอบข้อมูลที่ดินออนไลน์ด้วยตัวเอง</b></div></a>
+        </div>
       </div>
     </div>
   </section>
 
-  <section id="ทีมเรา" style="max-width:1280px;margin:0 auto;padding:52px 32px 0">
-    <div data-r="team" style="display:grid;grid-template-columns:1fr 1.05fr;gap:48px;align-items:center">
-      <div>
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:18px">คนที่อยู่เบื้องหลัง</div>
-        <h2 style="font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.38;letter-spacing:-0.01em;margin:0 0 22px">ทีมที่ลงไปยืนบนที่ดินจริง</h2>
-        <p style="font-size:16px;font-weight:400;line-height:1.68;color:#31465E;margin:0 0 26px">เราไม่ใช่เว็บรวมประกาศที่นั่งอยู่หลังจอ — <span style="font-family:var(--nj-font);font-weight:600;color:#0B1F3A">เราคือสำนักงานช่างรังวัดที่ทำงานในสนามมากว่า 12 ปี</span> ทุกแปลงที่ขึ้นเว็บนี้ คนของเราคุยกับเจ้าของที่ดินและยืนยันสิทธิ์ในการประกาศมาแล้วจริง ๆ ส่วนแปลงที่ลงพื้นที่หรือรังวัดแล้ว จะระบุระดับและวันที่ตรวจไว้บนการ์ด</p>
-        <div style="border-left:2px solid #B08D57;padding:4px 0 4px 22px">
-          <div style="font-family:var(--nj-font);font-weight:600;font-size:19px;margin-bottom:8px">สำนักงานช่างรังวัดเอกชน ใบอนุญาตเลขที่ 351</div>
-          <p style="font-size:15px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0">ใบอนุญาตนี้ออกโดยกรมที่ดิน และเป็นเหตุผลที่เรายืนยันแนวเขตให้ได้จริง ต่างจากนายหน้าทั่วไปที่ต้องจ้างช่างรังวัดต่ออีกทอด — เจ้าของที่ดินจึงคุยกับคนที่ลงมือทำได้โดยตรง</p>
+  <!-- ================= TEAM ================= -->
+  <section class="team" id="ทีมเรา">
+    <div class="container">
+      <div class="team-copy">
+        <span class="eyebrow">ทีมงานของเรา</span>
+        <h2 class="h2">ทีมที่ลงไปยืน<br>บนที่ดินจริง</h2>
+        <p>เราเป็นสำนักงานช่างรังวัดเอกชน ใบอนุญาตออกโดยกรมที่ดิน และเป็นเหตุผลที่เรายืนยันแนวเขตให้ได้จริง ต่างจากนายหน้าทั่วไปที่ต้องจ้างช่างรังวัดต่ออีกทอด — เจ้าของที่ดินจึงคุยกับคนที่ลงมือทำได้โดยตรง</p>
+        <div class="stats">
+          <div class="stat"><b>351</b><span>เลขที่ใบอนุญาต</span></div>
+          <div class="stat"><b>12+</b><span>ปีในสนาม</span></div>
+          <!-- ⚠️ ช่องที่สามเดิมดีไซน์เขียนว่า "จำนวน… แปลงที่รังวัดแล้ว" — เรายังไม่มีตัวเลขนั้น
+               ที่ตรวจสอบได้ จึงใช้จำนวนแปลงที่เปิดประกาศอยู่จริง ซึ่ง marketplace.js นับให้สด
+               ได้ตัวเลขจริงจากเจ้าของเมื่อไหร่ ใส่ที่ `surveyedParcels` ใน config.js แล้วช่องนี้
+               จะสลับไปใช้ตัวเลขนั้นเอง -->
+          <div class="stat"><b id="stat-count">—</b><span id="stat-count-label">แปลงที่เปิดประกาศอยู่</span></div>
+        </div>
+        <div class="card-tags">
+          <span class="chip is-outline">รังวัดสอบเขต</span><span class="chip is-outline">แบ่งแยก / รวมโฉนด</span><span class="chip is-outline">จัดสรร</span><span class="chip is-outline">สำรวจเพื่อออกแบบก่อสร้าง</span>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <img src="photos/marker-wide.jpg" alt="หมุดหลักเขตคอนกรีตในแปลงที่ดิน มีช่างรังวัดตั้งกล้องสำรวจอยู่ด้านหลัง" loading="lazy" width="1600" height="586" style="width:100%;height:250px;object-fit:cover;grid-column:span 2">
-        <img src="photos/survey.jpg" alt="ช่างรังวัดตั้งกล้องสำรวจในแปลงที่ดิน" loading="lazy" width="800" height="800" style="width:100%;height:180px;object-fit:cover">
-        <img src="photos/marker.jpg" alt="หมุดหลักเขตคอนกรีตปักอยู่ในแปลง" loading="lazy" width="800" height="800" style="width:100%;height:180px;object-fit:cover">
+      <div class="team-media">
+        <div><img src="photos/marker-wide.jpg" width="1600" height="586" loading="lazy" alt="หมุดหลักเขตคอนกรีตในแปลงที่ดิน มีช่างรังวัดตั้งกล้องสำรวจอยู่ด้านหลัง"></div>
+        <div><img src="photos/survey.jpg" width="800" height="800" loading="lazy" alt="ช่างรังวัดตั้งกล้องสำรวจในแปลงที่ดิน"></div>
+        <div><img src="photos/marker.jpg" width="800" height="800" loading="lazy" alt="หมุดหลักเขตคอนกรีตปักอยู่ในแปลง"></div>
       </div>
     </div>
   </section>
 
-  
-
-  <section id="ฝากขาย" style="max-width:1280px;margin:52px auto;padding:0 32px">
-    <div data-r="split" style="border:1px solid #D8E1EA;background:#FFFFFF;display:grid;grid-template-columns:1.05fr 1fr">
-      <div data-r="ctapad" style="padding:44px 40px">
-        <div style="font-size:13px;letter-spacing:0.06em;color:#1B4B7A;margin-bottom:18px">สำหรับเจ้าของที่ดิน</div>
-        <h2 style="font-family:var(--nj-font);font-weight:600;font-size:34px;line-height:1.38;margin:0 0 16px">มีที่ดินอยากขาย?<br>เริ่มจากข้อมูลที่ถูกต้อง</h2>
-        <p style="font-size:16px;font-weight:400;line-height:1.65;color:#5A6B7D;margin:0 0 32px">ส่งข้อมูลให้ทีมงานประเมินเบื้องต้นฟรี ไม่มีค่าใช้จ่ายล่วงหน้า</p>
-        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:32px">
-          <a href="tel:021620405" data-contact="tel" style="background:#0B1F3A;color:#F4F7FA;font-size:14px;font-weight:500;letter-spacing:0.16em;padding:17px 34px" class="hv-bronze">โทร 02-162-0405</a>
-          <a href="tel:0849158601" data-contact="tel" style="background:#0B1F3A;color:#F4F7FA;font-size:14px;font-weight:500;letter-spacing:0.16em;padding:17px 34px" class="hv-bronze">โทร 084-915-8601</a>
-          <a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener" data-contact="line" style="border:1px solid #CBD8E4;color:#0B1F3A;font-size:14px;font-weight:500;letter-spacing:0.16em;padding:17px 34px" class="hv-outline">LINE @716lffzt</a><a href="https://m.me/NJTeeDinSure" target="_blank" rel="noopener" data-contact="messenger" style="border:1px solid #CBD8E4;color:#0B1F3A;font-size:14px;font-weight:500;letter-spacing:0.16em;padding:17px 34px" class="hv-outline">Messenger</a>
+  <!-- ================= SELL ================= -->
+  <section class="sell" id="ฝากขาย">
+    <div class="container">
+      <div class="sell-copy">
+        <span class="eyebrow">สำหรับเจ้าของที่ดิน</span>
+        <h2 class="h2">มีที่ดินอยากขาย?<br>เริ่มจากข้อมูลที่ถูกต้อง</h2>
+        <p>ที่ดินขายไม่ออกมักไม่ใช่เพราะราคา แต่เพราะผู้ซื้อไม่มั่นใจว่าแปลงจริงตรงกับโฉนดหรือไม่ เข้า–ออกทางไหน แบ่งแยกได้จริงหรือเปล่า เราปิดช่องว่างนั้นด้วยการตรวจเอกสารและรังวัดยืนยันก่อนประกาศขาย</p>
+        <div class="steps">
+          <!-- ⚠️ อัตราค่านายหน้าอยู่หลายที่บนเว็บ (ที่นี่ · consign.html · njchat.js)
+               ต้นทางคือขั้นค่านายหน้าในระบบหลังบ้าน — contracts.test.js เทียบให้ -->
+          <div class="step"><span class="step-n">1</span><div><b>ประเมินและลงประกาศฟรี</b><span>ค่านายหน้าคิดเป็นขั้นตามราคาที่ขายได้ เริ่มที่ 3% และลดลงเมื่อมูลค่าสูงขึ้น เก็บเมื่อขายสำเร็จเท่านั้น</span></div></div>
+          <div class="step"><span class="step-n">2</span><div><b>ตรวจกรรมสิทธิ์และแนวเขต</b><span>โดยช่างรังวัดเอกชน ใบอนุญาต 351 ก่อนขึ้นประกาศ</span></div></div>
+          <div class="step"><span class="step-n">3</span><div><b>งานรังวัด แบ่งแยก จัดสรร ต่อเนื่องในทีมเดียว</b><span>ไม่ต้องจ้างต่ออีกทอด คุยกับคนที่ลงมือทำโดยตรง</span></div></div>
         </div>
-        <div style="display:grid;gap:9px;font-size:15px;font-weight:400;color:#5A6B7D;border-top:1px solid #E3EAF1;padding-top:24px">
-          <div>ประเมินเบื้องต้นฟรี ไม่มีค่าใช้จ่ายล่วงหน้า</div>
-          <div>ขึ้นประกาศเมื่อเจ้าของยินยอมแล้วเท่านั้น</div>
-          <div>จ.–ส. 08:30–17:30 น.</div>
+        <div class="contact-line">
+          <span>โทร <b><a data-njcfg-link="tel" data-njcfg="tel" href="tel:021620405">02-162-0405</a></b></span>
+          <span>LINE <b><a data-njcfg-link="line" data-njcfg="lineId" href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener" data-contact="line">@716lffzt</a></b></span>
+          <span data-njcfg="hours">จ.–ส. 08:30–17:30 น.</span>
         </div>
       </div>
-      <img src="photos/house.jpg" alt="บ้านบนแปลงที่ดินที่รังวัดยืนยันแนวเขตแล้ว" loading="lazy" width="900" height="947" style="width:100%;height:100%;min-height:320px;object-fit:cover">
+
+      <!-- ⚠️ ฟอร์มนี้ยิงไปที่ `POST {NJ_API_BASE}/api/public/consign` ซึ่งเป็นเส้นทางรับลีดเดิม
+           ของทั้งเว็บ (หน้า consign.html ใช้ตัวเดียวกัน) — ห้ามสร้างเส้นทางใหม่
+           ช่อง `website` คือกับดักบอท (honeypot) ซ่อนด้วย CSS คนจริงมองไม่เห็น
+           ฝั่งเซิร์ฟเวอร์มีเพดานกันยิงซ้ำราย IP อยู่แล้ว (5 ใบ/10 นาทีสำหรับคนแปลกหน้า) -->
+      <form class="form" id="sell-form" novalidate>
+        <h3>ฝากขายฟรี · ตอบกลับภายใน 1 วันทำการ</h3>
+        <div class="form-row">
+          <div class="f"><label for="s-name">ชื่อ</label><input id="s-name" name="name" type="text" required autocomplete="name"></div>
+          <div class="f"><label for="s-tel">เบอร์โทร</label><input id="s-tel" name="phone" type="tel" required autocomplete="tel" inputmode="tel"></div>
+        </div>
+        <div class="f"><label for="s-loc">ทำเลที่ดิน</label><input id="s-loc" name="locDetail" type="text" placeholder="ตำบล อำเภอ จังหวัด" required></div>
+        <div class="form-row">
+          <div class="f"><label for="s-size">ขนาด (ไร่-งาน-วา)</label><input id="s-size" name="size" type="text" placeholder="เช่น 2-1-50" inputmode="numeric"></div>
+          <div class="f"><label for="s-doc">เอกสารสิทธิ์</label><select id="s-doc" name="doc"><option>โฉนด</option><option>น.ส.3 ก.</option><option>น.ส.3</option><option>อื่น ๆ</option></select></div>
+        </div>
+        <div class="f"><label for="s-note">รายละเอียดเพิ่มเติม (ถ้ามี)</label><textarea id="s-note" name="note" rows="3" placeholder="ราคาที่ตั้งใจขาย ทางเข้าออก ฯลฯ"></textarea></div>
+        <!-- ⚠️ ช่องยินยอม PDPA — ดีไซน์ไม่ได้วางไว้ แต่ฟอร์มฝากขายเดิม (consign.html) มีเสมอ
+             ตัดออกจากฟอร์มที่เก็บชื่อกับเบอร์โทรไม่ได้ · จัดให้เตี้ยที่สุดเท่าที่จะทำได้ -->
+        <label class="f" style="flex-direction:row;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink-2)">
+          <input id="s-pdpa" name="pdpa" type="checkbox" required style="width:auto;margin-top:3px;flex:none">
+          <span>ยินยอมให้ติดต่อกลับและเก็บข้อมูลตาม<a href="privacy.html" style="text-decoration:underline">นโยบายความเป็นส่วนตัว</a></span>
+        </label>
+        <!-- กับดักบอท — คนจริงไม่เห็นช่องนี้ ห้ามใส่ label หรือ placeholder ที่ชวนให้กรอก -->
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="visually-hidden">
+        <button class="btn btn-gold btn-block" type="submit">ส่งข้อมูลฝากขาย</button>
+        <p class="form-note" id="sell-msg" role="status" aria-live="polite">ข้อมูลของคุณใช้เพื่อติดต่อกลับเท่านั้น · ไม่เผยแพร่จนกว่าจะยินยอม</p>
+      </form>
     </div>
   </section>
 </main>
-<footer style="background:#0B1F3A;color:#A8B6C4">
+
+<footer class="footer-legacy" style="background:#0B1F3A;color:#A8B6C4">
     <div style="max-width:1280px;margin:0 auto;padding:46px 32px 26px">
       <div data-r="split3" style="display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:44px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,0.14)">
         <div>
@@ -551,7 +572,9 @@
           <a href="consign.html" style="display:inline-block;margin-top:26px;background:#D8B96B;color:#0B1F3A;font-size:13px;font-weight:500;letter-spacing:0.16em;padding:14px 28px" class="hv-white">ฝากขายที่ดินฟรี</a>
         </div>
       </div>
-      <div style="padding-top:22px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:13px;font-weight:400;color:#5F7183">
+      <!-- ⚠️ สีเดิม #5F7183 บนพื้นกรมท่าได้ความต่างสีแค่ 3.29:1 (ตกเกณฑ์ AA สำหรับ 13px)
+           #7C8EA1 ได้ 4.91:1 — Lighthouse จับได้ตอนตรวจหน้าแรกรอบดีไซน์ใหม่ 22 ก.ย. 69 -->
+      <div style="padding-top:22px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:13px;font-weight:400;color:#7C8EA1">
         <div>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</div>
         <div>งานรังวัดโดยช่างรังวัดเอกชนดำเนินการได้เฉพาะที่ดินที่มีโฉนดที่ดินแล้ว</div>
       </div>
@@ -563,21 +586,28 @@
     <button type="button" class="nj-legal-btn" data-njconsent>ตั้งค่าคุกกี้</button>
   </nav>
   </footer>
-</div>
 
-<nav class="mobile-nav" aria-label="เมนูมือถือ">
-  <a href="#top"><span>⌂</span>หน้าแรก</a>
-  <a href="#listings"><span>⌕</span>ค้นหา</a>
-  <a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a>
-  <a href="guides.html"><span>📖</span>คู่มือ</a>
-  <a href="#ฝากขาย"><span>☏</span>ติดต่อ</a>
+<!-- ================= MOBILE TAB BAR =================
+     ⚠️ ต้องมีคลาส `mobile-nav` ติดอยู่ด้วยเสมอ — menu.js ใช้คลาสนั้นข้ามแถบล่างตอนมองหา
+        <nav> ตัวหลักไปทำลิ้นชัก ถอดออกเมื่อไหร่ ลิ้นชักมือถือจะกลายเป็นสำเนาของแถบล่าง -->
+<nav class="tabbar mobile-nav" aria-label="เมนูมือถือ">
+  <a class="is-active" href="#top" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าแรก</a>
+  <a href="listings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>ค้นหา</a>
+  <a class="mobile-post" href="consign.html"><span class="fab" aria-hidden="true">+</span>ฝากขาย</a>
+  <a href="guides.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a1 1 0 0 0-1-1H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a1 1 0 0 1 1-1h7z"/></svg>คู่มือ</a>
+  <a data-njcfg-link="tel" href="tel:021620405"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16v3a2 2 0 0 1-2 2A18 18 0 0 1 3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2z"/></svg>ติดต่อ</a>
 </nav>
 
+<!-- ค่าติดต่อของบริษัท (เบอร์ · ไลน์ · ที่อยู่ · เวลาทำการ) — แหล่งเดียวของทั้งเว็บ
+     ต้องมาก่อนสคริปต์อื่นทุกตัว เพราะ listingcard.js / analytics.js อ่านค่าจากที่นี่ -->
+<script src="config.js"></script>
 <script src="analytics.js"></script>
 <!-- ต้องมาก่อน listingcard.js — card() อ่าน window.NJVerified ตอนวาดป้ายระดับตรวจสอบ -->
   <script src="verified.js"></script>
   <script src="landscore.js"></script>
-  <script src="listingcard.js"></script>
+  <!-- ชื่อทำเลสั้นบนหัวการ์ด — listingcard.js เรียก NJLandMeta.localityOf ตัวเดียวกับหน้ารายละเอียด -->
+<script src="landmeta.js"></script>
+<script src="listingcard.js"></script>
 <script src="save.js"></script>
 <script src="marketplace.js"></script>
 <!-- บริการเพิ่มเติม + เปรียบเทียบแปลง — ต้องมาหลัง listingcard.js เพราะ compare.js
@@ -587,6 +617,8 @@
 <script src="landvocab.js"></script>
 <script src="njchatload.js"></script>
 <script src="menu.js"></script>
+<!-- ฟอร์มฝากขายบนหน้าแรก — ยิงเข้าเส้นทางรับลีดเดิม /api/public/consign -->
+<script src="sellform.js"></script>
 
 
 </body>

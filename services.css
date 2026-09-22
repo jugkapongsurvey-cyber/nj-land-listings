@@ -1,0 +1,210 @@
+/* สไตล์ของหน้า "บริการของเรา" (services.html)
+ *
+ * ทำไมถึงมีไฟล์นี้: เดิม services.html ยืมสไตล์จาก `home.css` ทั้งก้อน — พื้นฐานหน้า (body/reset)
+ * หัวหน้ารอง (.nj-pagehead) แถบแนะนำระบบ (.nj-intro) เมนูล่างมือถือ และแบนเนอร์คุกกี้
+ * พอหน้าแรกถูกออกแบบใหม่ (2026-09-22) `home.css` กลายเป็นสไตล์ของหน้าแรกล้วน ๆ
+ * ซึ่งมี reset/ตัวแปร/ระยะคนละชุด — โหลดคู่กันเมื่อไหร่หน้านี้เพี้ยนทั้งหน้า
+ * จึงยกเฉพาะส่วนที่หน้านี้ใช้จริงออกมาไว้ที่นี่ (ยกมาทั้งบล็อกตามเดิม ไม่ได้แก้ค่า)
+ *
+ * ⚠️ ห้ามให้หน้าอื่นโหลดไฟล์นี้ — มันตั้ง body/reset ของทั้งหน้า
+ *    หน้าที่ใช้ marketplace.css อยู่แล้ว (land.html ฯลฯ) จะชนกันทันที
+ */
+
+:root{
+  --ink:#0B1F3A;         /* ตัวหนังสือหลัก / พื้นเข้ม */
+  --paper:#F4F7FA;       /* พื้นหลังหน้า */
+  --card:#FFFFFF;
+  --sand:#E7EEF5;        /* พื้นหลังส่วนบริการ */
+  --line:#D8E1EA;
+  --line2:#E3EAF1;
+  --gold:#D8B96B;        /* ทองอ่อน — ใช้บนพื้นเข้ม */
+  --bronze:#1B4B7A;      /* ทองเข้ม — ใช้บนพื้นสว่าง */
+  --brass:#B08D57;
+  --muted:#5A6B7D;
+}
+
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--nj-font);font-weight:400;
+}
+*{box-sizing:border-box}
+a{color:var(--bronze);text-decoration:none}
+a:hover{color:var(--ink)}
+img{display:block;max-width:100%}
+button,input,select{font:inherit}
+button{cursor:pointer}
+[hidden]{display:none !important}
+
+/* สไตล์ hover — ต้องเป็น !important เพราะดีไซน์ใช้ inline style ซึ่งชนะ class เสมอ */
+.hv-gold:hover{color:var(--gold) !important}
+.hv-goldbg:hover{background:var(--gold) !important;color:var(--ink) !important}
+.hv-white:hover{background:#FFFFFF !important;color:var(--ink) !important}
+.hv-glass:hover{background:rgba(255,255,255,.12) !important;color:#FFFFFF !important}
+.hv-card:hover{border-color:var(--brass) !important;color:var(--ink) !important}
+.hv-outline:hover{border-color:var(--brass) !important;color:var(--bronze) !important}
+.hv-bronze:hover{background:var(--bronze) !important;color:#FFFFFF !important}
+.hv-bronzetext:hover{color:var(--bronze) !important}
+
+/* เมนูล่างสำหรับมือถือ */
+.mobile-nav{display:none}
+
+/* แบนเนอร์ขอความยินยอม (analytics.js สร้างเอง สไตล์อยู่ที่นี่) */
+#nj-consent{
+  position:fixed;left:12px;right:12px;bottom:12px;z-index:200;
+  background:var(--ink);color:#BFCAD6;border:1px solid rgba(216,185,107,.32);
+  padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:13px;font-weight:400;line-height:1.7;
+}
+.nj-consent-text{flex:1;min-width:220px}
+.nj-consent-btns{display:flex;gap:9px;flex:none}
+#nj-consent button{
+  border:0;padding:11px 22px;font-size:13px;font-weight:500;letter-spacing:.1em;
+}
+.nj-consent-no{background:transparent;color:#8798A9;border:1px solid rgba(255,255,255,.28) !important}
+.nj-consent-yes{background:var(--gold);color:var(--ink)}
+
+/* ป้ายเหนือหัวข้อ — หน้านี้ใช้ตัวเดียวกับ hero ของหน้าแรกชุดเดิม */
+.nj-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 var(--nj-space-4);
+  padding: 6px var(--nj-space-3);
+  border: 1px solid rgba(216,185,107,0.55);
+  font-size: var(--nj-fs-xs);
+  letter-spacing: 0.06em;
+  color: var(--nj-gold-500);
+}
+
+
+/* ---------- หัวหน้ารอง (services.html) ---------- */
+.nj-pagehead { background: var(--nj-navy-900); color: var(--nj-white); }
+.nj-pagehead-in { max-width: 1280px; margin: 0 auto; padding: var(--nj-space-8) var(--nj-space-6); }
+.nj-pagehead h1 {
+  margin: 0 0 var(--nj-space-3);
+  font-size: var(--nj-fs-h1);
+  font-weight: var(--nj-fw-semi);
+  line-height: var(--nj-lh-tight);
+}
+.nj-pagehead-lead {
+  max-width: var(--nj-measure);
+  margin: 0;
+  font-size: var(--nj-fs-lead);
+  line-height: var(--nj-lh-body);
+  color: rgba(255,255,255,0.88);
+}
+
+
+/* ---------- แนะนำระบบทำงาน (คลิปแนวตั้ง 9:16) ---------- */
+/* คลิปนี้ถ่ายเป็นแนวตั้ง 1080×1920 — ยัดลงกรอบ 16:9 แบบ .nj-screen ไม่ได้
+   จะเหลือแถบดำสองข้างกินพื้นที่กว่าครึ่งจอ · จึงวางเป็นสองคอลัมน์
+   คลิปแนวตั้งซ้าย + เนื้อความขวา แล้วซ้อนกันเมื่อจอแคบ */
+.nj-intro{position:relative;overflow:hidden;margin-top:58px;background:#050F1D;color:#fff}
+.nj-intro-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(90% 70% at 22% 0%,rgba(27,75,122,.55) 0%,rgba(5,15,29,0) 62%),
+    radial-gradient(70% 60% at 88% 100%,rgba(216,185,107,.13) 0%,rgba(5,15,29,0) 66%);
+}
+.nj-intro-in{
+  position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:72px 32px 78px;
+  display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:56px;align-items:center;
+}
+
+/* จอแนวตั้ง */
+.nj-intro-player{position:relative}
+/* แสงสาดรอบกรอบ — วาดด้วย gradient ไม่ใช่ blur ของรูป (เหตุผลเดียวกับ .nj-screen::before) */
+.nj-intro-player::before{
+  content:"";position:absolute;left:-14%;right:-14%;top:-8%;bottom:-8%;z-index:0;pointer-events:none;
+  background:radial-gradient(56% 52% at 50% 50%,rgba(37,96,153,.5) 0%,rgba(27,75,122,.26) 46%,rgba(5,15,29,0) 72%);
+}
+.nj-intro-frame{
+  position:relative;z-index:1;background:#0B1F3A;
+  border:1px solid rgba(216,185,107,.42);
+  box-shadow:0 0 110px rgba(27,75,122,.45),0 34px 76px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,255,255,.05);
+}
+/* หมุดมุมทอง ชุดเดียวกับกรอบจอของแถบ "ระบบติดตามงาน" ให้เป็นภาษาเดียวกันทั้งหน้า */
+.nj-intro-frame::before,.nj-intro-frame::after{
+  content:"";position:absolute;width:24px;height:24px;border:1px solid var(--gold);pointer-events:none;z-index:3;
+}
+.nj-intro-frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.nj-intro-frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+/* ⚠️ ต้องมี height:auto — <video> มี width/height เป็นแอตทริบิวต์ (กัน layout shift ตอนโหลด)
+   ซึ่งเบราว์เซอร์แปลงเป็น height:1920px แล้วชนะ aspect-ratio ทำให้จอสูง 1920px เต็มหน้า
+   ตอนแรกเจอเป็นแถบขาวเปล่าๆ กลางหน้า เพราะโปสเตอร์เป็นสตูดิโอสีขาวถูกยืดจนเต็มจอ */
+.nj-intro-frame video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;background:#0B1F3A}
+
+/* ปุ่มเล่น — ซ้อนทับทั้งกรอบ
+   ⚠️ ซ่อนไว้ก่อน แล้วให้ JS ใส่คลาส .js-ready ถึงจะโผล่
+   ถ้า JS ตาย/โหลดไม่ทัน ปุ่มจะไม่ขึ้นมาบังจอ คนยังกดเล่นจากปุ่มควบคุมของเบราว์เซอร์ได้ตามปกติ */
+.nj-intro-play{display:none}
+.nj-intro.js-ready .nj-intro-play{
+  display:flex;position:absolute;inset:0;z-index:2;
+  flex-direction:column;align-items:center;justify-content:flex-end;gap:14px;
+  padding:0 0 34px;border:0;cursor:pointer;color:#fff;font-family:inherit;
+  background:linear-gradient(180deg,rgba(5,15,29,.12) 0%,rgba(5,15,29,.06) 42%,rgba(5,15,29,.78) 100%);
+}
+.nj-intro-play-ring{
+  width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(216,185,107,.85);background:rgba(11,31,58,.5);color:var(--gold);
+  backdrop-filter:blur(2px);transition:background .25s ease,transform .25s ease;
+}
+.nj-intro-play-txt{font-size:14px;font-weight:500;letter-spacing:.06em;text-align:center;line-height:1.5}
+.nj-intro-play-txt b{display:block;font-weight:400;font-size:12px;letter-spacing:.1em;color:rgba(255,255,255,.72);margin-top:5px}
+.nj-intro-play:hover .nj-intro-play-ring{background:var(--gold);color:#0B1F3A;transform:scale(1.06)}
+.nj-intro-play:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* เนื้อความ */
+.nj-intro-eyebrow{font-size:13px;letter-spacing:.22em;color:var(--gold);margin-bottom:18px}
+.nj-intro h2{
+  font-family:var(--nj-font);font-weight:600;font-size:40px;line-height:1.34;
+  letter-spacing:-.01em;color:#fff;margin:0 0 18px;
+}
+.nj-intro-lede{font-size:17px;font-weight:400;line-height:1.75;color:rgba(255,255,255,.78);margin:0 0 26px;max-width:560px;text-wrap:pretty}
+.nj-intro-points{list-style:none;margin:0 0 30px;padding:0;display:grid;gap:1px}
+.nj-intro-points li{border-top:1px solid rgba(216,185,107,.26);padding:15px 0}
+.nj-intro-points b{display:block;font-family:var(--nj-font);font-weight:600;font-size:18px;color:var(--gold);margin-bottom:5px}
+.nj-intro-points span{display:block;font-size:14px;font-weight:400;line-height:1.65;color:rgba(255,255,255,.72)}
+.nj-intro-cta{
+  display:inline-block;border:1px solid rgba(216,185,107,.7);color:var(--gold);
+  font-size:14px;font-weight:500;letter-spacing:.16em;padding:15px 32px;
+}
+.nj-intro-cta:hover{background:var(--gold);color:#0B1F3A}
+
+@media (max-width:900px){
+  /* กฎ section{padding:18px !important} ของเบรก 640px เจาะเข้ามาที่แถบนี้ด้วย
+     ทำให้พื้นเข้มไม่เต็มจอ เหลือขอบสีกระดาษสองข้าง — ต้องล้างทิ้งเหมือน .nj-stage */
+  .nj-intro{margin-top:40px;padding-left:0 !important;padding-right:0 !important}
+  .nj-intro-in{grid-template-columns:1fr;gap:34px;padding:56px 18px 62px}
+  /* คลิปแนวตั้งเต็มความกว้างมือถือจะสูงเกินจอ (375px → 667px) ต้องคุมความกว้างไว้ */
+  .nj-intro-player{max-width:300px;margin:0 auto}
+  .nj-intro h2{font-size:28px !important}
+  .nj-intro-lede{font-size:16px;margin-bottom:22px}
+  .nj-intro-points{margin-bottom:24px}
+  .nj-intro-cta{padding:14px 26px}
+}
+
+
+/* ---------- จอเล็ก ---------- */
+@media (max-width:640px){
+  h2{font-size:27px !important}
+  section{padding-left:18px !important;padding-right:18px !important}
+
+  /* เมนูล่างมือถือ — เว็บเดิมมีอยู่ ถ้าตัดออกคนบนมือถือจะกดฝากขายไม่เจอ */
+  .mobile-nav{
+    display:grid;grid-template-columns:repeat(5,1fr);
+    position:fixed;left:0;right:0;bottom:0;z-index:150;
+    background:var(--ink);border-top:1px solid rgba(216,185,107,.28);
+  }
+  .mobile-nav a{
+    display:grid;gap:3px;justify-items:center;padding:10px 4px;
+    font-size:11px;font-weight:400;color:#A8B6C4;
+  }
+  .mobile-nav a span{font-size:16px;color:var(--gold)}
+  .mobile-nav .mobile-post{background:var(--gold);color:var(--ink)}
+  .mobile-nav .mobile-post span{color:var(--ink)}
+  body{padding-bottom:64px}
+  #nj-consent{bottom:76px}
+
+  .nj-pagehead-in{padding:var(--nj-space-6) var(--nj-space-4) !important}
+}
