@@ -39,7 +39,9 @@ function walkHtml(dir, rel, out) {
   return out;
 }
 const propPages = walkHtml(path.join(ROOT, 'properties'), 'properties/', []);
-const pPages = pStubs.concat(propPages);
+// หน้าวารสาร journal/<slug>/ (build/journal.js) — ตรวจที่อยู่ไฟล์เหมือนหน้าแปลง
+const jrPages = walkHtml(path.join(ROOT, 'journal'), 'journal/', []);
+const pPages = pStubs.concat(propPages).concat(jrPages);
 
 // ---------- 1) ไวยากรณ์ของไฟล์ JavaScript ทุกไฟล์ ----------
 console.log('\n1) ไวยากรณ์ JavaScript (' + scripts.length + ' ไฟล์)');

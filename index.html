@@ -151,6 +151,8 @@
   <noscript><link rel="stylesheet" href="verified.css"></noscript>
   <link rel="preload" as="style" data-njcss href="landscore.css">
   <noscript><link rel="stylesheet" href="landscore.css"></noscript>
+  <link rel="preload" as="style" data-njcss href="journal.css">
+  <noscript><link rel="stylesheet" href="journal.css"></noscript>
 <link rel="stylesheet" href="legal.css">
   <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
   <script type="application/ld+json" data-nj-schema>
@@ -223,6 +225,7 @@
               <li><a href="guides.html"><b>คู่มือที่ดิน</b><small>เอกสารสิทธิ์ การโอน ผังเมือง</small></a></li>
               <li><a href="tools.html"><b>เครื่องมือคำนวณ</b><small>ค่างวดสินเชื่อ ค่าโอนวันโอน</small></a></li>
               <li><a href="videos.html"><b>วิดีโอให้ความรู้</b><small>ดูจบใน 30 วินาที</small></a></li>
+              <li><a href="journal.html"><b>วารสาร</b><small>สรุปข่าวที่ดินและกฎหมายรายสัปดาห์</small></a></li>
               <li><a href="chat.html"><b>แชทกับน้องเอ็นเจชัวร์</b><small>ผู้ช่วย AI ตอบเรื่องที่ดิน</small></a></li>
             </ul>
           </div>
@@ -395,6 +398,26 @@
     </div>
   </section>
 
+  <!-- ================= วารสาร (ฉบับล่าสุด 3 ฉบับ) =================
+       ⚠️ การ์ดวาดโดย journalhome.js จาก GET /api/journal?limit=3 (เฉพาะฉบับที่เผยแพร่)
+          ยังไม่มีฉบับเผยแพร่ = ซ่อนทั้งบล็อก · โหลดไม่สำเร็จ = บอกตรงๆ แล้วเหลือปุ่มไปหน้ารวม
+       ⚠️ ห้ามใส่การ์ดตัวอย่างในไฟล์นี้ (กติกาข้อ 4 ของเว็บ) -->
+  <section class="section jr-home" id="วารสาร" aria-labelledby="jr-home-h">
+    <div class="container">
+      <div class="jr-home-head">
+        <div>
+          <span class="jr-home-eyebrow">อัปเดตทุกสัปดาห์</span>
+          <h2 class="h2" id="jr-home-h">วารสารที่ดินชัวร์ ฉบับล่าสุด</h2>
+          <p>สรุปข่าวอสังหาริมทรัพย์และกฎหมายที่ดินที่ผู้ซื้อ ผู้ขาย และนายหน้าต้องรู้ พร้อมกล่องกฎหมายและทิปจากช่างรังวัด</p>
+        </div>
+      </div>
+      <ul class="jr-grid" id="journal-home" aria-live="polite">
+        <li class="jr-note">กำลังโหลดวารสาร...</li>
+      </ul>
+      <div class="jr-home-more"><a class="btn btn-outline" href="journal.html">ดูวารสารทั้งหมด →</a></div>
+    </div>
+  </section>
+
   <!-- ================= STANDARD ================= -->
   <section class="standard" id="มาตรฐาน">
     <div class="container">
@@ -553,6 +576,7 @@
             <div>ยื่นขออนุญาตจัดสรรที่ดิน</div>
             <div>สำรวจและทำแผนที่เพื่อออกแบบก่อสร้าง</div>
             <div>คู่มือที่ดินและวิดีโอให้ความรู้</div>
+            <div><a href="journal.html" style="color:#8798A9" class="hv-gold">วารสารที่ดินชัวร์ (รายสัปดาห์)</a></div>
           </div>
         </div>
         <div>
@@ -623,6 +647,8 @@
 <script src="menu.js" defer></script>
 <!-- ฟอร์มฝากขายบนหน้าแรก — ยิงเข้าเส้นทางรับลีดเดิม /api/public/consign -->
 <script src="sellform.js" defer></script>
+<!-- บล็อกวารสารฉบับล่าสุด — ต้องมาหลัง analytics.js (อ่าน NJ_API_BASE) -->
+<script src="journalhome.js" defer></script>
 
 
 </body>

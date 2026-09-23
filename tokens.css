@@ -54,6 +54,15 @@
   --nj-info-fg:  #1B4B7A;
   --nj-info-bg:  #EEF3F8;
 
+  /* วารสารที่ดินชัวร์ — ชุดสีของตัววารสาร (ตรงกับ nj-weekly/CLAUDE.md ข้อ 5)
+   * ⚠️ ใช้เฉพาะบล็อก/หน้าวารสาร (journal.css) ไม่ใช่สีหลักของเว็บ
+   *    เปลี่ยนโทนวารสารต้องแก้ที่ nj-weekly ด้วย ไม่งั้นหน้าเว็บกับตัววารสารคนละสี */
+  --nj-journal-green: #0F5C3F;
+  --nj-journal-green-soft: #E3F0E9;
+  --nj-journal-amber: #B8730A;
+  --nj-journal-paper: #F7F8F5;
+  --nj-journal-ink: #17251F;
+
   /* บทบาทของสี — ใช้ตัวนี้ในคอมโพเนนต์ ไม่ใช้ค่าดิบข้างบนตรงๆ */
   --nj-text:        var(--nj-gray-900);
   --nj-text-strong: var(--nj-navy-900);
