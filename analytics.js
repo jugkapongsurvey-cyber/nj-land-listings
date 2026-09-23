@@ -203,7 +203,16 @@ var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_clic
                           // มีแต่ package_lead ที่เป็นลีดจากฟอร์ม (นับรวมใน formLeads ฝั่งเซิร์ฟเวอร์)
                           // ⚠️ การกดไลน์/โทรบนหน้าแพ็กเกจใช้ line_click/tel_click เดิม ห้ามเพิ่มชนิดใหม่ให้สองอย่างนั้น
                           'packages_view', 'package_view', 'package_compare',
-                          'package_reco_start', 'package_reco_done', 'package_lead'];
+                          'package_reco_start', 'package_reco_done', 'package_lead',
+                          // ทางเชื่อมไปเว็บ NJ (2026-09-23) — กดลิงก์ที่มี data-njlink · **ไม่ใช่ลีด**
+                          // ลีดจริงนับที่ survey_request_submit ซึ่งเซิร์ฟเวอร์บันทึกเองตอนรับฟอร์ม
+                          'nj_link_click'];
+// ลิงก์ไปเว็บ NJ ทุกจุดใส่ data-njlink="<รหัสทรัพย์หรือว่าง>" แล้วนับที่นี่ที่เดียว
+// (หน้าแปลง · คู่มือตรวจที่ดิน · เพิ่มจุดใหม่ก็แค่ใส่แอตทริบิวต์ ไม่ต้องเขียนตัวดักคลิกใหม่)
+document.addEventListener('click', function (e) {
+  var a = e.target && e.target.closest ? e.target.closest('a[data-njlink]') : null;
+  if (a) njTrackInternal('nj_link_click', a.getAttribute('data-njlink') || '');
+}, true);
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)
