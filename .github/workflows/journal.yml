@@ -1,0 +1,83 @@
+# สร้างหน้าวารสารที่ดินชัวร์อัตโนมัติ (build/journal.js) แล้ว commit เข้า main
+#
+# ทำไมต้องมี: เว็บนี้เป็นไฟล์นิ่งบน GitHub Pages สร้างหน้า /journal/<slug>/ ตอนมีคนเปิดไม่ได้
+# ระบบ nj-weekly ยิง PUT https://app.njteedinsure.com/api/journal ทุกสัปดาห์ → Action นี้ดึงไปสร้างหน้า
+# (เจ้าของกิจการเลือกทางนี้ 23 ก.ย. 2569 — og meta สำหรับแชร์ Facebook/LINE ต้องอยู่ในไฟล์ HTML จริง)
+#
+# ⚠️⚠️ ข้อที่ต้องรู้ก่อนแก้
+# 1. **commit เข้า main = ขึ้นเว็บจริงทันที** แต่ Action นี้แตะเฉพาะไฟล์วารสารเท่านั้น
+#    (journal.html · journal/** · sitemaps/journal.xml · sitemap.xml) — ขั้น "ตรวจไฟล์ที่เปลี่ยน"
+#    หยุดทั้งงานถ้ามีไฟล์อื่นเปลี่ยน ห้ามถอดขั้นนั้นออก
+# 2. **API ล่ม = ไม่ commit อะไรเลย** (build/journal.js ไม่แตะไฟล์เมื่อดึงไม่สำเร็จ แล้วออกด้วยรหัสไม่ศูนย์)
+# 3. **ไม่มีอะไรเปลี่ยน = ไม่ commit** — ตัวสร้างให้ผลเหมือนเดิมทุกไบต์ จึงไม่มี commit เปล่าทุก 30 นาที
+# 4. ต้องรัน build/sitemap.js ต่อทุกครั้ง — journal.html อยู่ใน sitemap.xml หลัก lastmod มาจากวันที่ commit
+#    ไม่รัน = `sitemap.js --check` ของ CI รอบถัดไปของคนอื่นแดง
+# 5. push ด้วย GITHUB_TOKEN แล้วสั่งสร้างเว็บซ้ำอีกชั้น (pages/builds) กันกรณีที่ push จากบอทไม่ปลุกการ deploy
+name: สร้างหน้าวารสาร
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'   # ทุก 30 นาที (ไม่ตรงนาทีที่ 0 — คิวของ GitHub แน่นที่สุดตอนต้นชั่วโมง)
+  workflow_dispatch:          # กดรันเองได้จากแท็บ Actions หลังส่งวารสารฉบับใหม่
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: journal-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # ⚠️ ห้ามถอด — sitemap.js ใช้วันที่ไทยกับไฟล์ที่ยังไม่ commit แต่อ่านวันที่ของไฟล์ที่ commit แล้ว
+    #    จาก git (%cs = วันตามเขตเวลาของคน commit) · commit ด้วยเวลา UTC ช่วง 00:00–07:00 น. ไทย
+    #    = สองค่าไม่ตรงกัน แล้ว `sitemap.js --check` ของคนอื่นแดงวันรุ่งขึ้น
+    env:
+      TZ: Asia/Bangkok
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0   # build/sitemap.js อ่านวันที่ commit ของแต่ละไฟล์
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ดึงวารสารจากระบบหลังบ้านแล้วสร้างหน้า
+        run: node build/journal.js
+
+      - name: แผนผังหลัก (journal.html อยู่ในนั้น)
+        run: node build/sitemap.js
+
+      - name: ตรวจไฟล์ที่เปลี่ยน — ต้องเป็นไฟล์วารสารเท่านั้น
+        id: diff
+        run: |
+          git add -A journal.html journal sitemaps/journal.xml sitemap.xml
+          other=$(git status --porcelain | grep -v '^[AMD]  \(journal\.html\|journal/\|sitemaps/journal\.xml\|sitemap\.xml\)' || true)
+          if [ -n "$other" ]; then echo "⛔ มีไฟล์อื่นเปลี่ยนด้วย — หยุด ไม่ commit"; echo "$other"; exit 1; fi
+          if git diff --cached --quiet; then echo "changed=0" >> "$GITHUB_OUTPUT"; echo "ไม่มีอะไรเปลี่ยน"; else echo "changed=1" >> "$GITHUB_OUTPUT"; git diff --cached --stat; fi
+
+      - name: ตรวจก่อนขึ้นเว็บ
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          node build/lint.js
+          node journal.test.js
+          node build/sitemap.js --check
+          node build/linkcheck.js
+
+      - name: commit + push
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "วารสาร: อัปเดตหน้าจากระบบหลังบ้าน (อัตโนมัติ)"
+          git push origin HEAD:main
+
+      - name: สั่งสร้างเว็บ GitHub Pages
+        if: steps.diff.outputs.changed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "สั่งสร้างเว็บซ้ำไม่สำเร็จ — ปกติ push ด้านบนก็ deploy ให้อยู่แล้ว"

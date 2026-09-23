@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>วารสารที่ดินชัวร์</title>
+  <link>https://njteedinsure.com/journal.html</link>
+  <atom:link href="https://njteedinsure.com/journal/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>สรุปข่าวอสังหาริมทรัพย์และกฎหมายที่ดินรายสัปดาห์ โดยที่ดินชัวร์</description>
+  <language>th</language>
+</channel>
+</rss>

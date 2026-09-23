@@ -66,6 +66,7 @@ const NAV = [
       { label: 'คู่มือที่ดิน', href: 'guides.html', note: 'เอกสารสิทธิ์ การโอน ผังเมือง' },
       { label: 'เครื่องมือคำนวณ', href: 'tools.html', note: 'ค่างวดสินเชื่อ ค่าโอนวันโอน' },
       { label: 'วิดีโอให้ความรู้', href: 'videos.html', note: 'ดูจบใน 30 วินาที' },
+      { label: 'วารสาร', href: 'journal.html', note: 'สรุปข่าวที่ดินและกฎหมายรายสัปดาห์' },
       { label: 'แชทกับน้องเอ็นเจชัวร์', href: 'chat.html', note: 'ผู้ช่วย AI ตอบเรื่องที่ดิน' }
     ]
   },
