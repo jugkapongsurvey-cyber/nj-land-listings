@@ -29,6 +29,8 @@
 // 6. **ลิงก์ภายในไม่ใส่เกินจำเป็น** (ข้อกำหนดงานที่ 9: ห้ามสร้างลิงก์จำนวนมากแบบสแปม)
 //    บทความที่เกี่ยวข้องใช้รายการที่ทีมเลือกเองก่อน · เติมจากหมวดเดียวกันได้รวมไม่เกิน RELATED_MAX
 //    แปลงที่เกี่ยวข้องใส่ได้เฉพาะแปลงที่ยังขึ้นเว็บอยู่จริง · แปลงที่ถูกถอดแล้วหายเองโดยไม่เหลือลิงก์เสีย
+//    บริการ ≤ SVC_MAX · หน้าพื้นที่ ≤ LOC_MAX ตามที่ทีมกดอนุมัติในระบบหลังบ้าน (งานที่ 9) · ข้อความลิงก์ = ชื่อหน้าปลายทาง
+//    หน้าพื้นที่ลิงก์เฉพาะที่ API ส่งมาและมีไฟล์บนเว็บแล้ว · seo_center ปิด (404) = ไม่มีลิงก์พื้นที่ ไม่ถือว่าล้ม
 // 7. **ผลลัพธ์ต้องเหมือนเดิมทุกไบต์เมื่อข้อมูลไม่เปลี่ยน** — ห้ามใส่เวลาปัจจุบันลงไฟล์ใดๆ
 // 8. **เขียนเฉพาะ** กล่อง nj-kbbody + กล่อง nj-kbidx ของ knowledge.html · knowledge/** · sitemaps/knowledge.xml ·
 //    และบรรทัด Sitemap ใน robots.txt · ไม่แตะหัวไฟล์อื่นของ knowledge.html (schema.js/sitemap.js อ่านอยู่)
@@ -47,6 +49,45 @@ const MAP_NOTE = '#   sitemaps/knowledge.xml  = หน้าบทความ�
 const PUBLISHER = 'บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด';
 const MARK = 'nj-kbpage';
 const RELATED_MAX = 4;
+// ⚠️ ลิงก์บริการและหน้าพื้นที่ที่ทีมกดอนุมัติในระบบหลังบ้าน (งานที่ 9) — เพดานเดียวกับ CAP ใน public/kblinks.js ของระบบ
+// SERVICES ต้องตรงกับ public/kblinks.js ทั้งคีย์ ชื่อ และหน้าปลายทาง (contracts.test.js เทียบให้)
+// ข้อความลิงก์ = ชื่อหน้าปลายทาง (เจ้าของกิจการตัดสิน 24 ก.ย. 69) · คีย์ที่ไม่รู้จักถูกข้าม ไม่เดา
+const SVC_MAX = 3;
+const LOC_MAX = 3;
+const SERVICES = [
+  { key: 'survey', th: 'บริการรังวัดและตรวจสอบที่ดิน', path: '/services.html' },
+  { key: 'verify', th: 'ส่งทรัพย์ให้ทีมตรวจสอบก่อนซื้อ', path: '/verify.html' },
+  { key: 'inspect', th: 'นัดช่างตรวจแปลงก่อนซื้อ', path: '/inspect.html' },
+  { key: 'packages', th: 'แพ็กเกจวิเคราะห์ที่ดิน', path: '/packages.html' },
+  { key: 'consign', th: 'ฝากขายที่ดินฟรี', path: '/consign.html' },
+  { key: 'wanted', th: 'ฝากหาที่ดินตามโจทย์', path: '/wanted.html' },
+  { key: 'agency', th: 'ทรัพย์บังคับคดีและทรัพย์ธนาคาร', path: '/agency.html' },
+  { key: 'tools', th: 'เครื่องมือคำนวณค่าโอนและค่างวด', path: '/tools.html' }
+];
+// รูปแบบเดียวกับ build/locations.js (หน้าพื้นที่ที่ตัวนั้นสร้าง)
+const AREA_PATH_RE = /^locations\/[^/\\?#%]+(?:\/[^/\\?#%]+)?\/$/;
+function areaPathOk(p) {
+  return typeof p === 'string' && AREA_PATH_RE.test(p) && p.split('/').every((s) => s !== '.' && s !== '..');
+}
+// ลิงก์บริการ — ตามลำดับที่ทีมเลือก · คีย์ที่ไม่รู้จักข้าม · ไม่เกิน SVC_MAX
+function serviceLinksFor(a) {
+  const out = [];
+  ((a.related && a.related.services) || []).forEach((k) => {
+    const s = SERVICES.find((x) => x.key === k);
+    if (s && out.length < SVC_MAX && !out.some((o) => o.href === s.path)) out.push({ href: s.path, label: s.th });
+  });
+  return out;
+}
+// ลิงก์หน้าพื้นที่ — เฉพาะหน้าที่ยังเผยแพร่อยู่ (areas = หน้าพื้นที่ที่มีอยู่จริงบนเว็บ) · ไม่เกิน LOC_MAX
+function locationLinksFor(a, areas) {
+  const byPath = new Map((areas || []).filter((x) => x && areaPathOk(x.path)).map((x) => [x.path, x]));
+  const out = [];
+  ((a.related && a.related.locations) || []).forEach((p) => {
+    const ar = byPath.get(String(p || '').replace(/^\/+/, ''));
+    if (ar && out.length < LOC_MAX && !out.some((o) => o.path === ar.path)) out.push({ path: ar.path, href: hrefOf(ar.path), label: ar.title || ar.path });
+  });
+  return out;
+}
 const MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 // ต้องตรงกับ SLUG_RE ของ lib/kb.js ฝั่งระบบ (ไทย/อังกฤษ ตัวเลข ขีดกลาง · ไม่ขึ้นหรือลงท้ายด้วยขีด)
 const SLUG_RE = /^[0-9A-Za-z฀-๿](?:[0-9A-Za-z฀-๿-]*[0-9A-Za-z฀-๿])?$/;
@@ -202,7 +243,7 @@ function person(label, p) {
   return label + ' <b>' + esc(p.name) + '</b>' + (p.credential ? ' (' + esc(p.credential) + ')' : '');
 }
 
-function articleBody(a, cats, related, listingLinks) {
+function articleBody(a, cats, related, listingLinks, svcLinks, locLinks) {
   const cat = catName(cats, a.category);
   const out = ['<section class="kb-head"><div class="shell">'];
   out.push('<p class="kb-crumb"><a href="/">หน้าแรก</a> › <a href="/knowledge.html">ความรู้ที่ดิน</a> › ' +
@@ -254,6 +295,14 @@ function articleBody(a, cats, related, listingLinks) {
     out.push('<h2 class="kb-h2">แปลงที่เกี่ยวข้อง</h2>');
     out.push('<ul class="kb-links">' + listingLinks.map((l) => '<li><a href="' + esc(l.href) + '">' + esc(l.label) + '</a></li>').join('') + '</ul>');
     out.push('<p class="kb-note">ราคาและรายละเอียดของแปลงดูที่หน้าแปลงนั้นๆ ซึ่งเป็นข้อมูลปัจจุบัน</p>');
+  }
+  if (locLinks && locLinks.length) {
+    out.push('<h2 class="kb-h2">ที่ดินในพื้นที่ที่เกี่ยวข้อง</h2>');
+    out.push('<ul class="kb-links">' + locLinks.map((l) => '<li><a href="' + esc(l.href) + '">' + esc(l.label) + '</a></li>').join('') + '</ul>');
+  }
+  if (svcLinks && svcLinks.length) {
+    out.push('<h2 class="kb-h2">บริการที่เกี่ยวข้อง</h2>');
+    out.push('<ul class="kb-links">' + svcLinks.map((l) => '<li><a href="' + esc(l.href) + '">' + esc(l.label) + '</a></li>').join('') + '</ul>');
   }
   // ⚠️ ข้อ 5 — ห้ามถอด
   out.push('<p class="kb-disclaim">' + esc(DISCLAIM) + '</p>');
@@ -404,6 +453,7 @@ function robotsWith(txt, on) {
 
 // ---------- วางแผนไฟล์ทั้งหมด (ตรรกะล้วน · ไม่แตะดิสก์) ----------
 // listings = ผลของ /api/public/listings (ใช้เฉพาะแปลงที่บทความอ้างถึง) · META/VOCAB = landmeta/landvocab
+// areas = หน้าพื้นที่ที่มีอยู่จริงบนเว็บ (main คัดจาก /api/public/seo/areas เฉพาะที่มีไฟล์หน้าแล้ว)
 function plan(tpl, raw, opts) {
   const o = opts || {};
   const { cats, articles, skipped } = clean(raw);
@@ -439,7 +489,7 @@ function plan(tpl, raw, opts) {
       desc: a.excerpt || a.title,
       url: urlOf(artPath(a)), image: img, ogType: 'article',
       published: dayOf(a.publishedAt),
-      graph: articleGraph(a, cats), body: articleBody(a, cats, relatedFor(a, articles), listingLinks)
+      graph: articleGraph(a, cats), body: articleBody(a, cats, relatedFor(a, articles), listingLinks, serviceLinksFor(a), locationLinksFor(a, o.areas))
     })));
   });
 
@@ -493,6 +543,7 @@ async function main() {
 
   let data;
   let listings = [];
+  let areas = [];
   try {
     const r = await fetch(API + '/api/public/kb/articles', { headers: { Accept: 'application/json' } });
     if (r.status === 404) {
@@ -510,13 +561,24 @@ async function main() {
       const j = await r2.json();
       listings = Array.isArray(j.listings) ? j.listings : [];
     }
+    const needAreas = data.articles.some((a) => a && a.related && Array.isArray(a.related.locations) && a.related.locations.length);
+    if (needAreas) {
+      const r3 = await fetch(API + '/api/public/seo/areas', { headers: { Accept: 'application/json' } });
+      // 404 = สวิตช์ seo_center ปิด → ไม่มีหน้าพื้นที่ให้ลิงก์ (ไม่ถือว่าล้ม)
+      if (r3.status !== 404) {
+        if (!r3.ok) throw new Error('GET /api/public/seo/areas ตอบ ' + r3.status);
+        const j3 = await r3.json();
+        // ⚠️ ลิงก์เฉพาะหน้าพื้นที่ที่มีไฟล์บนเว็บแล้ว — Action ของหน้าพื้นที่อาจยังไม่รันรอบใหม่ (กัน linkcheck ล้ม)
+        areas = (Array.isArray(j3.areas) ? j3.areas : []).filter((x) => x && areaPathOk(x.path) && fs.existsSync(path.join(ROOT, x.path, 'index.html')));
+      }
+    }
   } catch (e) {
     console.log('⛔ ดึงบทความจาก ' + API + ' ไม่สำเร็จ: ' + e.message + ' — ไม่แตะไฟล์ใดเลย');
     process.exit(1);
   }
 
   const tpl = fs.readFileSync(TPL_FILE, 'utf8');
-  const out = plan(tpl, data, { listings, META: require(path.join(ROOT, 'landmeta.js')), VOCAB: loadVocab() });
+  const out = plan(tpl, data, { listings, areas, META: require(path.join(ROOT, 'landmeta.js')), VOCAB: loadVocab() });
   out.skipped.forEach((s) => console.log('⚠ ข้ามบทความ ' + (s.id || '(ไม่มีรหัส)') + ': ' + s.why));
 
   const keep = new Set(Array.from(out.files.keys()));
@@ -553,5 +615,6 @@ if (require.main === module) main();
 
 module.exports = {
   slugOk, thaiDate, dayOf, bodyHtml, clean, relatedFor, plan, robotsWith, sitemapXml,
+  SERVICES, SVC_MAX, LOC_MAX, areaPathOk, serviceLinksFor, locationLinksFor,
   indexFlag, replaceBody, DISCLAIM, RELATED_MAX, SITE, MARK
 };

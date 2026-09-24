@@ -115,6 +115,32 @@ ok(tpl.indexOf('<!-- nj-kbbody:start -->') >= 0 && tpl.indexOf('<!-- nj-kbbody:e
 ok(/<link rel="stylesheet" href="knowledge\.css">/.test(tpl) && fs.existsSync(path.join(__dirname, 'knowledge.css')), 'ต้นแบบโหลด knowledge.css');
 ok(!/#[0-9a-fA-F]{3,6}\b/.test(read('knowledge.css').replace(/\/\*[\s\S]*?\*\//g, '')), 'knowledge.css ไม่มีรหัสสีดิบ (ใช้ token)');
 ok(/href="knowledge\.html"/.test(read('index.html')), '⭐ เมนูหลักมีลิงก์ไปหน้าบทความ (ไม่เป็นหน้ากำพร้า)');
+console.log('\nลิงก์บริการ + หน้าพื้นที่ที่ทีมอนุมัติ (งานที่ 9)');
+const AREAS = [
+  { path: 'locations/ชลบุรี/', title: 'ที่ดินชลบุรี' },
+  { path: 'locations/ระยอง/', title: 'ที่ดินระยอง' },
+  { path: 'index.html', title: 'หน้าแรก (ต้องถูกข้าม)' }
+];
+const rel9 = { articles: [], listings: [],
+  services: ['verify', 'nope', 'survey', 'verify', 'tools', 'consign'],
+  locations: ['locations/ชลบุรี/', '/locations/ระยอง/', 'locations/ไม่มีหน้า/', 'index.html', 'locations/a/b/c/'] };
+const w9 = K.plan(tpl, API([art(1, { related: rel9 })]), { areas: AREAS });
+const p9 = w9.files.get('knowledge/before-buying/บทความ-1/index.html');
+const svc9 = (p9.match(/บริการที่เกี่ยวข้อง<\/h2>\s*<ul class="kb-links">([\s\S]*?)<\/ul>/) || [])[1] || '';
+ok((svc9.match(/<li>/g) || []).length === K.SVC_MAX, '⭐ บริการไม่เกินเพดาน ' + K.SVC_MAX + ' · คีย์ที่ไม่รู้จัก/ซ้ำถูกข้าม', svc9);
+ok(svc9.indexOf('href="/verify.html">ส่งทรัพย์ให้ทีมตรวจสอบก่อนซื้อ</a>') >= 0 && svc9.indexOf('/services.html') > svc9.indexOf('/verify.html'), 'ข้อความลิงก์ = ชื่อหน้าปลายทาง · เรียงตามที่ทีมเลือก');
+const loc9 = (p9.match(/ที่ดินในพื้นที่ที่เกี่ยวข้อง<\/h2>\s*<ul class="kb-links">([\s\S]*?)<\/ul>/) || [])[1] || '';
+ok((loc9.match(/<li>/g) || []).length === 2 && loc9.indexOf('ที่ดินชลบุรี') >= 0 && loc9.indexOf('ที่ดินระยอง') >= 0, '⭐ หน้าพื้นที่ลิงก์เฉพาะที่มีอยู่จริง · / นำหน้าถูกตัด', loc9);
+ok(loc9.indexOf('หน้าแรก') < 0 && loc9.indexOf('ไม่มีหน้า') < 0, '⭐ path ที่ไม่ใช่หน้าพื้นที่ (index.html) หรือไม่มีหน้าจริง ไม่ถูกลิงก์');
+ok(loc9.indexOf('href="/' + encodeURI('locations/ชลบุรี/') + '"') >= 0, 'ลิงก์หน้าพื้นที่เข้ารหัสแล้ว');
+const none9 = K.plan(tpl, API([art(1)]), {}).files.get('knowledge/before-buying/บทความ-1/index.html');
+ok(none9.indexOf('บริการที่เกี่ยวข้อง</h2>') < 0 && none9.indexOf('ที่ดินในพื้นที่ที่เกี่ยวข้อง</h2>') < 0, 'ไม่มีลิงก์ที่ทีมอนุมัติ = ไม่มีหัวข้อ (ไม่วาดกล่องว่าง)');
+const noArea9 = K.plan(tpl, API([art(1, { related: rel9 })]), {}).files.get('knowledge/before-buying/บทความ-1/index.html');
+ok(noArea9.indexOf('ที่ดินในพื้นที่ที่เกี่ยวข้อง</h2>') < 0, 'ไม่มีหน้าพื้นที่ให้ลิงก์ (สวิตช์ seo_center ปิด) = ไม่มีหัวข้อ');
+ok(K.SERVICES.every((s) => fs.existsSync(path.join(__dirname, s.path.slice(1)))), '⭐ หน้าบริการทุกหน้ามีไฟล์จริง (ไม่มีลิงก์เสีย)');
+const again9 = K.plan(tpl, API([art(1, { related: rel9 })]), { areas: AREAS }).files.get('knowledge/before-buying/บทความ-1/index.html');
+ok(again9 === p9, 'รันซ้ำได้ผลเท่าเดิมทุกไบต์');
+
 const yml = read('.github/workflows/knowledge.yml');
 ok(/node build\/knowledge\.js/.test(yml) && /มีไฟล์อื่นเปลี่ยนด้วย/.test(yml), 'Action สร้างหน้าอัตโนมัติ และหยุดเมื่อมีไฟล์อื่นเปลี่ยน');
 
