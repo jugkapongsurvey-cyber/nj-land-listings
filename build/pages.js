@@ -58,6 +58,7 @@ const NAV = [
       { label: 'บริการของเรา', href: 'services.html', note: 'รังวัด ตรวจสอบ และดูแลหลังซื้อ' },
       { label: 'ส่งทรัพย์ให้ตรวจก่อนซื้อ', href: 'verify.html', note: 'ตรวจเอกสารและแนวเขต' },
       { label: 'นัดตรวจแปลงก่อนซื้อ', href: 'inspect.html', note: 'ให้ช่างรังวัดไปดูให้ก่อน' },
+      { label: 'เช็กลิสต์ก่อนซื้อ', href: 'checklist.html', note: '16 ข้อที่ควรตรวจก่อนวางมัดจำ' },
       { label: 'ระดับการตรวจสอบ 5 ระดับ', href: 'terms.html#levels', note: 'แต่ละระดับหมายถึงอะไร' }
     ]
   },
