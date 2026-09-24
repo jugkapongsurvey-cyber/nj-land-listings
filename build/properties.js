@@ -184,8 +184,13 @@ function render(tpl, l) {
   s = s.replace('</head>', ld + '</head>');
 
   // รหัสแปลง — `land.js` อ่านตัวนี้เมื่อไม่มี `?id=` ใน URL
-  s = s.replace('<script src="/landmeta.js"></script>',
-    '<script>window.NJ_LISTING_ID=' + JSON.stringify(String(l.id)) + ';</script>\n  <script src="/landmeta.js"></script>');
+  // ⚠️ จับแท็กทั้งแบบมีและไม่มี defer — รอบปรับความเร็ว (#18) เติม defer ให้ทุกสคริปต์ แล้วข้อความเดิมหาไม่เจอ
+  //    รหัสแปลงหายเงียบทุกหน้า แล้วหน้าแปลงที่เปิดโดยไม่มี ?id= ขึ้นว่าไม่พบประกาศ · หาไม่เจอ = ล้มดังๆ
+  //    สคริปต์รหัสแปลงไม่มี defer โดยตั้งใจ (รันทันที ก่อนสคริปต์ที่ defer ทุกตัว)
+  const metaTag = /<script src="\/landmeta\.js"( defer)?><\/script>/;
+  if (!metaTag.test(s)) throw new Error('ต้นแบบ land.html ไม่มีแท็ก landmeta.js — ฝังรหัสแปลง ' + l.id + ' ไม่ได้');
+  s = s.replace(metaTag, (m) =>
+    '<script>window.NJ_LISTING_ID=' + JSON.stringify(String(l.id)) + ';</script>\n  ' + m);
 
   // เนื้อหาที่บอตอ่านได้ — ใส่ไว้ในกล่องเดียวกับที่ land.js จะเขียนทับ
   s = s.replace(/(<div id="ld-root"[^>]*>)([\s\S]*?)(<\/div>)/,

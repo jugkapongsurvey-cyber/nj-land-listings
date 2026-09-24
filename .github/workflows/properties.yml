@@ -1,0 +1,84 @@
+# สร้างหน้าแปลงสแตติกอัตโนมัติ (build/properties.js) แล้ว commit เข้า main
+#
+# ทำไมต้องมี: หน้าแปลง /properties/<ประเภท>/<จังหวัด>/<อำเภอ>/<รหัส>/ เป็นไฟล์นิ่งบน GitHub Pages
+# เดิมต้องมีคนสั่งสร้างเอง หน้าจึงค้างรุ่นเก่าได้เป็นสัปดาห์ (ค้างรุ่น 21 ก.ย. จนถึง 25 ก.ย. 2569)
+# Action นี้ดึง /api/public/listings ไปสร้างหน้าทุก 30 นาที (แบบเดียวกับ journal.yml และ knowledge.yml)
+#
+# ⚠️⚠️ ข้อที่ต้องรู้ก่อนแก้
+# 1. **commit เข้า main = ขึ้นเว็บจริงทันที** แต่ Action นี้แตะเฉพาะไฟล์หน้าแปลงเท่านั้น
+#    (properties/** · p/** · sitemaps/properties.xml · redirects.json) — ขั้น "ตรวจไฟล์ที่เปลี่ยน"
+#    หยุดทั้งงานถ้ามีไฟล์อื่นเปลี่ยน ห้ามถอดขั้นนั้นออก
+# 2. **API ล่มหรือตอบว่างเปล่า = ไม่แตะไฟล์เลย** (กติกาข้อ 4 ของ build/properties.js) แล้วออกด้วยรหัสไม่ศูนย์
+#    Action จึงขึ้นแดงในแท็บ Actions แต่หน้าเดิมบนเว็บยังอยู่ครบ
+# 3. **แปลงที่ถูกถอนจากเว็บ = หน้าของแปลงนั้นถูกลบในรอบถัดไป** (กติกาข้อ 5) — นี่คือพฤติกรรมที่ตั้งใจ
+# 4. **ไม่มีอะไรเปลี่ยน = ไม่ commit** — ตัวสร้างให้ผลเหมือนเดิมทุกไบต์ (ตรวจแล้ว 25 ก.ย. 2569)
+# 5. **กลุ่ม concurrency เดียวกับ journal.yml และ knowledge.yml โดยตั้งใจ** — ทั้งสามตัว push เข้า main
+#    ถ้ารันพร้อมกัน ตัวที่ push ทีหลังจะถูกปฏิเสธ · กลุ่มเดียวกัน = รันต่อคิวกัน
+# 6. **ไม่รัน build/pages.js** — หัวเว็บของต้นแบบ land.html เปลี่ยนเมื่อคนแก้โค้ดเท่านั้น
+#    (คนแก้ต้องรัน `node build/pages.js && node build/properties.js` เองใน PR นั้น)
+# 7. **หน้าพื้นที่ (build/locations.js) ไม่ได้อยู่ใน Action นี้** — รายการแปลงบนหน้าจังหวัด/อำเภอ
+#    ยังเป็นข้อมูล ณ ตอนสร้างครั้งล่าสุด
+name: สร้างหน้าแปลงประกาศ
+
+on:
+  schedule:
+    - cron: '15,45 * * * *'   # ทุก 30 นาที สลับนาทีกับ journal.yml (7,37) และ knowledge.yml (22,52)
+  workflow_dispatch:           # กดรันเองได้จากแท็บ Actions หลังขึ้นประกาศแปลงใหม่
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: journal-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Bangkok
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ดึงประกาศจากระบบหลังบ้านแล้วสร้างหน้าแปลง
+        run: node build/properties.js
+
+      - name: ตรวจไฟล์ที่เปลี่ยน — ต้องเป็นไฟล์หน้าแปลงเท่านั้น
+        id: diff
+        run: |
+          # ⚠️ เพิ่มทีละชื่อ — git add ทั้งก้อนล้มทันทีถ้าชื่อใดไม่มีทั้งในเครื่องและใน git
+          for p in properties p sitemaps/properties.xml redirects.json; do
+            if [ -e "$p" ] || git ls-files --error-unmatch "$p" >/dev/null 2>&1; then git add -A -- "$p"; fi
+          done
+          other=$(git status --porcelain | grep -v '^[AMDR]  \(properties/\|p/\|sitemaps/properties\.xml\|redirects\.json\)' || true)
+          if [ -n "$other" ]; then echo "⛔ มีไฟล์อื่นเปลี่ยนด้วย — หยุด ไม่ commit"; echo "$other"; exit 1; fi
+          if git diff --cached --quiet; then echo "changed=0" >> "$GITHUB_OUTPUT"; echo "ไม่มีอะไรเปลี่ยน"; else echo "changed=1" >> "$GITHUB_OUTPUT"; git diff --cached --stat; fi
+
+      - name: ตรวจก่อนขึ้นเว็บ
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          node build/lint.js
+          node propurl.test.js
+          node seo.test.js
+          node build/linkcheck.js
+
+      - name: commit + push
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "หน้าแปลง: อัปเดตจากระบบหลังบ้าน (อัตโนมัติ)"
+          git push origin HEAD:main
+
+      - name: สั่งสร้างเว็บ GitHub Pages
+        if: steps.diff.outputs.changed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "สั่งสร้างเว็บซ้ำไม่สำเร็จ — ปกติ push ด้านบนก็ deploy ให้อยู่แล้ว"

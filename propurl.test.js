@@ -73,8 +73,19 @@ console.log('\n4) ⭐ ทะเบียนที่อยู่เดิม (re
 const keys = Object.keys(REDIR);
 ok('มีรายการอย่างน้อยเท่าจำนวนแปลง', keys.length >= PROP_DIRS.length, keys.length);
 ok('ทุกที่อยู่ต้นทางขึ้นต้นด้วย /', keys.every((k) => k.charAt(0) === '/'));
+// ⚠️ แปลงที่ถูกถอนจากเว็บแล้ว ตัวสร้างลบทั้งหน้าใหม่และหน้าพาไปทิ้ง (กติกาข้อ 5 ของ build/properties.js)
+//    แต่รายการในทะเบียนยังเก็บไว้เป็นประวัติ (ห้ามลบรายการเก่า) — กติกา "ไม่ตาย" ใช้กับแปลงที่ยังขึ้นเว็บเท่านั้น
+//    ส่วนแปลงที่ถอนแล้ว ต้องไม่เหลือหน้าพาไปค้างชี้ไปหน้าที่ไม่มีอยู่
+const liveIds = new Set(PROP_DIRS.map((d) => path.basename(d)));
 for (const k of keys) {
   const to = REDIR[k];
+  const id = (String(to).match(/(OP-\d+)\/?$/) || [])[1];
+  if (id && !liveIds.has(id)) {
+    const oldFile = k.replace(/^\//, '');
+    ok('แปลงที่ถอนแล้ว ' + id + ': ไม่เหลือหน้าพาไปค้างอยู่',
+       !fs.existsSync(path.join(ROOT, /\.html$/.test(oldFile) ? oldFile : oldFile + 'index.html')));
+    continue;
+  }
   ok('ปลายทางของ ' + k + ' มีอยู่จริง',
      typeof to === 'string' && fs.existsSync(path.join(ROOT, to.replace(/^\//, '') + 'index.html')), to);
   const fromFile = k.replace(/^\//, '');

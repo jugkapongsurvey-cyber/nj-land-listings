@@ -1,7 +1,6 @@
-# PHASE10_DEPLOYMENT_GUIDE.md — วิธีขึ้นระบบและตรวจหลังขึ้น
+# PHASE10_DEPLOYMENT_GUIDE.md — วิธีขึ้นระบบและตรวจหลังขึ้น (Phase 10)
 
-**สถานะ:** ครอบคลุมถึงสปรินต์ 1 · จะเติมทีละสปรินต์ตามงานที่ทำจริง
-**ปรับปรุงล่าสุด:** 18 กันยายน 2569
+**ครอบคลุม:** สปรินต์ 1–6 · **ปรับปรุงล่าสุด:** 24 กันยายน 2569
 
 ---
 
@@ -9,11 +8,11 @@
 
 | ส่วน | repo | โฮสต์ | วิธีขึ้น |
 |---|---|---|---|
-| เว็บสาธารณะ `njteedinsure.com` | `nj-land-listings` | GitHub Pages | merge เข้า `main` → GitHub Pages เผยแพร่เอง (ไม่มี build step) |
-| ระบบหลังบ้าน `app.njteedinsure.com` | `nj-survey-system` | Render | merge เข้า `main` → Render สั่ง deploy เอง |
+| เว็บสาธารณะ `njteedinsure.com` | `nj-land-listings` | GitHub Pages | merge เข้า `main` → GitHub Pages เผยแพร่เอง |
+| ระบบหลังบ้าน `app.njteedinsure.com` | `nj-survey-system` | Render | merge เข้า `main` → Render deploy เอง |
 
-⚠️ **ลำดับสำคัญเมื่อรอบไหนแตะทั้งสองส่วน: ขึ้นระบบหลังบ้านก่อนเสมอ**
-เพราะหน้าเว็บสาธารณะเรียก API ของระบบหลังบ้าน — ขึ้นเว็บก่อนแล้วหน้าเว็บจะเรียกเส้นทางที่ยังไม่มี
+⚠️ **รอบไหนแตะทั้งสองส่วน ขึ้นระบบหลังบ้านก่อนเสมอ** — หน้าเว็บเรียก API ของระบบ
+ขึ้นเว็บก่อน = หน้าเว็บเรียกเส้นทางที่ยังไม่มี หรือเหตุการณ์สถิติชนิดใหม่ถูกเซิร์ฟเวอร์ทิ้ง (400)
 
 ---
 
@@ -21,80 +20,124 @@
 
 **ระบบหลังบ้าน**
 ```
-npm test          # lint + ชุดทดสอบทั้งหมด ต้องผ่านครบ
-```
-**เว็บสาธารณะ** (ไม่มี `package.json` โดยตั้งใจ — รันทีละไฟล์)
-```
-node contracts.test.js ../nj-wt-p2b    # ค่าคงที่ที่ผูกกันข้ามสอง repo
-node compare.test.js ; node feecalc.test.js ; node valuecalc.test.js
-node verified.test.js ; node njchat.test.js ; node agency.test.js
-node loancalc.test.js ; node zonechip.test.js ; node zoneguide.test.js
-node build/linkcheck.js                # ลิงก์เสีย + หน้ากำพร้า (ออก 1 เมื่อมีลิงก์เสีย)
-node build/sitemap.js                  # สร้าง sitemap.xml ใหม่จากไฟล์จริง
+CI=true npm test      # lint + ชุดทดสอบทั้งหมด ต้องผ่านครบ
+npm run test:p10      # เฉพาะชุดของ Phase 10 (ทะเบียน SEO · หน้าพื้นที่ · บทความ · แดชบอร์ดการตลาด)
 ```
 
+**เว็บสาธารณะ** (ไม่มี `package.json` โดยตั้งใจ — CI รันทุกไฟล์ `*.test.js` ให้เอง)
+```
+node build/lint.js                     # ไวยากรณ์ · ที่อยู่ไฟล์ · id ซ้ำ · ลำดับสคริปต์
+for f in *.test.js; do node "$f" || echo "FAIL $f"; done
+node contracts.test.js <path ของ nj-survey-system สาขาที่ตรงกัน>
+node build/pages.js --check            # หัวเว็บกับสไตล์ชีตกลางตรงกันทุกหน้า
+node build/lazycss.js --check          # สไตล์ชีตของของที่ JS สร้าง ไม่บล็อกการวาด
+node build/sitemap.js --check
+node build/linkcheck.js                # ลิงก์เสีย (ต้องเป็น 0)
+```
+
+⚠️ **`contracts.test.js` ต้องชี้ไปสาขาของระบบที่ตรงกับงานนั้น** — รันเปล่าๆ จะเทียบกับโฟลเดอร์
+`../nj-survey-system` ซึ่งอาจค้างอยู่สาขาเก่า แล้วแดงทั้งที่โค้ดถูก (เจอซ้ำหลายรอบ)
+
+⚠️ **`build/schema.js --check` แสดง "20 หน้าไม่ตรง" บนเครื่อง Windows อยู่แล้ว** (ตัวจบบรรทัด CRLF/LF)
+ไม่ได้อยู่ใน CI · ตรวจความจริงด้วย `git diff --ignore-cr-at-eol` หลังรันตัวสร้าง
+
+### ลำดับตัวสร้างของเว็บ (เมื่อแก้หน้าหรือเพิ่มหน้าใหม่)
+
+`build/pages.js` → `build/properties.js` → `build/locations.js` → `build/schema.js` → `build/sitemap.js`
+
+- ⚠️ **`build/properties.js` · `build/locations.js` · `build/knowledge.js` · `build/journal.js` · `build/seo.js`
+  ดึงข้อมูลจาก API ของ production** — รันแล้วหน้าต่างๆ จะเปลี่ยนตามข้อมูลจริงวันนั้น (แปลงถูกถอน = หน้าถูกลบ)
+  รันเฉพาะเมื่อตั้งใจอัปเดตหน้านั้นจริง และตรวจ `git status` ก่อน commit เสมอ
+- ⚠️ **`build/seo.js` แก้แท็กของทุกหน้าที่อยู่ในทะเบียน SEO** — ห้ามรันระหว่างทำงานอื่นแล้วเผลอ commit ไปด้วย
+- `knowledge` และ `journal` สร้างเองทุก 30 นาทีด้วย GitHub Actions (`knowledge.yml` · `journal.yml`) ไม่ต้องรันมือ
+- **หน้าแปลง (`properties/**`) สร้างเองทุก 30 นาทีด้วย `properties.yml`** (เพิ่ม 25 ก.ย. 2569) · แปลงที่ถอนจากเว็บ = หน้าถูกลบในรอบถัดไป
+  · ⚠️ Action นี้ไม่รัน `build/pages.js` — แก้หัวเว็บหรือต้นแบบ `land.html` เมื่อไหร่ ต้องรัน `node build/pages.js && node build/properties.js` เองใน PR นั้น
+
 ⚠️ **สร้าง `sitemap.xml` ก่อน commit เสมอ** — สคริปต์ใช้วันนี้เป็น `lastmod` ของไฟล์ที่แก้แล้วยังไม่ commit
-สร้างหลัง commit จะได้วันที่ของ commit ก่อนหน้า ซึ่งบอก Google ผิด
 
 ---
 
-## 3. ตรวจหลังขึ้นระบบ (ทุกครั้ง)
+## 3. สวิตช์และค่าที่ต้องเปิด/ตั้งบนระบบหลังบ้าน
+
+สวิตช์ทั้งหมด **ปิดเป็นค่าเริ่มต้น** · ปิดอยู่ = เส้นทางตอบ 404 และเมนูไม่แสดง ·
+**สถานะบน production (ตรวจ 24 ก.ย. 2569): ทั้งสามสวิตช์ด้านล่างเปิดอยู่แล้ว** ·
+Super Admin เปิดได้ที่ **จัดการผู้ใช้ → สวิตช์ฟีเจอร์ของโมดูลใหม่** (มีผลทันที ไม่ต้อง deploy)
+
+| สวิตช์ | เปิดแล้วได้อะไร | ต้องทำอะไรก่อน/หลังเปิด |
+|---|---|---|
+| `seo_center` | เมนู **SEO และการตลาด** (ทะเบียน SEO · หน้าพื้นที่ · **แดชบอร์ดการตลาด**) · `/api/public/seo/*` | สำรองฐานข้อมูลก่อนเปิดครั้งแรก · บทบาทที่เห็นเมนูคือแอดมินและผู้จัดการ (สิทธิ์ `marketing`) |
+| `kb_web` | แผง "บทความบนเว็บ" ในฐานความรู้ · `/api/public/kb/articles` | บทความขึ้นเว็บเมื่อทีมกดทีละบทความ ไม่มีอะไรขึ้นเองเมื่อเปิดสวิตช์ |
+| `packages` | หน้าแพ็กเกจ · แบบประเมินทรัพย์ (`packages.html#pk-quiz`) | ถ้าปิด หน้าเช็กลิสต์ยังลิงก์ไปได้ แต่หน้าแพ็กเกจจะขึ้นกล่อง "ทักไลน์หาทีมงาน" |
+
+ปิดฉุกเฉินได้ด้วย env `FEATURE_<ชื่อสวิตช์>=0` บน Render (ชนะค่าในระบบ)
+
+---
+
+## 4. ตรวจหลังขึ้นระบบ (ทุกครั้ง)
 
 **เว็บสาธารณะ**
 ```
-curl -sSI https://njteedinsure.com/ | head -3          # ต้องได้ 200
-curl -sS  https://njteedinsure.com/sitemap.xml | head  # ต้องเป็นไฟล์ใหม่
-curl -sS -o /dev/null -w "%{http_code}\n" https://njteedinsure.com/ไม่มีหน้านี้   # ต้องได้ 404
+curl -sSI https://njteedinsure.com/ | head -3                     # 200
+curl -sS  https://njteedinsure.com/sitemap.xml | head             # เป็นไฟล์ใหม่
+curl -sS -o /dev/null -w "%{http_code}\n" https://njteedinsure.com/checklist.html   # 200
+curl -sS -o /dev/null -w "%{http_code}\n" https://njteedinsure.com/ไม่มีหน้านี้     # 404
 ```
+
 **ระบบหลังบ้าน**
 ```
-curl -sS https://app.njteedinsure.com/healthz                       # {"status":"ok"}
-curl -sS https://app.njteedinsure.com/robots.txt                    # ต้องเป็น text/plain ไม่ใช่ HTML
-curl -sSI https://app.njteedinsure.com/ | grep -i x-robots-tag      # ต้องมี noindex
-curl -sS -o /dev/null -w "%{http_code}\n" https://app.njteedinsure.com/wp-login.php   # ต้องได้ 404
-node scripts/smoke.js https://app.njteedinsure.com                  # ต้องขึ้น "== smoke ผ่าน =="
+curl -sS https://app.njteedinsure.com/healthz                     # {"status":"ok"}
+curl -sS https://app.njteedinsure.com/robots.txt                  # text/plain ไม่ใช่ HTML
+curl -sSI https://app.njteedinsure.com/ | grep -i x-robots-tag    # ต้องมี noindex
+curl -sS -o /dev/null -w "%{http_code}\n" https://app.njteedinsure.com/api/marketing/dashboard   # 401 (ต้องล็อกอิน)
+curl -sS -o /dev/null -w "%{http_code}\n" https://app.njteedinsure.com/api/public/seo/areas      # 200 (เปิดสวิตช์แล้ว) หรือ 404 (ยังปิด)
+node scripts/smoke.js https://app.njteedinsure.com                # "== smoke ผ่าน =="
 ```
+
+**แดชบอร์ดการตลาด (หลังเปิด `seo_center`)** — ล็อกอินเป็นแอดมิน → เมนู SEO และการตลาด → แท็บ "แดชบอร์ดการตลาด"
+ตัวชี้วัดฝั่ง Google ต้องขึ้น **"ยังไม่ได้เชื่อม"** (ไม่ใช่ 0) · กดดาวน์โหลด CSV แล้วเปิดใน Excel ภาษาไทยต้องอ่านออก
 
 ---
 
-## 4. สิ่งที่เจ้าของกิจการต้องกดเอง (ผมทำแทนไม่ได้)
+## 5. สิ่งที่เจ้าของกิจการต้องกดเอง (ทำแทนไม่ได้)
 
-### 4.1 ยืนยันสิทธิ์ Google Search Console — **ยังไม่ได้ทำ**
+### 5.1 ยืนยันสิทธิ์ Google Search Console — **ยังไม่ได้ทำ**
 
-จำเป็นสำหรับตัวชี้วัดฝั่งการค้นหาทั้งหมดของแดชบอร์ดการตลาด (Impressions · Clicks · CTR · Average Position · Indexed Pages)
+จำเป็นสำหรับตัวชี้วัดฝั่งการค้นหาของแดชบอร์ดการตลาด (Impressions · Clicks · CTR · Average Position · Indexed Pages)
+และข้อมูล Core Web Vitals จากผู้ใช้จริง
 
 1. เข้า <https://search.google.com/search-console> ด้วยบัญชี Google ของบริษัท
 2. เลือก **"คำนำหน้า URL"** แล้วใส่ `https://njteedinsure.com`
-3. เลือกวิธียืนยัน **"แท็ก HTML"** แล้วคัดลอกบรรทัด `<meta name="google-site-verification" content="…">` มาให้ผม
-   ผมจะใส่ให้ทุกหน้าผ่านทะเบียน SEO กลาง (สปรินต์ 2) แล้วบอกให้กด "ยืนยัน"
-   · ⚠️ **อย่าเพิ่งกด "ยืนยัน" ก่อนที่แท็กจะขึ้นเว็บจริง** — Google จะบอกว่าไม่สำเร็จ
-4. ยืนยันสำเร็จแล้ว ส่ง `https://njteedinsure.com/sitemap.xml` ในเมนู **แผนผังเว็บไซต์**
+3. เลือกวิธียืนยัน **"แท็ก HTML"** แล้วส่งบรรทัด `<meta name="google-site-verification" content="…">` มาให้ทีมพัฒนา
+   · ⚠️ **อย่าเพิ่งกด "ยืนยัน" ก่อนแท็กขึ้นเว็บจริง**
+4. ยืนยันสำเร็จแล้ว ส่งแผนผังในเมนู **แผนผังเว็บไซต์** ทุกไฟล์ที่ `robots.txt` ประกาศไว้
+   (ตอนนี้: `sitemap.xml` · `sitemaps/properties.xml` · `sitemaps/journal.xml` — หน้าพื้นที่และบทความจะเพิ่มไฟล์ของตัวเองเมื่อมีหน้าเผยแพร่)
 
-⚠️ **ทางเลือกที่ผมไม่แนะนำ**: ยืนยันด้วยไฟล์ `google*.html` ที่ราก — ทำได้เหมือนกัน
-แต่ไฟล์นั้นจะกลายเป็นหน้าหนึ่งของเว็บที่ตัวตรวจลิงก์และ sitemap ต้องยกเว้นเป็นกรณีพิเศษตลอดไป
+⚠️ แม้ยืนยันแล้ว ตัวเลขของ Google ยัง **ไม่ไหลเข้าแดชบอร์ดการตลาดเอง** — การเชื่อม API ของ Search Console/GA4
+เป็นงานเพิ่ม และต้องได้รับอนุมัติก่อน (ดูรายการงานค้างใน `PHASE10_TEST_RESULTS.md`)
 
-### 4.2 Google Analytics 4 — **รอการตัดสินใจ**
+### 5.2 Google Analytics 4 — **รอการตัดสินใจ**
 
-`analytics.js` มีช่อง `GA4_ID` ว่างรออยู่แล้ว · ใส่รหัส `G-XXXXXXXXXX` เมื่อไหร่ สคริปต์ก็จะโหลด
-**หลังผู้ใช้กดยอมรับคุกกี้เท่านั้น** (กติกาเดิมของไฟล์นั้น ห้ามแก้)
-· ไม่ใส่ = เว็บทำงานปกติทุกอย่าง แค่ไม่มีข้อมูลส่งเข้า Google
+`analytics.js` มีช่อง `GA4_ID` ว่างรออยู่ · ใส่รหัส `G-XXXXXXXXXX` แล้วสคริปต์จะโหลด **หลังผู้ใช้กดยอมรับคุกกี้เท่านั้น**
+· ไม่ใส่ = เว็บทำงานปกติ ระบบยังนับการเปิดหน้า คลิกปุ่มติดต่อ และการส่งฟอร์มเองโดยไม่ใช้คุกกี้
 
-**ผมเสนอให้ตัดสินใจโดยเทียบกับสถิติภายในที่มีอยู่แล้ว** — ระบบเก็บ pageview · คลิกปุ่มติดต่อ ·
-การส่งฟอร์ม ไว้เองอยู่แล้วโดยไม่มีคุกกี้และไม่ส่งข้อมูลออกนอกบริษัท (ดู `PUBLIC_EVENT_TYPES`)
-สิ่งที่ GA4 ให้เพิ่มคือ ผู้ใช้ไม่ซ้ำ · เส้นทางการเข้าชม · ที่มาของทราฟฟิก
+### 5.3 Meta Pixel — **ทำงานอยู่แล้ว**
 
-### 4.3 Meta Pixel — **ทำงานอยู่แล้ว**
+`META_PIXEL_ID` ตั้งไว้ใน `analytics.js` และโหลดหลังผู้ใช้กดยอมรับ · ปิดได้โดยลบค่าเป็นสตริงว่าง
 
-`META_PIXEL_ID = '2478386206003868'` ตั้งไว้แล้วใน `analytics.js` และโหลดหลังผู้ใช้กดยอมรับ
-· ถ้าต้องการปิด ให้ลบค่าในตัวแปรนั้นออกเป็นสตริงว่าง
+### 5.4 หน้าพื้นที่และบทความ — ทีมต้องกดเผยแพร่เอง
+
+- หน้าจังหวัด/อำเภอขึ้นเว็บเมื่อแอดมินกดเผยแพร่ในทะเบียน SEO เท่านั้น (ต้องมีเนื้อหาแนะนำ ≥ 80 ตัวอักษร)
+- บทความขึ้นเว็บเมื่อผู้มีสิทธิ์กด "ขึ้นเว็บ" ทีละบทความ · ระบบไม่เผยแพร่อะไรเอง
 
 ---
 
-## 5. ทางถอยเมื่อมีปัญหา
+## 6. ทางถอยเมื่อมีปัญหา
 
 | อาการ | ทำอะไร |
 |---|---|
 | เว็บสาธารณะพังหลัง merge | `git revert <commit>` แล้ว push — GitHub Pages เผยแพร่ใหม่ใน ~1 นาที |
 | ระบบหลังบ้านพังหลัง deploy | Render → Deploys → เลือก deploy ก่อนหน้า → **Redeploy** |
-| หน้าเว็บขึ้นของเก่าค้าง | ขึ้นเลข `CACHE` ใน `public/sw.js` (ระบบหลังบ้าน) · เว็บสาธารณะไม่มี service worker |
+| ฟีเจอร์ใหม่มีปัญหา แต่ส่วนอื่นปกติ | ปิดสวิตช์ของฟีเจอร์นั้น (ข้อ 3) — มีผลทันที ไม่ต้อง deploy |
+| หน้าเว็บของระบบหลังบ้านขึ้นของเก่าค้าง | ขึ้นเลข `CACHE` ใน `public/sw.js` (เว็บสาธารณะไม่มี service worker) |
 | บอตเก็บหน้าที่ไม่ควรเก็บ | เพิ่ม `<meta name="robots" content="noindex">` ในหน้านั้น แล้วสร้าง `sitemap.xml` ใหม่ |
+| Action สร้างบทความ/วารสารแดง | ดูแท็บ Actions · API ล่ม = ตัวสร้างไม่แตะไฟล์ หน้าเดิมยังอยู่ครบ |

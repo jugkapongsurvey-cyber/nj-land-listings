@@ -485,6 +485,13 @@
   // ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ----------
   // ⚠️ ดึงรายการย่อครั้งเดียวแล้วใช้ทั้งสองบล็อก — ไม่ยิงซ้ำสองรอบ
   // ⚠️ โหลดไม่สำเร็จ = ซ่อนทั้งหัวข้อไปเลย ห้ามขึ้นกล่องว่าง (กติกาข้อ 5)
+  // ⚠️ หัวข้อ "ใน<จังหวัด>" ใช้ได้เฉพาะเมื่อ **ทุกแปลงที่แสดง** อยู่ในจังหวัดนั้นจริง
+  //    จังหวัดเดียวกันมีไม่ถึง 3 แปลง = เติมด้วยแปลงจังหวัดอื่น → หัวข้อต้องไม่อ้างจังหวัด
+  //    (เคยขึ้น "แปลงใกล้เคียง ในสระบุรี" ทั้งที่ 2 ใน 3 แปลงอยู่อยุธยาและสุพรรณบุรี — ผู้ซื้ออ่านเป็นข้อเท็จจริง)
+  function relatedTitle(prov,shown){
+    var allIn=!!prov && shown.length>0 && shown.every(function(x){ return (x.land||{}).province===prov; });
+    return allIn ? 'แปลงใกล้เคียง ใน'+prov : 'แปลงอื่นที่น่าสนใจ';
+  }
   function renderRelated(current){
     var host=document.getElementById('ld-related');
     if(!host||!window.NJListing) return;
@@ -501,7 +508,7 @@
       var html='';
       if(similar.length){
         html+='<section class="ld-rel" aria-labelledby="ld-rel-h">'+
-          '<h2 id="ld-rel-h">แปลงใกล้เคียง'+(prov?' ใน'+esc(prov):'')+'</h2>'+
+          '<h2 id="ld-rel-h">'+esc(relatedTitle(prov,similar))+'</h2>'+
           '<div class="ld-rel-grid">'+similar.map(NJListing.card).join('')+'</div>'+
           '<a class="ld-rel-more" href="listings.html'+(prov?'?q='+encodeURIComponent(prov):'')+'">ดูประกาศทั้งหมด'+(prov?'ใน'+esc(prov):'')+' <span aria-hidden="true">→</span></a>'+
         '</section>';
