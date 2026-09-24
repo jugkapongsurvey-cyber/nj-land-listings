@@ -29,7 +29,7 @@
 .cl-card span{font-size:14px;line-height:1.6;color:var(--nj-gray-600,#4B5B70)}
 .cl-card:hover,.cl-card:focus-visible{border-color:var(--nj-navy-600,#1E4E8C)}
 @media print{
-  .njh,.njh-skip,.site-footer,.cl-help,.cl-sell,.cl-actions,.tl-jump,[data-njchat],.nj-legal{display:none!important}
+  .njh,.njh-skip,.site-footer,.cl-help,.cl-sell,.cl-ask,.cl-actions,.tl-jump,[data-njchat],.nj-legal{display:none!important}
   .ag-hero{background:none!important;color:#000!important;padding:0!important}
   .ag-hero h1,.ag-lead{color:#000!important}
   .cl-item{break-inside:avoid}

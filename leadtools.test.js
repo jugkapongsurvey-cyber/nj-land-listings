@@ -14,6 +14,8 @@ const path = require('path');
 const JS = fs.readFileSync(path.join(__dirname, 'leadtools.js'), 'utf8');
 const CSS = fs.readFileSync(path.join(__dirname, 'leadtools.css'), 'utf8');
 const HTML = fs.readFileSync(path.join(__dirname, 'tools.html'), 'utf8');
+// เช็กลิสต์ก่อนซื้ออยู่ท้าย checklist.html (รวมเป็นอันเดียว 2026-09-25) — อีก 4 ตัวอยู่หน้าเครื่องมือ
+const CL_HTML = fs.readFileSync(path.join(__dirname, 'checklist.html'), 'utf8');
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -26,10 +28,15 @@ const CODE = JS.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 console.log('\n1) ต่อสายครบทั้ง 5 เครื่องมือ');
 const MOUNTS = ['lt-assess', 'lt-price', 'lt-checklist', 'lt-sample', 'lt-news'];
 MOUNTS.forEach(id => {
-  const n = HTML.split('id="' + id + '"').length - 1;
-  check('หน้าเครื่องมือมีที่วาง ' + id + ' หนึ่งที่พอดี', n === 1, n);
+  const page = id === 'lt-checklist' ? CL_HTML : HTML;
+  const n = page.split('id="' + id + '"').length - 1;
+  check((id === 'lt-checklist' ? 'หน้าเช็กลิสต์' : 'หน้าเครื่องมือ') + 'มีที่วาง ' + id + ' หนึ่งที่พอดี', n === 1, n);
   check('สคริปต์รู้จัก ' + id, CODE.indexOf("'" + id + "'") >= 0);
 });
+check('⭐ หน้าเครื่องมือไม่มีเช็กลิสต์ชุดที่สอง', HTML.indexOf('id="lt-checklist"') < 0);
+check('⭐ เช็กลิสต์อ่านรายการข้อจากหน้า checklist.html (input[data-cl])', /input\[data-cl\]/.test(CODE));
+check('⭐ ไม่พึ่งรายการเช็กลิสต์จากเซิร์ฟเวอร์', !/SPEC\.checklist/.test(CODE));
+check('ส่งจำนวนที่ติ๊กและชื่อข้อที่ยังไม่ติ๊กให้ทีม', /done:/.test(CODE) && /total:/.test(CODE) && /left:/.test(CODE));
 check('หน้าเครื่องมือเรียก leadtools.js', /<script src="leadtools\.js"/.test(HTML));
 check('หน้าเครื่องมือเรียก leadtools.css', /href="leadtools\.css"/.test(HTML));
 check('⭐ leadtools.js มาหลัง attrib.js (ต้องมีที่มาของลีดก่อนถึงจะแนบไปได้)',

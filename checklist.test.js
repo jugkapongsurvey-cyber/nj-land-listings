@@ -48,8 +48,20 @@ hrefs.forEach(h => {
   const anchorOk = !hash || new RegExp('id="' + hash + '"').test(read(file));
   ok('ลิงก์ ' + h, exists && anchorOk);
 });
-ok('ทางเข้าแบบประเมินทรัพย์ (แบบสอบถามแพ็กเกจเดิม)', /href="packages\.html#pk-quiz"/.test(main));
-ok('ทางเข้าขอประเมินราคาขาย (ฟอร์มฝากขายเดิม)', /href="consign\.html#form"/.test(main));
+// เจ้าของกิจการเลือก 2026-09-25: ทางเข้าฝั่งผู้ขายชี้ไปที่เครื่องมือเก็บลีดตัวใหม่บนหน้าเครื่องมือ
+ok('ทางเข้าแบบประเมินความพร้อมขาย (tools.html#assess)', /href="tools\.html#assess"/.test(main));
+ok('ทางเข้าขอวิเคราะห์ราคาขาย (tools.html#price)', /href="tools\.html#price"/.test(main));
+ok('ไม่ชี้ไปทางเข้าเดิมแล้ว', !/packages\.html#pk-quiz|consign\.html#form/.test(main));
+
+console.log('\n4b) กล่องขอให้ทีมไปตรวจข้อที่เหลือ (รวมเป็นอันเดียว)');
+ok('มีที่วาง lt-checklist หนึ่งที่พอดี', (main.split('id="lt-checklist"').length - 1) === 1);
+ok('กล่องอยู่หลังรายการตรวจทั้งหมด (ท้ายหน้า)', main.indexOf('id="lt-checklist"') > main.lastIndexOf('data-cl="'));
+ok('หน้าโหลด leadtools.js และ leadtools.css', /<script src="leadtools\.js" defer><\/script>/.test(html) && /href="leadtools\.css"/.test(html));
+const tag = (f) => html.indexOf('<script src="' + f + '"');
+ok('⭐ leadtools.js มาหลัง attrib.js และหลัง checklist.js', tag('attrib.js') >= 0 && tag('attrib.js') < tag('leadtools.js') &&
+   tag('checklist.js') < tag('leadtools.js'));
+ok('ไม่พิมพ์กล่องขอเบอร์ตอนสั่งพิมพ์เช็กลิสต์', /\.cl-ask/.test(read('checklist.css')));
+ok('⭐ หน้าเครื่องมือไม่มีเช็กลิสต์ชุดที่สองแล้ว', !/id="lt-checklist"|id="checklist"/.test(read('tools.html')));
 ok('ทางเข้าตรวจทรัพย์และนัดตรวจ', /href="verify\.html#form"/.test(main) && /href="inspect\.html"/.test(main));
 
 console.log('\n5) ทางเข้าจากหน้าอื่น');

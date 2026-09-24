@@ -187,38 +187,57 @@
     });
   }
 
-  // ---------- 2) เช็กลิสต์ตรวจที่ดินก่อนซื้อ ----------
+  // ---------- 2) เช็กลิสต์ตรวจที่ดินก่อนซื้อ (กล่องท้ายหน้า checklist.html) ----------
+  //
+  // ⚠️ **รายการข้ออ่านจากหน้า checklist.html เอง** (input[data-cl] · ชื่อข้อจาก <b> ในป้าย)
+  //    ไม่ได้มาจากเซิร์ฟเวอร์ และห้ามพิมพ์รายการซ้ำไว้ในไฟล์นี้ — หน้านั้นคือเนื้อหาที่คนเขียนเอง
+  //    เพิ่ม/ตัดข้อที่หน้าเดียว ลีดที่ทีมขายได้รับก็ตรงตามทันที
+  //    (เจ้าของกิจการเลือก "รวมเป็นอันเดียว" 2026-09-25 — เดิมหน้าเครื่องมือมีเช็กลิสต์ 10 ข้อแยกอีกชุด)
+  // ⚠️ สิ่งที่ติ๊กไม่ถูกส่งไปไหนจนกว่าผู้ใช้จะกดส่งเอง (checklist.js จำไว้ในเครื่องเท่านั้น)
   function mountChecklist(host) {
-    var items = SPEC.checklist || [];
-    if (!items.length) return;
+    var boxes = Array.prototype.slice.call(d.querySelectorAll('input[data-cl]'));
+    if (!boxes.length) return;
+    var nameOf = function (b) {
+      var lab = b.closest ? b.closest('label') : null;
+      var bold = lab && lab.querySelector('b');
+      var t = (bold || lab || {}).textContent || b.getAttribute('data-cl') || '';
+      return String(t).replace(/\s+/g, ' ').trim();
+    };
+    var isField = function (b) {
+      var li = b.closest ? b.closest('.cl-item') : null;
+      return !!li && li.getAttribute('data-where') === 'field';
+    };
     host.innerHTML =
-      '<p class="lt-lead">ติ๊กข้อที่ตรวจแล้ว เหลือข้อไหนจะได้รู้ว่ายังต้องไปดูอะไรก่อนวางมัดจำ</p>' +
-      '<ul class="lt-check">' + items.map(function (it, i) {
-        var id = 'ltc-' + esc(it.key);
-        return '<li><label for="' + id + '"><input type="checkbox" id="' + id + '" value="' + esc(it.key) + '">' +
-          '<span>' + esc(it.th) + '</span></label></li>';
-      }).join('') + '</ul>' +
-      '<p class="lt-count" data-lt-count>ติ๊กแล้ว 0/' + items.length + ' ข้อ</p>' +
+      '<p class="lt-lead">ข้อที่ยังไม่ได้ติ๊ก โดยเฉพาะข้อที่ต้องลงพื้นที่ ทีมช่างรังวัดไปตรวจให้ได้ ' +
+        'ทิ้งชื่อกับเบอร์ไว้ ทีมจะโทรกลับไปคุยว่าแปลงที่คุณดูอยู่ต้องตรวจอะไรเพิ่ม</p>' +
+      '<p class="lt-count" data-lt-count></p>' +
       // ⚠️ ห้ามเขียนว่า "ผ่าน" หรือ "ปลอดภัย" — ติ๊กครบไม่ได้แปลว่าแปลงไม่มีปัญหา
       '<p class="nj-alert nj-alert-warn lt-warn">ติ๊กครบทุกข้อไม่ได้แปลว่าแปลงปลอดภัย — เป็นแค่รายการสิ่งที่ควรไปดูให้ครบ</p>' +
       contactHtml('checklist', {
         title: 'ให้ช่างรังวัดไปดูให้แทนไหม',
-        sub: 'ทีมงานตรวจแนวเขต ทางเข้าออก และเอกสารสิทธิให้ก่อนคุณตัดสินใจ',
+        sub: 'ทีมงานตรวจแนวเขต ทางเข้าออก และเอกสารสิทธิให้ก่อนคุณตัดสินใจ · ทีมจะเห็นว่าคุณติ๊กข้อไหนไปแล้ว',
         btn: 'ขอให้ทีมไปตรวจให้'
       });
 
-    var boxes = Array.prototype.slice.call(host.querySelectorAll('.lt-check input'));
     var count = host.querySelector('[data-lt-count]');
-    function ticked() {
-      return boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+    function left() { return boxes.filter(function (b) { return !b.checked; }); }
+    function paint() {
+      var l = left();
+      var field = l.filter(isField).length;
+      count.textContent = 'ติ๊กแล้ว ' + (boxes.length - l.length) + '/' + boxes.length + ' ข้อ' +
+        (field ? ' · ยังเหลือข้อที่ต้องลงพื้นที่ ' + field + ' ข้อ' : '');
     }
-    boxes.forEach(function (b) {
-      b.addEventListener('change', function () {
-        count.textContent = 'ติ๊กแล้ว ' + ticked().length + '/' + items.length + ' ข้อ';
-      });
-    });
+    boxes.forEach(function (b) { b.addEventListener('change', paint); });
+    // ปุ่ม "ล้างที่ติ๊กไว้" ของ checklist.js เปลี่ยนค่าโดยไม่ยิง change — วาดใหม่หลังกดด้วย
+    var rs = d.querySelector('[data-cl-reset]');
+    if (rs) rs.addEventListener('click', function () { setTimeout(paint, 0); });
+    paint();
+
     host.querySelector('[data-lt-send]').addEventListener('click', function () {
-      send(host.querySelector('[data-lt-ask]'), 'checklist', { ticked: ticked() });
+      var l = left();
+      send(host.querySelector('[data-lt-ask]'), 'checklist', {
+        done: boxes.length - l.length, total: boxes.length, left: l.map(nameOf)
+      });
     });
   }
 

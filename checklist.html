@@ -43,6 +43,7 @@
 <link rel="stylesheet" href="menu.css">
 <link rel="stylesheet" href="agency.css">
 <link rel="stylesheet" href="checklist.css">
+<link rel="stylesheet" href="leadtools.css">
 <link rel="stylesheet" href="legal.css">
   <!-- nj-schema:start — สร้างด้วย build/schema.js · ห้ามแก้ด้วยมือ -->
   <script type="application/ld+json" data-nj-schema>
@@ -323,9 +324,19 @@
   <div class="wrap cl-wrap">
     <h2 class="cs-h2">มีที่ดินจะขาย?</h2>
     <div class="cl-cards">
-      <a class="cl-card" href="packages.html#pk-quiz"><b>แบบประเมินทรัพย์</b><span>ตอบคำถามสั้นๆ ระบบเสนอแพ็กเกจที่เหมาะกับทรัพย์ของคุณ พร้อมเหตุผลและช่วงราคาประมาณการ</span></a>
-      <a class="cl-card" href="consign.html#form"><b>ขอประเมินราคาขายเบื้องต้น</b><span>ส่งข้อมูลที่ดินผ่านฟอร์มฝากขาย ทีมงานประเมินเบื้องต้นฟรี ไม่มีค่าใช้จ่ายล่วงหน้า</span></a>
+      <a class="cl-card" href="tools.html#assess"><b>แบบประเมินความพร้อมขาย</b><span>ตอบคำถามสั้นๆ รู้ทันทีว่าเอกสารและตัวแปลงพร้อมขายแค่ไหน ดูผลได้โดยไม่ต้องให้เบอร์</span></a>
+      <a class="cl-card" href="tools.html#price"><b>ขอให้ทีมวิเคราะห์ราคาขาย</b><span>บอกที่ตั้งกับเนื้อที่คร่าวๆ ทีมจะดูราคาซื้อขายจริงแถวนั้นแล้วโทรกลับไปคุย</span></a>
     </div>
+  </div>
+</section>
+
+<!-- กล่องขอให้ทีมไปตรวจข้อที่เหลือ (leadtools.js · Phase 10 สปรินต์ 5 · รวมเป็นอันเดียว 2026-09-25)
+     ⚠️ รายการข้ออ่านจาก input[data-cl] ของหน้านี้เอง ห้ามพิมพ์ซ้ำที่อื่น
+     ⚠️ ต่อเซิร์ฟเวอร์ไม่ได้ = ทั้ง section ถูกซ่อน · เช็กลิสต์ด้านบนยังใช้ได้ตามปกติ -->
+<section class="tl-sec tl-alt cl-ask" id="ask">
+  <div class="wrap cl-wrap">
+    <h2 class="cs-h2">ให้ทีมช่างรังวัดไปตรวจข้อที่เหลือให้</h2>
+    <div id="lt-checklist"></div>
   </div>
 </section>
 </main>
@@ -342,6 +353,8 @@
 
 <script src="analytics.js" defer></script>
 <script src="checklist.js" defer></script>
+<!-- ⚠️ leadtools.js ต้องมาหลัง attrib.js (อยู่ในหัวหน้า) ไม่งั้นลีดไม่มีที่มาติดไปด้วย -->
+<script src="leadtools.js" defer></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="landvocab.js" defer></script>
 <script src="verified.js" defer></script>
