@@ -697,5 +697,24 @@ console.log('\nแพ็กเกจบริการ (รอบ 4) — package
 }
 
 
+console.log('\nลิงก์ภายในของบทความ (งานที่ 9) — build/knowledge.js ↔ public/kblinks.js');
+(function () {
+  const f = path.join(SRV, 'public', 'kblinks.js');
+  if (!fs.existsSync(f)) {
+    console.log('  ข้าม — ยังไม่มี public/kblinks.js ที่ฝั่งเซิร์ฟเวอร์ (ส่ง path ของ worktree มาเป็นอาร์กิวเมนต์ได้)');
+    return;
+  }
+  const ok = (cond, name) => check(name, cond);
+  const LK = require(f);
+  const KN = require(path.join(WEB, 'build', 'knowledge.js'));
+  const pick = (arr) => JSON.stringify(arr.map((s) => [s.key, s.th, s.path]));
+  ok(pick(KN.SERVICES) === pick(LK.SERVICES), '⭐ รายการบริการ (คีย์ · ข้อความลิงก์ · หน้าปลายทาง) ตรงกันสองฝั่ง');
+  ok(KN.SVC_MAX === LK.CAP.services && KN.LOC_MAX === LK.CAP.locations, 'เพดานลิงก์บริการ/หน้าพื้นที่ ตรงกับ CAP ของระบบ');
+  const samples = ['locations/ชลบุรี/', 'locations/ชลบุรี/บางละมุง/', '/locations/ชลบุรี/', 'index.html', 'locations/a/b/c/', 'locations/../x/'];
+  ok(samples.every((p) => KN.areaPathOk(p) === LK.areaPathOk(p)), '⭐ กติการูปแบบที่อยู่หน้าพื้นที่ตรงกันสองฝั่ง');
+  const LOCJS = fs.readFileSync(path.join(WEB, 'build', 'locations.js'), 'utf8');
+  ok(LOCJS.indexOf(String(LK.AREA_PATH_RE)) >= 0, 'AREA_PATH_RE ของระบบตรงกับตัวสร้างหน้าพื้นที่ (build/locations.js)');
+})();
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
