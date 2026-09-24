@@ -2134,6 +2134,9 @@ branch `feat/nj-crosslink` · คู่กับฝั่งระบบ `feat/n
 
 `PHASE10_PERFORMANCE_REPORT.md` (ก่อน/หลัง · Lighthouse 63→94 วัดบนเว็บจริง 22 ก.ย.) · `PHASE10_DEPLOYMENT_GUIDE.md` (สปรินต์ 1–6 · สวิตช์ · ลำดับตัวสร้าง) ·
 `PHASE10_MARKETING_USER_GUIDE.md` (คู่มือทีมการตลาด) · `PHASE10_TEST_RESULTS.md` (14 ชนิดการทดสอบ · รายชื่อไฟล์ · งานค้าง)
-- ⚠️ **หน้าแปลง `properties/**` ยังเป็นรุ่น 21 ก.ย.** (ก่อนเสิร์ฟฟอนต์เอง) — ยังดึง Google Fonts และมี CSS บล็อกการวาด 19 ไฟล์
-  แก้ด้วย `node build/pages.js && node build/properties.js` (ดึงข้อมูลจริงจาก production — รออนุมัติ)
+- ✅ **หน้าแปลง `properties/**` สร้างใหม่แล้ว 25 ก.ย. (#28)** และ **สร้างเองทุก 30 นาทีด้วย `.github/workflows/properties.yml`**
+  · Action แตะเฉพาะ `properties/**` `p/**` `sitemaps/properties.xml` `redirects.json` · ไม่รัน `build/pages.js`
+    (แก้หัวเว็บหรือ `land.html` ต้องรัน `node build/pages.js && node build/properties.js` เองใน PR นั้น)
+  · ⚠️ `build/properties.js` ฝังรหัสแปลงหน้าแท็ก `landmeta.js` (มี/ไม่มี `defer` ก็ได้) · หาแท็กไม่เจอ = ตัวสร้างล้ม
+    (#18 เติม `defer` แล้วรหัสแปลงหายเงียบทุกหน้า — `seo.test.js` จับได้)
 - ⚠️ เอกสารเหล่านี้อ้างตัวเลขและชื่อเมนูของวันที่เขียน — เปลี่ยนเมนู/สวิตช์/ขั้นตอนแล้วต้องแก้ตาม
