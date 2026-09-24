@@ -33,6 +33,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="ui.css">
 <link rel="stylesheet" href="feecalc.css">
+<link rel="stylesheet" href="leadtools.css">
 <link rel="preload" as="style" data-njcss href="compare.css">
   <noscript><link rel="stylesheet" href="compare.css"></noscript>
 <link rel="preload" as="style" data-njcss href="save.css">
@@ -246,6 +247,37 @@
   </div>
 </section>
 
+<!-- เครื่องมือเก็บลีด 5 ตัว (leadtools.js · Phase 10 สปรินต์ 5)
+     ⚠️ คำถาม ตัวเลือก และคะแนน มาจาก /api/public/lead-tool/spec ที่เดียว ห้ามพิมพ์ไว้ในหน้านี้
+     ⚠️ ต่อเซิร์ฟเวอร์ไม่ได้ = ทั้ง section ถูกซ่อน ไม่ทิ้งหัวข้อลอยไว้ให้ดูเหมือนเว็บพัง
+     ⚠️ เช็กลิสต์ก่อนซื้อไม่อยู่ที่หน้านี้แล้ว — อยู่ท้าย checklist.html (16 ข้อ · รวมเป็นอันเดียว 2026-09-25) -->
+<section class="tl-sec" id="assess">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">แปลงของคุณพร้อมขายแค่ไหน</h2>
+    <div id="lt-assess"></div>
+  </div>
+</section>
+
+<section class="tl-sec tl-alt" id="price">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">ขอให้ทีมวิเคราะห์ราคาขาย</h2>
+    <div id="lt-price"></div>
+  </div>
+</section>
+
+<section class="tl-sec tl-alt" id="sample">
+  <div class="wrap tl-wrap">
+    <h2 class="cs-h2">รายงานตรวจที่ดินหน้าตาเป็นยังไง</h2>
+    <div id="lt-sample"></div>
+  </div>
+</section>
+
+<section class="tl-sec" id="news">
+  <div class="wrap tl-wrap">
+    <div id="lt-news"></div>
+  </div>
+</section>
+
 <section class="cs-final">
   <div class="wrap">
     <h2>ตัวเลขลงตัวแล้ว เหลือตรวจตัวแปลง</h2>
@@ -275,6 +307,7 @@
 <script src="landform.js" defer></script>
 <script src="arealink.js" defer></script>
 <script src="tools.js" defer></script>
+<script src="leadtools.js" defer></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="verified.js" defer></script>
 <script src="listingcard.js" defer></script>

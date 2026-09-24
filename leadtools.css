@@ -1,0 +1,110 @@
+/* เครื่องมือเก็บลีด 5 ตัว (Phase 10 สปรินต์ 5)
+ *
+ * ⚠️ **ปุ่ม ช่องกรอก กล่องเตือน ใช้คอมโพเนนต์กลางของ components.css** (.nj-btn · .nj-field ·
+ *    .nj-input · .nj-alert) ไฟล์นี้มีเฉพาะสิ่งที่คอมโพเนนต์กลางไม่มี เช่น การ์ดคำถามและกล่องคะแนน
+ *    เขียนปุ่ม/ช่องกรอกใหม่เองเมื่อไหร่ = มีสองระบบให้ลืมแก้ (เหตุผลเดียวกับที่รวมฟอนต์เหลือตระกูลเดียว)
+ * ⚠️ **สีทุกค่าต้องมาจาก tokens.css** — ห้ามใส่เลขสีดิบ มีเทสต์ล็อกไว้ใน leadtools.test.js
+ * ⚠️ **ดีไซน์เว็บนี้เป็นมุมเหลี่ยมโดยตั้งใจ** — ใช้ --nj-radius-sm เท่านั้น อย่าไปเพิ่มมุมมนเอง
+ */
+
+.lt-lead {
+  color: var(--nj-text-muted);
+  line-height: var(--nj-lh-body, 1.7);
+  margin: 0 0 var(--nj-space-4);
+}
+
+/* ---------- การ์ดคำถามของแบบประเมิน ---------- */
+.lt-qs { display: grid; gap: var(--nj-space-3); }
+.lt-q {
+  border: 1px solid var(--nj-border);
+  border-radius: var(--nj-radius-sm);
+  background: var(--nj-surface);
+  padding: var(--nj-space-3) var(--nj-space-4) var(--nj-space-4);
+  margin: 0;
+}
+.lt-q legend {
+  font-weight: 600;
+  color: var(--nj-text-strong);
+  padding: 0 var(--nj-space-1);
+}
+.lt-opt {
+  display: flex; align-items: flex-start; gap: var(--nj-space-2);
+  padding: var(--nj-space-2) var(--nj-space-1);
+  cursor: pointer; color: var(--nj-text-muted);
+  line-height: var(--nj-lh-body, 1.6);
+}
+.lt-opt input { margin-top: 3px; flex: none; }
+.lt-opt:hover { color: var(--nj-text); }
+
+/* ---------- ผลประเมิน ---------- */
+.lt-out { margin-top: var(--nj-space-5); }
+.lt-score {
+  display: flex; align-items: center; gap: var(--nj-space-4); flex-wrap: wrap;
+  border: 1px solid var(--nj-border);
+  border-left: 5px solid var(--nj-border);
+  border-radius: var(--nj-radius-sm);
+  padding: var(--nj-space-4);
+  background: var(--nj-surface);
+}
+.lt-score-n { font-size: var(--nj-fs-h2, 36px); font-weight: 700; line-height: 1; color: var(--nj-text-strong); }
+.lt-score-n span { font-size: var(--nj-fs-h3, 24px); }
+.lt-score-t { margin: 0; font-weight: 600; color: var(--nj-text-strong); }
+.lt-score-s { margin: var(--nj-space-1) 0 0; font-size: var(--nj-fs-sm, 14px); color: var(--nj-text-muted); }
+/* ⚠️ สีคือคำเตือน ไม่ใช่การตัดสินว่าแปลงดีหรือไม่ดี — เขียวแปลว่า "เอกสารพร้อม" เท่านั้น */
+.lt-lv-ready  { border-left-color: var(--nj-ok-fg); }
+.lt-lv-almost { border-left-color: var(--nj-gold-600); }
+.lt-lv-fix    { border-left-color: var(--nj-err-fg); }
+
+.lt-fix-h { margin: var(--nj-space-4) 0 var(--nj-space-2); font-weight: 600; color: var(--nj-text-strong); }
+.lt-fix, .lt-bullet {
+  margin: 0; padding-left: var(--nj-space-5);
+  color: var(--nj-text-muted); line-height: var(--nj-lh-body, 1.8);
+}
+.lt-bullet { margin-bottom: var(--nj-space-3); }
+.lt-ok { margin: var(--nj-space-4) 0 0; color: var(--nj-text-muted); }
+
+/* ---------- เช็กลิสต์ ---------- */
+.lt-check { list-style: none; margin: 0; padding: 0; display: grid; }
+.lt-check label {
+  display: flex; align-items: flex-start; gap: var(--nj-space-2);
+  cursor: pointer; padding: var(--nj-space-2);
+  line-height: var(--nj-lh-body, 1.6); color: var(--nj-text-muted);
+}
+.lt-check label:hover { background: var(--nj-surface-alt); }
+.lt-check input { margin-top: 3px; flex: none; }
+.lt-check input:checked + span { color: var(--nj-text-muted); text-decoration: line-through; }
+.lt-count { margin: var(--nj-space-3) 0 0; font-weight: 600; color: var(--nj-text-strong); }
+
+/* ---------- กล่องขอชื่อ-เบอร์ ---------- */
+.lt-ask {
+  margin-top: var(--nj-space-5);
+  padding: var(--nj-space-4);
+  border: 1px solid var(--nj-border);
+  border-radius: var(--nj-radius-sm);
+  background: var(--nj-surface-alt);
+}
+.lt-ask-h { margin: 0; font-weight: 600; color: var(--nj-text-strong); }
+.lt-ask-sub { margin: var(--nj-space-1) 0 var(--nj-space-3); color: var(--nj-text-muted); line-height: var(--nj-lh-body, 1.6); }
+.lt-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--nj-space-3); }
+.lt-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.lt-pdpa {
+  display: flex; align-items: flex-start; gap: var(--nj-space-2);
+  line-height: var(--nj-lh-body, 1.6); color: var(--nj-text-muted);
+  margin-bottom: var(--nj-space-3);
+}
+.lt-pdpa input { margin-top: 3px; flex: none; }
+
+/* honeypot — คนจริงมองไม่เห็นช่องนี้ และโปรแกรมอ่านหน้าจอต้องไม่อ่านออกเสียง */
+.lt-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.lt-say { margin: var(--nj-space-3) 0 0; min-height: 1.2em; }
+
+/* ---------- รับข่าวสาร ---------- */
+.lt-news { max-width: 520px; }
+.lt-news-h { margin: 0; font-weight: 600; font-size: var(--nj-fs-h3, 24px); color: var(--nj-text-strong); }
+.lt-news-s { margin: var(--nj-space-1) 0 var(--nj-space-3); color: var(--nj-text-muted); line-height: var(--nj-lh-body, 1.6); }
+.lt-news .lt-ask { margin-top: 0; }
+
+@media (max-width: 599px) {
+  .lt-row, .lt-row-3 { grid-template-columns: 1fr; }
+}
