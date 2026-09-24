@@ -64,6 +64,7 @@ const NAV = [
   {
     label: 'ความรู้และเครื่องมือ', href: 'guides.html', items: [
       { label: 'คู่มือที่ดิน', href: 'guides.html', note: 'เอกสารสิทธิ์ การโอน ผังเมือง' },
+      { label: 'บทความความรู้', href: 'knowledge.html', note: 'ก่อนซื้อ รังวัด ขาย กฎหมาย ภาษี' },
       { label: 'เครื่องมือคำนวณ', href: 'tools.html', note: 'ค่างวดสินเชื่อ ค่าโอนวันโอน' },
       { label: 'วิดีโอให้ความรู้', href: 'videos.html', note: 'ดูจบใน 30 วินาที' },
       { label: 'วารสาร', href: 'journal.html', note: 'สรุปข่าวที่ดินและกฎหมายรายสัปดาห์' },
