@@ -50,9 +50,8 @@ node build/linkcheck.js                # ลิงก์เสีย (ต้อ�
   รันเฉพาะเมื่อตั้งใจอัปเดตหน้านั้นจริง และตรวจ `git status` ก่อน commit เสมอ
 - ⚠️ **`build/seo.js` แก้แท็กของทุกหน้าที่อยู่ในทะเบียน SEO** — ห้ามรันระหว่างทำงานอื่นแล้วเผลอ commit ไปด้วย
 - `knowledge` และ `journal` สร้างเองทุก 30 นาทีด้วย GitHub Actions (`knowledge.yml` · `journal.yml`) ไม่ต้องรันมือ
-- ⚠️ **หน้าแปลง (`properties/**`) ยังไม่มี Action สร้างอัตโนมัติ** — ต้องรัน `node build/pages.js && node build/properties.js`
-  เองเมื่อหัวเว็บหรือต้นแบบ `land.html` เปลี่ยน · ตอนนี้หน้าแปลงยังเป็นรุ่นวันที่ 21 ก.ย.
-  (ดู `PHASE10_PERFORMANCE_REPORT.md` หัวข้อ 4)
+- **หน้าแปลง (`properties/**`) สร้างเองทุก 30 นาทีด้วย `properties.yml`** (เพิ่ม 25 ก.ย. 2569) · แปลงที่ถอนจากเว็บ = หน้าถูกลบในรอบถัดไป
+  · ⚠️ Action นี้ไม่รัน `build/pages.js` — แก้หัวเว็บหรือต้นแบบ `land.html` เมื่อไหร่ ต้องรัน `node build/pages.js && node build/properties.js` เองใน PR นั้น
 
 ⚠️ **สร้าง `sitemap.xml` ก่อน commit เสมอ** — สคริปต์ใช้วันนี้เป็น `lastmod` ของไฟล์ที่แก้แล้วยังไม่ commit
 
