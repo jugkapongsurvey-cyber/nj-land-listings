@@ -150,7 +150,13 @@
    เพราะเป็นคนละเรื่องกัน: อันบนคือให้เราไปตรวจให้ อันนี้คือขอดูเอกสารที่ตรวจไว้แล้ว */
 .ld-room{border-left-color:var(--navy)}
 .ld-room:hover{border-color:var(--navy)}
-@media print{ .ld-inspect{display:none} }
+/* ทางเข้าเว็บ NJ (2026-09-23) — แถบข้างสีทองหม่นของแบรนด์ NJ แยกจากนัดตรวจ (เขียว) และห้องข้อมูล (กรมท่า)
+   เพราะพาออกไปอีกเว็บ ผู้ซื้อต้องเห็นว่าเป็นคนละบริการ */
+.ld-nj{border-left-color:var(--nj-gold-600)}
+.ld-nj:hover{border-color:var(--nj-gold-600)}
+.ld-njguide{display:inline-flex;align-items:center;min-height:44px;margin:2px 2px 0;font-size:var(--nj-fs-sm);color:var(--nj-link);font-weight:600;text-decoration:none}
+.ld-njguide:hover{text-decoration:underline}
+@media print{ .ld-inspect,.ld-njguide{display:none} }
 
 .ld-title{font-size:clamp(18px,3.4vw,23px);font-weight:600;line-height:1.5;margin:10px 0 6px;color:var(--ink)}
 .ld-loc{font-size:13.5px;color:var(--sub);margin-bottom:18px}
