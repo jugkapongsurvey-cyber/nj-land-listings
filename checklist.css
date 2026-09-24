@@ -1,0 +1,37 @@
+/* หน้าเช็กลิสต์ตรวจที่ดินก่อนซื้อ (checklist.html) · ใช้คู่กับ agency.css (ส่วนหัวและส่วนเนื้อหา) */
+.cl-wrap{max-width:860px}
+.cl-bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;
+  background:var(--nj-navy-050,#F2F6FB);border:1px solid var(--nj-border,#DCE3EC);border-radius:12px;padding:12px 14px;margin-bottom:22px}
+.cl-progress{font-size:15px;color:var(--nj-navy-900,#0B1F3A)}
+.cl-progress b{font-size:20px}
+.cl-legend{display:flex;gap:6px;flex-wrap:wrap}
+.cl-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cl-btn{min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--nj-navy-800,#12315F);
+  background:var(--nj-navy-800,#12315F);color:#fff;font:inherit;font-size:14px;cursor:pointer}
+.cl-btn-ghost{background:#fff;color:var(--nj-navy-800,#12315F)}
+.cl-btn:focus-visible{outline:3px solid var(--nj-focus,#F5B400);outline-offset:2px}
+.cl-group{margin-bottom:26px;scroll-margin-top:90px}
+.cl-list{list-style:none;padding:0;margin:0;counter-reset:none}
+.cl-item{border:1px solid var(--nj-border,#DCE3EC);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.cl-item label{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;cursor:pointer;font-size:15.5px;color:var(--nj-gray-900,#1B2536)}
+.cl-item input{width:22px;height:22px;flex:0 0 auto;accent-color:var(--nj-navy-800,#12315F)}
+.cl-item p{margin:6px 0 0 30px;font-size:14px;line-height:1.7;color:var(--nj-gray-600,#4B5B70)}
+.cl-item.is-done{background:var(--nj-ok-bg,#EAF7EF);border-color:#B7E1C6}
+.cl-item.is-done b{text-decoration:line-through;text-decoration-thickness:1px}
+.cl-tag{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;line-height:1.6}
+.cl-desk{background:var(--nj-info-bg,#EAF1FC);color:var(--nj-info-fg,#1552B0)}
+.cl-field{background:#FFF3D6;color:#8A5A00}
+.cl-disc{font-size:13px;color:var(--nj-gray-600,#4B5B70);border-top:1px solid var(--nj-border,#DCE3EC);padding-top:14px;line-height:1.7}
+.cl-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px}
+.cl-card{display:block;border:1px solid var(--nj-border,#DCE3EC);border-radius:12px;padding:14px 16px;background:#fff;
+  text-decoration:none;color:var(--nj-gray-900,#1B2536)}
+.cl-card b{display:block;font-size:16px;color:var(--nj-navy-800,#12315F);margin-bottom:4px}
+.cl-card span{font-size:14px;line-height:1.6;color:var(--nj-gray-600,#4B5B70)}
+.cl-card:hover,.cl-card:focus-visible{border-color:var(--nj-navy-600,#1E4E8C)}
+@media print{
+  .njh,.njh-skip,.site-footer,.cl-help,.cl-sell,.cl-actions,.tl-jump,[data-njchat],.nj-legal{display:none!important}
+  .ag-hero{background:none!important;color:#000!important;padding:0!important}
+  .ag-hero h1,.ag-lead{color:#000!important}
+  .cl-item{break-inside:avoid}
+  .cl-item p a{color:#000}
+}
