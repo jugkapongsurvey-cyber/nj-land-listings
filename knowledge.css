@@ -1,0 +1,69 @@
+/* ===========================================================================
+   ความรู้ที่ดิน — หน้า knowledge.html · knowledge/<หมวด>/ · knowledge/<หมวด>/<สลัก>/
+   สร้างหน้าด้วย build/knowledge.js จาก GET /api/public/kb/articles ของระบบหลังบ้าน
+
+   ⚠️ ใช้ token กลางใน tokens.css เท่านั้น — ห้ามใส่รหัสสีดิบในไฟล์นี้
+   ⚠️ เนื้อบทความเป็นข้อความที่ทีมพิมพ์ (ไม่ใช่ HTML) ตัวสร้างแปลงเป็น h2/h3/p/ul ให้เอง
+      หน้าตาของเนื้อบทความจึงคุมที่ .kb-body ที่เดียว
+   =========================================================================== */
+
+/* ---------- หัวหน้า ---------- */
+.kb-head{background:var(--nj-navy-050);padding:34px 0 26px;border-bottom:3px solid var(--nj-navy-800)}
+.kb-head h1{margin:0 0 8px;font-size:var(--nj-fs-h1);line-height:var(--nj-lh-head);color:var(--nj-navy-900);overflow-wrap:anywhere}
+.kb-head p{margin:0;max-width:var(--nj-measure);color:var(--nj-text-muted);line-height:var(--nj-lh-body)}
+.kb-crumb{margin:0 0 14px;font-size:var(--nj-fs-sm);color:var(--nj-text-muted);overflow-wrap:anywhere}
+.kb-crumb a{color:var(--nj-link)}
+.kb-wrap{padding:26px 0 44px}
+.kb-h2{margin:28px 0 12px;font-size:var(--nj-fs-h3);line-height:var(--nj-lh-head);color:var(--nj-text-strong)}
+.kb-empty,.kb-note{color:var(--nj-text-muted);line-height:var(--nj-lh-body);max-width:var(--nj-measure)}
+
+/* ---------- การ์ดหมวดบนหน้ารวม ---------- */
+.kb-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:14px;margin:0;padding:0;list-style:none}
+.kb-cat{display:flex;flex-direction:column;gap:6px;padding:16px 18px;background:var(--nj-surface);border:1px solid var(--nj-border);border-radius:var(--nj-radius-lg);min-width:0}
+.kb-cat b,.kb-cat a.kb-cat-name{font-size:var(--nj-fs-h4);line-height:var(--nj-lh-head);color:var(--nj-navy-900);font-weight:var(--nj-fw-bold)}
+.kb-cat a.kb-cat-name{text-decoration:none}
+.kb-cat a.kb-cat-name:hover{text-decoration:underline}
+.kb-n{font-size:var(--nj-fs-xs);color:var(--nj-text-muted)}
+
+/* ---------- การ์ดบทความ ---------- */
+.kb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:18px;margin:0;padding:0;list-style:none}
+.kb-card{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;background:var(--nj-surface);border:1px solid var(--nj-border);border-radius:var(--nj-radius-lg);min-width:0}
+.kb-tag{align-self:flex-start;background:var(--nj-navy-100);color:var(--nj-navy-900);font-size:var(--nj-fs-xs);font-weight:var(--nj-fw-semi);padding:3px 10px;border-radius:var(--nj-radius-pill)}
+.kb-title{margin:0;font-size:var(--nj-fs-h4);line-height:var(--nj-lh-head);color:var(--nj-text-strong);overflow-wrap:anywhere}
+.kb-title a{color:inherit;text-decoration:none}
+.kb-title a:hover{text-decoration:underline}
+.kb-excerpt{margin:0;color:var(--nj-text-muted);font-size:var(--nj-fs-sm);line-height:var(--nj-lh-body);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kb-date{color:var(--nj-text-muted);font-size:var(--nj-fs-xs)}
+
+/* ---------- หน้าบทความ ---------- */
+.kb-article{max-width:var(--nj-measure)}
+.kb-meta{margin:10px 0 0;font-size:var(--nj-fs-sm);color:var(--nj-text-muted);line-height:var(--nj-lh-body)}
+.kb-meta b{color:var(--nj-text)}
+.kb-lead{font-size:var(--nj-fs-lead);line-height:var(--nj-lh-body);color:var(--nj-text);margin:0 0 18px}
+.kb-cover{margin:0 0 20px}
+.kb-cover img{display:block;width:100%;height:auto;border-radius:var(--nj-radius-lg)}
+.kb-toc{margin:0 0 22px;padding:14px 18px;background:var(--nj-surface-alt);border:1px solid var(--nj-border);border-radius:var(--nj-radius-md)}
+.kb-toc b{display:block;margin-bottom:6px}
+.kb-toc ol{margin:0;padding-left:20px;line-height:var(--nj-lh-body)}
+.kb-toc a{color:var(--nj-link)}
+.kb-body{line-height:var(--nj-lh-body);color:var(--nj-text);overflow-wrap:anywhere}
+.kb-body h2{margin:28px 0 10px;font-size:var(--nj-fs-h3);line-height:var(--nj-lh-head);color:var(--nj-text-strong);scroll-margin-top:90px}
+.kb-body h3{margin:20px 0 8px;font-size:var(--nj-fs-h4);line-height:var(--nj-lh-head);color:var(--nj-text-strong)}
+.kb-body p{margin:0 0 14px}
+.kb-body ul{margin:0 0 14px;padding-left:22px}
+.kb-body li{margin:0 0 6px}
+.kb-faq dt{font-weight:var(--nj-fw-semi);margin:14px 0 4px;color:var(--nj-text-strong)}
+.kb-faq dd{margin:0;line-height:var(--nj-lh-body);color:var(--nj-text)}
+.kb-src{margin:0;padding-left:22px;line-height:var(--nj-lh-body);font-size:var(--nj-fs-sm)}
+.kb-src a{color:var(--nj-link);overflow-wrap:anywhere}
+.kb-links{margin:0;padding-left:22px;line-height:var(--nj-lh-body)}
+.kb-links a{color:var(--nj-link);overflow-wrap:anywhere}
+/* ข้อความกำกับ — ห้ามซ่อนด้วย CSS (ดูกติกาข้อ 5 ของ build/knowledge.js) */
+.kb-disclaim{margin:24px 0 0;padding:12px 16px;background:var(--nj-warn-bg);color:var(--nj-warn-fg);border-radius:var(--nj-radius-md);
+  font-size:var(--nj-fs-sm);line-height:var(--nj-lh-body)}
+.kb-cta{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+.kb-btn{display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:var(--nj-radius-md);
+  background:var(--nj-navy-800);color:var(--nj-white);font-weight:var(--nj-fw-semi);font-size:var(--nj-fs-sm);text-decoration:none}
+.kb-btn:hover{filter:brightness(1.1)}
+.kb-btn-alt{background:var(--nj-surface);color:var(--nj-navy-900);border:1px solid var(--nj-border)}

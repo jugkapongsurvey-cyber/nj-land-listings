@@ -41,7 +41,9 @@ function walkHtml(dir, rel, out) {
 const propPages = walkHtml(path.join(ROOT, 'properties'), 'properties/', []);
 // หน้าวารสาร journal/<slug>/ (build/journal.js) — ตรวจที่อยู่ไฟล์เหมือนหน้าแปลง
 const jrPages = walkHtml(path.join(ROOT, 'journal'), 'journal/', []);
-const pPages = pStubs.concat(propPages).concat(jrPages);
+// หน้าบทความ knowledge/<หมวด>/<สลัก>/ (build/knowledge.js) — ตรวจที่อยู่ไฟล์เหมือนหน้าวารสาร
+const kbPages = walkHtml(path.join(ROOT, 'knowledge'), 'knowledge/', []);
+const pPages = pStubs.concat(propPages).concat(jrPages).concat(kbPages);
 
 // ---------- 1) ไวยากรณ์ของไฟล์ JavaScript ทุกไฟล์ ----------
 console.log('\n1) ไวยากรณ์ JavaScript (' + scripts.length + ' ไฟล์)');

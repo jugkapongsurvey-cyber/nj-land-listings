@@ -3,14 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>ตั้งค่าการแจ้งเตือน | ที่ดินชัวร์</title>
-  <meta name="description" content="เลือกว่าจะรับข่าวสารความคืบหน้าเรื่องของคุณทางช่องทางไหน หรือยกเลิกการแจ้งเตือนทั้งหมด">
-  <!-- ⚠️ ห้ามให้เสิร์ชเอนจินเก็บหน้านี้ — ลิงก์มีโทเคนของผู้รับติดอยู่
-       กันไว้สองชั้น: meta ที่นี่ + Disallow ใน robots.txt (เหตุผลเดียวกับ room.html) -->
-  <meta name="robots" content="noindex, nofollow, noarchive">
-  <meta name="referrer" content="no-referrer">
+  <title>ความรู้ที่ดิน — บทความจากทีมช่างรังวัด 7 หมวด | ที่ดินชัวร์</title>
+  <meta name="description" content="บทความความรู้เรื่องที่ดินจากทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351 — ตรวจสอบก่อนซื้อ งานรังวัดและแนวเขต การขายและตั้งราคา กฎหมายและเอกสารสิทธิ ผังเมือง ภาษีและค่าโอน ความรู้สำหรับนายหน้าและนักลงทุน">
+  <!-- ⚠️ ไฟล์นี้คือหน้ารวมบทความความรู้ **และ** ต้นแบบของทุกหน้าใต้ knowledge/ (build/knowledge.js)
+       /knowledge/ เป็นหน้าพาไปที่นี่ · หน้าหมวดอยู่ที่ /knowledge/<หมวด>/ · บทความอยู่ที่ /knowledge/<หมวด>/<สลัก>/ -->
+  <link rel="canonical" href="https://njteedinsure.com/knowledge.html">
   <link rel="icon" href="brand/logo-favicon.svg">
   <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="ที่ดินชัวร์">
+  <meta property="og:title" content="ความรู้ที่ดิน — บทความจากทีมช่างรังวัด">
+  <meta property="og:description" content="บทความความรู้เรื่องที่ดิน 7 หมวด เขียนและตรวจโดยทีมสำนักงานช่างรังวัดเอกชน">
+  <meta property="og:url" content="https://njteedinsure.com/knowledge.html">
+  <meta property="og:image" content="https://njteedinsure.com/brand/og-image.png">
+  <!-- nj-seo:start — สร้างด้วย build/seo.js จากทะเบียน SEO กลาง · ห้ามแก้ด้วยมือ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- nj-seo:end -->
 <!-- NJ:CORECSS เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
 <link rel="preconnect" href="https://app.njteedinsure.com" crossorigin>
 <link rel="stylesheet" href="fonts.css">
@@ -24,18 +31,15 @@
 <!-- NJ:COREJS จบ -->
   <link rel="stylesheet" href="marketplace.css">
   <link rel="stylesheet" href="warm.css">
-  <link rel="preload" as="style" data-njcss href="compare.css">
-  <noscript><link rel="stylesheet" href="compare.css"></noscript>
-  <link rel="preload" as="style" data-njcss href="save.css">
-  <noscript><link rel="stylesheet" href="save.css"></noscript>
-  <link rel="preload" as="style" data-njcss href="verified.css">
-  <noscript><link rel="stylesheet" href="verified.css"></noscript>
   <link rel="preload" as="style" data-njcss href="njchat.css">
   <noscript><link rel="stylesheet" href="njchat.css"></noscript>
   <link rel="stylesheet" href="menu.css">
   <link rel="stylesheet" href="consent.css">
-  <link rel="stylesheet" href="notify.css">
-<link rel="stylesheet" href="legal.css">
+  <link rel="stylesheet" href="knowledge.css">
+  <link rel="stylesheet" href="legal.css">
+  <!-- nj-kbidx:start — สถานะเก็บดัชนีของหน้ารวม เขียนด้วย build/knowledge.js · ห้ามแก้ด้วยมือ -->
+  <meta name="robots" content="noindex, follow">
+  <!-- nj-kbidx:end -->
 </head>
 <body>
 <!-- NJ:HEADER เริ่ม — สร้างด้วย build/pages.js ห้ามแก้ด้วยมือ -->
@@ -81,11 +85,11 @@
           </div>
         </li>
         <li class="njh-item njh-has-menu">
-          <a class="njh-top" href="guides.html">ความรู้และเครื่องมือ<span class="njh-caret" aria-hidden="true">▾</span></a>
+          <a class="njh-top" href="guides.html" aria-current="page">ความรู้และเครื่องมือ<span class="njh-caret" aria-hidden="true">▾</span></a>
           <div class="njh-panel">
             <ul>
               <li><a href="guides.html"><b>คู่มือที่ดิน</b><small>เอกสารสิทธิ์ การโอน ผังเมือง</small></a></li>
-              <li><a href="knowledge.html"><b>บทความความรู้</b><small>ก่อนซื้อ รังวัด ขาย กฎหมาย ภาษี</small></a></li>
+              <li><a href="knowledge.html" aria-current="page"><b>บทความความรู้</b><small>ก่อนซื้อ รังวัด ขาย กฎหมาย ภาษี</small></a></li>
               <li><a href="tools.html"><b>เครื่องมือคำนวณ</b><small>ค่างวดสินเชื่อ ค่าโอนวันโอน</small></a></li>
               <li><a href="videos.html"><b>วิดีโอให้ความรู้</b><small>ดูจบใน 30 วินาที</small></a></li>
               <li><a href="journal.html"><b>วารสาร</b><small>สรุปข่าวที่ดินและกฎหมายรายสัปดาห์</small></a></li>
@@ -107,20 +111,24 @@
 <!-- NJ:HEADER จบ -->
 
 <main id="main">
-
-<main>
-    <section class="nt-head"><div class="shell">
-      <h1>ตั้งค่าการแจ้งเตือน</h1>
-      <p class="nt-sell">เลือกเองได้ว่าจะให้ทีมงานส่งความคืบหน้าของเรื่องคุณทางช่องทางไหนบ้าง
-        หรือจะไม่รับเลยก็ได้ · การยกเลิกที่นี่ไม่กระทบเรื่องที่คุณฝากไว้กับเรา ทีมงานยังโทรหาคุณตามปกติ</p>
-    </div></section>
-
-    <section class="shell nt-wrap">
-      <div id="nt-body" aria-live="polite"></div>
-    </section>
-  </main>
+  <!-- ⚠️ ทั้งกล่องนี้สร้างด้วย build/knowledge.js จาก GET /api/public/kb/articles — ห้ามแก้ด้วยมือ
+       เนื้อหาที่ commit ไว้ครั้งแรกคือหน้ารวมตอนยังไม่มีบทความที่ขึ้นเว็บ
+       ⚠️ ขอบเขตใช้คอมเมนต์ ไม่ใช่ </div> — ข้างในมี div ซ้อนอยู่ (บทเรียนเดียวกับ build/locations.js) -->
+  <div id="kb-root">
+  <!-- nj-kbbody:start -->
+      <section class="kb-head"><div class="shell">
+        <h1>ความรู้ที่ดิน</h1>
+        <p>บทความเรื่องที่ดิน 7 หมวด เขียนและตรวจโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351 ทุกบทความระบุผู้เขียน ผู้ตรวจ และแหล่งอ้างอิง</p>
+      </div></section>
+      <section class="shell kb-wrap">
+      <h2 class="kb-h2">บทความล่าสุด</h2>
+      <p class="kb-empty">ยังไม่มีบทความที่เผยแพร่ — ระหว่างนี้อ่าน <a href="/guides.html">คู่มือที่ดิน</a> หรือ <a href="/journal.html">วารสารที่ดินชัวร์</a></p>
+      </section>
+  <!-- nj-kbbody:end -->
+  </div>
 </main>
-<footer id="contact"><div class="shell footer-grid"><div><a class="logo footer-logo" href="index.html"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a><p>แพลตฟอร์มซื้อขายที่ดินโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</p></div><div><b>ค้นหาที่ดิน</b><a href="listings.html">ประกาศทั้งหมด</a><a href="purpose.html">ค้นตามวัตถุประสงค์</a><a href="index.html#ทีมเรา">ทีมเรา</a></div><div><b>บริการ</b><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ฝากขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a><a href="videos.html">วิดีโอให้ความรู้</a></div><div><b>ติดต่อทีมงาน</b><a href="tel:021620405">02-162-0405</a><a href="tel:0849158601">084-915-8601</a><a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener">LINE @716lffzt</a><span>จ.–ส. 08:30–17:30 น.</span></div></div><div class="shell footer-bottom"><span>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด</span><span>สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</span></div>  <nav class="nj-legal" aria-label="นโยบายและข้อกำหนด">
+
+<footer id="contact"><div class="shell footer-grid"><div><a class="logo footer-logo" href="index.html"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a><p>แพลตฟอร์มซื้อขายที่ดินโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</p></div><div><b>ค้นหาที่ดิน</b><a href="listings.html">ประกาศทั้งหมด</a><a href="purpose.html">ค้นตามวัตถุประสงค์</a><a href="index.html#ทีมเรา">ทีมเรา</a></div><div><b>บริการ</b><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ฝากขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a><a href="journal.html">วารสารที่ดินชัวร์</a><a href="videos.html">วิดีโอให้ความรู้</a></div><div><b>ติดต่อทีมงาน</b><a href="tel:021620405">02-162-0405</a><a href="tel:0849158601">084-915-8601</a><a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener">LINE @716lffzt</a><a href="https://m.me/NJTeeDinSure" target="_blank" rel="noopener" data-contact="messenger">Messenger</a><span>จ.–ส. 08:30–17:30 น.</span></div></div><div class="shell footer-bottom"><span>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด</span><span>สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</span></div>  <nav class="nj-legal" aria-label="นโยบายและข้อกำหนด">
     <a href="privacy.html">นโยบายความเป็นส่วนตัว</a><span class="nj-legal-sep" aria-hidden="true">·</span>
     <a href="cookie.html">นโยบายคุกกี้</a><span class="nj-legal-sep" aria-hidden="true">·</span>
     <a href="terms.html">ข้อกำหนดการใช้งาน</a><span class="nj-legal-sep" aria-hidden="true">·</span>
@@ -128,16 +136,11 @@
   </nav>
   </footer>
 
+  <nav class="mobile-nav" aria-label="เมนูมือถือ"><a href="index.html"><span>⌂</span>หน้าแรก</a><a href="listings.html"><span>⌕</span>ค้นหา</a><a class="mobile-post" href="consign.html"><span>＋</span>ฝากขาย</a><a href="guides.html"><span>📖</span>คู่มือ</a><a href="#contact"><span>☏</span>ติดต่อ</a></nav>
+
   <script src="analytics.js" defer></script>
-  <script src="notify.js" defer></script>
-  <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js
-       ⚠️ หน้านี้มีตั๋วอยู่ใน URL — แชทส่งแค่ชื่อไฟล์ (location.pathname) ไม่ได้ส่ง query string ตั๋วจึงไม่หลุด
-       (กติกาเดียวกับ deal.html · inspect.html · room.html) -->
-  <script src="verified.js" defer></script>
+  <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · landvocab.js และก่อน menu.js -->
   <script src="landvocab.js" defer></script>
-  <script src="listingcard.js" defer></script>
-  <script src="compare.js" defer></script>
-  <script src="save.js" defer></script>
   <script src="njchatload.js" defer></script>
   <script src="menu.js" defer></script>
 </body>

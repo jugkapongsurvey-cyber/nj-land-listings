@@ -1,0 +1,82 @@
+# สร้างหน้าบทความความรู้อัตโนมัติ (build/knowledge.js) แล้ว commit เข้า main
+#
+# ทำไมต้องมี: เว็บนี้เป็นไฟล์นิ่งบน GitHub Pages สร้างหน้า /knowledge/<หมวด>/<สลัก>/ ตอนมีคนเปิดไม่ได้
+# ทีมกด "ขึ้นเว็บ" ในเมนูฐานความรู้ของระบบหลังบ้าน → Action นี้ดึง /api/public/kb/articles ไปสร้างหน้า
+# (แบบเดียวกับ journal.yml ของวารสาร)
+#
+# ⚠️⚠️ ข้อที่ต้องรู้ก่อนแก้
+# 1. **commit เข้า main = ขึ้นเว็บจริงทันที** แต่ Action นี้แตะเฉพาะไฟล์บทความเท่านั้น
+#    (knowledge.html · knowledge/** · sitemaps/knowledge.xml · robots.txt · sitemap.xml) — ขั้น "ตรวจไฟล์ที่เปลี่ยน"
+#    หยุดทั้งงานถ้ามีไฟล์อื่นเปลี่ยน ห้ามถอดขั้นนั้นออก
+# 2. **API ล่ม = ไม่ commit อะไรเลย** (build/knowledge.js ไม่แตะไฟล์เมื่อดึงไม่สำเร็จ แล้วออกด้วยรหัสไม่ศูนย์)
+#    สวิตช์ kb_web ปิด (404) = ไม่แตะไฟล์และไม่ถือว่าล้ม
+# 3. **ไม่มีอะไรเปลี่ยน = ไม่ commit** — ตัวสร้างให้ผลเหมือนเดิมทุกไบต์
+# 4. **กลุ่ม concurrency เดียวกับ journal.yml โดยตั้งใจ** — สอง Action นี้ push เข้า main ทั้งคู่
+#    ถ้ารันพร้อมกัน ตัวที่ push ทีหลังจะถูกปฏิเสธเพราะ main ขยับไปแล้ว · กลุ่มเดียวกัน = รันต่อคิวกัน
+# 5. ต้องรัน build/sitemap.js ต่อทุกครั้ง — knowledge.html อยู่ในแผนผังหลักเมื่อมีบทความ (ไม่มีบทความ = noindex)
+name: สร้างหน้าบทความความรู้
+
+on:
+  schedule:
+    - cron: '22,52 * * * *'   # ทุก 30 นาที สลับนาทีกับ journal.yml (7,37)
+  workflow_dispatch:           # กดรันเองได้จากแท็บ Actions หลังกดขึ้นเว็บบทความใหม่
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: journal-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # ⚠️ ห้ามถอด — เหตุผลเดียวกับ journal.yml (วันที่ของ sitemap.js ต้องเป็นวันไทย)
+    env:
+      TZ: Asia/Bangkok
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0   # build/sitemap.js อ่านวันที่ commit ของแต่ละไฟล์
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ดึงบทความจากระบบหลังบ้านแล้วสร้างหน้า
+        run: node build/knowledge.js
+
+      - name: แผนผังหลัก (knowledge.html อยู่ในนั้นเมื่อมีบทความ)
+        run: node build/sitemap.js
+
+      - name: ตรวจไฟล์ที่เปลี่ยน — ต้องเป็นไฟล์บทความเท่านั้น
+        id: diff
+        run: |
+          git add -A knowledge.html knowledge sitemaps/knowledge.xml robots.txt sitemap.xml
+          other=$(git status --porcelain | grep -v '^[AMD]  \(knowledge\.html\|knowledge/\|sitemaps/knowledge\.xml\|robots\.txt\|sitemap\.xml\)' || true)
+          if [ -n "$other" ]; then echo "⛔ มีไฟล์อื่นเปลี่ยนด้วย — หยุด ไม่ commit"; echo "$other"; exit 1; fi
+          if git diff --cached --quiet; then echo "changed=0" >> "$GITHUB_OUTPUT"; echo "ไม่มีอะไรเปลี่ยน"; else echo "changed=1" >> "$GITHUB_OUTPUT"; git diff --cached --stat; fi
+
+      - name: ตรวจก่อนขึ้นเว็บ
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          node build/lint.js
+          node knowledge.test.js
+          node build/sitemap.js --check
+          node build/linkcheck.js
+
+      - name: commit + push
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "บทความความรู้: อัปเดตหน้าจากระบบหลังบ้าน (อัตโนมัติ)"
+          git push origin HEAD:main
+
+      - name: สั่งสร้างเว็บ GitHub Pages
+        if: steps.diff.outputs.changed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "สั่งสร้างเว็บซ้ำไม่สำเร็จ — ปกติ push ด้านบนก็ deploy ให้อยู่แล้ว"
