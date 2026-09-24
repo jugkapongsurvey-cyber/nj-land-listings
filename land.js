@@ -418,6 +418,19 @@
 
   // ---------- สนใจแปลงนี้ + บริการเพิ่มเติม ----------
   // เนื้อในฟอร์มมาจาก njservices.js (รายการบริการชุดเดียวกับหน้าแรก) — ห้ามเขียนรายการซ้ำที่นี่
+  // ลิงก์ไปเว็บ NJ — รหัสทรัพย์เดินทางไปกับลิงก์เพื่อให้ฟอร์มฝั่ง NJ กรอกให้เอง
+  // ⚠️ รหัสต้องเป็นรูปแบบรหัสจริงเท่านั้น (กันยัดข้อความแปลกเข้า URL ของอีกโดเมน)
+  var NJ_SITE='https://njandconsulting.com/';
+  function njLinkHtml(l){
+    var code=/^[A-Z]{2,4}-\d{1,6}$/.test(String(l&&l.id||''))?String(l.id):'';
+    var utm='utm_source=njteedinsure&utm_medium=referral&utm_campaign=crosslink&utm_content=land_detail';
+    var href=NJ_SITE+'?'+utm+'&from=teedin_land'+(code?'&code='+encodeURIComponent(code):'')+'#nj-contact';
+    return '<a class="ld-inspect ld-nj" href="'+esc(href)+'" target="_blank" rel="noopener" data-njlink="'+esc(code)+'">'+
+      '<b>ปรึกษาการสอบเขตก่อนซื้อ กับสำนักงานช่างรังวัดเอกชน NJ</b>'+
+      '<small>งานรังวัดสอบเขตที่ยื่นเรื่องผ่านสำนักงานที่ดิน — แนบรหัสทรัพย์'+(code?' '+esc(code):'')+' ไปให้แล้ว · เปิดเว็บ njandconsulting.com</small>'+
+    '</a>'+
+    '<a class="ld-njguide" href="guides.html#survey">ดูวิธีตรวจสอบที่ดินก่อนซื้อ →</a>';
+  }
   function inquiryHtml(){
     if(!window.NJServices) return '';
     return '<section class="njsv ld-inq" id="ld-inq" aria-labelledby="ld-inq-h">'+
@@ -571,6 +584,12 @@
           '<b>ยังไม่มั่นใจ? ให้ช่างรังวัดไปตรวจแปลงนี้ก่อน</b>'+
           '<small>ตรวจเอกสารสิทธิ์ · หมุดหลักเขต · ทางเข้า–ออก · ค่าใช้จ่ายวันโอน — ส่งคำขอไม่มีค่าใช้จ่าย</small>'+
         '</a>'+
+        // ทางเข้าเว็บ NJ (สำนักงานช่างรังวัดเอกชน) — งานรังวัดสอบเขตที่ยื่นผ่านสำนักงานที่ดิน (2026-09-23)
+        // ⚠️ ต่างจากกล่องนัดตรวจข้างบนโดยตั้งใจ: อันบน = ทีมที่ดินชัวร์ไปดูแปลงให้ (ไม่มีค่าใช้จ่ายตอนขอ)
+        //    อันนี้ = งานรังวัดอย่างเป็นทางการที่มีค่าบริการและต้องยื่นเรื่องที่สำนักงานที่ดิน
+        // ⚠️ ส่งแค่รหัสทรัพย์ (ข้อมูลที่ประกาศอยู่แล้ว) ไปกับลิงก์ — ไม่มีข้อมูลส่วนบุคคลใน URL
+        //    และติด UTM ให้ฝั่ง NJ รู้ว่ามาจากหน้าไหน · กดแล้วยิง nj_link_click (ไม่ใช่ลีด)
+        njLinkHtml(l)+
         // ห้องข้อมูลแปลง (Phase 3) — ⚠️ ไม่ใช่ปุ่มดาวน์โหลด แต่เป็นการ "ขอสิทธิ์"
         // ข้อความต้องบอกตรงๆ ว่าต้องผ่านการอนุมัติก่อน ไม่งั้นคนกดแล้วคาดหวังว่าจะได้ไฟล์ทันที
         '<a class="ld-inspect ld-room" href="room.html?listing='+encodeURIComponent(l.id)+'">'+
