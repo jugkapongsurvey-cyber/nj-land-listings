@@ -54,7 +54,11 @@ jobs:
       - name: ตรวจไฟล์ที่เปลี่ยน — ต้องเป็นไฟล์บทความเท่านั้น
         id: diff
         run: |
-          git add -A knowledge.html knowledge sitemaps/knowledge.xml robots.txt sitemap.xml
+          # ⚠️ เพิ่มทีละไฟล์ — sitemaps/knowledge.xml ไม่มีจนกว่าจะมีบทความแรก และ git add ทั้งก้อนล้มทันทีถ้าชื่อใดไม่มีทั้งในเครื่องและใน git
+          #    (ไม่มีในเครื่องแต่มีใน git = ถูกลบ → ยังต้อง add เพื่อบันทึกการลบ)
+          for p in knowledge.html knowledge sitemaps/knowledge.xml robots.txt sitemap.xml; do
+            if [ -e "$p" ] || git ls-files --error-unmatch "$p" >/dev/null 2>&1; then git add -A -- "$p"; fi
+          done
           other=$(git status --porcelain | grep -v '^[AMD]  \(knowledge\.html\|knowledge/\|sitemaps/knowledge\.xml\|robots\.txt\|sitemap\.xml\)' || true)
           if [ -n "$other" ]; then echo "⛔ มีไฟล์อื่นเปลี่ยนด้วย — หยุด ไม่ commit"; echo "$other"; exit 1; fi
           if git diff --cached --quiet; then echo "changed=0" >> "$GITHUB_OUTPUT"; echo "ไม่มีอะไรเปลี่ยน"; else echo "changed=1" >> "$GITHUB_OUTPUT"; git diff --cached --stat; fi
