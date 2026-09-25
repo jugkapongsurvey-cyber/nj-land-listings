@@ -140,6 +140,9 @@
 <script src="attrib.js" defer></script>
 <!-- NJ:COREJS จบ -->
   <link rel="stylesheet" href="home.css">
+  <!-- ฟอนต์หัวข้อ hero (Anuphan · ดู home.css) — โหลดล่วงหน้าไม่ให้หัวข้อสลับฟอนต์ให้เห็นตอนเปิดหน้า
+       ⚠️ ต้องมี crossorigin เสมอ ฟอนต์เป็นคำขอแบบ CORS ไม่ใส่แล้วเบราว์เซอร์โหลดซ้ำสองรอบ -->
+  <link rel="preload" as="font" type="font/woff2" href="fonts/anuphan-thai-700.woff2" crossorigin>
   <link rel="stylesheet" href="listingcard.css">
   <link rel="stylesheet" href="njchat.css">
   <link rel="stylesheet" href="menu.css">
