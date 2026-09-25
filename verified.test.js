@@ -143,6 +143,11 @@ console.log('\n3) รายงานสุขภาพแปลง — 4 สถ�
   const rows = (h.match(/njh-row /g) || []).length;
   const states = (h.match(/njh-st"/g) || []).length;
   ok('ทุกแถวมีข้อความสถานะกำกับ (ไม่ใช้สีอย่างเดียว)', rows === states, rows + ' แถว · ' + states + ' ข้อความ');
+
+  // ⚠️ .njh คือหัวเว็บ (sticky · top:0) — แผงนี้เคยใช้ชื่อเดียวกันแล้วติดหนึบบังทั้งหน้า (OP-023)
+  ok('กล่องนอกสุดไม่ใช้คลาส njh ของหัวเว็บ', !/class="njh[" ]/.test(h) && h.indexOf('class="njhc"') >= 0);
+  const hcss = fs.readFileSync(path.join(__dirname, 'health.css'), 'utf8');
+  ok('health.css ไม่มีกฎของ .njh ตัวเปล่า', !/\.njh\s*[{,]/.test(hcss));
 }
 
 console.log('\n4) แผนที่แนวเขตแปลง');

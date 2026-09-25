@@ -6,7 +6,10 @@
       ถอดสีออกทั้งหมดแล้วตารางนี้ต้องยังอ่านรู้เรื่องครบทุกแถว
    =========================================================================== */
 
-.njh{
+/* ⚠️ กล่องนอกสุดชื่อ .njhc ไม่ใช่ .njh — .njh เป็นหัวเว็บ (header.css: position:sticky; top:0)
+   เคยใช้ชื่อเดียวกันแล้วแผงนี้ (สูง ~2,000px บนมือถือ) ติดหนึบบนสุดของจอ บังเนื้อหาที่เหลือทั้งหน้า
+   ผู้ใช้เลื่อนแล้วเหมือนหน้าค้าง (OP-023 · 25 ก.ย. 2569) · ลูก .njh-* ไม่ชนกับหัวเว็บ จึงคงชื่อเดิม */
+.njhc{
   border:1px solid var(--line);border-radius:14px;background:#fff;
   padding:18px 20px 16px;margin-bottom:22px;
 }
@@ -74,12 +77,12 @@
 .njh-foot b{color:var(--ink)}
 
 @media print{
-  .njh{break-inside:avoid;border-color:#999}
+  .njhc{break-inside:avoid;border-color:#999}
   .njh-row.bad,.njh-row.warn{box-shadow:none;background:none;padding-left:0}
 }
 
 @media(max-width:640px){
-  .njh{padding:15px 14px 13px;border-radius:12px}
+  .njhc{padding:15px 14px 13px;border-radius:12px}
   .njh-head h2{font-size:16px}
   .njh-legend{gap:6px 11px;font-size:11px}
 }

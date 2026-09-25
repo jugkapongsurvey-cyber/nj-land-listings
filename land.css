@@ -338,7 +338,7 @@
 
 /* ส่วนใหม่ของระลอก Teedin Sure Verified — ให้ break-inside เหมือนแผงผลตรวจเดิมตอนพิมพ์ */
 @media print{
-  .njv,.njh,.njp{break-inside:avoid}
+  .njv,.njhc,.njp{break-inside:avoid}
 }
 
 /* =====================================================================
