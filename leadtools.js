@@ -33,6 +33,20 @@
   var track = function (type) {
     try { if (typeof w.njTrackInternal === 'function') w.njTrackInternal(type); } catch (e) {}
   };
+  // "เริ่มใช้เครื่องมือ" = ตัวหารอัตราแปลงบนแดชบอร์ดการตลาด (VIEW_EVENT ใน lib/mktdash.js ของระบบ)
+  // ⚠️ ยิงครั้งเดียวต่อการเปิดหน้า เมื่อผู้ใช้ลงมือจริง (ติ๊กข้อแรก / แตะช่องกรอกครั้งแรก)
+  //    **ไม่ใช่ตอนเลื่อนผ่าน** — หน้าเครื่องมือมีหลายตัวในหน้าเดียว เห็นบนจอไม่ได้แปลว่าสนใจ
+  //    ยิงซ้ำทุกครั้งที่แตะช่อง = ตัวหารบวม อัตราแปลงต่ำกว่าความจริง
+  function startOnce(type, pairs) {
+    var done = false;
+    function fire() {
+      if (done) return;
+      done = true;
+      pairs.forEach(function (p) { p[0].removeEventListener(p[1], fire); });
+      track(type);
+    }
+    pairs.forEach(function (p) { p[0].addEventListener(p[1], fire); });
+  }
 
   function api(path, body) {
     var opt = { method: body ? 'POST' : 'GET' };
@@ -234,6 +248,9 @@
         (field ? ' · ยังเหลือข้อที่ต้องลงพื้นที่ ' + field + ' ข้อ' : '');
     }
     boxes.forEach(function (b) { b.addEventListener('change', paint); });
+    // เริ่มใช้ = ติ๊กข้อแรก หรือแตะช่องกรอกของกล่องขอให้ทีมตรวจ · ติ๊กที่จำไว้จากครั้งก่อนไม่นับ (ไม่ยิง change)
+    startOnce('lead_tool_checklist_start',
+      boxes.map(function (b) { return [b, 'change']; }).concat([[host, 'focusin']]));
     // ปุ่ม "ล้างที่ติ๊กไว้" ของ checklist.js เปลี่ยนค่าโดยไม่ยิง change — วาดใหม่หลังกดด้วย
     var rs = d.querySelector('[data-cl-reset]');
     if (rs) rs.addEventListener('click', function () { setTimeout(paint, 0); });
@@ -262,6 +279,7 @@
       '<p class="nj-alert nj-alert-warn lt-warn">เราไม่ตอบราคาทันทีในหน้านี้ เพราะราคาที่ไม่ได้ดูแปลงจริงคือการเดา — ' +
         'ทีมจะดูข้อมูลซื้อขายจริงในพื้นที่ก่อนแล้วค่อยคุยกับคุณ</p>' +
       contactHtml('price_analysis', { title: 'ให้ทีมวิเคราะห์ราคาให้', area: true, btn: 'ขอให้วิเคราะห์ราคา' });
+    startOnce('lead_tool_price_start', [[host, 'focusin']]);
 
     host.querySelector('[data-lt-send]').addEventListener('click', function () {
       var n = function (k) {
@@ -291,6 +309,7 @@
       '</ul>' +
       '<p class="nj-alert nj-alert-warn lt-warn">ตัวอย่างที่ส่งให้เป็นรายงานที่ปิดข้อมูลของลูกค้าเจ้าของแปลงไว้แล้ว</p>' +
       contactHtml('sample_report', { title: 'ขอรับตัวอย่างรายงาน', btn: 'ขอรับตัวอย่าง' });
+    startOnce('lead_tool_sample_start', [[host, 'focusin']]);
 
     host.querySelector('[data-lt-send]').addEventListener('click', function () {
       send(host.querySelector('[data-lt-ask]'), 'sample_report', {});
@@ -315,6 +334,7 @@
           '<p class="lt-say" data-lt-say role="status" aria-live="polite"></p>' +
         '</div>' +
       '</div>';
+    startOnce('lead_tool_news_start', [[host, 'focusin']]);
     host.querySelector('[data-lt-send]').addEventListener('click', function () {
       var box = host.querySelector('[data-lt-ask]');
       var c = readContact(box);
