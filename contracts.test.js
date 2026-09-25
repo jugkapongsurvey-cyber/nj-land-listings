@@ -411,7 +411,7 @@ console.log('\n10) ระลอก Phase 3 — ค้นหาตามวัต
     // บริการที่แนะนำต่อ ต้องใช้คีย์ชุดเดียวกับ NJ_SERVICES ไม่งั้นผู้ซื้อกดแล้วบริการหายเงียบๆ
     const njSvcKeys = (server.match(/key: '[a-z]+', +by: '(?:nj|partner)'/g) || [])
       .map(s => s.match(/key: '([a-z]+)'/)[1]);
-    check('เซิร์ฟเวอร์ยังประกาศ NJ_SERVICES ครบ 7 บริการ', njSvcKeys.length === 7, njSvcKeys.join(','));
+    check('เซิร์ฟเวอร์ยังประกาศ NJ_SERVICES ครบ 8 บริการ', njSvcKeys.length === 8, njSvcKeys.join(','));
     njSvcKeys.forEach(function (k) {
       check('lib วัตถุประสงค์รู้จักบริการ ' + k, new RegExp('\\b' + k + ':').test(srvP));
     });
@@ -559,7 +559,7 @@ console.log('\nPhase 6 — สมัครพันธมิตร (partner-appl
     const paJs = read(path.join(WEB, 'partner-apply.js'));
     const paHtml = read(path.join(WEB, 'partner-apply.html'));
     const webTypes = (paJs.match(/\{ k: '([a-z_]+)'/g) || []).map(s => (s.match(/'([a-z_]+)'/) || [])[1]);
-    check('อ่านประเภทบริการพันธมิตรได้ทั้งสองฝั่ง', srvTypes.length === 10 && webTypes.length === 10, srvTypes.length + ' / ' + webTypes.length);
+    check('อ่านประเภทบริการพันธมิตรได้ทั้งสองฝั่ง', srvTypes.length === 11 && webTypes.length === 11, srvTypes.length + ' / ' + webTypes.length);
     // ⚠️ คีย์ที่เซิร์ฟเวอร์ไม่รู้จัก = ใบสมัครถูกปฏิเสธทั้งใบ
     check('⭐ คีย์ประเภทบริการพันธมิตรตรงกันทั้งชุดและลำดับ', same(srvTypes, webTypes), srvTypes.join(',') + '  vs  ' + webTypes.join(','));
     const srvDocKinds = listAfter(server, 'const PARTNER_DOC_KINDS') || [];
