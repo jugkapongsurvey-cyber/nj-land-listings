@@ -257,7 +257,7 @@
     if (n.bad) sum.push(n.bad + ' หัวข้อมีประเด็นที่ควรทราบ');
     if (n.none) sum.push(n.none + ' หัวข้อยังไม่มีข้อมูล');
 
-    return '<section class="njh" aria-labelledby="njh-h">' +
+    return '<section class="njhc" aria-labelledby="njh-h">' +
       '<div class="njh-head">' +
         '<h2 id="njh-h">รายงานสุขภาพแปลง</h2>' +
         '<p>' + esc(sum.join(' · ')) + '</p>' +
