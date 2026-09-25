@@ -194,6 +194,20 @@
    เบราว์เซอร์ที่ไม่มีปุ่มให้ (Chrome เดสก์ท็อป) จะยังเห็นลูกศรว่าช่องนี้มีรายการให้เลือก */
 .cs-field input.cs-pick{padding-right:38px;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236B7F95' stroke-width='2' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .cs-pick::-webkit-calendar-picker-indicator{opacity:0;width:26px;margin:0;cursor:pointer}
+/* รายการให้แตะเลือกที่ landform.js วาดเอง (แทนหน้าต่าง datalist ที่มือถือหลายรุ่นไม่เปิดให้ · 25 ก.ย. 2569)
+   · .njpick ห่อช่องไว้เป็นจุดอ้างอิงตำแหน่ง — วางรายการใต้ช่องพอดี ไม่ใช่ใต้คำอธิบายของ .cs-field
+   · สูงสุด 5 แถวครึ่ง ให้เห็นว่าเลื่อนต่อได้ และยังเหลือที่เหนือแป้นพิมพ์มือถือ
+   · แถวสูง 44px ขึ้นไป (เกณฑ์เป้านิ้ว) */
+.njpick{position:relative;display:block}
+.njpick-list{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:50;
+  margin:0;padding:4px;list-style:none;max-height:248px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  background:#fff;border:1.5px solid var(--green);border-radius:11px;box-shadow:0 14px 32px rgba(12,32,64,.18);
+}
+.njpick-list li{padding:12px 13px;min-height:44px;font-size:16px;line-height:1.3;color:var(--ink);border-radius:8px;cursor:pointer}
+.njpick-list li:hover,.njpick-list li[aria-selected="true"]{background:#EAF7EF}
+.njpick-list li.is-current{font-weight:700;color:#0B7A42}
+.njpick-list li.njpick-none{cursor:default;font-size:13.5px;color:var(--muted);background:none}
 .cs-row3 .cs-field input{text-align:center}
 /* .cs-field ตั้ง display:grid ไว้ ซึ่งชนะกฎ [hidden]{display:none} ของเบราว์เซอร์
    ทำให้ช่องที่ใส่ hidden ไว้ยังโผล่ออกมา (เคยหลุดขึ้นเว็บจริงมาแล้ว) — ต้องกันไว้ตรงนี้ */

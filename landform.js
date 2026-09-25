@@ -66,6 +66,138 @@
     num: num, fmt: fmt, toWa: toWa, fromWa: fromWa, areaText: areaText, totalPrice: totalPrice
   };
 
+  // ---------- รายการให้แตะเลือก (แทนหน้าต่าง datalist ของเบราว์เซอร์) ----------
+  // ⚠️ ทำไมไม่ใช้ datalist ตรงๆ อีกแล้ว (เจ้าของแจ้ง 25 ก.ย. 2569 · หน้าฝากขายบนมือถือ)
+  //    เบราว์เซอร์มือถือหลายตัว (Edge/Samsung Internet บน Android · Firefox Android · บางรุ่นของ iOS)
+  //    ไม่เปิดรายการของ datalist เลย หรือโยนไปไว้ในแถบคำแนะนำของแป้นพิมพ์เป็นปุ่มว่างๆ
+  //    ผู้ใช้แตะช่องจังหวัดแล้วไม่มีชื่อให้เลือก ต้องพิมพ์เองทั้งคำ — ฟอร์มหลักของเว็บพังเงียบๆ
+  //
+  //    ท่าที่ใช้: **datalist ยังเป็นแหล่งรายชื่อเหมือนเดิม** (fillList เติมลงไปตามเดิม)
+  //    แต่ถอดแอตทริบิวต์ list ออกจากช่อง แล้ววาดรายการของเราเองใต้ช่องแทน
+  //    · JS ไม่ทำงาน = ไม่มีใครถอด list → ได้ datalist ของเบราว์เซอร์เหมือนเดิม
+  //    · ช่องยังพิมพ์อิสระได้ ค่าที่ไม่ตรงรายชื่อก็ยังส่งได้ (กติกาเดิมของ initAddress)
+  //    · เลือกแล้วยิง input + change เหมือนผู้ใช้พิมพ์เอง ตัวฟังเดิมทุกตัวจึงทำงานต่อได้ไม่ต้องแก้
+  var pickSeq = 0;
+  function picker(input) {
+    if (!input || input.getAttribute('data-njpick')) return;
+    var dl = document.getElementById(input.getAttribute('list') || '');
+    if (!dl || !input.parentNode) return;
+    input.setAttribute('data-njpick', '1');
+    input.removeAttribute('list');
+
+    var id = 'njpick-' + (++pickSeq);
+    // ห่อช่องไว้ในกล่อง position:relative เพื่อวางรายการใต้ช่องพอดี
+    // (ช่องอยู่ใน <label class="cs-field"> ซึ่งมีป้ายบนและคำอธิบายล่าง — วางอิงกล่องนั้นไม่ได้)
+    var wrap = document.createElement('span');
+    wrap.className = 'njpick';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    var box = document.createElement('ul');
+    box.className = 'njpick-list';
+    box.id = id;
+    box.setAttribute('role', 'listbox');
+    box.hidden = true;
+    wrap.appendChild(box);
+
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-controls', id);
+    input.setAttribute('aria-expanded', 'false');
+
+    var items = [], active = -1;
+    function names() {
+      return Array.prototype.map.call(dl.options, function (o) { return o.value; });
+    }
+    function close() {
+      if (box.hidden) return;
+      box.hidden = true; active = -1;
+      input.setAttribute('aria-expanded', 'false');
+      input.removeAttribute('aria-activedescendant');
+    }
+    function mark(i) {
+      if (active >= 0 && items[active]) items[active].removeAttribute('aria-selected');
+      active = i;
+      if (i < 0 || !items[i]) { input.removeAttribute('aria-activedescendant'); return; }
+      items[i].setAttribute('aria-selected', 'true');
+      input.setAttribute('aria-activedescendant', items[i].id);
+      // เลื่อนเฉพาะในกล่องรายการ — scrollIntoView จะลากทั้งหน้าไปด้วยบนมือถือ
+      var li = items[i];
+      if (li.offsetTop < box.scrollTop) box.scrollTop = li.offsetTop;
+      else if (li.offsetTop + li.offsetHeight > box.scrollTop + box.clientHeight) {
+        box.scrollTop = li.offsetTop + li.offsetHeight - box.clientHeight;
+      }
+    }
+    function open() {
+      var all = names();
+      if (!all.length) { close(); return; }        // ยังไม่ได้เลือกชั้นบน = ไม่มีอะไรให้เลือก
+      var q = String(input.value || '').trim();
+      // ค่าในช่องตรงกับชื่อในรายการพอดี = ผู้ใช้กลับมาเปลี่ยนใจ ต้องเห็นรายการทั้งหมด ไม่ใช่เห็นแค่ตัวเดิมตัวเดียว
+      var list = (!q || all.indexOf(q) >= 0) ? all
+        : all.filter(function (n) { return n.indexOf(q) >= 0; });
+      box.innerHTML = '';
+      items = [];
+      active = -1;
+      if (!list.length) {
+        var none = document.createElement('li');
+        none.className = 'njpick-none';
+        none.textContent = 'ไม่พบในรายชื่อ — พิมพ์ต่อได้เลย ทีมงานจะยืนยันตอนโทรกลับ';
+        box.appendChild(none);
+      }
+      list.forEach(function (name, i) {
+        var li = document.createElement('li');
+        li.id = id + '-' + i;
+        li.setAttribute('role', 'option');
+        li.textContent = name;
+        if (name === q) li.className = 'is-current';
+        box.appendChild(li);
+        items.push(li);
+      });
+      box.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      box.scrollTop = 0;
+    }
+    function choose(li) {
+      input.value = li.textContent;
+      close();
+      // ยิงเหมือนผู้ใช้พิมพ์เอง — initAddress/ตัวอื่นฟัง input + change อยู่แล้ว
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    input.addEventListener('focus', open);
+    input.addEventListener('click', function () { if (box.hidden) open(); });
+    input.addEventListener('input', function (e) {
+      // input ที่เรายิงเองตอนเลือก ไม่ต้องเปิดรายการกลับขึ้นมาใหม่
+      if (e.isTrusted === false) return;
+      open();
+    });
+    input.addEventListener('blur', close);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (box.hidden) open();
+        if (!items.length) return;
+        e.preventDefault();
+        var n = e.key === 'ArrowDown' ? active + 1 : active - 1;
+        mark(n < 0 ? items.length - 1 : n % items.length);
+      } else if (e.key === 'Enter') {
+        // Enter ขณะเลือกอยู่ = เลือก ไม่ใช่ส่งฟอร์ม
+        if (!box.hidden && active >= 0) { e.preventDefault(); choose(items[active]); }
+      } else if (e.key === 'Escape') {
+        if (!box.hidden) { e.preventDefault(); close(); }
+      }
+    });
+    // ⚠️ กัน mousedown/pointerdown ไว้ ไม่งั้นช่องเสียโฟกัส (blur → ปิดรายการ) ก่อนที่ click จะมาถึง
+    //    และแตะรายการบนมือถือแล้วแป้นพิมพ์จะหุบ-เด้งทุกครั้ง
+    box.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    box.addEventListener('click', function (e) {
+      // ⚠️ ต้อง preventDefault — รายการอยู่ใน <label> คลิกแล้วเบราว์เซอร์ส่งคลิกต่อให้ช่อง
+      //    ซึ่งจะเปิดรายการกลับขึ้นมาทันทีหลังเลือกเสร็จ
+      e.preventDefault();
+      var li = e.target && e.target.closest ? e.target.closest('li[role="option"]') : null;
+      if (li) choose(li);
+    });
+  }
+
   // ---------- ที่ตั้ง: จังหวัด → อำเภอ → ตำบล ----------
   // ข้อมูลอยู่ใน data/thai-admin.json (โครงสร้าง array ซ้อน ดู data/build-admin.js)
   // โหลดครั้งเดียวแบบไม่บล็อกหน้า
@@ -80,6 +212,7 @@
     var zipEl = opt.zip ? document.getElementById(opt.zip) : null;
     var noteEl = opt.note ? document.getElementById(opt.note) : null;
     if (!pEl || !aEl || !tEl) return null;
+    [pEl, aEl, tEl].forEach(picker);
 
     var DATA = null;
     var lastP = '', lastA = '';
@@ -291,7 +424,8 @@
   global.NJLandForm = {
     calc: calc,
     initAddress: initAddress,
-    initAreaPrice: initAreaPrice
+    initAreaPrice: initAreaPrice,
+    picker: picker
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 
