@@ -653,7 +653,7 @@
     // ฟอร์มสนใจแปลง — ส่งรหัสแปลงเข้าไปให้ล็อกไว้ ผู้ซื้อจึงไม่มีทางพิมพ์รหัสผิด
     var inqHost=document.getElementById('ld-inq-form');
     if(inqHost&&window.NJServices){
-      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail' });
+      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail', province:(l.land||{}).province||'' });
       if(window.njTrackInternal) njTrackInternal('inquiry_view', l.id);
     }
     // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน

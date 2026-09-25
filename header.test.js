@@ -85,8 +85,10 @@ console.log('\n4) บอกหน้าที่กำลังเปิดอ�
 // ⚠️ รายการนี้ต้องตรงเป๊ะ ไม่ใช่แค่ "ไม่เกินกี่หน้า" — หน้าใหม่ที่หลุดเมนูโดยไม่ตั้งใจจะได้ถูกจับ
 //   · locations.html — ดัชนีหน้าพื้นที่ ยังไม่ใส่ในเมนูเพราะตอนนี้ยังไม่มีพื้นที่ไหนเผยแพร่
 //     (ลิงก์ไปหน้าที่ว่างเปล่าแย่กว่าไม่มีลิงก์) · ใส่ในรอบที่ทีมเผยแพร่หน้าพื้นที่หน้าแรก
+//   · partners.html — ทำเนียบบริษัทพันธมิตร ยังไม่ใส่ในเมนูเพราะทำเนียบเปิดด้วยสวิตช์ partner_directory
+//     (ค่าเริ่มต้นปิด) · ใส่ในรอบที่มีบริษัทขึ้นเว็บจริงแล้ว พร้อมเปลี่ยน noindex เป็น index
 const EXPECT_NO_CURRENT = ['404.html', 'compare.html', 'cookie.html', 'deal.html', 'land.html', 'locations.html',
-                           'notify.html', 'package-order.html', 'privacy.html', 'quote.html', 'room.html',
+                           'notify.html', 'package-order.html', 'partners.html', 'privacy.html', 'quote.html', 'room.html',
                            'unsubscribe.html'];
 const noCurrent = pages.filter(f => !/aria-current="page"/.test(html[f]));
 ok('⭐ มีเฉพาะหน้าที่ตั้งใจไม่ใส่ไว้ในเมนูหลักเท่านั้นที่ไม่มีสถานะหน้าปัจจุบัน',

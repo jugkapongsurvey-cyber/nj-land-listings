@@ -1,0 +1,32 @@
+/* ทำเนียบบริษัทพันธมิตร (partners.html) — คลาส pd-* เฉพาะหน้านี้ · การ์ดบริษัทใช้สไตล์ของ njservices.css */
+.pd-hero { background: var(--nj-surface-alt); padding: var(--nj-space-7) 0 var(--nj-space-6); }
+.pd-eyebrow { display: inline-block; font-size: var(--nj-fs-sm); font-weight: var(--nj-fw-semi); color: var(--nj-navy-600); background: var(--nj-navy-050); border-radius: var(--nj-radius-pill); padding: 4px 12px; margin-bottom: var(--nj-space-3); }
+.pd-hero h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.3; color: var(--nj-text-strong); margin: 0 0 var(--nj-space-3); }
+.pd-lead { font-size: var(--nj-fs-lead); line-height: var(--nj-lh-body); color: var(--nj-text); max-width: var(--nj-measure); margin: 0 0 var(--nj-space-3); }
+.pd-ticks { list-style: none; padding: 0; margin: 0; }
+.pd-ticks li { position: relative; padding: 4px 0 4px 26px; color: var(--nj-text); font-size: var(--nj-fs-body); }
+.pd-ticks li::before { content: '✓'; position: absolute; left: 0; top: 4px; color: var(--nj-ok-fg); font-weight: var(--nj-fw-bold); }
+
+.pd-list { padding: var(--nj-space-6) 0; }
+.pd-bar { display: flex; flex-wrap: wrap; gap: var(--nj-space-3) var(--nj-space-4); align-items: center; justify-content: space-between; margin-bottom: var(--nj-space-5); }
+.pd-chips { display: flex; flex-wrap: wrap; gap: var(--nj-space-2); }
+.pd-chip { font: inherit; font-size: var(--nj-fs-sm); font-weight: var(--nj-fw-semi); min-height: 40px; padding: 6px 14px; border-radius: var(--nj-radius-pill); border: 1px solid var(--nj-border); background: var(--nj-white); color: var(--nj-text); cursor: pointer; }
+.pd-chip.on { background: var(--nj-navy-800); border-color: var(--nj-navy-800); color: var(--nj-white); }
+.pd-chip:focus-visible, .pd-prov select:focus-visible { outline: 3px solid var(--nj-focus); outline-offset: 2px; }
+.pd-prov { display: flex; align-items: center; gap: var(--nj-space-2); font-size: var(--nj-fs-sm); color: var(--nj-text-muted); }
+.pd-prov select { font: inherit; font-size: var(--nj-fs-body); min-height: 40px; padding: 6px 10px; border: 1px solid var(--nj-border); border-radius: var(--nj-radius-md); background: var(--nj-white); color: var(--nj-text); max-width: 100%; }
+.pd-sec { margin-bottom: var(--nj-space-6); }
+.pd-sec h2 { font-size: var(--nj-fs-h3); color: var(--nj-text-strong); margin: 0 0 var(--nj-space-3); }
+.pd-sec h2 small { font-size: var(--nj-fs-sm); font-weight: var(--nj-fw-normal); color: var(--nj-text-muted); }
+.pd-empty { background: var(--nj-surface-alt); border: 1px dashed var(--nj-border); border-radius: var(--nj-radius-md); padding: var(--nj-space-4); color: var(--nj-text); line-height: var(--nj-lh-body); }
+
+.pd-ask { padding: var(--nj-space-6) 0 var(--nj-space-8); background: var(--nj-surface-alt); }
+.pd-ask h2 { font-size: var(--nj-fs-h2); color: var(--nj-text-strong); margin: 0 0 var(--nj-space-2); }
+.pd-sub { color: var(--nj-text-muted); margin: 0 0 var(--nj-space-4); }
+#pd-form { max-width: 760px; }
+
+@media (max-width: 640px) {
+  .pd-hero { padding: var(--nj-space-6) 0 var(--nj-space-5); }
+  .pd-prov { width: 100%; }
+  .pd-prov select { flex: 1; }
+}
