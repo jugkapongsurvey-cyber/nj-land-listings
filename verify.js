@@ -73,6 +73,8 @@ function setupSourceList() {
     o.value = name;
     dl.appendChild(o);
   });
+  // รายการของเราเองแทนหน้าต่าง datalist — มือถือหลายรุ่นไม่เปิด datalist ให้เลย (ดู landform.js)
+  if (window.NJLandForm && NJLandForm.picker) NJLandForm.picker($('vf-source'));
 }
 
 // หัวข้อที่หน้าอื่นส่งมาได้ด้วย ?topic= — ข้อความอยู่ในไฟล์นี้ที่เดียว (รับเฉพาะคีย์ในรายการ ห้ามรับข้อความอิสระจาก URL)
