@@ -150,33 +150,51 @@ html.njmenu-open, html.njmenu-open body{ overflow:hidden; }
  * ⚠️ หัวกลุ่มยังเป็น <a> ที่กดได้จริง ไม่ใช่หัวข้อเฉยๆ — บนเดสก์ท็อปมันกดได้
  *    ลิ้นชักต้องทำได้เหมือนกัน ไม่งั้นทางไปหน้ารวมของกลุ่มนั้นหายไปบนมือถือ
  */
+/* ⚠️ **ลิ้นชักเป็นพื้นน้ำเงินเข้ม (#0B2549) — ห้ามใช้สีตัวอักษรโทนเข้มหรือเทาในบล็อกนี้**
+ *    ชุดแรก (20 ก.ย.) ใช้ --nj-navy-900 กับ --nj-gray-600 ซึ่งเขียนไว้สำหรับพื้นขาว
+ *    ผลคือหัวกลุ่มกลืนหายไปกับพื้น และเมนูย่อยจางจนอ่านไม่ออกบนมือถือจริง (เจ้าของแจ้ง 25 ก.ย. 2569)
+ *    สีทั้งหมดที่นี่ประกาศเป็นค่าตรงตามกติกาหัวไฟล์ ไม่ยืมตัวแปรของชุดสีใด
+ *    ความต่างสีวัดบนพื้น #0B2549: ทอง #D8B96B 8.6:1 · ตัวอักษร #EAF1FA 14.3:1 (ผ่าน AA ทั้งคู่) */
 .njmenu-list .njmenu-group {
   margin-top: 10px;
-  font-weight: 600;
-  color: var(--nj-navy-900, #0B1F3A);
+  padding-top: 16px;
+  padding-bottom: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #D8B96B;
+  background: rgba(255, 255, 255, .04);
+  border-top: 1px solid rgba(255, 255, 255, .14);
 }
-.njmenu-list .njmenu-group:first-child { margin-top: 0; }
+.njmenu-list .njmenu-group:first-child { margin-top: 0; border-top: 0; }
+.njmenu-list .njmenu-group:hover,
+.njmenu-list .njmenu-group:focus-visible { color: #E8CE8B; }
 
 .njmenu-list .njmenu-sub {
-  padding-left: 26px;
-  font-size: 15px;
-  color: var(--nj-gray-600, #5A6B7D);
+  padding-left: 34px;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: #EAF1FA;
 }
 .njmenu-list .njmenu-sub::before {
   content: "";
   position: absolute;
-  left: 12px;
+  left: 18px;
   top: 50%;
-  width: 6px;
-  height: 1px;
-  background: var(--nj-gray-300, #C8D7E6);
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(216, 185, 107, .7);
 }
 .njmenu-list a { position: relative; }
 
 /* หน้าที่กำลังเปิดอยู่ — ผูกกับ [aria-current] ไม่ใช่คลาสที่ตั้งเอง
  * ความหมาย (สำหรับเครื่องอ่านหน้าจอ) กับหน้าตา (สำหรับคนมองเห็น) จะได้ไม่หลุดจากกัน */
 .njmenu-list a[aria-current="page"] {
-  color: var(--nj-navy-900, #0B1F3A);
-  font-weight: 600;
-  box-shadow: inset 3px 0 0 var(--nj-gold-500, #D8B96B);
+  color: #fff;
+  font-weight: 700;
+  background: rgba(216, 185, 107, .16);
+  box-shadow: inset 3px 0 0 #D8B96B;
 }
+/* หัวกลุ่มของหน้าที่เปิดอยู่คงสีทองไว้ — เป็นป้ายหมวด ไม่ใช่ตัวหน้าเอง */
+.njmenu-list .njmenu-group[aria-current="page"] { color: #D8B96B; background: rgba(255, 255, 255, .04); }
