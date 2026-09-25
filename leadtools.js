@@ -321,7 +321,9 @@
     host.innerHTML =
       '<div class="lt-news">' +
         '<p class="lt-news-h">รับข่าวสารที่ดินชัวร์</p>' +
-        '<p class="lt-news-s">แปลงใหม่ที่ผ่านการตรวจ · ความรู้ก่อนซื้อ-ขายที่ดิน · เดือนละไม่เกิน 2 ครั้ง</p>' +
+        // ⚠️ ความถี่ที่เขียนตรงนี้คือสิ่งที่ผู้สมัครยินยอม — แก้ข้อความเมื่อไหร่ต้องแก้ค่า freq ที่ส่งไปด้วย
+        //    (ระบบหลังบ้านส่งตาม freq · ไม่ส่ง freq = ถือว่าสมัครจากข้อความเดิม "เดือนละไม่เกิน 2 ครั้ง")
+        '<p class="lt-news-s">วารสารที่ดินชัวร์ทางอีเมล สัปดาห์ละ 1 ฉบับ · แปลงใหม่ที่ผ่านการตรวจ · ความรู้ก่อนซื้อ-ขายที่ดิน</p>' +
         '<div class="lt-ask" data-lt-ask="newsletter">' +
           '<label class="nj-field"><span class="nj-label">อีเมล</span>' +
             '<input class="nj-input" type="email" data-lt="email" autocomplete="email" maxlength="120"></label>' +
@@ -339,7 +341,7 @@
       var box = host.querySelector('[data-lt-ask]');
       var c = readContact(box);
       if (!c.email) { say(box, 'bad', 'กรุณากรอกอีเมล'); return; }
-      send(box, 'newsletter', {});
+      send(box, 'newsletter', { freq: 'weekly' });
     });
   }
 
