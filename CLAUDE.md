@@ -98,6 +98,12 @@
   · ห้องชุด (`landArea:false`) ซ่อนกลุ่มเนื้อที่ดิน ล้างค่าที่กรอกค้าง และตั้งหน่วยราคาเป็นทั้งแปลง
   · ส่งไปกับฟอร์มเป็น `propertyType` + `details` · เซิร์ฟเวอร์ตรวจกับ spec ของตัวเองซ้ำ ช่องที่ไม่รู้จักถูกทิ้ง
   · ตัวอย่างประกาศสด: ชื่อประเภทนำหน้าเฉพาะเมื่อมีที่ตั้ง/เนื้อที่แล้ว
+- **ลิงก์ "เก็บใบนี้ไว้ในบัญชีของฉัน"** (`#cs-claim` · `renderClaim()` · เพิ่ม 2026-09-25) — ใต้กล่อง "เครื่องนี้จำรหัสไว้ให้แล้ว"
+  · ชี้ไป `app.njteedinsure.com/seller.html#claim=<รหัส>&t=<ตั๋ว>` (บัญชีเจ้าของทรัพย์ลงทะเบียนด้วยอีเมล · ดู CLAUDE.md ของระบบหัวข้อ 1e)
+  · ⚠️ **โผล่เฉพาะเมื่อ spec บอก `sellerAccounts === true`** (สวิตช์ `seller_accounts` ฝั่งระบบ · ค่าเริ่มต้นปิด) · ปลดตั๋ว = ลิงก์หายตาม
+  · ⚠️ **ตั๋วส่งใน #fragment ไม่ใช่ ?query** (fragment ไม่ไปกับคำขอ HTTP จึงไม่ค้างใน log)
+  · ⛔ **ห้ามทำฟอร์มรหัสผ่านบนเว็บนี้** — หน้ากรอกรหัสอยู่ที่ app.njteedinsure.com เท่านั้น · `contracts.test.js` ล็อกไว้
+    (รันกับ worktree: `node contracts.test.js ../nj-wt-consignsys`)
 - `surveyquote.js` **เปิด `window.NJSurveyQuote` ให้หน้าอื่นเรียกได้แล้ว** (2026-09-06)
   · `load()` แคช promise ของ `pricing.js` ไว้ตัวเดียว (กติกาเดียวกับ `NJFeeCalc.loadBuildingPrices`)
   · `quoteFromWa(totalWa, jobType, {combo:true})` — คิดส่วนลด "รังวัด + ฝากขาย 5%" ผ่าน `adjust`

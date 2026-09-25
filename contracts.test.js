@@ -721,5 +721,23 @@ console.log('\nลิงก์ภายในของบทความ (งา
   ok(LOCJS.indexOf(String(LK.AREA_PATH_RE)) >= 0, 'AREA_PATH_RE ของระบบตรงกับตัวสร้างหน้าพื้นที่ (build/locations.js)');
 })();
 
+console.log('\nบัญชีเจ้าของทรัพย์ — ลิงก์ "เก็บใบนี้ไว้ในบัญชีของฉัน" (consign.js ↔ seller.html ของระบบ)');
+(function () {
+  const sellerHtml = path.join(SRV, 'public', 'seller.html');
+  if (!fs.existsSync(sellerHtml)) {
+    console.log('  ข้าม — ยังไม่มี public/seller.html ที่ฝั่งเซิร์ฟเวอร์ (ส่ง path ของ worktree มาเป็นอาร์กิวเมนต์ได้)');
+    return;
+  }
+  const cjs = read(path.join(WEB, 'consign.js'));
+  const chtml = read(path.join(WEB, 'consign.html'));
+  const sjs = read(path.join(SRV, 'public', 'seller.js'));
+  const srv = read(path.join(SRV, 'server.js'));
+  check('⭐ ลิงก์ส่งตั๋วใน #fragment ไม่ใช่ ?query', /'\/seller\.html#claim='/.test(cjs) && !/seller\.html\?/.test(cjs));
+  check('ชื่อพารามิเตอร์ claim / t ตรงกับที่ seller.js อ่าน', /claim/.test(sjs) && /[?&#]?t=|\bt\b/.test(sjs) && /'&t='/.test(cjs));
+  check('⭐ ลิงก์แสดงเฉพาะเมื่อ spec บอก sellerAccounts === true', /sp\.sellerAccounts === true/.test(cjs) && /id="cs-claim"[^>]*hidden/.test(chtml));
+  check('ระบบส่ง sellerAccounts ไปกับ /api/public/consign/spec', /sellerAccounts:\s*featureflags\.isOn\('seller_accounts'/.test(srv));
+  check('⭐ หน้าฝากขายไม่มีช่องกรอกรหัสผ่าน (ฟอร์มรหัสอยู่บน app.njteedinsure.com เท่านั้น)', !/type="password"/.test(chtml));
+})();
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
