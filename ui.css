@@ -478,6 +478,8 @@
   display:block;margin-top:7px;border:1px solid var(--border);background:#fff;color:var(--ink);
   font-size:11.5px;font-weight:700;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit;
 }
+a.cs-keep-btn{display:inline-block;text-decoration:none}
+.cs-claim{background:#F4F7FB;border:1px solid var(--border)}
 /* ---------- รายงาน "แปลงของคุณบนเว็บ" ----------
    ใช้สองโทน: ขึ้นเว็บแล้ว = เขียว (ข่าวดี ดูตัวเลขได้) · ยังไม่ขึ้น = ฟ้ากลางๆ (กำลังดำเนินการ ไม่ใช่ข่าวร้าย)
    ห้ามใช้โทนแดง/เตือนกับกรณี "ยังไม่ขึ้นเว็บ" — เจ้าของจะเข้าใจว่าใบตัวเองมีปัญหา ทั้งที่เป็นขั้นตอนปกติ */

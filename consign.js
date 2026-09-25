@@ -621,7 +621,21 @@ function enterSavedMode() {
   if (keep) keep.hidden = false;
   if (btn) btn.textContent = '💾 บันทึกการแก้ไข';
   $('cs-done').hidden = false;
+  renderClaim();
   setupUpload();
+}
+
+// ---------- เก็บใบนี้ไว้ในบัญชีเจ้าของทรัพย์ (เพิ่ม 2026-09-25) ----------
+// ⚠️ แสดงเฉพาะเมื่อ spec บอก sellerAccounts === true (สวิตช์ seller_accounts ของระบบหลังบ้าน) — ค่าเริ่มต้นซ่อน
+// ⚠️ ตั๋วส่งไปใน #fragment ไม่ใช่ ?query — fragment ไม่ถูกส่งไปกับคำขอ HTTP จึงไม่ค้างใน log ของเซิร์ฟเวอร์
+//    และ seller.js ย้ายตั๋วเข้า sessionStorage แล้วล้างออกจากแถบที่อยู่ทันที
+var SELLER_ON = false;
+function renderClaim() {
+  var box = $('cs-claim'), a = $('cs-claim-link');
+  if (!box || !a) return;
+  var ok = SELLER_ON && LEAD.id && LEAD.token;
+  box.hidden = !ok;
+  if (ok) a.href = NJ_API_BASE + '/seller.html#claim=' + encodeURIComponent(LEAD.id) + '&t=' + encodeURIComponent(LEAD.token);
 }
 
 // ---------- เติมค่ากลับลงฟอร์ม (ตอนเปิดหน้าใหม่แล้วกลับมาแก้ต่อ) ----------
@@ -769,6 +783,7 @@ function startNewParcel() {
 
   // ปลดตั๋ว — ครั้งต่อไปที่กดบันทึกจะเป็นการสร้างใบใหม่ (POST) ไม่ใช่แก้ใบเดิม
   LEAD.id = ''; LEAD.token = ''; LEAD.data = null;
+  renderClaim();                                     // ตั๋วถูกปลดแล้ว ลิงก์เก็บเข้าบัญชีต้องหายตาม
 
   form.reset();
   if (n) n.value = keepName;
@@ -1115,6 +1130,7 @@ function setupPropertyType(onChange) {
 
   fetch(NJ_API_BASE + '/api/public/consign/spec').then(function (r) { return r.ok ? r.json() : null; })
     .then(function (sp) {
+      if (sp && sp.sellerAccounts === true) { SELLER_ON = true; renderClaim(); }
       if (!sp || !Array.isArray(sp.types) || !sp.types.length || !sp.layout || !sp.fields) return;
       spec = sp;
       grid.innerHTML = sp.types.map(function (t) {
