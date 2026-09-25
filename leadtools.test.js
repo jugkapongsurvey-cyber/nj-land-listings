@@ -88,6 +88,21 @@ const ANALYTICS = fs.readFileSync(path.join(__dirname, 'analytics.js'), 'utf8');
 check('⭐ lead_tool_preview อยู่ใน NJ_INTERNAL_EVENTS', /'lead_tool_preview'/.test((ANALYTICS.match(/NJ_INTERNAL_EVENTS = \[[\s\S]*?\];/) || [''])[0]));
 check('ข้อความหลังส่งมีไลน์เสมอ (ไม่มี config.js ก็ไม่ว่าง)', /lineId\) \|\| '@/.test(CODE));
 
+console.log('\n5d) ⭐ ตัวหารอัตราแปลงของเครื่องมืออีก 4 ตัว (เริ่มใช้ · ครั้งเดียวต่อการเปิดหน้า)');
+const EVL = (ANALYTICS.match(/NJ_INTERNAL_EVENTS = \[[\s\S]*?\];/) || [''])[0];
+const STARTS = { mountPrice: 'lead_tool_price_start', mountChecklist: 'lead_tool_checklist_start',
+                 mountSample: 'lead_tool_sample_start', mountNews: 'lead_tool_news_start' };
+const bodyOf = (fn) => { const i = CODE.indexOf('function ' + fn + '('); const j = CODE.indexOf('\n  function ', i + 10); return i < 0 ? '' : CODE.slice(i, j < 0 ? undefined : j); };
+Object.keys(STARTS).forEach(fn => {
+  check(fn + ' ยิง ' + STARTS[fn] + ' ผ่าน startOnce', bodyOf(fn).indexOf("startOnce('" + STARTS[fn] + "'") >= 0);
+  check('⭐ ' + STARTS[fn] + ' อยู่ใน NJ_INTERNAL_EVENTS (ไม่งั้นถูกทิ้งเงียบ)', EVL.indexOf("'" + STARTS[fn] + "'") >= 0);
+});
+const SO = bodyOf('startOnce');
+check('⭐ startOnce ยิงครั้งเดียว (ธง done + ถอดตัวดักออก)', /if \(done\) return;/.test(SO) && /removeEventListener/.test(SO));
+check('⭐ ไม่ยิงตอนเลื่อนผ่าน (ไม่มี IntersectionObserver / scroll)', !/IntersectionObserver|'scroll'/.test(CODE));
+check('เช็กลิสต์นับการติ๊กข้อแรก (change) ไม่ใช่แค่โฟกัส', /boxes\.map\(function \(b\) \{ return \[b, 'change'\]; \}\)/.test(CODE));
+check('ไม่ยิงเหตุการณ์เริ่มใช้ของแบบประเมิน (ตัวหารคือ lead_tool_preview)', !/lead_tool_assess_start/.test(CODE));
+
 console.log('\n5c) หน้ายกเลิกรับข่าวสาร');
 const UH = fs.readFileSync(path.join(__dirname, 'unsubscribe.html'), 'utf8');
 const UJ = fs.readFileSync(path.join(__dirname, 'unsubscribe.js'), 'utf8');
