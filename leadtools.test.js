@@ -88,6 +88,14 @@ const ANALYTICS = fs.readFileSync(path.join(__dirname, 'analytics.js'), 'utf8');
 check('⭐ lead_tool_preview อยู่ใน NJ_INTERNAL_EVENTS', /'lead_tool_preview'/.test((ANALYTICS.match(/NJ_INTERNAL_EVENTS = \[[\s\S]*?\];/) || [''])[0]));
 check('ข้อความหลังส่งมีไลน์เสมอ (ไม่มี config.js ก็ไม่ว่าง)', /lineId\) \|\| '@/.test(CODE));
 
+console.log('\n5c2) ⭐ ความถี่ข่าวสารที่ผู้สมัครเห็น = ค่าที่ส่งให้ระบบ');
+const NEWS = (CODE.match(/function mountNews[\s\S]*?\n  }\n/) || [''])[0];
+check('ข้อความบอกความถี่สัปดาห์ละ 1 ฉบับ', /สัปดาห์ละ 1 ฉบับ/.test(NEWS));
+check('⭐ ไม่มีข้อความเดิม "เดือนละไม่เกิน 2 ครั้ง" หลงเหลือ', !/เดือนละไม่เกิน/.test(NEWS));
+check("⭐ ส่ง freq: 'weekly' ไปกับการสมัคร", /send\(box, 'newsletter', \{ freq: 'weekly' \}\)/.test(NEWS));
+const PRIV = fs.readFileSync(path.join(__dirname, 'privacy.html'), 'utf8');
+check('⭐ นโยบายความเป็นส่วนตัวบอกว่าใช้ Resend ส่งอีเมล', /Resend \(ผู้ให้บริการส่งอีเมล\)/.test(PRIV));
+
 console.log('\n5d) ⭐ ตัวหารอัตราแปลงของเครื่องมืออีก 4 ตัว (เริ่มใช้ · ครั้งเดียวต่อการเปิดหน้า)');
 const EVL = (ANALYTICS.match(/NJ_INTERNAL_EVENTS = \[[\s\S]*?\];/) || [''])[0];
 const STARTS = { mountPrice: 'lead_tool_price_start', mountChecklist: 'lead_tool_checklist_start',
