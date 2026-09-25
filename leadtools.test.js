@@ -79,6 +79,26 @@ check('ไม่มี innerHTML ที่ยัดค่าจากผู้�
 check('ต่อเซิร์ฟเวอร์ไม่ได้ = ซ่อนทั้งก้อน ไม่ทิ้งหัวข้อลอยไว้', /style\.display\s*=\s*'none'/.test(CODE));
 check('ไม่มีคีย์ API = ไม่วาดอะไรเลย', /if \(!base\) return;/.test(CODE));
 
+console.log('\n5b) ⭐ สถิติภายในส่งออกจริง (เดิมเรียก NJTrack ซึ่งไม่มีอยู่บนเว็บ)');
+check('⭐ ไม่เรียก NJTrack (ไม่มีตัวแปรนี้บนเว็บ)', !/NJTrack/.test(CODE));
+check('ใช้ njTrackInternal ของ analytics.js', /njTrackInternal/.test(CODE));
+check('ยิง lead_tool_preview ตอนดูผลแบบประเมิน', /track\('lead_tool_preview'\)/.test(CODE));
+check('⭐ ไม่ยิง lead_tool_submit จากหน้าเว็บ (เซิร์ฟเวอร์บันทึกเอง)', !/'lead_tool_submit'/.test(CODE));
+const ANALYTICS = fs.readFileSync(path.join(__dirname, 'analytics.js'), 'utf8');
+check('⭐ lead_tool_preview อยู่ใน NJ_INTERNAL_EVENTS', /'lead_tool_preview'/.test((ANALYTICS.match(/NJ_INTERNAL_EVENTS = \[[\s\S]*?\];/) || [''])[0]));
+check('ข้อความหลังส่งมีไลน์เสมอ (ไม่มี config.js ก็ไม่ว่าง)', /lineId\) \|\| '@/.test(CODE));
+
+console.log('\n5c) หน้ายกเลิกรับข่าวสาร');
+const UH = fs.readFileSync(path.join(__dirname, 'unsubscribe.html'), 'utf8');
+const UJ = fs.readFileSync(path.join(__dirname, 'unsubscribe.js'), 'utf8');
+const UCODE = UJ.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+check('⭐ หน้า noindex + referrer ไม่ส่งตั๋วต่อ', /name="robots" content="noindex/.test(UH) && /name="referrer" content="no-referrer"/.test(UH));
+check('โหลด unsubscribe.js', /<script src="unsubscribe\.js" defer><\/script>/.test(UH));
+check('⭐ ไม่มี on*= และ script แบบ inline (CSP)', !/\son[a-z]+\s*=/.test(UH + UCODE) && !/<script>(?!\s*<\/script>)/.test(UH));
+check('เรียกเส้นทางยกเลิกของระบบ', /\/api\/public\/newsletter\//.test(UCODE) && /'\/unsubscribe'/.test(UCODE));
+check('⭐ ยกเลิกได้ในคลิกเดียว (ไม่มีกล่องถามยืนยัน)', !/confirm\(/.test(UCODE));
+check('ข้อความจากเซิร์ฟเวอร์ผ่าน esc() ก่อนวาด', /esc\(DATA\.error\)/.test(UCODE) && /map\(esc\)/.test(UCODE));
+
 console.log('\n6) สไตล์ชีตอ่านสีจาก tokens.css');
 const decls = CSS.match(/(?:color|background|border-color|border-left-color)\s*:\s*[^;]+;/g) || [];
 const raw = decls.filter(d => /#[0-9A-Fa-f]{3,8}/.test(d) && d.indexOf('var(') < 0);

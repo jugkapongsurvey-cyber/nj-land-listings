@@ -86,7 +86,8 @@ console.log('\n4) บอกหน้าที่กำลังเปิดอ�
 //   · locations.html — ดัชนีหน้าพื้นที่ ยังไม่ใส่ในเมนูเพราะตอนนี้ยังไม่มีพื้นที่ไหนเผยแพร่
 //     (ลิงก์ไปหน้าที่ว่างเปล่าแย่กว่าไม่มีลิงก์) · ใส่ในรอบที่ทีมเผยแพร่หน้าพื้นที่หน้าแรก
 const EXPECT_NO_CURRENT = ['404.html', 'compare.html', 'cookie.html', 'deal.html', 'land.html', 'locations.html',
-                           'notify.html', 'package-order.html', 'privacy.html', 'quote.html', 'room.html'];
+                           'notify.html', 'package-order.html', 'privacy.html', 'quote.html', 'room.html',
+                           'unsubscribe.html'];
 const noCurrent = pages.filter(f => !/aria-current="page"/.test(html[f]));
 ok('⭐ มีเฉพาะหน้าที่ตั้งใจไม่ใส่ไว้ในเมนูหลักเท่านั้นที่ไม่มีสถานะหน้าปัจจุบัน',
    noCurrent.join(',') === EXPECT_NO_CURRENT.join(','), noCurrent.join(', '));

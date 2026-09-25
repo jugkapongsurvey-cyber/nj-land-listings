@@ -27,6 +27,12 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   };
   var el = function (id) { return d.getElementById(id); };
+  // สถิติภายใน — ใช้ njTrackInternal ของ analytics.js ตัวเดียวกับหน้าอื่น
+  // ⚠️ ห้ามกลับไปเรียก NJTrack.event — ไม่มีตัวแปรนี้บนเว็บเลย เหตุการณ์จึงหายเงียบตั้งแต่วันแรก (แก้ 25 ก.ย. 2569)
+  // ⚠️ ชื่อที่ส่งต้องอยู่ใน NJ_INTERNAL_EVENTS ของ analytics.js และ PUBLIC_EVENT_TYPES ของ server.js
+  var track = function (type) {
+    try { if (typeof w.njTrackInternal === 'function') w.njTrackInternal(type); } catch (e) {}
+  };
 
   function api(path, body) {
     var opt = { method: body ? 'POST' : 'GET' };
@@ -118,8 +124,8 @@
 
     api('/api/public/lead-tool', body).then(function () {
       box.innerHTML = '<p class="nj-alert nj-alert-ok">ส่งเรื่องแล้ว ทีมงานจะติดต่อกลับในเวลาทำการ ' +
-        'ถ้าอยากให้เร็วกว่านั้น ทักไลน์ ' + esc((w.NJ_CONFIG && NJ_CONFIG.lineId) || '') + ' ได้เลย</p>';
-      if (w.NJTrack) NJTrack.event('lead_tool_submit', { tool: tool });
+        'ถ้าอยากให้เร็วกว่านั้น ทักไลน์ ' + esc((w.NJ_CONFIG && w.NJ_CONFIG.lineId) || '@716lffzt') + ' ได้เลย</p>';
+      // ไม่ยิงเหตุการณ์ "ส่งแล้ว" จากตรงนี้ — เซิร์ฟเวอร์บันทึก lead_tool_submit เองตอนสร้างใบ (ยิงซ้ำ = นับสองครั้ง)
     }).catch(function (e) {
       if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || 'ส่งให้ทีมงาน'; }
       say(box, 'bad', e.message || 'ส่งเรื่องไม่สำเร็จ ลองใหม่อีกครั้ง');
@@ -180,7 +186,7 @@
         out.querySelector('[data-lt-send]').addEventListener('click', function () {
           send(out.querySelector('[data-lt-ask]'), 'assess', { answers: answers });
         });
-        if (w.NJTrack) NJTrack.event('lead_tool_preview', { tool: 'assess' });
+        track('lead_tool_preview');
       }).catch(function (e) {
         host.querySelector('[data-lt-out]').innerHTML = '<p class="nj-error-text">' + esc(e.message) + '</p>';
       });

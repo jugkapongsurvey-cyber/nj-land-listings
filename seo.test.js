@@ -114,12 +114,12 @@ PROPS.forEach(f => {
 ok('⭐ แผนผังไม่มี priority / changefreq ที่แต่งขึ้น', !/priority|changefreq/.test(pmap));
 // หน้าที่ประกาศ noindex ต้องไม่โผล่ในแผนผังหน้าคงที่
 const smap = read('sitemap.xml');
-['deal.html', 'room.html', 'quote.html', 'notify.html', 'compare.html', '404.html'].forEach(p => {
+['deal.html', 'room.html', 'quote.html', 'notify.html', 'unsubscribe.html', 'compare.html', '404.html'].forEach(p => {
   ok('แผนผังไม่มีหน้า noindex: ' + p, smap.indexOf('/' + p) < 0);
 });
 
 console.log('\n6) หน้าที่มีตั๋วของลูกค้าต้องถูกกันไว้');
-['/room.html', '/deal.html', '/quote.html', '/notify.html'].forEach(p => {
+['/room.html', '/deal.html', '/quote.html', '/notify.html', '/unsubscribe.html'].forEach(p => {
   ok('robots.txt กัน ' + p, new RegExp('Disallow: ' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(rob));
 });
 ['inspect.html?*t=', 'consign.html?*t=', 'partner-apply.html?*t='].forEach(p => {

@@ -497,6 +497,8 @@ console.log('\n11) ระลอก Phase 3 — ห้องข้อมูลแ
 
   // ⚠️ ชื่อไฟล์ต้องตรงกับที่เซิร์ฟเวอร์ประกอบไว้ท้ายข้อความ — ไม่ตรง = ลิงก์ยกเลิกพาไป 404
   check('เซิร์ฟเวอร์ชี้มาที่ notify.html จริง', /notify\.html\?t=/.test(server));
+  check('⭐ ลิงก์ยกเลิกรับข่าวสารของเซิร์ฟเวอร์ชี้มาที่ unsubscribe.html ที่มีอยู่จริง',
+        /unsubscribe\.html\?id=/.test(server) && fs.existsSync(path.join(WEB, 'unsubscribe.html')));
   check('หน้านี้ห้ามเสิร์ชเอนจินเก็บ', /noindex/.test(notifyHtml));
   check('robots.txt กันอีกชั้น', /Disallow: \/notify\.html/.test(robots));
 
