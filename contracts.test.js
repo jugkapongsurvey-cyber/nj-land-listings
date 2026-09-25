@@ -66,14 +66,19 @@ const webSvc = (services.match(/\{ key: '([a-z]+)',\s+by: '(?:nj|partner)'/g) ||
 check('อ่านรายการบริการได้ทั้งสองฝั่ง', srvSvc.length > 0 && webSvc.length > 0, srvSvc.length + ' / ' + webSvc.length);
 check('คีย์บริการตรงกันทั้งชุดและลำดับ', same(srvSvc, webSvc), srvSvc.join(',') + '  vs  ' + webSvc.join(','));
 
-console.log('\n3) จังหวัดที่บังคับรังวัดก่อนขึ้นประกาศ');
-// ไม่ตรง = หน้าเว็บบอกว่าเลือกได้ แต่พอบันทึกแล้วค่ากลายเป็น "ต้องรังวัด" โดยไม่มีคำอธิบาย
-const srvProv = listAfter(server, 'SURVEY_REQUIRED_PROVINCES');
-const webProv = listAfter(consign, 'SURVEY_REQUIRED_PROVINCES');
-check('อ่านรายชื่อจังหวัดได้ทั้งสองฝั่ง', !!srvProv && !!webProv);
-check('รายชื่อจังหวัดตรงกันเป๊ะ', same(srvProv || [], webProv || []),
-      (srvProv || []).join(',') + '  vs  ' + (webProv || []).join(','));
-check('ครอบคลุม กทม. และปริมณฑลครบ 6 จังหวัด', (srvProv || []).length === 6, String((srvProv || []).length));
+console.log('\n3) ไม่มีเขตบังคับรังวัดแล้ว (ยกเลิก 25 ก.ย. 2569) + ประเภททรัพย์มาจากระบบหลังบ้านที่เดียว');
+// เดิมมีรายชื่อ กทม.+ปริมณฑล ที่ล็อกตัวเลือกเหลือ "ต้องรังวัด" · เจ้าของกิจการสั่งยกเลิกแล้ว
+// รายชื่อนี้กลับมาที่ฝั่งใดฝั่งหนึ่งเมื่อไหร่ = หน้าเว็บกับเซิร์ฟเวอร์ตัดสินคนละแบบอีก
+check('เซิร์ฟเวอร์ไม่มีรายชื่อจังหวัดบังคับรังวัด', !/const SURVEY_REQUIRED_PROVINCES\s*=/.test(server));
+check('หน้าเว็บไม่มีรายชื่อจังหวัดบังคับรังวัด', !/var SURVEY_REQUIRED_PROVINCES\s*=/.test(consign));
+check('เซิร์ฟเวอร์มีเส้นทางสเปกประเภททรัพย์', /app\.get\('\/api\/public\/consign\/spec'/.test(server));
+check('หน้าเว็บดึงประเภททรัพย์จากเส้นทางนั้น (ไม่พิมพ์รายการเอง)', /\/api\/public\/consign\/spec/.test(consign));
+const modes = listAfter(server, 'CONSIGN_SURVEY_MODES');
+check('รูปแบบการรังวัดมี formal/informal', same(modes || [], ['formal', 'informal']), (modes || []).join(','));
+const html = read(path.join(WEB, 'consign.html'));
+check('ฟอร์มมีตัวเลือกรูปแบบการรังวัดครบสองค่า',
+      /name="surveyMode" value="formal"/.test(html) && /name="surveyMode" value="informal"/.test(html));
+check('หัวข้อใหม่ "รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย"', html.indexOf('รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย') >= 0);
 
 console.log('\n4) ตัวเลือกรังวัดที่เซิร์ฟเวอร์รับได้');
 const opts = listAfter(server, 'CONSIGN_SURVEY_OPTS');

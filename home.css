@@ -159,17 +159,25 @@ h1,h2,h3,p{margin:0}
 .seg{display:flex;gap:6px}
 .seg button{border:0;background:var(--bg-3);padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--navy);color:#fff;font-weight:600}
-.search-grid{display:grid;grid-template-columns:2fr 1fr 1fr 132px;gap:8px}
-.field{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;min-width:0}
-.field label{font-size:11px;color:var(--ink-3);font-weight:600}
-.field input,.field select{border:0;outline:0;background:transparent;font-size:15px;min-width:0;width:100%;padding:0}
+/* ⚠️ ช่องทำเลอยู่แถวบนเต็มความกว้างโดยตั้งใจ (แก้ 2026-09-25 ตามที่เจ้าของแจ้งว่าตัวอักษรแสดงไม่หมด)
+   เดิมวาง 4 ช่องในแถวเดียว `2fr 1fr 1fr 132px` ในคอลัมน์ซ้ายของ hero ที่กว้างแค่ ~550px —
+   ช่องราคา/ขนาดเหลือ ~90px "ทุกช่วงราคา" จึงถูกตัดเหลือ "ทุกช่วงร" และคำใบ้ "จังหวัด อำเภอ หรือตำบล"
+   ถูกตัดท้าย · ฟอนต์ 15px กับ line-height ตั้งต้นยังตัดสระบน/วรรณยุกต์ของไทยด้วย
+   ห้ามยุบกลับเป็นแถวเดียว เว้นแต่ hero จะกว้างเต็มจอ */
+.search-grid{display:grid;grid-template-columns:1fr 1fr 150px;gap:8px}
+.search-grid .field:first-child{grid-column:1/-1}
+.search-grid .btn{min-height:auto;height:100%}
+.field{display:flex;flex-direction:column;gap:4px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.field label{font-size:12.5px;line-height:1.4;color:var(--ink-3);font-weight:600}
+.field input,.field select{border:0;outline:0;background:transparent;font-size:16px;line-height:1.6;min-height:28px;min-width:0;width:100%;padding:0;color:var(--ink);text-overflow:ellipsis}
 .field:focus-within{border-color:var(--navy)}
-.search-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--ink-3)}
+.search-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;line-height:1.6;color:var(--ink-3)}
 .search-foot a{background:var(--bg-3);color:var(--ink);padding:3px 10px;border-radius:999px}
 .search-foot .more{margin-left:auto;background:none;font-weight:600;padding:0}
 @media (max-width:767px){
   .search-grid{grid-template-columns:1fr 1fr}
   .search-grid .field:first-child,.search-grid .btn{grid-column:1/-1}
+  .search-grid .btn{min-height:48px}
   .search-foot .more{display:none}
 }
 
