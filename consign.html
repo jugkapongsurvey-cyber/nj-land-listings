@@ -270,8 +270,8 @@
     <!-- ================= ฟอร์ม ================= -->
     <div class="cs-formcard" id="form">
       <div class="cs-formhead">
-        <div class="cs-formtitle">ฝากขายที่ดินฟรี</div>
-        <div class="cs-formsub">กรอก 30 วินาที ทีมงานติดต่อกลับภายใน 1 วันทำการ</div>
+        <div class="cs-formtitle">ฝากขาย–ฝากเช่าฟรี</div>
+        <div class="cs-formsub">ที่ดิน · บ้าน · คอนโด · โรงงาน · โกดัง · อื่นๆ — กรอก 30 วินาที ทีมงานติดต่อกลับภายใน 1 วันทำการ</div>
       </div>
 
       <!-- ---------- แปลงที่ฝากไว้แล้วจากเครื่องนี้ ----------
@@ -308,13 +308,23 @@
           </div>
         </div>
 
+        <!-- ---------- ประเภททรัพย์ (เพิ่ม 2026-09-25) ----------
+             ⚠️ รายการประเภทและช่องกรอกรายประเภทมาจาก GET /api/public/consign/spec ของระบบหลังบ้าน
+                (lib/consignspec.js) ที่เดียว — ห้ามพิมพ์รายการซ้ำไว้ในหน้านี้
+             ⚠️ ซ่อนไว้ใน HTML แล้วให้ consign.js เปิด — โหลดรายการไม่สำเร็จ ฟอร์มยังส่งได้เหมือนเดิม
+                (ถือเป็นที่ดิน · ไม่มีกล่องว่างค้างกลางฟอร์ม) กติกาเดียวกับ #cs-survey -->
+        <div class="cs-field cs-ptype" id="cs-ptype" hidden>
+          <span class="cs-label">ประเภททรัพย์</span>
+          <div class="cs-ptype-grid" id="cs-ptype-grid" role="radiogroup" aria-label="ประเภททรัพย์"></div>
+        </div>
+
         <!-- ---------- ที่ตั้ง: พิมพ์ค้นหาหรือแตะเลือกจากรายชื่อจริงก็ได้ ----------
              ใช้ input + datalist ไม่ใช่ select เพราะจังหวัดมี 77 รายการ และอำเภอบางจังหวัดเกิน 30
              เลื่อนหาทีละบรรทัดบนมือถือช้ากว่าพิมพ์ 2-3 ตัวอักษรมาก
              ผลพลอยได้: ถ้าโหลดรายชื่อไม่สำเร็จ ช่องก็ยังเป็นช่องพิมพ์ธรรมดาที่กรอกเองได้
              จึงไม่ต้องมีช่อง "ที่ตั้ง" สำรองแยกอีกช่องเหมือนตอนใช้ select -->
         <div class="cs-group">
-          <div class="cs-group-title">ที่ตั้งของที่ดิน</div>
+          <div class="cs-group-title">ที่ตั้งของทรัพย์</div>
 
           <label class="cs-field">
             <span class="cs-label">จังหวัด</span>
@@ -349,8 +359,8 @@
         </div>
 
         <!-- ---------- เนื้อที่: แยกออกจากที่ตั้ง กรอกเป็นตัวเลขจริง ---------- -->
-        <div class="cs-group">
-          <div class="cs-group-title">เนื้อที่โดยประมาณ</div>
+        <div class="cs-group" id="cs-area-group">
+          <div class="cs-group-title" id="cs-area-title">เนื้อที่โดยประมาณ</div>
           <div class="cs-row3">
             <label class="cs-field">
               <span class="cs-label">ไร่</span>
@@ -367,6 +377,15 @@
           </div>
           <div class="cs-calc" id="cs-area-out" hidden></div>
           <span class="cs-hint">ใส่ช่องไหนก็ได้ที่รู้ เช่น รู้แค่ 2 ไร่ ก็ใส่แค่ช่องไร่ (1 ไร่ = 4 งาน = 400 ตร.ว.)</span>
+        </div>
+
+        <!-- ---------- รายละเอียดทรัพย์ + เอกสารสิทธิ์ (โครงเดียวกันทุกประเภท) ----------
+             consign.js วาดช่องจาก spec ตามประเภทที่เลือก · ไม่มีช่องไหนบังคับ
+             ⚠️ ไม่มีช่องเลขโฉนด/เลขที่ดิน — ข้อมูลพวกนั้นขอตอนโทรกลับ (กติกาเดิมของหน้านี้) -->
+        <div class="cs-group cs-dt" id="cs-details" hidden>
+          <div class="cs-group-title" id="cs-dt-title">รายละเอียดทรัพย์</div>
+          <div class="cs-dt-body" id="cs-dt-body"></div>
+          <span class="cs-hint">ไม่มีช่องไหนบังคับ — กรอกเท่าที่รู้ ทีมงานตรวจกับเอกสารจริงอีกครั้งก่อนขึ้นประกาศ</span>
         </div>
 
         <!-- ---------- ราคา: เลือกหน่วย แล้วระบบคูณเนื้อที่ให้เอง ---------- -->
@@ -422,15 +441,16 @@
              ⚠️ กล่องทั้งกล่องถูกซ่อนไว้ใน HTML แล้วให้ JS เป็นคนเปิด — ถ้า consign.js โหลดไม่สำเร็จ
                 จะไม่มีช่องที่กดแล้วไม่มีอะไรเกิดขึ้นค้างอยู่บนฟอร์ม (ฟอร์มที่เหลือยังส่งได้ตามปกติ) -->
         <div class="cs-group cs-sv" id="cs-survey" hidden>
-          <div class="cs-group-title">รังวัดยืนยันเขตก่อนประกาศขาย</div>
+          <!-- ⛔ ยกเลิกการบังคับรังวัด กทม./ปริมณฑลแล้ว (เจ้าของกิจการสั่ง 25 ก.ย. 2569) — ทุกจังหวัดเลือกเองได้ -->
+          <div class="cs-group-title">รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย</div>
 
-          <!-- แถบสถานะ — JS เขียนข้อความตามจังหวัดที่เลือก (บังคับ / เลือกได้) -->
+          <!-- แถบสถานะ — JS เขียนข้อความแนะนำ (ไม่บังคับทุกจังหวัด) -->
           <div class="cs-sv-flag" id="cs-sv-flag" role="status"></div>
 
           <div class="cs-sv-opts" id="cs-sv-opts" role="radiogroup" aria-label="ต้องการให้รังวัดยืนยันเขตหรือไม่">
             <label class="cs-sv-opt">
               <input type="radio" name="surveyOpt" value="yes">
-              <span><b>ต้องการให้รังวัดยืนยันเขตก่อนประกาศ</b><i>ได้ป้ายเขียว “รังวัดยืนยันแล้ว” + ผลตรวจ 7 หัวข้อบนหน้าประกาศ</i></span>
+              <span><b>ต้องการให้รังวัดยืนยันเขตและตรวจกรรมสิทธิ์ก่อนประกาศ</b><i>ได้ป้ายเขียว “รังวัดยืนยันแล้ว” + ผลตรวจ 7 หัวข้อบนหน้าประกาศ</i></span>
             </label>
             <label class="cs-sv-opt">
               <input type="radio" name="surveyOpt" value="no">
@@ -439,6 +459,20 @@
             <label class="cs-sv-opt">
               <input type="radio" name="surveyOpt" value="undecided" checked>
               <span><b>ยังไม่ตัดสินใจ — ขอให้ทีมงานแนะนำ</b><i>ทีมช่างรังวัดดูข้อมูลแปลงแล้วโทรบอกว่าแปลงนี้ควรรังวัดไหม</i></span>
+            </label>
+          </div>
+
+          <!-- รูปแบบการรังวัด — โผล่เมื่อเลือกรังวัดหรือยังไม่ตัดสินใจ
+               ไม่เป็นทางการ = ระบบหลังบ้านลดค่างานรังวัด 50% อัตโนมัติ (INFORMAL_RATE ใน pricing.js · ไม่ลดค่าเดินทาง) -->
+          <div class="cs-sv-mode" id="cs-sv-mode" role="radiogroup" aria-label="รูปแบบการรังวัด">
+            <div class="cs-sv-mode-title">รูปแบบการรังวัด</div>
+            <label class="cs-sv-opt">
+              <input type="radio" name="surveyMode" value="formal" checked>
+              <span><b>แบบเป็นทางการ — ยื่นสำนักงานที่ดิน</b><i>เจ้าหน้าที่สำนักงานที่ดินรังวัดร่วม ได้หลักฐานทางราชการ ใช้อ้างอิงเรื่องแนวเขตได้</i></span>
+            </label>
+            <label class="cs-sv-opt">
+              <input type="radio" name="surveyMode" value="informal">
+              <span><b>แบบไม่เป็นทางการ — ค่างานรังวัดลด 50%</b><i>ช่างรังวัดของเราตรวจแนวเขตและหมุดให้ ไม่ยื่นสำนักงานที่ดิน เร็วกว่าและถูกกว่า แต่ไม่ใช่หลักฐานทางราชการ</i></span>
             </label>
           </div>
 
@@ -564,6 +598,15 @@
           <span class="cs-keep-exp" id="cs-keep-exp"></span>
           <button type="button" class="cs-keep-btn" id="cs-keep-copy">คัดลอกลิงก์แก้ไข</button>
           <button type="button" class="cs-keep-btn ghost" id="cs-forget">ไม่ใช่ฉัน — ล้างข้อมูลในเครื่องนี้</button>
+        </div>
+
+        <!-- ---------- เก็บใบนี้ไว้ในบัญชีเจ้าของทรัพย์ (เพิ่ม 2026-09-25) ----------
+             ⚠️ ลิงก์พาไปหน้า seller.html บน app.njteedinsure.com — ห้ามทำฟอร์มรหัสผ่านไว้ในหน้านี้
+                (กรอกรหัสข้ามโดเมน = รูปแบบหน้าหลอกขโมยรหัส)
+             ⚠️ ซ่อนไว้จนกว่า /api/public/consign/spec จะบอก sellerAccounts: true (สวิตช์ปิด = ไม่มีกล่องนี้) -->
+        <div class="cs-keep cs-claim" id="cs-claim" hidden>
+          อยากดูทุกแปลงจากเครื่องไหนก็ได้ และกดยืนยันก่อนประกาศขึ้นเว็บ? สมัครบัญชีด้วยอีเมลแล้วเก็บใบนี้ไว้ในบัญชีของคุณ
+          <a class="cs-keep-btn" id="cs-claim-link" href="#" target="_blank" rel="noopener">🔐 เก็บใบนี้ไว้ในบัญชีของฉัน</a>
         </div>
 
         <!-- ---------- ฝากขายแปลงถัดไป ----------

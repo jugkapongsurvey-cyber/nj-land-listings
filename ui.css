@@ -307,15 +307,55 @@
 .cs-sv-cut{ font-size:12.5px; color:#0F8A4F; font-weight:600; margin-top:3px; }
 .cs-sv-sub{ font-size:12.5px; line-height:1.65; color:#6C7F99; margin-top:6px; }
 .cs-sv-sub b{ color:#3D5470; }
-.cs-sv-pros{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+/* ⚠️ คอลัมน์เดียวเสมอ — กล่องนี้อยู่ในการ์ดฟอร์มกว้าง ~450px สองคอลัมน์เหลือช่องละ ~190px อ่านไม่ออก */
+.cs-sv-pros{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:12px; }
 .cs-sv-col{ border-radius:10px; padding:11px 13px; font-size:12.5px; line-height:1.7; }
 .cs-sv-col.good{ background:#F1F9F4; border:1px solid #C6E6D2; color:#1B5334; }
 .cs-sv-col.cost{ background:#FBF7F1; border:1px solid #E5D8C4; color:#6B5330; }
-.cs-sv-col b{ display:block; font-size:13px; margin-bottom:5px; }
+/* ⚠️ เฉพาะหัวคอลัมน์ (ลูกตรง) เท่านั้น — เดิมเขียน .cs-sv-col b แล้วคำตัวหนาในรายการถูกดันขึ้นบรรทัดใหม่ทุกคำ
+   (เจ้าของแจ้งพร้อมภาพหน้าจอ 25 ก.ย. 2569) */
+.cs-sv-col > b{ display:block; font-size:13px; margin-bottom:5px; }
+.cs-sv-col li b{ display:inline; font-size:inherit; margin:0; }
 .cs-sv-col ul{ margin:0; padding-left:17px; }
 .cs-sv-col li{ margin-bottom:4px; }
 .cs-sv-col li:last-child{ margin-bottom:0; }
-@media (max-width:640px){ .cs-sv-pros{ grid-template-columns:1fr; } }
+/* รูปแบบการรังวัด (ทางการ / ไม่เป็นทางการ) */
+.cs-sv-mode{ display:grid; gap:8px; margin-top:12px; padding-top:12px; border-top:1px dashed #DCE3EF; }
+.cs-sv-mode-title{ font-size:12px; font-weight:700; color:#3D5470; }
+.cs-sv-alt{ font-size:12.5px; color:#3D5470; margin-top:4px; }
+
+/* ---------- ประเภททรัพย์ + รายละเอียดรายประเภท (เพิ่ม 2026-09-25) ---------- */
+.cs-ptype-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.cs-ptype-grid label{ position:relative; display:block; }
+.cs-ptype-grid input{ position:absolute; opacity:0; width:0; height:0; }
+.cs-ptype-grid span{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  min-height:64px; padding:8px 6px; text-align:center; cursor:pointer;
+  border:1.5px solid var(--border); border-radius:11px; background:#fff;
+  font-size:12.5px; font-weight:600; line-height:1.35; color:var(--ink);
+}
+.cs-ptype-grid span i{ font-style:normal; font-size:20px; line-height:1; }
+.cs-ptype-grid input:checked + span{ border-color:var(--green); background:#F0FAF3; color:#0F6B38; }
+.cs-ptype-grid input:focus-visible + span{ box-shadow:0 0 0 3.5px rgba(22,163,74,.18); }
+.cs-dt-body{ display:grid; gap:12px; }
+.cs-dt-sub{ font-size:11.5px; font-weight:800; color:#3D5470; margin-top:4px; }
+.cs-dt-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.cs-dt-grid .cs-field{ min-width:0; }
+.cs-dt-grid .cs-wide{ grid-column:1/-1; }
+.cs-field select{
+  width:100%; min-width:0; border:1.5px solid var(--border); border-radius:10px; background:#fff;
+  padding:11px 12px; font:inherit; font-size:14px; color:var(--ink);
+}
+.cs-unit{ position:relative; display:block; }
+.cs-unit input{ padding-right:64px !important; }
+.cs-unit em{ position:absolute; right:12px; top:50%; transform:translateY(-50%); font-style:normal; font-size:12px; color:#8093AA; pointer-events:none; }
+.cs-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.cs-chips label{ display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:999px; padding:5px 11px; font-size:12.5px; background:#fff; cursor:pointer; }
+.cs-chips input{ accent-color:var(--green); }
+@media (max-width:420px){
+  .cs-ptype-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cs-dt-grid{ grid-template-columns:1fr; }
+}
 
 /* ---------- ยินยอม PDPA ---------- */
 .cs-check{
@@ -438,6 +478,8 @@
   display:block;margin-top:7px;border:1px solid var(--border);background:#fff;color:var(--ink);
   font-size:11.5px;font-weight:700;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit;
 }
+a.cs-keep-btn{display:inline-block;text-decoration:none}
+.cs-claim{background:#F4F7FB;border:1px solid var(--border)}
 /* ---------- รายงาน "แปลงของคุณบนเว็บ" ----------
    ใช้สองโทน: ขึ้นเว็บแล้ว = เขียว (ข่าวดี ดูตัวเลขได้) · ยังไม่ขึ้น = ฟ้ากลางๆ (กำลังดำเนินการ ไม่ใช่ข่าวร้าย)
    ห้ามใช้โทนแดง/เตือนกับกรณี "ยังไม่ขึ้นเว็บ" — เจ้าของจะเข้าใจว่าใบตัวเองมีปัญหา ทั้งที่เป็นขั้นตอนปกติ */

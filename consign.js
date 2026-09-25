@@ -70,19 +70,11 @@ function showErr(msg, field) {
 // จังหวัดที่บริษัทให้บริการอยู่จริง — ยกขึ้นบนสุดของ dropdown เพราะคนส่วนใหญ่ที่เข้าฟอร์มนี้อยู่ในกลุ่มนี้
 var SERVICE_PROVINCES = ['สมุทรปราการ', 'กรุงเทพมหานคร', 'ฉะเชิงเทรา', 'ชลบุรี', 'ระยอง', 'ปทุมธานี', 'นครนายก'];
 
-// ---------- "รังวัดยืนยันเขตก่อนประกาศ" — บังคับเฉพาะ กทม. และปริมณฑล ----------
+// ---------- "รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศ" ----------
 //
-// ⚠️ **รายชื่อนี้ต้องตรงกับ SURVEY_REQUIRED_PROVINCES ใน server.js เป๊ะ** — เซิร์ฟเวอร์เป็นผู้ตัดสินจริง
-// ตัวนี้มีไว้วาดหน้าจอให้ทันทีขณะพิมพ์เท่านั้น (ไม่ต้องรอยิงเน็ตทุกครั้งที่เปลี่ยนจังหวัด)
-// ไม่ตรงกันเมื่อไหร่ = หน้าเว็บบอกว่าเลือกได้ แต่พอบันทึกแล้วค่ากลับกลายเป็น "ต้องรังวัด" โดยไม่มีคำอธิบาย
-// (ตอนเปิดใบเดิมกลับมา เราใช้ค่า surveyRequired ที่เซิร์ฟเวอร์ส่งมาแทนเสมอ — ดู applySurveyFromLead)
-//
-// ⚠️ **บังคับ = บังคับก่อนขึ้นประกาศ ไม่ใช่บังคับก่อนส่งฟอร์ม** — ห้ามเอาไปบล็อกปุ่มบันทึกเด็ดขาด
-// คนที่ยังไม่พร้อมจ่ายค่ารังวัดก็ยังเป็นลีดที่ทีมขายคุยต่อได้ (กติกาเดียวกับหน้าฝากหาที่ดิน)
-var SURVEY_REQUIRED_PROVINCES = ['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'สมุทรสาคร', 'นครปฐม'];
-function surveyRequiredFor(province) {
-  return SURVEY_REQUIRED_PROVINCES.indexOf(String(province == null ? '' : province).trim()) >= 0;
-}
+// ⛔ **ยกเลิกการบังคับรังวัดใน กทม. + ปริมณฑลแล้ว** (เจ้าของกิจการสั่ง 25 ก.ย. 2569)
+//    เดิมมีรายชื่อ SURVEY_REQUIRED_PROVINCES 6 จังหวัดที่ล็อกตัวเลือกเหลือ "ต้องการรังวัด" ทางเดียว
+//    ตอนนี้ทุกจังหวัดเลือกเองได้ และเซิร์ฟเวอร์เก็บตามที่เลือกจริง · contracts.test.js ล็อกว่าต้องไม่มีรายชื่อนี้กลับมา
 
 // ประกอบข้อความที่ตั้งจากช่องที่เลือกไว้ ให้ทีมขายอ่านรวดเดียวจบในการ์ดโอกาสทางธุรกิจ
 // กรุงเทพฯ ใช้ "แขวง/เขต" ต่างจังหวัดใช้ "ต./อ." — ชื่ออำเภอในกรุงเทพฯ มีคำว่า "เขต" นำมาอยู่แล้ว
@@ -629,7 +621,21 @@ function enterSavedMode() {
   if (keep) keep.hidden = false;
   if (btn) btn.textContent = '💾 บันทึกการแก้ไข';
   $('cs-done').hidden = false;
+  renderClaim();
   setupUpload();
+}
+
+// ---------- เก็บใบนี้ไว้ในบัญชีเจ้าของทรัพย์ (เพิ่ม 2026-09-25) ----------
+// ⚠️ แสดงเฉพาะเมื่อ spec บอก sellerAccounts === true (สวิตช์ seller_accounts ของระบบหลังบ้าน) — ค่าเริ่มต้นซ่อน
+// ⚠️ ตั๋วส่งไปใน #fragment ไม่ใช่ ?query — fragment ไม่ถูกส่งไปกับคำขอ HTTP จึงไม่ค้างใน log ของเซิร์ฟเวอร์
+//    และ seller.js ย้ายตั๋วเข้า sessionStorage แล้วล้างออกจากแถบที่อยู่ทันที
+var SELLER_ON = false;
+function renderClaim() {
+  var box = $('cs-claim'), a = $('cs-claim-link');
+  if (!box || !a) return;
+  var ok = SELLER_ON && LEAD.id && LEAD.token;
+  box.hidden = !ok;
+  if (ok) a.href = NJ_API_BASE + '/seller.html#claim=' + encodeURIComponent(LEAD.id) + '&t=' + encodeURIComponent(LEAD.token);
 }
 
 // ---------- เติมค่ากลับลงฟอร์ม (ตอนเปิดหน้าใหม่แล้วกลับมาแก้ต่อ) ----------
@@ -659,8 +665,8 @@ function fillForm(d) {
   setRadio('priceUnit', d.priceUnit || 'wa');
   setVal('#cs-price', d.unitPrice || '');
   setVal('#consign-form [name="note"]', d.note);
-  // ตัวเลือกรังวัดต้องเติมหลังที่ตั้ง เพราะสถานะ "บังคับ" คำนวณจากจังหวัด
-  // และต้องใช้ธง surveyRequired ที่เซิร์ฟเวอร์ส่งมา ไม่ใช่คำนวณเองซ้ำ (เซิร์ฟเวอร์เป็นผู้ตัดสินจริง)
+  // ประเภททรัพย์ก่อนตัวเลือกรังวัด (ห้องชุดซ่อนเนื้อที่ดิน แล้วค่ารังวัดต้องวาดตาม)
+  if (PT) PT.applyFromLead(d);
   if (SV) SV.applyFromLead(d);
   // เคยยินยอมไปแล้วตอนบันทึกครั้งแรก — ติ๊กคืนให้ ไม่ต้องให้ติ๊กซ้ำทุกครั้งที่กลับมาแก้
   var pdpa = document.querySelector('#consign-form [name="pdpa"]');
@@ -690,6 +696,7 @@ var MINE = [];
 // เก็บไว้ระดับไฟล์เพราะ setLead() ก็ต้องสั่งวาดรายการใหม่ แต่ไม่มีพารามิเตอร์ตัวนี้ใน scope
 var AP = null;
 var SV = null;   // ตัวคุมกล่องรังวัด (ดู setupSurvey)
+// (PT = ตัวคุมประเภททรัพย์ ประกาศไว้เหนือ setupPropertyType)
 var PV = null;   // ตัวคุมกล่องตัวอย่างประกาศ (ดู livePreview)
 function renderMine() {
   var box = $('cs-mine'), list = $('cs-mine-list');
@@ -776,6 +783,7 @@ function startNewParcel() {
 
   // ปลดตั๋ว — ครั้งต่อไปที่กดบันทึกจะเป็นการสร้างใบใหม่ (POST) ไม่ใช่แก้ใบเดิม
   LEAD.id = ''; LEAD.token = ''; LEAD.data = null;
+  renderClaim();                                     // ตั๋วถูกปลดแล้ว ลิงก์เก็บเข้าบัญชีต้องหายตาม
 
   form.reset();
   if (n) n.value = keepName;
@@ -786,8 +794,9 @@ function startNewParcel() {
   var zip = $('cs-zip'); if (zip) zip.value = '';
   setRadio('type', 'sell');
   setRadio('priceUnit', 'wa');
-  // form.reset() คืนค่า radio ให้แล้วก็จริง แต่ธง "บังคับ" ที่เซิร์ฟเวอร์ส่งมาของแปลงก่อนหน้ายังค้างอยู่
-  // ไม่ล้าง = แปลงใหม่ในต่างจังหวัดจะขึ้นว่าบังคับรังวัด เพราะแปลงก่อนหน้าอยู่ในกรุงเทพฯ
+  // form.reset() คืนค่า radio ให้ก็จริง แต่ประเภททรัพย์/รายละเอียด/รูปแบบรังวัดของแปลงก่อนหน้า
+  // อยู่ในตัวคุมของมันเอง ต้องล้างด้วย ไม่งั้นแปลงใหม่ได้รายละเอียดของแปลงก่อนติดไป
+  if (PT) PT.reset();
   if (SV) SV.reset();
   if (AP) AP.render();
   // การ์ดตัวอย่างของแปลงก่อนหน้าต้องหายไปพร้อมกัน ไม่ใช่ค้างอยู่เหนือฟอร์มเปล่า
@@ -869,75 +878,51 @@ function loadMineStatus() {
   });
 }
 
-// ---------- กล่อง "รังวัดยืนยันเขตก่อนประกาศ" ----------
+// ---------- กล่อง "รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศ" ----------
 //
-// ทำ 3 อย่าง แล้วเกาะอยู่กับช่องที่มีอยู่แล้วในฟอร์ม ไม่ได้เพิ่มช่องให้กรอกใหม่:
-//   1. อ่าน "จังหวัด" → ตัดสินว่าแปลงนี้อยู่ในเขตบังคับรังวัดไหม แล้วล็อก/ปลดล็อกตัวเลือกให้
-//   2. อ่าน "เนื้อที่" → ยิงเข้าตารางราคางานรังวัดจริงของบริษัท ได้ค่ารังวัดประมาณการทันที
-//   3. เขียนข้อดี–ข้อแลกเปลี่ยนให้อ่าน เฉพาะตอนที่ "เลือกได้จริง" เท่านั้น
-//      (เขตบังคับไม่ต้องโน้มน้าว — บอกเหตุผลว่าทำไมถึงบังคับก็พอ ไม่งั้นอ่านเหมือนขายของทั้งที่ไม่มีทางเลือก)
+// ทำ 3 อย่าง แล้วเกาะอยู่กับช่องที่มีอยู่แล้วในฟอร์ม:
+//   1. ให้เลือกว่าจะรังวัดไหม (ทุกจังหวัดเลือกได้ — ไม่มีเขตบังคับแล้ว)
+//   2. เลือกรูปแบบ: เป็นทางการ (ยื่นสำนักงานที่ดิน) / ไม่เป็นทางการ (ช่างเอกชน · ค่างานลด 50%)
+//   3. อ่าน "เนื้อที่" + "จังหวัด" → ยิงเข้าตารางราคางานรังวัดจริงของบริษัท ได้ค่ารังวัดประมาณการทันที
 //
 // ⚠️ **ตารางราคาไม่ได้อยู่ในไฟล์นี้** เรียกผ่าน NJSurveyQuote ซึ่งโหลด pricing.js จากระบบหลังบ้าน
-// โหลดไม่ได้ = ไม่แสดงราคาเลย แล้วให้ทักไลน์แทน **ห้าม fallback เป็นตัวเลขที่เดาเอง**
+//    โหลดไม่ได้ = ไม่แสดงราคาเลย แล้วให้ทักไลน์แทน **ห้าม fallback เป็นตัวเลขที่เดาเอง**
+// ⚠️ **ส่วนลด 50% คิดที่ pricing.js** (INFORMAL_RATE) ห้ามคูณเองในไฟล์นี้ · ตารางรุ่นเก่าที่ยังไม่รู้จัก
+//    รังวัดไม่เป็นทางการ = บอกว่าลด 50% ของค่างานแล้วให้ทีมยืนยันราคา ไม่ใช่เดาตัวเลขเอง
 function setupSurvey(getProvince, getTotalWa) {
   var box = $('cs-survey');
   if (!box) return null;
-  var flag = $('cs-sv-flag'), quote = $('cs-sv-quote'), pros = $('cs-sv-pros');
+  var flag = $('cs-sv-flag'), quote = $('cs-sv-quote'), modeBox = $('cs-sv-mode');
   var radios = Array.prototype.slice.call(box.querySelectorAll('input[name="surveyOpt"]'));
+  var modes = Array.prototype.slice.call(box.querySelectorAll('input[name="surveyMode"]'));
   if (!radios.length) return null;
   box.hidden = false;                 // HTML ซ่อนไว้ ให้ไฟล์นี้เป็นคนเปิด (ดูคอมเมนต์ใน consign.html)
 
-  // ธงบังคับที่เซิร์ฟเวอร์ยืนยันมา — มีค่าเฉพาะตอนเปิดใบเดิมกลับมา (null = ยังไม่เคยคุยกับเซิร์ฟเวอร์)
-  var serverRequired = null;
-  // lastProvince เพิ่ม 2026-09-08 — ค่ารังวัดประมาณการขึ้นกับจังหวัดแล้ว (ค่าดำเนินการนอกพื้นที่)
-  // ไม่เฝ้าค่านี้ = เปลี่ยนจังหวัดแล้วราคาค้างอยู่ที่โซนเดิม ทั้งที่ตัวเลขเปลี่ยนไปหลักหมื่น
-  var lastWa = -1, lastRequired = null, lastProvince = null;
+  var lastKey = null;
 
-  function required() {
-    return serverRequired == null ? surveyRequiredFor(getProvince()) : serverRequired;
-  }
-  function pick(v) {
-    var r = radios.filter(function (x) { return x.value === v; })[0];
+  function pick(list, v) {
+    var r = list.filter(function (x) { return x.value === v; })[0];
     if (r) r.checked = true;
   }
   function value() {
     var r = radios.filter(function (x) { return x.checked; })[0];
-    // เขตบังคับส่ง 'yes' เสมอ ไม่ว่าหน้าจอจะเป็นยังไง (เซิร์ฟเวอร์ทับให้อยู่แล้ว แต่ส่งให้ตรงกันตั้งแต่ต้นทาง
-    // จะได้ไม่มีจังหวะที่หน้าจอกับข้อมูลที่ส่งไปพูดคนละเรื่อง)
-    return required() ? 'yes' : (r ? r.value : 'undecided');
+    return r ? r.value : 'undecided';
+  }
+  function mode() {
+    var r = modes.filter(function (x) { return x.checked; })[0];
+    return r && r.value === 'informal' ? 'informal' : 'formal';
   }
 
   function drawFlag() {
-    var must = required();
-    if (must) {
-      flag.className = 'cs-sv-flag must';
-      flag.innerHTML = '<b>⚠ แปลงนี้อยู่ในกรุงเทพฯ/ปริมณฑล — ต้องรังวัดยืนยันเขตก่อนขึ้นประกาศ</b><br>' +
-        'ราคาที่ดินย่านนี้สูงจนแนวเขตคลาดไปหนึ่งเมตรมีผลเป็นเงินหลักแสน และแปลงส่วนใหญ่ติดกันหมด ' +
-        'เราจึงไม่ประกาศขายแปลงในเขตนี้โดยยังไม่ได้ยืนยันแนวเขตและเนื้อที่จริง — ' +
-        '<b>ส่งข้อมูลไว้ก่อนได้เลย</b> ทีมช่างรังวัดจะโทรกลับไปนัดวันและแจ้งค่าใช้จ่ายที่แน่นอนให้';
-    } else {
-      flag.className = 'cs-sv-flag free';
-      flag.innerHTML = getProvince()
-        ? '<b>แปลงนี้เลือกได้ — จะรังวัดก่อนหรือประกาศไปก่อนก็ได้</b><br>' +
-          'นอกกรุงเทพฯ และปริมณฑล เราไม่บังคับ แต่ป้ายบนประกาศจะต่างกันคนละแบบ อ่านข้อดี–ข้อแลกเปลี่ยนด้านล่างก่อนตัดสินใจ'
-        : '<b>เลือกจังหวัดด้านบนก่อน</b> แล้วระบบจะบอกว่าแปลงของคุณต้องรังวัดก่อนประกาศไหม ' +
-          'และค่ารังวัดโดยประมาณเท่าไหร่';
-    }
-  }
-
-  function drawOpts() {
-    var must = required();
-    radios.forEach(function (r) {
-      // เขตบังคับ: ล็อกให้เหลือ "ต้องการรังวัด" ทางเดียว — แต่ยังแสดงตัวเลือกอื่นแบบจางไว้
-      // ให้เห็นว่าเป็นข้อจำกัดของพื้นที่ ไม่ใช่ฟอร์มพัง หรือเราตัดตัวเลือกทิ้งเงียบๆ
-      r.disabled = must && r.value !== 'yes';
-    });
-    if (must) pick('yes');
-    pros.hidden = must;    // ไม่ต้องโน้มน้าวคนที่ไม่มีทางเลือก
+    flag.className = 'cs-sv-flag free';
+    flag.innerHTML = '<b>เลือกได้ทุกจังหวัด — ไม่บังคับรังวัดก่อนประกาศ</b><br>' +
+      'รังวัดยืนยันเขตและตรวจกรรมสิทธิ์ก่อนขาย ช่วยให้ผู้ซื้อตัดสินใจเร็วขึ้นและลดข้อต่อรองราคา ' +
+      'ประกาศที่ยังไม่รังวัดจะขึ้นป้าย “ข้อมูลเบื้องต้น” · อ่านข้อดี–ข้อแลกเปลี่ยนด้านล่างก่อนตัดสินใจ';
   }
 
   // ---------- ค่ารังวัดประมาณการ ----------
   function drawQuote() {
+    if (value() === 'no') { quote.innerHTML = ''; return; }
     var wa = getTotalWa();
     if (!(wa > 0)) {
       quote.innerHTML = '<div class="cs-sv-box"><div class="cs-sv-sub">' +
@@ -946,33 +931,40 @@ function setupSurvey(getProvince, getTotalWa) {
     }
     if (!window.NJSurveyQuote) { quote.innerHTML = ''; return; }
     NJSurveyQuote.load().then(function () {
-      // ราคาคิดแบบ "รังวัดสอบเขต" ซึ่งเป็นงานที่ตรงกับคำว่ายืนยันแนวเขต
-      // งานแบ่งแยก/รวมโฉนดคิดคนละราคา — บอกไว้ในบรรทัดล่าง ไม่ใช่เดาแทนเจ้าของ
-      // ส่งจังหวัดที่เจ้าของกรอกไว้แล้วเข้าไปด้วย — ค่าดำเนินการนอกพื้นที่สูงถึง 75,000 บาท
-      // ไม่ส่ง = กล่องนี้บอกราคาที่ขาดค่าเดินทางทั้งก้อนให้เจ้าของที่ดินต่างจังหวัด (แก้ 2026-09-08)
-      var r = NJSurveyQuote.quoteFromWa(wa, 'สอบเขต', { combo: true, province: getProvince() });
-      if (!r) { quote.innerHTML = ''; return; }
+      var prov = getProvince();
+      // ราคาคิดแบบ "รังวัดสอบเขต" ซึ่งเป็นงานที่ตรงกับคำว่ายืนยันแนวเขต · ส่งจังหวัดไปเสมอ (ค่าดำเนินการนอกพื้นที่)
+      var f = NJSurveyQuote.quoteFromWa(wa, 'สอบเขต', { combo: true, province: getProvince() });
+      if (!f) { quote.innerHTML = ''; return; }
+      var infOk = NJSurveyQuote.informalReady && NJSurveyQuote.informalReady();
+      var inf = infOk ? NJSurveyQuote.quoteFromWa(wa, 'สอบเขต', { combo: true, province: getProvince(), informal: true }) : null;
+      var informal = mode() === 'informal';
+      var r = informal && inf ? inf : f;
       var baht = function (x) { return Math.round(Number(x) || 0).toLocaleString('en-US'); };
       var tv = r.travel;
-      quote.innerHTML = '<div class="cs-sv-box">' +
-        '<div class="cs-sv-price">≈ ฿' + baht(r.subtotal) + '<small>ค่ารังวัดสอบเขตโดยประมาณ</small></div>' +
-        (r.combo ? '<div class="cs-sv-cut">รวมส่วนลด “รังวัด + ฝากขาย” 5% แล้ว (จาก ฿' + baht(r.beforeCombo) + ')</div>' : '') +
+      var head = informal
+        ? (inf
+          ? '<div class="cs-sv-price">≈ ฿' + baht(inf.subtotal) + '<small>รังวัดแบบไม่เป็นทางการ (ค่างานลด 50%)</small></div>' +
+            '<div class="cs-sv-alt">แบบเป็นทางการ (ยื่นสำนักงานที่ดิน) ≈ ฿' + baht(f.subtotal) + '</div>'
+          : '<div class="cs-sv-price">≈ ฿' + baht(f.subtotal) + '<small>ราคาแบบเป็นทางการ</small></div>' +
+            '<div class="cs-sv-cut">แบบไม่เป็นทางการลดค่างานรังวัด 50% (ไม่รวมค่าเดินทาง) — ทีมงานยืนยันราคาตอนโทรกลับ</div>')
+        : '<div class="cs-sv-price">≈ ฿' + baht(f.subtotal) + '<small>รังวัดสอบเขตแบบเป็นทางการ</small></div>' +
+          (inf ? '<div class="cs-sv-alt">ถ้าเลือกแบบไม่เป็นทางการ ≈ ฿' + baht(inf.subtotal) + ' (ค่างานลด 50%)</div>' : '');
+      quote.innerHTML = '<div class="cs-sv-box">' + head +
+        (r.combo ? '<div class="cs-sv-cut">รวมส่วนลด “รังวัด + ฝากขาย” 5% แล้ว</div>' : '') +
         (tv ? '<div class="cs-sv-sub">รวมค่าดำเนินการนอกพื้นที่ <b>' + esc(tv.zoneLabel || tv.zone) + '</b> แล้ว ' +
-              '(฿' + baht(tv.total) + (tv.nights > 0 ? ' · รวมค่าที่พักทีมงาน ' + tv.nights + ' คืน' : '') + ')</div>'
-            : (getProvince()
+              '(฿' + baht(tv.total) + (tv.nights > 0 ? ' · รวมค่าที่พักทีมงาน ' + tv.nights + ' คืน' : '') + ') — ส่วนนี้ไม่ลด</div>'
+            : (prov
               ? ''
               : '<div class="cs-sv-sub"><b>ยังไม่ได้เลือกจังหวัด</b> — ราคานี้ยังไม่รวมค่าดำเนินการนอกพื้นที่' +
-                // ช่วงราคาอ่านจากตารางจริงผ่าน NJSurveyQuote ห้ามพิมพ์ตัวเลขไว้ที่นี่
                 (NJSurveyQuote.travelRangeText() ? ' ซึ่งอยู่ระหว่าง ' + esc(NJSurveyQuote.travelRangeText()) + 'ตามระยะทาง' : '') +
                 '</div>')) +
         '<div class="cs-sv-sub">ราคานี้รวม <b>' + esc(r.includedService) + '</b> · ช่วงพื้นที่ ' + esc(r.rangeLabel) + '<br>' +
           '<b>เป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา</b> — ราคาจริงขึ้นกับหน้างาน เช่น สภาพพื้นที่ จำนวนหมุด ' +
           'จำนวนเที่ยวที่ต้องลงพื้นที่ และคิวสำนักงานที่ดิน ซึ่งต้องให้ทีมช่างรังวัดประเมินก่อน ' +
-          'ยังไม่รวม VAT และค่าธรรมเนียมของสำนักงานที่ดิน<br>' +
+          'ยังไม่รวม VAT และค่าธรรมเนียมของสำนักงานที่ดิน · <b>การตรวจกรรมสิทธิ์ ทีมงานเสนอราคาแยกหลังตรวจเอกสาร</b><br>' +
           'งานแบ่งแยกโฉนดหรือรวมโฉนดคิดคนละราคา — แจ้งทีมงานตอนโทรกลับได้เลย</div>' +
       '</div>';
     }, function () {
-      // โหลดตารางราคาไม่ได้ — ห้ามเดาตัวเลข ให้ทางไปคุยกับคนแทน
       quote.innerHTML = '<div class="cs-sv-box"><div class="cs-sv-sub">' +
         'ตอนนี้ยังโหลดตารางราคางานรังวัดไม่ได้ — ' +
         '<a href="' + LINE_OA_URL + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมงานตีราคาให้ →</a>' +
@@ -981,31 +973,177 @@ function setupSurvey(getProvince, getTotalWa) {
   }
 
   function sync() {
-    var must = required(), wa = getTotalWa();
-    // วาดใหม่เฉพาะตอนที่ค่าที่เกี่ยวข้องเปลี่ยนจริง — ฟังก์ชันนี้ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว
-    // วาดทุกครั้ง = ยิง NJSurveyQuote.load() ซ้ำ และกล่องราคากะพริบขณะพิมพ์เนื้อที่
-    if (must !== lastRequired) { lastRequired = must; drawFlag(); drawOpts(); }
-    var prov = getProvince();
-    if (wa !== lastWa || prov !== lastProvince) { lastWa = wa; lastProvince = prov; drawQuote(); }
+    var key = [value(), mode(), getTotalWa(), getProvince()].join('|');
+    // วาดใหม่เฉพาะตอนค่าที่เกี่ยวข้องเปลี่ยนจริง — ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว
+    if (key === lastKey) return;
+    lastKey = key;
+    if (modeBox) modeBox.hidden = value() === 'no';
+    drawQuote();
   }
-
-  // เปิดใบเดิมกลับมา — เชื่อค่าจากเซิร์ฟเวอร์ก่อนเสมอ (มันคือค่าที่ถูกบันทึกไว้จริง)
   function applyFromLead(d) {
-    serverRequired = (d && typeof d.surveyRequired === 'boolean') ? d.surveyRequired : null;
-    lastRequired = null;
-    if (d && d.surveyOpt) pick(d.surveyOpt);
-    sync();
+    if (d && d.surveyOpt) pick(radios, d.surveyOpt);
+    pick(modes, (d && d.surveyMode) === 'informal' ? 'informal' : 'formal');
+    lastKey = null; sync();
   }
   function reset() {
-    serverRequired = null;
-    lastRequired = null; lastWa = -1; lastProvince = null;
-    pick('undecided');
-    sync();
+    pick(radios, 'undecided'); pick(modes, 'formal');
+    lastKey = null; sync();
   }
 
-  box.addEventListener('change', function () { drawOpts(); });
+  box.addEventListener('change', sync);
+  drawFlag();
   sync();
-  return { value: value, sync: sync, applyFromLead: applyFromLead, reset: reset };
+  return { value: value, mode: mode, sync: sync, applyFromLead: applyFromLead, reset: reset };
+}
+
+// ============================================================================
+//  ประเภททรัพย์ + รายละเอียดรายประเภท (เพิ่ม 2026-09-25)
+// ============================================================================
+//
+// ⚠️ **รายการประเภทและช่องกรอกมาจาก GET /api/public/consign/spec ที่เดียว** (lib/consignspec.js ของระบบหลังบ้าน)
+//    ไฟล์นี้วาดตามที่ได้รับเท่านั้น ห้ามพิมพ์รายการประเภท/ช่องไว้ที่นี่ (บทเรียนเดียวกับ lead-tool/spec)
+// ⚠️ **โหลดไม่สำเร็จ = ไม่มีส่วนนี้ ฟอร์มที่เหลือยังส่งได้ตามเดิม** (ถือเป็นที่ดินเหมือนก่อนมีฟีเจอร์นี้)
+// ⚠️ ทุกแบบฟอร์มมีโครงเดียวกัน: ขนาด → รายละเอียดรายประเภท → เอกสารสิทธิ์และภาระผูกพัน → ค่าเช่า (เมื่อฝากเช่า)
+//    ไม่มีช่องไหนบังคับ · ค่าที่ส่งไปเซิร์ฟเวอร์ตรวจ/ตัดซ้ำเสมอ
+var PT = null;
+function setupPropertyType(onChange) {
+  var box = $('cs-ptype'), grid = $('cs-ptype-grid'), det = $('cs-details'), body = $('cs-dt-body');
+  if (!box || !grid || !det || !body || typeof fetch !== 'function') return null;
+  var spec = null, cur = 'land', vals = {};
+
+  function field(k) { return spec && spec.fields ? spec.fields[k] : null; }
+  function typeOf(k) { return spec ? (spec.types || []).filter(function (t) { return t.key === k; })[0] : null; }
+  function deal() {
+    var r = document.querySelector('#consign-form input[name="type"]:checked');
+    return r && r.value === 'rent' ? 'rent' : 'sell';
+  }
+  function groups() {
+    var L = (spec.layout || {})[cur] || (spec.layout || {}).other || { size: [], detail: [] };
+    return [['ขนาด', L.size || []], ['รายละเอียด', L.detail || []],
+            ['เอกสารสิทธิ์และภาระผูกพัน', spec.title || []],
+            ['ค่าเช่า', deal() === 'rent' ? (spec.rent || []) : []]];
+  }
+  function inputHtml(k) {
+    var f = field(k); if (!f) return '';
+    var v = vals[k] == null ? '' : vals[k];
+    if (f.kind === 'select') {
+      return '<label class="cs-field"><span class="cs-label">' + esc(f.th) + '</span>' +
+        '<select data-dt="' + esc(k) + '"><option value="">— เลือก —</option>' +
+        (f.options || []).map(function (o) {
+          return '<option value="' + esc(o.k) + '"' + (String(v) === o.k ? ' selected' : '') + '>' + esc(o.th) + '</option>';
+        }).join('') + '</select></label>';
+    }
+    if (f.kind === 'chips') {
+      var on = Array.isArray(v) ? v : [];
+      return '<div class="cs-field cs-wide"><span class="cs-label">' + esc(f.th) + '</span><div class="cs-chips">' +
+        (f.options || []).map(function (o) {
+          return '<label><input type="checkbox" data-dt-chip="' + esc(k) + '" value="' + esc(o.k) + '"' +
+            (on.indexOf(o.k) >= 0 ? ' checked' : '') + '>' + esc(o.th) + '</label>';
+        }).join('') + '</div></div>';
+    }
+    var num = f.kind === 'num' || f.kind === 'int';
+    return '<label class="cs-field' + (f.kind === 'text' && f.max > 60 ? ' cs-wide' : '') + '"><span class="cs-label">' + esc(f.th) + '</span>' +
+      '<span class="cs-unit"><input type="text" data-dt="' + esc(k) + '"' + (num ? ' inputmode="decimal"' : '') +
+      ' value="' + esc(v) + '" placeholder="' + esc(f.hint || '') + '"' + (f.max && !num ? ' maxlength="' + f.max + '"' : '') + '>' +
+      (f.unit ? '<em>' + esc(f.unit) + '</em>' : '') + '</span></label>';
+  }
+  function readDom() {
+    body.querySelectorAll('[data-dt]').forEach(function (el) { vals[el.getAttribute('data-dt')] = el.value; });
+    var chips = {};
+    body.querySelectorAll('[data-dt-chip]').forEach(function (el) {
+      var k = el.getAttribute('data-dt-chip');
+      if (!chips[k]) chips[k] = [];
+      if (el.checked) chips[k].push(el.value);
+    });
+    Object.keys(chips).forEach(function (k) { vals[k] = chips[k]; });
+  }
+  function syncArea() {
+    var t = typeOf(cur);
+    var grp = $('cs-area-group'), ttl = $('cs-area-title');
+    var land = !t || t.landArea !== false;
+    if (grp) grp.hidden = !land;
+    if (ttl) ttl.textContent = cur === 'land' ? 'เนื้อที่โดยประมาณ' : 'เนื้อที่ดินตามโฉนดโดยประมาณ';
+    if (!land) {
+      // ห้องชุดไม่มีเนื้อที่ดิน — ล้างค่าที่กรอกค้างไว้ และคิดราคาแบบรวมทั้งห้อง (ไม่มีอะไรให้คูณต่อตร.ว.)
+      ['#cs-rai', '#cs-ngan', '#cs-wa'].forEach(function (sel) {
+        var el = document.querySelector(sel);
+        if (el && el.value) { el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true })); }
+      });
+      var tot = document.querySelector('#consign-form input[name="priceUnit"][value="total"]');
+      if (tot && !tot.checked) { tot.checked = true; tot.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+  }
+  function render() {
+    if (!spec) return;
+    var t = typeOf(cur) || typeOf('other');
+    grid.querySelectorAll('input[name="propertyType"]').forEach(function (r) { r.checked = r.value === cur; });
+    body.innerHTML = groups().map(function (g) {
+      var inner = g[1].map(inputHtml).join('');
+      return inner ? '<div class="cs-dt-sub">' + esc(g[0]) + '</div><div class="cs-dt-grid">' + inner + '</div>' : '';
+    }).join('');
+    var ttl = $('cs-dt-title');
+    if (ttl) ttl.textContent = 'รายละเอียด' + (t ? t.th : 'ทรัพย์');
+    det.hidden = false;
+    syncArea();
+  }
+  function allKeys() {
+    var out = [];
+    groups().forEach(function (g) { out = out.concat(g[1]); });
+    return out;
+  }
+  function value() {
+    if (!spec) return { propertyType: '', details: {} };
+    readDom();
+    var d = {};
+    allKeys().forEach(function (k) {
+      var v = vals[k];
+      if (Array.isArray(v)) { if (v.length) d[k] = v.slice(); return; }
+      if (v != null && String(v).trim() !== '') d[k] = String(v).trim();
+    });
+    return { propertyType: cur, details: d };
+  }
+  function typeTh() { var t = typeOf(cur); return spec && t ? (cur === 'other' && vals.otherKind ? vals.otherKind : t.th) : ''; }
+  function applyFromLead(d) {
+    cur = (d && d.propertyType) || 'land';
+    vals = {};
+    var dd = (d && d.details) || {};
+    Object.keys(dd).forEach(function (k) { vals[k] = Array.isArray(dd[k]) ? dd[k].slice() : dd[k]; });
+    render();
+  }
+  function reset() { cur = 'land'; vals = {}; render(); }
+
+  body.addEventListener('input', readDom);
+  body.addEventListener('change', function () { readDom(); if (onChange) onChange(); });
+  grid.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || t.name !== 'propertyType') return;
+    readDom();
+    cur = t.value;
+    render();
+    if (onChange) onChange();
+  });
+  // ฝากขาย ↔ ฝากเช่า เปลี่ยนแล้วกลุ่มค่าเช่าต้องโผล่/หาย
+  var form = $('consign-form');
+  if (form) form.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'type' && spec) { readDom(); render(); }
+  });
+
+  fetch(NJ_API_BASE + '/api/public/consign/spec').then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (sp) {
+      if (sp && sp.sellerAccounts === true) { SELLER_ON = true; renderClaim(); }
+      if (!sp || !Array.isArray(sp.types) || !sp.types.length || !sp.layout || !sp.fields) return;
+      spec = sp;
+      grid.innerHTML = sp.types.map(function (t) {
+        return '<label><input type="radio" name="propertyType" value="' + esc(t.key) + '"' + (t.key === cur ? ' checked' : '') + '>' +
+          '<span><i aria-hidden="true">' + esc(t.icon || '') + '</i>' + esc(t.th) + '</span></label>';
+      }).join('');
+      box.hidden = false;
+      render();
+      if (onChange) onChange();
+    })
+    .catch(function () { /* ส่วนนี้ไม่ขึ้น ฟอร์มที่เหลือยังใช้ได้ตามเดิม */ });
+
+  return { value: value, typeTh: typeTh, applyFromLead: applyFromLead, reset: reset, ready: function () { return !!spec; } };
 }
 
 // ============================================================================
@@ -1053,7 +1191,12 @@ function livePreview(getAddr, getAreaPrice, getSurveyOpt) {
       type: String(fd.get('type') || 'sell'),
       // ชื่อแปลงประกอบด้วย locationText ตัวเดียวกับที่ส่งขึ้นเซิร์ฟเวอร์ตอนกดบันทึก —
       // ตัวอย่างกับของที่ส่งไปจริงจึงไม่มีทางเป็นคนละข้อความ
-      title: [locationText(a, detail), ap.areaText].filter(Boolean).join(' · '),
+      // ประเภททรัพย์นำหน้าเฉพาะเมื่อมีที่ตั้ง/เนื้อที่แล้ว — เลือกประเภทอย่างเดียวยังไม่นับว่าเริ่มกรอกประกาศ
+      title: (function () {
+        var core = [locationText(a, detail), ap.areaText].filter(Boolean).join(' · ');
+        var kind = PT && PT.typeTh ? PT.typeTh() : '';
+        return core && kind ? kind + ' · ' + core : core;
+      })(),
       province: a.province,
       areaText: ap.areaText, totalWa: ap.totalWa,
       priceUnit: ap.priceUnit, unitPrice: ap.unitPrice, estValue: ap.estValue,
@@ -1112,6 +1255,8 @@ function setupForm() {
     // เปลี่ยนเนื้อที่ = ค่ารังวัดประมาณการเปลี่ยนตาม
     onChange: function () { if (SV) SV.sync(); }
   });
+  // ประเภททรัพย์ต้องมาก่อนกล่องรังวัดและตัวอย่างประกาศ (ห้องชุดซ่อนเนื้อที่ดินแล้วค่ารังวัดต้องวาดใหม่)
+  PT = setupPropertyType(function () { if (SV) SV.sync(); if (PV) PV.sync(); });
   // สร้างหลังสองตัวบน เพราะต้องอ่านค่าจากทั้งคู่ (และทั้งคู่จะเรียก SV.sync กลับมา)
   SV = setupSurvey(
     function () { return addr ? addr.value().province : ''; },
@@ -1161,8 +1306,12 @@ function setupForm() {
       // ราคารวมที่คำนวณได้ — เซิร์ฟเวอร์คำนวณซ้ำจาก unitPrice × เนื้อที่เสมอ ไม่เชื่อค่านี้อย่างเดียว
       estValue: ap.estValue,
       note: String(fd.get('note') || '').trim(),
-      // ตัวเลือกรังวัด — เซิร์ฟเวอร์ทับเป็น 'yes' เองเมื่อจังหวัดอยู่ในเขตบังคับ (ไม่เชื่อค่านี้อย่างเดียว)
+      // ตัวเลือกรังวัด + รูปแบบ (ทางการ / ไม่เป็นทางการ) — ไม่มีเขตบังคับแล้ว เซิร์ฟเวอร์เก็บตามที่เลือก
       surveyOpt: SV ? SV.value() : 'undecided',
+      surveyMode: SV && SV.mode ? SV.mode() : 'formal',
+      // ประเภททรัพย์ + รายละเอียด — เซิร์ฟเวอร์ตรวจกับ spec ของตัวเองซ้ำเสมอ ช่องที่ไม่รู้จักถูกทิ้ง
+      propertyType: PT ? PT.value().propertyType : '',
+      details: PT ? PT.value().details : {},
       pdpa: !!fd.get('pdpa'),
       website: String(fd.get('website') || ''),        // honeypot — คนจริงมองไม่เห็นช่องนี้
       // ⚠️ ของเดิมยัด query string ดิบเข้าช่องนี้ ซึ่งแปลว่าตั๋วที่ติดมากับลิงก์ (?id=..&t=..)

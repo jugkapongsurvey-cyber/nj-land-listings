@@ -122,6 +122,7 @@
   // ประเมินค่ารังวัดจาก "เนื้อที่รวมเป็นตารางวา" — รูปแบบเดียวกับที่ฟอร์มฝากขายเก็บไว้แล้ว
   // opt.province = จังหวัดที่ตั้งแปลง (ไม่ส่งมา = ไม่คิดค่าเดินทาง ผู้เรียกต้องบอกผู้ใช้ว่ายังไม่รวม)
   // คืน null เมื่อยังไม่มีตารางราคา หรือยังไม่รู้เนื้อที่ — ผู้เรียกต้องซ่อนราคา ห้ามเดา
+  function informalReady() { return !!(P && P.INFORMAL_RATE); }
   function quoteFromWa(totalWa, jobType, opt) {
     if (!P) return null;
     var rai = Number(totalWa || 0) / WA_PER_RAI;
@@ -131,6 +132,10 @@
       rai: rai, deeds: 1, splitPlots: 0, vatRate: 0, fees: [],
       travel: travelInput(opt && opt.province)
     };
+    // รังวัดไม่เป็นทางการ = ระบบคิดราคาลดค่างาน 50% ให้เอง (INFORMAL_RATE ใน pricing.js · ไม่ลดค่าเดินทาง)
+    // ⚠️ pricing.js รุ่นก่อน 25 ก.ย. 69 ไม่รู้จัก surveyMode — ส่งไปก็ได้ราคาเต็ม จึงเช็ค informalReady() ก่อนเสมอ
+    //    ห้ามคูณ 0.5 เองที่ฝั่งเว็บ (กติกาเดียวกับส่วนลดคอมโบ: ส่วนลดต้องผ่านตัวคิดราคาเพื่อให้มีบรรทัดแจกแจง)
+    if (opt && opt.informal && informalReady()) args.surveyMode = 'informal';
     if (!(opt && opt.combo)) return P.computeQuote(args);
     // คิดราคาก่อนส่วนลดเพื่อเอายอดมาคูณ 5% — ขั้นตอนเดียวกับกล่องเช็กราคาบนหน้าแรกเป๊ะ
     // (ผ่าน adjust ของ pricing.js ไม่ใช่ลบเอาเองทีหลัง ไม่งั้นบรรทัดแจกแจงจะไม่มีส่วนลดโผล่)
@@ -477,7 +482,9 @@
     jobs: JOBS,
     // ช่วงค่าดำเนินการนอกพื้นที่ ไว้เขียนคำเตือนตอนยังไม่รู้จังหวัด — อ่านจากตารางจริง ห้ามพิมพ์เอง
     travelRangeText: travelRangeText,
-    ready: function () { return !!P; }
+    ready: function () { return !!P; },
+    // ตารางราคาที่โหลดมารู้จักรังวัดไม่เป็นทางการหรือยัง (ระบบหลังบ้านต้อง deploy ก่อน)
+    informalReady: informalReady
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

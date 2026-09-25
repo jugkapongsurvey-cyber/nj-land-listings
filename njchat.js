@@ -69,7 +69,7 @@
     return pricingPromise;
   }
   // กทม.+ปริมณฑล = โซน A ของตารางราคา (pricing.js) — อ่านจากตารางเมื่อโหลดแล้ว
-  // ชุดสำรองด้านล่างใช้เฉพาะตอนตารางยังไม่มา และตรงกับ SURVEY_REQUIRED_PROVINCES ใน server.js/consign.js
+  // ชุดสำรองด้านล่างใช้เฉพาะตอนตารางยังไม่มา และตรงกับเขต A (กทม. + ปริมณฑล) ของตารางค่าเดินทางใน pricing.js
   var METRO_FALLBACK = ['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'สมุทรสาคร', 'นครปฐม'];
   function metroProvinces() { return (P && P.ZONE_PROVINCES && P.ZONE_PROVINCES.A) || METRO_FALLBACK; }
   function allProvinces() {

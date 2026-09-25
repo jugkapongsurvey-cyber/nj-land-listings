@@ -66,14 +66,19 @@ const webSvc = (services.match(/\{ key: '([a-z]+)',\s+by: '(?:nj|partner)'/g) ||
 check('อ่านรายการบริการได้ทั้งสองฝั่ง', srvSvc.length > 0 && webSvc.length > 0, srvSvc.length + ' / ' + webSvc.length);
 check('คีย์บริการตรงกันทั้งชุดและลำดับ', same(srvSvc, webSvc), srvSvc.join(',') + '  vs  ' + webSvc.join(','));
 
-console.log('\n3) จังหวัดที่บังคับรังวัดก่อนขึ้นประกาศ');
-// ไม่ตรง = หน้าเว็บบอกว่าเลือกได้ แต่พอบันทึกแล้วค่ากลายเป็น "ต้องรังวัด" โดยไม่มีคำอธิบาย
-const srvProv = listAfter(server, 'SURVEY_REQUIRED_PROVINCES');
-const webProv = listAfter(consign, 'SURVEY_REQUIRED_PROVINCES');
-check('อ่านรายชื่อจังหวัดได้ทั้งสองฝั่ง', !!srvProv && !!webProv);
-check('รายชื่อจังหวัดตรงกันเป๊ะ', same(srvProv || [], webProv || []),
-      (srvProv || []).join(',') + '  vs  ' + (webProv || []).join(','));
-check('ครอบคลุม กทม. และปริมณฑลครบ 6 จังหวัด', (srvProv || []).length === 6, String((srvProv || []).length));
+console.log('\n3) ไม่มีเขตบังคับรังวัดแล้ว (ยกเลิก 25 ก.ย. 2569) + ประเภททรัพย์มาจากระบบหลังบ้านที่เดียว');
+// เดิมมีรายชื่อ กทม.+ปริมณฑล ที่ล็อกตัวเลือกเหลือ "ต้องรังวัด" · เจ้าของกิจการสั่งยกเลิกแล้ว
+// รายชื่อนี้กลับมาที่ฝั่งใดฝั่งหนึ่งเมื่อไหร่ = หน้าเว็บกับเซิร์ฟเวอร์ตัดสินคนละแบบอีก
+check('เซิร์ฟเวอร์ไม่มีรายชื่อจังหวัดบังคับรังวัด', !/const SURVEY_REQUIRED_PROVINCES\s*=/.test(server));
+check('หน้าเว็บไม่มีรายชื่อจังหวัดบังคับรังวัด', !/var SURVEY_REQUIRED_PROVINCES\s*=/.test(consign));
+check('เซิร์ฟเวอร์มีเส้นทางสเปกประเภททรัพย์', /app\.get\('\/api\/public\/consign\/spec'/.test(server));
+check('หน้าเว็บดึงประเภททรัพย์จากเส้นทางนั้น (ไม่พิมพ์รายการเอง)', /\/api\/public\/consign\/spec/.test(consign));
+const modes = listAfter(server, 'CONSIGN_SURVEY_MODES');
+check('รูปแบบการรังวัดมี formal/informal', same(modes || [], ['formal', 'informal']), (modes || []).join(','));
+const html = read(path.join(WEB, 'consign.html'));
+check('ฟอร์มมีตัวเลือกรูปแบบการรังวัดครบสองค่า',
+      /name="surveyMode" value="formal"/.test(html) && /name="surveyMode" value="informal"/.test(html));
+check('หัวข้อใหม่ "รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย"', html.indexOf('รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย') >= 0);
 
 console.log('\n4) ตัวเลือกรังวัดที่เซิร์ฟเวอร์รับได้');
 const opts = listAfter(server, 'CONSIGN_SURVEY_OPTS');
@@ -716,6 +721,24 @@ console.log('\nลิงก์ภายในของบทความ (งา
   ok(samples.every((p) => KN.areaPathOk(p) === LK.areaPathOk(p)), '⭐ กติการูปแบบที่อยู่หน้าพื้นที่ตรงกันสองฝั่ง');
   const LOCJS = fs.readFileSync(path.join(WEB, 'build', 'locations.js'), 'utf8');
   ok(LOCJS.indexOf(String(LK.AREA_PATH_RE)) >= 0, 'AREA_PATH_RE ของระบบตรงกับตัวสร้างหน้าพื้นที่ (build/locations.js)');
+})();
+
+console.log('\nบัญชีเจ้าของทรัพย์ — ลิงก์ "เก็บใบนี้ไว้ในบัญชีของฉัน" (consign.js ↔ seller.html ของระบบ)');
+(function () {
+  const sellerHtml = path.join(SRV, 'public', 'seller.html');
+  if (!fs.existsSync(sellerHtml)) {
+    console.log('  ข้าม — ยังไม่มี public/seller.html ที่ฝั่งเซิร์ฟเวอร์ (ส่ง path ของ worktree มาเป็นอาร์กิวเมนต์ได้)');
+    return;
+  }
+  const cjs = read(path.join(WEB, 'consign.js'));
+  const chtml = read(path.join(WEB, 'consign.html'));
+  const sjs = read(path.join(SRV, 'public', 'seller.js'));
+  const srv = read(path.join(SRV, 'server.js'));
+  check('⭐ ลิงก์ส่งตั๋วใน #fragment ไม่ใช่ ?query', /'\/seller\.html#claim='/.test(cjs) && !/seller\.html\?/.test(cjs));
+  check('ชื่อพารามิเตอร์ claim / t ตรงกับที่ seller.js อ่าน', /claim/.test(sjs) && /[?&#]?t=|\bt\b/.test(sjs) && /'&t='/.test(cjs));
+  check('⭐ ลิงก์แสดงเฉพาะเมื่อ spec บอก sellerAccounts === true', /sp\.sellerAccounts === true/.test(cjs) && /id="cs-claim"[^>]*hidden/.test(chtml));
+  check('ระบบส่ง sellerAccounts ไปกับ /api/public/consign/spec', /sellerAccounts:\s*featureflags\.isOn\('seller_accounts'/.test(srv));
+  check('⭐ หน้าฝากขายไม่มีช่องกรอกรหัสผ่าน (ฟอร์มรหัสอยู่บน app.njteedinsure.com เท่านั้น)', !/type="password"/.test(chtml));
 })();
 
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
