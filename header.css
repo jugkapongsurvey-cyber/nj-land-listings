@@ -202,6 +202,22 @@
   text-decoration: none;
   white-space: nowrap;
 }
+/* ปุ่มเข้าสู่ระบบเจ้าของทรัพย์ — ปุ่มขอบบาง เพื่อไม่แย่งสายตาจาก "ฝากขายฟรี" ที่เป็นเป้าหมายหลัก */
+.njh-login {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--nj-space-4);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--nj-white);
+  font-size: var(--nj-fs-nav);
+  font-weight: var(--nj-fw-semi);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.njh-login:hover { border-color: var(--nj-gold-500); color: var(--nj-gold-500); }
+.njh-login:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
 .njh-cta:hover { background: var(--nj-white); }
 .njh-cta:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
 
@@ -212,6 +228,14 @@
 @media (max-width: 1180px) {
   .njh-in { gap: var(--nj-space-3); padding: 0 var(--nj-space-4); }
   .njh-top { padding: 0 10px; }
+}
+
+/* ปุ่มเข้าสู่ระบบบนแถวหัวเว็บแสดงเฉพาะจอ 1280 ขึ้นไป
+ * ⚠️ วัดจริงแล้ว: แถวเมนู 6 กลุ่ม + ปุ่มนี้ + "ฝากขายฟรี" ต้องการราว 1,150–1,220px
+ *    ที่ 1024 ปุ่มเบียดจน "ติดตามงาน" ตัดสองบรรทัดซ้อนกัน · ต่ำกว่า 1280 ยังเข้าได้จาก
+ *    เมนูย่อย "ขาย/ฝากทรัพย์" → "เข้าสู่ระบบเจ้าของทรัพย์" (และลิ้นชักจอเล็ก) */
+@media (max-width: 1279px) {
+  .njh-login { display: none; }
 }
 
 /* ---------- จอเล็ก ----------

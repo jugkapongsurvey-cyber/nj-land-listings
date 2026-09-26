@@ -66,8 +66,16 @@ ok('มีเมนูย่อย 4 กลุ่ม', (home.match(/njh-has-menu
 console.log('\n3) ปลายทางทุกอันต้องมีอยู่จริง');
 const hrefs = (home.match(/<nav class="njh-nav"[\s\S]*?<\/nav>/) || [''])[0]
   .match(/href="([^"]*)"/g).map(s => s.slice(6, -1));
-const bad = [...new Set(hrefs)].map(h => h.split('#')[0]).filter(h => h && !fs.existsSync(path.join(__dirname, h)));
+// ยกเว้นเฉพาะหน้าบนโดเมนระบบของบริษัท (ทางเข้าบัญชีเจ้าของทรัพย์) — โดเมนอื่นยังนับว่าเสีย
+const bad = [...new Set(hrefs)].map(h => h.split('#')[0])
+  .filter(h => h && !/^https:\/\/app\.njteedinsure\.com\/[\w-]+\.html$/.test(h) && !fs.existsSync(path.join(__dirname, h)));
 ok('⭐ ไม่มีลิงก์ในเมนูที่ชี้ไปหน้าที่ไม่มีอยู่', bad.length === 0, bad.join(', '));
+ok('⭐ เมนู "ขาย/ฝากทรัพย์" มีทางเข้าบัญชีเจ้าของทรัพย์',
+   /<a href="https:\/\/app\.njteedinsure\.com\/seller\.html"><b>เข้าสู่ระบบเจ้าของทรัพย์<\/b>/.test(home));
+ok('⭐ หัวเว็บมีปุ่ม "เข้าสู่ระบบ" ไปหน้า seller.html ของระบบ',
+   /<a class="njh-login" href="https:\/\/app\.njteedinsure\.com\/seller\.html"[^>]*>เข้าสู่ระบบ<\/a>/.test(home));
+ok('ปุ่มเข้าสู่ระบบซ่อนต่ำกว่า 1280px (ไม่งั้นเมนูตัดบรรทัด · เมนูย่อยมีรายการเดียวกันแล้ว)',
+   /max-width: 1279px\)\s*\{\s*\.njh-login \{ display: none; \}/.test(fs.readFileSync(path.join(__dirname, 'header.css'), 'utf8')));
 ok('จุดยึด terms.html#levels มีอยู่จริง', /id="levels"/.test(html['terms.html']));
 
 console.log('\n4) บอกหน้าที่กำลังเปิดอยู่ (Active State)');
