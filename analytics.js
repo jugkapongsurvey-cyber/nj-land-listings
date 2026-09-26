@@ -42,43 +42,16 @@ var NJ_MESSENGER_URL = 'https://m.me/NJTeeDinSure';
 var NJ_FB_PAGE_URL   = 'https://www.facebook.com/NJTeeDinSure/';
 var NJ_LINE_OA_ID    = '@716lffzt';
 
-// ---------------------------------------------------------------------------
-// รหัสพนักงานที่แชร์คลิป — มาจาก ?e= ท้ายลิงก์ที่พนักงานแชร์ (เช่น /s/?e=som)
-//
-// เก็บใน sessionStorage ไม่ใช่ localStorage โดยตั้งใจ: เครดิตควรผูกกับ "การเข้าครั้งนี้"
-// ถ้าเก็บข้ามวันไว้ คนที่เคยกดลิงก์ของสมชายเมื่อเดือนก่อน แล้ววันนี้เข้าเว็บเองแล้วทักเข้ามา
-// จะถูกนับเป็นผลงานของสมชายทั้งที่ไม่เกี่ยว — และไม่ใช่ PII เพราะเป็นรหัสพนักงานเรา ไม่ใช่ของผู้ใช้
-//
-// ⚠️ ค่านี้ถูกเอาไปต่อท้ายข้อความที่ลูกค้าจะกดส่งเข้า LINE จึงต้องกรองให้เหลือแค่ a-z0-9
-//    รหัสที่ผิดรูปแบบให้ทิ้งไปเลย ไม่ใช่ตัดตัวอักษรแปลกออกแล้วใช้ต่อ
-// ---------------------------------------------------------------------------
-var NJ_REF_KEY = 'njts_ref';
-function njRef() {
-  try { return sessionStorage.getItem(NJ_REF_KEY) || ''; } catch (e) { return ''; }
-}
-(function captureRef() {
-  var m = /[?&]e=([^&#]*)/.exec(location.search);
-  if (!m) return;
-  var code;
-  try { code = decodeURIComponent(m[1]).toLowerCase(); } catch (e) { return; }
-  if (!/^[a-z0-9]{2,8}$/.test(code)) return;
-  try { sessionStorage.setItem(NJ_REF_KEY, code); } catch (e) { /* โหมดส่วนตัวเขียนไม่ได้ ถือว่าไม่มีรหัส */ }
-})();
-
 // ลิงก์เปิดแชท LINE OA พร้อมพิมพ์ข้อความรอไว้ให้ลูกค้ากดส่ง
-// นี่คือจุดเดียวที่ยืนยันได้ว่าลูกค้ามาจากการแชร์ของใคร — ข้อความที่ลูกค้ากดส่งจะมี [ref:xxx] ติดไปถึง OA
-// ถ้าไม่มีรหัส ก็ยังพิมพ์ข้อความตั้งต้นให้อยู่ดี (ลดกำแพงการทักครั้งแรก) แค่ไม่มีวงเล็บ ref
+// (เดิมต่อท้ายด้วย [ref:รหัสพนักงานผู้แชร์] — ระบบลิงก์แชร์คลิปถูกตัดออกแล้ว 26 ก.ย. 2569)
 function njLineAskUrl(text) {
-  var ref = njRef();
-  var msg = (text || 'สนใจสอบถามงานรังวัดที่ดินครับ/ค่ะ') + (ref ? ' [ref:' + ref + ']' : '');
+  var msg = text || 'สนใจสอบถามงานรังวัดที่ดินครับ/ค่ะ';
   return 'https://line.me/R/oaMessage/' + encodeURIComponent(NJ_LINE_OA_ID) + '/?' + encodeURIComponent(msg);
 }
 
-// ลิงก์ Messenger พร้อมรหัสอ้างอิง — Facebook ส่ง ref กลับมาทาง webhook ตอนลูกค้าเริ่มแชท
-// (ต้องตั้ง webhook ฝั่งเพจก่อนถึงจะได้ค่านี้ · ยังไม่ได้ตั้งก็ไม่พัง แค่ไม่ได้ข้อมูลย้อนกลับ)
+// ลิงก์ Messenger (เดิมต่อ ?ref=รหัสพนักงานผู้แชร์ — ตัดออกแล้ว 26 ก.ย. 2569)
 function njMessengerUrl() {
-  var ref = njRef();
-  return NJ_MESSENGER_URL + (ref ? '?ref=' + encodeURIComponent(ref) : '');
+  return NJ_MESSENGER_URL;
 }
 
 // ---------------------------------------------------------------------------
@@ -169,7 +142,7 @@ function njTrack(name, params) {
 //    เหตุการณ์ที่ไม่มีชื่ออยู่ในนี้จะถูกทิ้งเงียบๆ ตั้งแต่ฝั่งเบราว์เซอร์ ไม่มี error ให้เห็น
 //    (messenger_click เคยตกหล่นตรงนี้มาก่อน ทั้งที่ server.js รับอยู่แล้ว — คลิก Messenger ทุกครั้งจึงหายไปเฉยๆ)
 var NJ_INTERNAL_EVENTS = ['pageview', 'line_click', 'tel_click', 'messenger_click', 'consign_view', 'consign_submit', 'consign_files',
-                          'share_view', 'video_75', 'propcheck_view', 'buyer_request_view',
+                          'propcheck_view', 'buyer_request_view',
                           'listing_view', 'phone_reveal',
                           // ⚠️ ต้องตรงกับ PUBLIC_EVENT_TYPES ใน server.js เป๊ะ — เคยมีเคสที่ชนิดหนึ่ง
                           // มีฝั่งเซิร์ฟเวอร์แต่ไม่มีในรายการนี้ แล้วเหตุการณ์ถูกทิ้งตั้งแต่เบราว์เซอร์โดยไม่มี error
@@ -226,9 +199,7 @@ document.addEventListener('click', function (e) {
 function njTrackInternal(type, listingId) {
   if (NJ_INTERNAL_EVENTS.indexOf(type) < 0) return;
   try {
-    var ref = njRef();
     var payload = { type: type };
-    if (ref) payload.ref = ref;
     if (listingId) payload.listingId = String(listingId).slice(0, 20);
     var body = JSON.stringify(payload);
     if (navigator.sendBeacon) {
