@@ -79,10 +79,21 @@
 
 /* ---------- บล็อกบนหน้าแรก (#วารสาร) ---------- */
 .jr-home{background:var(--nj-journal-paper);border-top:3px solid var(--nj-journal-green)}
-.jr-home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.jr-home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px;flex-wrap:wrap}
 .jr-home-head h2{margin:4px 0 0;color:var(--nj-journal-green)}
 .jr-home-head p{margin:6px 0 0;color:var(--nj-text-muted);max-width:520px}
 .jr-home-eyebrow{font-size:var(--nj-fs-xs);font-weight:var(--nj-fw-semi);letter-spacing:1.5px;color:var(--nj-journal-amber)}
-.jr-home-more{margin-top:22px}
-.jr-home .jr-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.jr-home-more{margin-top:16px}
+/* หน้าแรก: การ์ดแนวนอน ปกเป็นแถบเล็กด้านซ้าย (เจ้าของสั่งย่อ 27 ก.ย. 2569 — ปก 16:9 ว่างๆ กินที่ทั้งจอ)
+   ⚠️ ขังไว้ใต้ .jr-home เท่านั้น หน้ารวมวารสาร (journal.html) ยังใช้การ์ดแนวตั้งตามเดิม */
+.section.jr-home{padding:40px 0}
+.jr-home .jr-grid{grid-template-columns:repeat(auto-fill,minmax(min(400px,100%),1fr));gap:14px}
+.jr-home .jr-card{flex-direction:row}
+.jr-home .jr-cover{flex:0 0 132px;aspect-ratio:auto}
+.jr-home .jr-cover-blank{padding:10px;font-size:var(--nj-fs-sm)}
+.jr-home .jr-body{gap:6px;padding:12px 16px 14px}
+.jr-home .jr-title{font-size:var(--nj-fs-body)}
+.jr-home .jr-read{padding:8px 14px}
 @media (max-width:1023px){ .jr-home .jr-grid{grid-template-columns:1fr} }
+@media (max-width:767px){ .section.jr-home{padding:32px 0} }
+@media (max-width:479px){ .jr-home .jr-cover{flex-basis:96px} .jr-home .jr-cover-blank small{display:none} }
