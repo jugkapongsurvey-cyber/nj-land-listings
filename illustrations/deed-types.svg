@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- ภาพประกอบเชิงแนวคิด (กราฟิก ไม่ใช่ภาพถ่ายเอกสารจริงของแปลงใด) — ปกบทความ "โฉนด · น.ส.3 · ส.ค.1 ต่างกันอย่างไร"
+       กติกาข้อ 9 ของเว็บ: อนุญาตเพราะไม่ได้อ้างว่าเป็นเอกสารของแปลงใดแปลงหนึ่ง · ข้อความบนเอกสารเป็นเส้นแทนตัวอักษร ไม่มีเลขโฉนด -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1F3A"/>
+      <stop offset="1" stop-color="#16365F"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity=".06" stroke-width="1"/>
+    </pattern>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".35"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#grid)"/>
+  <!-- แนวเขตแปลงเส้นประ + หมุด -->
+  <path d="M70 470 L210 400 L330 470 L250 560 L90 555 Z" fill="#D8B96B" fill-opacity=".08" stroke="#D8B96B" stroke-opacity=".55" stroke-width="2" stroke-dasharray="8 7"/>
+  <g fill="#D8B96B"><circle cx="70" cy="470" r="6"/><circle cx="210" cy="400" r="6"/><circle cx="330" cy="470" r="6"/><circle cx="250" cy="560" r="6"/><circle cx="90" cy="555" r="6"/></g>
+  <path d="M560 40 L720 90 L700 200 L590 170 Z" fill="none" stroke="#FFFFFF" stroke-opacity=".12" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <g font-family="'IBM Plex Sans Thai','Leelawadee UI','Thonburi','Tahoma',sans-serif" text-anchor="middle">
+    <!-- ใบหลัง: ส.ค.1 -->
+    <g transform="translate(250 300) rotate(-14)" filter="url(#sh)">
+      <rect x="-120" y="-160" width="240" height="320" rx="10" fill="#EFE7D2"/>
+      <text x="0" y="-108" font-size="30" font-weight="700" fill="#6B5A33">ส.ค.1</text>
+      <g stroke="#6B5A33" stroke-opacity=".35" stroke-width="6" stroke-linecap="round">
+        <path d="M-80 -60H80M-80 -30H60M-80 0H80M-80 30H40"/>
+      </g>
+    </g>
+    <!-- ใบกลาง: น.ส.3 -->
+    <g transform="translate(400 290) rotate(-2)" filter="url(#sh)">
+      <rect x="-120" y="-160" width="240" height="320" rx="10" fill="#F7F1E1"/>
+      <rect x="-104" y="-144" width="208" height="288" rx="6" fill="none" stroke="#1B4B7A" stroke-opacity=".35" stroke-width="2"/>
+      <text x="0" y="-102" font-size="30" font-weight="700" fill="#1B4B7A">น.ส.3 ก</text>
+      <g stroke="#1B4B7A" stroke-opacity=".3" stroke-width="6" stroke-linecap="round">
+        <path d="M-80 -56H80M-80 -26H56M-80 4H80M-80 34H30"/>
+      </g>
+      <path d="M-60 70 L-10 58 L40 78 L20 118 L-50 112 Z" fill="none" stroke="#1B4B7A" stroke-opacity=".55" stroke-width="3"/>
+    </g>
+    <!-- ใบหน้า: โฉนด -->
+    <g transform="translate(548 300) rotate(11)" filter="url(#sh)">
+      <rect x="-120" y="-160" width="240" height="320" rx="10" fill="#FFFFFF"/>
+      <rect x="-106" y="-146" width="212" height="292" rx="6" fill="none" stroke="#B8923E" stroke-width="3"/>
+      <circle cx="0" cy="-92" r="30" fill="none" stroke="#B8923E" stroke-width="4"/>
+      <circle cx="0" cy="-92" r="18" fill="#D8B96B" fill-opacity=".45"/>
+      <text x="0" y="-32" font-size="32" font-weight="700" fill="#0B1F3A">โฉนดที่ดิน</text>
+      <g stroke="#0B1F3A" stroke-opacity=".25" stroke-width="6" stroke-linecap="round">
+        <path d="M-80 0H80M-80 28H60M-80 56H80"/>
+      </g>
+      <path d="M-56 84 L-4 74 L50 92 L30 128 L-46 124 Z" fill="#D8B96B" fill-opacity=".25" stroke="#B8923E" stroke-width="3"/>
+    </g>
+  </g>
+</svg>
