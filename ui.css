@@ -364,7 +364,10 @@
 .cs-unit input{ padding-right:64px !important; }
 .cs-unit em{ position:absolute; right:12px; top:50%; transform:translateY(-50%); font-style:normal; font-size:12px; color:#8093AA; pointer-events:none; }
 .cs-chips{ display:flex; flex-wrap:wrap; gap:6px; }
-.cs-chips label{ display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:999px; padding:5px 11px; font-size:12.5px; background:#fff; cursor:pointer; }
+.cs-chips label{ display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:999px; padding:5px 11px; font-size:12.5px; background:#fff; color:var(--ink); cursor:pointer; }
+/* ⚠️ ต้องระบุ color เอง — ฟอร์มอยู่ใน .cs-hero ที่ตั้ง color:#fff ไว้ ไม่ระบุ = ตัวหนังสือขาวบนพื้นขาว
+   (เจ้าของเจอจริง 26 ก.ย. 2569 ช่องไฟฟ้า/ประปา/บ่อบาดาลขึ้นเป็นกรอบว่าง) */
+.cs-chips label:has(input:checked){ border-color:var(--green); background:#F0FAF3; color:#0F6B38; }
 .cs-chips input{ accent-color:var(--green); }
 @media (max-width:420px){
   .cs-ptype-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -698,6 +701,34 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
 }
 @media (min-width:900px) and (min-height:720px){
   .page-consign .cs-hero-copy{position:sticky;top:88px}
+}
+
+/* ---- หน้าฝากขาย: อ่านง่ายขึ้นบนจอคอม (เจ้าของสั่ง 26 ก.ย. 2569) ----
+   ฟอร์มมีช่องเยอะ แต่เดิมกว้างแค่ ~455px ที่จอ 1440 ตัวอักษรหัวข้อช่อง 12.5px และคำอธิบาย 11.5px
+   · ขยายกรอบหน้าเป็น 1,240px แล้วแบ่งให้ฟอร์มกว้างกว่าข้อความ (ข้อความตรึงอยู่แล้ว ไม่ต้องกว้าง)
+   · ขยายตัวอักษรในฟอร์มเฉพาะจอคอม — มือถือคงขนาดเดิม เพราะจอแคบ ช่องจะตัดบรรทัด
+   · ล็อกเฉพาะ .page-consign เหมือนกฎตรึงข้อความข้างบน */
+@media (min-width:900px){
+  .page-consign .cs-hero-grid{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+  .page-consign .cs-formhead{padding:22px 26px}
+  .page-consign .cs-formtitle{font-size:22px}
+  .page-consign .cs-formsub{font-size:14px}
+  .page-consign #consign-form{padding:24px 26px 28px;gap:18px}
+  .page-consign .cs-label{font-size:14px}
+  .page-consign .cs-hint{font-size:13px;line-height:1.6}
+  .page-consign .cs-group{padding:18px;gap:14px}
+  .page-consign .cs-group-title{font-size:15px}
+  .page-consign .cs-dt-sub{font-size:13px}
+  .page-consign .cs-field select{font-size:15px}
+  .page-consign .cs-unit em{font-size:13px}
+  .page-consign .cs-chips{gap:8px}
+  .page-consign .cs-chips label{font-size:14px;padding:7px 14px}
+  .page-consign .cs-ptype-grid span{font-size:13.5px;min-height:72px}
+  .page-consign .cs-check{font-size:13.5px}
+  .page-consign .cs-alt{font-size:13.5px}
+}
+@media (min-width:1280px){
+  .page-consign .cs-hero .wrap{max-width:1240px}
 }
 
 @media (max-width:560px){
