@@ -684,6 +684,22 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
   .page-consign #nj-consent,.page-verify #nj-consent,.page-wanted #nj-consent{bottom:12px}
 }
 
+/* ---- หน้าฝากขาย: ข้อความ hero ตรึงไว้ด้านบนตอนเลื่อนกรอกฟอร์ม (จอคอม) ----
+   เจ้าของสั่ง 26 ก.ย. 2569 — ฟอร์มยาวเกือบ 1,900px ของเดิม align-items:center ดันข้อความ
+   ลงไปกลาง hero คนเปิดหน้ามาจะเห็นพื้นน้ำเงินโล่งฝั่งซ้าย แล้วพอเลื่อนกรอกฟอร์ม ข้อความก็เลื่อนหนีไป
+   · วางข้อความชิดบน (align-self:start) แล้ว sticky ไว้ใต้หัวเว็บ (.njh สูง 64px + ช่องไฟ 24px)
+     ข้อความค้างอยู่ข้างฟอร์มตลอดจนสุด hero แล้วค่อยเลื่อนออกไปพร้อมกัน
+   · ล็อกเฉพาะ .page-consign — หน้าฝากหา (.page-wanted) พึ่ง align-items:center ดันข้อความ
+     ให้พ้นภาพแบนเนอร์ absolute ด้านบน ห้ามเอากฎนี้ไปใช้รวม
+   · min-height:720px — จอเตี้ยกว่านี้ข้อความทั้งก้อนสูงเกินจอ ตรึงไว้จะมองไม่เห็นท้ายก้อน
+     (ตัวเลข 12+ ปี ฯลฯ) จึงปล่อยให้เลื่อนตามปกติ แต่ยังชิดบนเหมือนกัน */
+@media (min-width:900px){
+  .page-consign .cs-hero-copy{align-self:start}
+}
+@media (min-width:900px) and (min-height:720px){
+  .page-consign .cs-hero-copy{position:sticky;top:88px}
+}
+
 @media (max-width:560px){
   .header-nav{display:none}
   .cs-trow{grid-template-columns:1.45fr .8fr .9fr;font-size:12px}
