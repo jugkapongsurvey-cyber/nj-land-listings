@@ -231,7 +231,13 @@
     for(var i=0;i<s.items.length;i++) if(s.items[i].k===k) return s.items[i];
     return null;
   }
-  var OWNER_NOTE='ข้อมูลจากเจ้าของทรัพย์ · ทีมงานยังไม่ได้ตรวจสอบ';
+  // ป้ายที่มา 2 แบบ (source ส่งมาจากระบบ · 2026-09-27): เจ้าของกรอกเองในฟอร์มฝากขาย
+  // หรือทีมงานบันทึกให้จากที่เจ้าของแจ้ง (แปลงเก่าที่ไม่มีประเภททรัพย์) — ทั้งสองแบบยังไม่ได้ตรวจวัดจริง ห้ามตัดท่อนนั้นทิ้ง
+  function specNote(l){
+    return (l.specs&&l.specs.source==='team')
+      ? 'ทีมงานบันทึกจากข้อมูลที่เจ้าของแจ้ง · ยังไม่ได้ตรวจวัดจริง'
+      : 'ข้อมูลจากเจ้าของทรัพย์ · ทีมงานยังไม่ได้ตรวจสอบ';
+  }
 
   // ไอคอนเส้นของแถบตัวเลขสำคัญ — ประดับล้วน (aria-hidden) ป้ายข้อความข้างใต้คือข้อมูลจริง
   var ICO={
@@ -265,7 +271,7 @@
     return '<ul class="ld-stats">'+out.map(function(s){
       return '<li class="ld-stat">'+ico(s[0])+'<b>'+esc(s[1])+'</b><span>'+esc(s[2])+'</span></li>';
     }).join('')+'</ul>'+
-    (owner?'<p class="ld-stats-src">พื้นที่ใช้สอย · ห้อง · ที่จอดรถ: '+esc(OWNER_NOTE)+'</p>':'');
+    (owner?'<p class="ld-stats-src">พื้นที่ใช้สอย · ห้อง · ที่จอดรถ: '+esc(specNote(l))+'</p>':'');
   }
 
   // ---------- โครงสร้างและขนาดพื้นที่ ----------
@@ -299,7 +305,7 @@
     }
     var html='';
     if(team.length) html+='<p class="ld-src team">ทีมงานบันทึก</p>'+grid(team);
-    if(own.length) html+='<p class="ld-src owner">'+esc(OWNER_NOTE)+'</p>'+grid(own);
+    if(own.length) html+='<p class="ld-src owner">'+esc(specNote(l))+'</p>'+grid(own);
     return html;
   }
 
@@ -317,7 +323,7 @@
     }
     var html='';
     if(team.length) html+='<p class="ld-src team">ทีมงานบันทึก</p>'+chips(team);
-    if(own.length) html+='<p class="ld-src owner">'+esc(OWNER_NOTE)+'</p>'+chips(own);
+    if(own.length) html+='<p class="ld-src owner">'+esc(specNote(l))+'</p>'+chips(own);
     return html;
   }
 

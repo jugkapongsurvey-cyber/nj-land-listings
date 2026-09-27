@@ -188,6 +188,8 @@ console.log('\n10) หน้าแปลงรุ่น 2 (2026-09-27 · โม�
   ok('⭐ หัวข้อพับได้เปิดไว้ตั้งแต่แรก (บอตและคนพิมพ์ต้องเห็นครบ)', /<details class="ld-sec" id="'\+id\+'" open>/.test(land));
   ok('⭐ beforeprint กางทุกหัวข้อก่อนพิมพ์', /beforeprint[\s\S]{0,160}details\.ld-sec[\s\S]{0,80}open\s*=\s*true/.test(land));
   ok('⭐ ข้อมูลจากเจ้าของมีป้ายบอกที่มาว่าทีมยังไม่ได้ตรวจ', /เจ้าของทรัพย์/.test(land) && /ยังไม่ได้ตรวจสอบ/.test(land));
+  ok('⭐ ป้ายที่มาแยกตาม source — ทีมบันทึก vs เจ้าของกรอก (ทั้งสองแบบบอกว่ายังไม่ได้ตรวจวัด)',
+     /source==='team'/.test(land) && /ทีมงานบันทึกจากข้อมูลที่เจ้าของแจ้ง · ยังไม่ได้ตรวจวัดจริง/.test(land) && !/OWNER_NOTE/.test(land));
   ok('⭐ ไม่มี specs = ซ่อน ไม่วาดกล่องว่าง', /var s=l\.specs; if\(!s\|\|!s\.items\) return null;/.test(land));
   ok('lightbox เป็น <dialog> + ถอยไปใช้แอตทริบิวต์ open', /createElement\('dialog'\)/.test(land) && /lb\.showModal\) lb\.showModal\(\); else lb\.setAttribute\('open',''\)/.test(land));
   ok('lightbox ปิดแล้วโฟกัสกลับที่รูปเดิม', /lastFocus\.focus\(\)/.test(land));
