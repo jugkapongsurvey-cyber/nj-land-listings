@@ -202,32 +202,135 @@
     return d.getDate()+' '+M[d.getMonth()]+' '+(d.getFullYear()+543);
   }
 
-  // ราคาต่อตารางวา — คิดได้ก็ต่อเมื่อรู้เนื้อที่จริงเป็นตัวเลข
-  // รูปแบบเนื้อที่ไทยคือ ไร่-งาน-วา · 1 ไร่ = 400 ตร.ว. · 1 งาน = 100 ตร.ว.
-  function waFrom(areaStr){
-    var m=String(areaStr||'').match(/^\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+(?:\.\d+)?)\s*$/);
-    if(!m) return 0;
-    return Number(m[1])*400 + Number(m[2])*100 + Number(m[3]);
-  }
-  function perWa(price, areaStr){
-    var wa=waFrom(areaStr);
-    if(!wa || !Number(price)) return '';
-    return '≈ '+Math.round(Number(price)/wa).toLocaleString('th-TH')+' บาท/ตร.ว.';
+  // ราคาต่อตารางวา — ⚠️ ใช้ตัวเลขที่เซิร์ฟเวอร์คำนวณให้ (`pricePerWa`) เท่านั้น (กติกาข้อ 5)
+  // ของเดิมหารเองจากข้อความเนื้อที่ในเบราว์เซอร์ ซึ่งปัดเศษคนละแบบกับการ์ดในหน้ารวม
+  // ผู้ซื้อเห็นราคาต่อตารางวาของแปลงเดียวกันสองค่า (แก้ 27 ก.ย. 2569) · 0 = ไม่มีเนื้อที่/ราคา → ซ่อน
+  function perWaText(l){
+    var n=Number(l.pricePerWa)||0;
+    return n>0 ? '≈ '+n.toLocaleString('th-TH')+' บาท/ตร.ว.' : '';
   }
 
-  function factsHtml(l, L, tier){
-    var out=[];
-    // ระดับ 2 ใช้เนื้อที่วัดจริงเป็นหลัก · ระดับ 1 ใช้เนื้อที่ตามโฉนดและต้องบอกว่ามาจากโฉนด
-    if(tier===2 && L.checks && L.checks.area && L.checks.area.value)
-      out.push(['<b>'+esc(L.checks.area.value)+'</b>','เนื้อที่วัดจริง']);
-    else if(L.deedArea)
-      out.push(['<b>'+esc(L.deedArea)+'</b>','เนื้อที่ตามโฉนด']);
-    if(L.frontage) out.push(['<b>'+esc(L.frontage)+'</b>','หน้ากว้างโดยประมาณ']);
-    if(L.zoning)   out.push(['<b>'+esc(L.zoning)+'</b>','ผังเมืองรวม']);
+  // "0-0-33.9" → "33.9 ตร.ว." · "2-1-50 ไร่" → "2 ไร่ 1 งาน 50 ตร.ว." — อ่านง่ายกว่ารูปแบบย่อ
+  // อ่านไม่ออก = คืนข้อความเดิมทั้งก้อน ห้ามเดา (เนื้อที่ผิดทำให้ราคาต่อหน่วยผิดตาม)
+  function areaTh(s){
+    var m=String(s||'').match(/^\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+(?:\.\d+)?)\s*(?:ไร่)?\s*$/);
+    if(!m) return String(s||'');
+    var p=[];
+    if(Number(m[1])) p.push(Number(m[1])+' ไร่');
+    if(Number(m[2])) p.push(Number(m[2])+' งาน');
+    if(Number(m[3])||!p.length) p.push(Number(m[3])+' ตร.ว.');
+    return p.join(' ');
+  }
+
+  // ---------- รายละเอียดทรัพย์จากเจ้าของ (`l.specs` · 2026-09-27) ----------
+  // ⚠️ **ข้อมูลที่เจ้าของกรอกตอนฝากขาย ทีมยังไม่ได้ตรวจ** — ต้องติดป้ายบอกทุกที่ที่แสดง
+  //    ห้ามแสดงปนกับผลตรวจของช่าง และห้ามใช้ตัดสินป้ายเหลือง/เขียว (กติกาข้อ 10)
+  // ⚠️ `l.specs` อยู่ระดับบนสุดของประกาศ ไม่ได้อยู่ใน `l.land` · null = ไม่มีข้อมูล → ซ่อน (กติกาข้อ 5)
+  function specOf(l, k){
+    var s=l.specs; if(!s||!s.items) return null;
+    for(var i=0;i<s.items.length;i++) if(s.items[i].k===k) return s.items[i];
+    return null;
+  }
+  var OWNER_NOTE='ข้อมูลจากเจ้าของทรัพย์ · ทีมงานยังไม่ได้ตรวจสอบ';
+
+  // ไอคอนเส้นของแถบตัวเลขสำคัญ — ประดับล้วน (aria-hidden) ป้ายข้อความข้างใต้คือข้อมูลจริง
+  var ICO={
+    area:'<rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M8 3.5v3M3.5 8h3M16 20.5v-3M20.5 16h-3"/>',
+    usable:'<path d="M3.5 20.5V9.5l8.5-6 8.5 6v11"/><path d="M9.5 20.5v-6h5v6"/>',
+    bed:'<path d="M3.5 18.5V6.5M20.5 18.5V13a3 3 0 0 0-3-3h-7v5"/><path d="M3.5 15h17"/><circle cx="7" cy="11.5" r="1.6"/>',
+    bath:'<path d="M4 12h16v2.5a4.5 4.5 0 0 1-4.5 4.5h-7A4.5 4.5 0 0 1 4 14.5z"/><path d="M6.5 12V6.5a2 2 0 0 1 4 0M7 19l-1 2M17 19l1 2"/>',
+    car:'<path d="M5 15.5l1.4-4.3A2 2 0 0 1 8.3 9.8h7.4a2 2 0 0 1 1.9 1.4l1.4 4.3"/><rect x="3.5" y="15.5" width="17" height="4" rx="1.5"/>',
+    front:'<path d="M3.5 17h17M3.5 14v6M20.5 14v6"/><path d="M6 10.5l6-6 6 6"/>',
+    floors:'<path d="M12 3.5l8.5 4.5-8.5 4.5L3.5 8z"/><path d="M3.5 12.5l8.5 4.5 8.5-4.5"/>'
+  };
+  function ico(k){ return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+ICO[k]+'</svg>'; }
+
+  // แถบตัวเลขสำคัญใต้ราคา (แบบเว็บอสังหาฯ ทั่วไป) — เนื้อที่ · พื้นที่ใช้สอย · ห้องนอน · ห้องน้ำ · ที่จอด · หน้ากว้าง
+  // ⚠️ แสดงเฉพาะช่องที่มีค่าจริง · มีค่าจากเจ้าของปนอยู่ = ต้องมีบรรทัดบอกที่มาใต้แถบเสมอ
+  function statsHtml(l, L, tier){
+    var out=[], owner=false;
+    var measured=tier===2 && L.checks && L.checks.area && L.checks.area.value;
+    if(measured) out.push(['area', areaTh(L.checks.area.value), 'เนื้อที่วัดจริง']);
+    else if(L.deedArea) out.push(['area', areaTh(L.deedArea), 'เนื้อที่ตามโฉนด']);
+    var size=specOf(l,'usableSqm')||specOf(l,'roomSqm')||specOf(l,'buildingSqm');
+    if(size){ out.push(['usable', size.text, size.th]); owner=true; }
+    [['bedrooms','bed'],['bathrooms','bath'],['parking','car']].forEach(function(p){
+      var s=specOf(l,p[0]); if(s){ out.push([p[1], String(s.v), s.th+(s.k==='parking'?' (คัน)':'')]); owner=true; }
+    });
+    var fl=Number(L.floors)>0 ? L.floors : 0;
+    if(!fl){ var sf=specOf(l,'floors'); if(sf){ fl=sf.v; owner=true; } }
+    if(fl) out.push(['floors', String(fl), 'ชั้น']);
+    if(L.frontage) out.push(['front', L.frontage, 'หน้ากว้างโดยประมาณ']);
     if(!out.length) return '';
-    return '<div class="ld-facts">'+out.map(function(f){
-      return '<div class="ld-fact">'+f[0]+'<span>'+esc(f[1])+'</span></div>';
-    }).join('')+'</div>';
+    return '<ul class="ld-stats">'+out.map(function(s){
+      return '<li class="ld-stat">'+ico(s[0])+'<b>'+esc(s[1])+'</b><span>'+esc(s[2])+'</span></li>';
+    }).join('')+'</ul>'+
+    (owner?'<p class="ld-stats-src">พื้นที่ใช้สอย · ห้อง · ที่จอดรถ: '+esc(OWNER_NOTE)+'</p>':'');
+  }
+
+  // ---------- โครงสร้างและขนาดพื้นที่ ----------
+  // สองกลุ่มแยกกันชัดเจน: สิ่งที่ทีมงานบันทึก (land.*) กับสิ่งที่เจ้าของแจ้ง (specs)
+  // ⚠️ ช่องที่ทีมกรอกแล้ว ไม่ขึ้นค่าของเจ้าของซ้ำ (เช่นหน้ากว้าง/ถนน/จำนวนชั้น) — ของทีมมาก่อนเสมอ
+  function specGridHtml(l, L, tier){
+    var V=vocab(), team=[];
+    var PT=V.PROPERTY_TH||{};
+    if(L.propertyType&&PT[L.propertyType]) team.push(['ประเภททรัพย์', PT[L.propertyType]+(Number(L.floors)>0?' · '+L.floors+' ชั้น':'')]);
+    var measured=tier===2 && L.checks && L.checks.area && L.checks.area.value;
+    if(measured) team.push(['เนื้อที่วัดจริง', areaTh(L.checks.area.value)]);
+    if(L.deedArea) team.push(['เนื้อที่ตามโฉนด', areaTh(L.deedArea)]);
+    if(Number(l.totalWa)>0) team.push(['เนื้อที่รวม', Number(l.totalWa).toLocaleString('th-TH')+' ตร.ว.']);
+    if(L.frontage) team.push(['หน้ากว้างโดยประมาณ', L.frontage]);
+    if(L.deedType&&V.DEED_TH&&V.DEED_TH[L.deedType]) team.push(['เอกสารสิทธิ์', V.DEED_TH[L.deedType]]);
+    if(L.zoneColor&&V.zoneShort) team.push(['ผังสีผังเมือง', V.zoneShort(L.zoneColor), V.ZONE_HEX&&V.ZONE_HEX[L.zoneColor]]);
+    if(L.zoning) team.push(['ผังเมืองรวม', L.zoning]);
+    if(L.roadSurface&&V.ROAD_TH&&V.ROAD_TH[L.roadSurface]) team.push(['ถนนหน้าแปลง', V.ROAD_TH[L.roadSurface]+(Number(L.roadLanes)>0?' · '+L.roadLanes+' เลน':'')]);
+    if(L.facing&&V.FACING_TH&&V.FACING_TH[L.facing]) team.push(['หันหน้าทิศ', V.FACING_TH[L.facing]]);
+    if(Number(l.pricePerRai)>0) team.push(['ราคาต่อไร่', '≈ '+Number(l.pricePerRai).toLocaleString('th-TH')+' บาท']);
+
+    var dup={ frontageM:!!L.frontage, roadAccess:!!L.roadSurface, floors:Number(L.floors)>0 };
+    var own=((l.specs&&l.specs.items)||[]).filter(function(s){ return !dup[s.k] && s.k!=='utilities'; })
+      .map(function(s){ return [s.th, s.text]; });
+
+    function grid(rows){
+      return '<dl class="ld-spec">'+rows.map(function(r){
+        var dot=r[2]?'<i class="ld-dot-z" style="background:'+esc(r[2])+'" aria-hidden="true"></i>':'';
+        return '<div class="ld-spec-i"><dt>'+esc(r[0])+'</dt><dd>'+dot+esc(r[1])+'</dd></div>';
+      }).join('')+'</dl>';
+    }
+    var html='';
+    if(team.length) html+='<p class="ld-src team">ทีมงานบันทึก</p>'+grid(team);
+    if(own.length) html+='<p class="ld-src owner">'+esc(OWNER_NOTE)+'</p>'+grid(own);
+    return html;
+  }
+
+  // ---------- สาธารณูปโภคและจุดเด่นของแปลง ----------
+  // features[] = ทีมติ๊กเอง · utilities = เจ้าของแจ้ง · แยกกลุ่มและบอกที่มาเหมือนตารางข้างบน
+  function featuresHtml(l, L){
+    var V=vocab(), FT=V.FEATURE_TH||{};
+    var team=(L.features||[]).filter(function(k){ return FT[k]; }).map(function(k){ return FT[k]; });
+    var u=specOf(l,'utilities');
+    var own=u&&u.text ? String(u.text).split(/,\s*/) : [];
+    function chips(list){
+      return '<ul class="ld-feat">'+list.map(function(t){
+        return '<li><span class="ld-feat-i" aria-hidden="true">✓</span>'+esc(t)+'</li>';
+      }).join('')+'</ul>';
+    }
+    var html='';
+    if(team.length) html+='<p class="ld-src team">ทีมงานบันทึก</p>'+chips(team);
+    if(own.length) html+='<p class="ld-src owner">'+esc(OWNER_NOTE)+'</p>'+chips(own);
+    return html;
+  }
+
+  // ---------- หัวข้อพับได้ ----------
+  // <details open> — เปิดไว้ทุกหัวข้อตั้งแต่แรก (ผู้ซื้อต้องเห็นข้อมูลโดยไม่ต้องกด) แค่พับเก็บได้
+  // ⚠️ ตอนสั่งพิมพ์ต้องกางทุกหัวข้อ (ดู beforeprint ใน render) ไม่งั้นหัวข้อที่พับไว้หายจาก PDF
+  // ⚠️ body ว่าง = ไม่วาดหัวข้อเลย (กติกาข้อ 5) ห้ามวาดหัวข้อเปล่าพร้อมข้อความ "ยังไม่มีข้อมูล"
+  function secHtml(id, title, body){
+    if(!body) return '';
+    return '<details class="ld-sec" id="'+id+'" open>'+
+      '<summary><h2>'+esc(title)+'</h2><span class="ld-sec-ico" aria-hidden="true"></span></summary>'+
+      '<div class="ld-sec-b">'+body+'</div>'+
+    '</details>';
   }
 
   function tier2Html(L){
@@ -336,56 +439,162 @@
     '</section>';
   }
 
-  // สไลด์โชว์ภาพแนบ — เลื่อนอัตโนมัติเมื่อมีมากกว่า 1 รูป กดปุ่มหยุด/เล่นหรือแตะจุด/ลูกศรได้เอง
-  function galleryHtml(photos, altBase){
-    if(!photos.length) return '<div class="ld-noimg"></div>';
-    // ภาพพื้นหลังเบลอ = รูปใบเดียวกันขยายเต็มกรอบ ใช้ถมแถบว่างข้างภาพแนวตั้ง
-    // (รูปจากมือถือเกือบทั้งหมดเป็นแนวตั้ง 3:4 แต่กรอบเป็น 16:9 — ดูเหตุผลที่ .ld-gal ใน land.css)
-    // aria-hidden เพราะเป็นภาพประดับล้วน ไม่มีข้อมูลเพิ่มจากรูปจริงที่อยู่ข้างหน้า
-    var bd='<img class="ld-gal-bd" src="'+esc(photos[0])+'" alt="" aria-hidden="true">';
-    var slides=photos.map(function(src,i){
-      return '<img class="ld-slide'+(i===0?' active':'')+'" data-i="'+i+'" src="'+esc(src)+'" alt="'+esc(altBase)+(photos.length>1?' (รูปที่ '+(i+1)+' จาก '+photos.length+')':'')+'">';
+  // ---------- แกลเลอรีรูป (แบบโมเสก · 2026-09-27) ----------
+  //
+  // เดิมเป็นสไลด์เลื่อนเองทีละรูปเต็มความกว้าง — ผู้ซื้อต้องรอ/กดทีละใบกว่าจะรู้ว่าแปลงนี้มีรูปอะไรบ้าง
+  // แบบใหม่ตามเว็บอสังหาฯ ที่เจ้าของส่งมา: จอกว้างเห็น 5 รูปพร้อมกัน (ใหญ่ 1 + เล็ก 4) · มือถือปัดนิ้วเลื่อนเอง
+  // แตะรูปไหนก็เปิดดูเต็มจอ (lightbox) ที่ใบนั้น
+  //
+  // ⚠️ รูปใหญ่ใบแรกยังเป็น object-fit:contain + พื้นหลังเบลอเหมือนเดิม (เหตุผลที่ .ld-tile.t0 ใน land.css)
+  //    ภาพกราฟิกแผนที่ที่มีตัวหนังสือชิดขอบต้องไม่ถูกครอบตัดในจุดที่คนดูเป็นใบแรก
+  //    รูปเล็กใช้ไฟล์ย่อ 800×600 (ครอบตัดมาแล้ว) ได้ เพราะเป็นแค่ตัวอย่าง — เต็มจอใช้ไฟล์ต้นฉบับเสมอ
+  // ⚠️ ไม่เลื่อนเองอีกแล้ว — การเลื่อนเองขัดกับ prefers-reduced-motion และทำให้คนอ่านรูปไม่ทัน
+  // ⚠️ รูปทั้งหมดของแปลงเป็นภาพถ่ายจริงของแปลงนั้น (กติกาข้อ 9) · ห้ามเติมรูปแทนเมื่อรูปไม่ครบ 5
+  // ไฟล์ย่อโหลดไม่ขึ้น → ถอยไปไฟล์ต้นฉบับ (ตัวดักอยู่ที่ NJListing.imgFallback · ดูเหตุผลใน listingcard.js)
+  function fullAttr(thumb, full){
+    return (thumb && full && thumb!==full) ? ' data-full="'+esc(full)+'"' : '';
+  }
+  function galleryHtml(photos, thumbs, altBase){
+    var n=photos.length;
+    if(!n) return '<div class="ld-gal ld-mosaic n0"><div class="ld-noimg"></div></div>';
+    var tiles=photos.map(function(src,i){
+      var alt=esc(altBase)+(n>1?' (รูปที่ '+(i+1)+' จาก '+n+')':'');
+      var lbl='เปิดรูปที่ '+(i+1)+' จาก '+n+' แบบเต็มจอ';
+      if(i===0){
+        // ภาพพื้นหลังเบลอ = รูปใบเดียวกันขยายเต็มกรอบ ใช้ถมแถบว่างข้างภาพแนวตั้ง · aria-hidden เพราะประดับล้วน
+        return '<button type="button" class="ld-tile t0" data-open="0" aria-label="'+lbl+'">'+
+          '<img class="ld-gal-bd" src="'+esc(src)+'" alt="" aria-hidden="true">'+
+          '<img class="ld-tile-img" src="'+esc(src)+'" alt="'+alt+'" fetchpriority="high">'+
+          '<span class="ld-wm"><span>ที่ดินชัวร์</span><small>njteedinsure.com</small></span>'+
+        '</button>';
+      }
+      return '<button type="button" class="ld-tile" data-open="'+i+'" aria-label="'+lbl+'">'+
+        '<img class="ld-tile-img" src="'+esc(thumbs[i]||src)+'"'+fullAttr(thumbs[i],src)+' alt="'+alt+'" loading="lazy" decoding="async">'+
+      '</button>';
     }).join('');
-    if(photos.length<2) return bd+slides;
-    var dots=photos.map(function(_,i){return '<button type="button" class="ld-dot'+(i===0?' active':'')+'" data-i="'+i+'" aria-label="ไปที่รูปที่ '+(i+1)+'"></button>';}).join('');
-    return bd+slides+
-      '<div class="ld-gal-ctrl">'+
-        '<button type="button" class="ld-gal-prev" aria-label="รูปก่อนหน้า">‹</button>'+
-        '<span class="ld-gal-counter">1/'+photos.length+'</span>'+
-        '<button type="button" class="ld-gal-pause" aria-label="หยุดสไลด์">⏸</button>'+
-        '<button type="button" class="ld-gal-next" aria-label="รูปถัดไป">›</button>'+
-      '</div>'+
-      '<div class="ld-dots">'+dots+'</div>';
+    // ⚠️ ตัวนับกับปุ่ม "ดูทั้งหมด" ต้องอยู่นอกแถบที่เลื่อนได้ (.ld-strip) — ลูกที่ position:absolute
+    //    ในกล่องที่ scroll ได้จะเลื่อนหายไปพร้อมรูปใบแรกตอนปัดนิ้วบนมือถือ
+    return '<div class="ld-gal ld-mosaic n'+Math.min(n,5)+'" data-count="'+n+'"><div class="ld-strip">'+tiles+'</div>'+
+      (n>1?'<span class="ld-gal-count" aria-hidden="true">1/'+n+'</span>':'')+
+      '<button type="button" class="ld-gal-all" data-open="0">'+
+        '<span aria-hidden="true">▦</span> '+(n>1?'ดูรูปทั้งหมด ('+n+')':'ดูรูปเต็มจอ')+'</button>'+
+    '</div>';
   }
 
-  function initGallery(root, count){
-    if(!root || count<2) return;
-    var slides=[].slice.call(root.querySelectorAll('.ld-slide'));
-    var dots=[].slice.call(root.querySelectorAll('.ld-dot'));
-    var counter=root.querySelector('.ld-gal-counter');
-    var pauseBtn=root.querySelector('.ld-gal-pause');
-    var backdrop=root.querySelector('.ld-gal-bd');
-    var idx=0, timer=null, playing=false;
-    var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function show(i){
-      idx=(i+slides.length)%slides.length;
-      slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
-      dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
-      if(counter) counter.textContent=(idx+1)+'/'+slides.length;
-      // ตั้งผ่าน .src ไม่ใช่ background-image ในสไตล์ — ค่าจาก API จึงไม่มีทางหลุดไปเป็นโค้ด CSS
-      if(backdrop && slides[idx]) backdrop.src=slides[idx].src;
+  // ตัวเลข "2/10" บนมือถือ — อัปเดตตามตำแหน่งที่ปัดนิ้วไป (แถบรูปเป็น scroll-snap แนวนอน)
+  function initGallery(root){
+    if(!root) return;
+    var count=root.querySelector('.ld-gal-count');
+    var strip=root.querySelector('.ld-strip');
+    var n=Number(root.getAttribute('data-count'))||0;
+    if(!count||!strip||n<2) return;
+    var raf=0;
+    strip.addEventListener('scroll', function(){
+      if(raf) return;
+      raf=requestAnimationFrame(function(){
+        raf=0;
+        var w=strip.clientWidth||1;
+        var i=Math.min(n-1, Math.max(0, Math.round(strip.scrollLeft/w)));
+        var t=(i+1)+'/'+n;
+        if(count.textContent!==t) count.textContent=t;
+      });
+    }, {passive:true});
+  }
+
+  // ---------- ดูรูปเต็มจอ (lightbox) ----------
+  // ใช้ <dialog> ของเบราว์เซอร์: กัก focus ในกล่อง + ปิดด้วย Esc ได้เอง (ไม่ต้องเขียนตัวกัก focus เอง)
+  // ⚠️ เบราว์เซอร์เก่าที่ไม่มี showModal → เปิดแบบธรรมดา ยังดูรูป/ปิดได้ครบ
+  // ⚠️ รูปใส่ผ่าน .src ไม่ใช่ innerHTML — ที่อยู่รูปจาก API จึงไม่มีทางหลุดไปเป็นโค้ด
+  var lb=null;
+  function openLightbox(photos, start, altBase){
+    if(!photos.length) return;
+    if(!lb){
+      lb=document.createElement('dialog');
+      lb.className='ld-lb';
+      lb.setAttribute('aria-label','รูปภาพของแปลง');
+      lb.innerHTML=
+        '<div class="ld-lb-top"><span class="ld-lb-count" aria-live="polite"></span>'+
+          '<button type="button" class="ld-lb-x" aria-label="ปิดหน้าดูรูป">✕</button></div>'+
+        '<div class="ld-lb-stage">'+
+          '<button type="button" class="ld-lb-nav prev" aria-label="รูปก่อนหน้า">‹</button>'+
+          '<img class="ld-lb-img" alt="">'+
+          '<button type="button" class="ld-lb-nav next" aria-label="รูปถัดไป">›</button>'+
+          '<span class="ld-wm ld-lb-wm"><span>ที่ดินชัวร์</span><small>njteedinsure.com</small></span>'+
+        '</div>'+
+        '<div class="ld-lb-strip"></div>';
+      document.body.appendChild(lb);
     }
-    function updateBtn(){ if(!pauseBtn) return; pauseBtn.textContent=playing?'⏸':'▶'; pauseBtn.setAttribute('aria-label',playing?'หยุดสไลด์':'เล่นสไลด์ต่อ'); }
-    function stop(){ if(timer){ clearInterval(timer); timer=null; } playing=false; updateBtn(); }
-    function play(){ if(reduceMotion) return; stop(); playing=true; timer=setInterval(function(){ show(idx+1); },4200); updateBtn(); }
-    root.addEventListener('click',function(e){
-      var dot=e.target.closest('.ld-dot'); if(dot){ show(Number(dot.dataset.i)); stop(); return; }
-      if(e.target.closest('.ld-gal-prev')){ show(idx-1); stop(); return; }
-      if(e.target.closest('.ld-gal-next')){ show(idx+1); stop(); return; }
-      if(e.target.closest('.ld-gal-pause')){ playing?stop():play(); return; }
+    var img=lb.querySelector('.ld-lb-img'), cnt=lb.querySelector('.ld-lb-count'), strip=lb.querySelector('.ld-lb-strip');
+    var idx=0, n=photos.length;
+    strip.innerHTML='';
+    photos.forEach(function(src,i){
+      var b=document.createElement('button');
+      b.type='button'; b.className='ld-lb-th'; b.setAttribute('aria-label','รูปที่ '+(i+1));
+      var t=document.createElement('img'); t.alt=''; t.loading='lazy'; t.src=src;
+      b.appendChild(t);
+      b.addEventListener('click', function(){ show(i); });
+      strip.appendChild(b);
     });
-    show(0);
-    play();
+    lb.querySelector('.prev').hidden=lb.querySelector('.next').hidden=(n<2);
+    strip.hidden=(n<2);
+    function show(i){
+      idx=(i+n)%n;
+      img.src=photos[idx];
+      img.alt=altBase+(n>1?' (รูปที่ '+(idx+1)+' จาก '+n+')':'');
+      cnt.textContent=(idx+1)+' / '+n;
+      [].forEach.call(strip.children, function(c,j){ c.classList.toggle('on', j===idx); if(j===idx&&c.scrollIntoView) c.scrollIntoView({block:'nearest',inline:'center'}); });
+    }
+    function close(){
+      if(!lb.open) return;
+      if(lb.close) lb.close();
+      else { lb.removeAttribute('open'); lb.dispatchEvent(new Event('close')); }   // เบราว์เซอร์เก่าไม่ยิง close เอง
+    }
+    // ผูกตัวจัดการใหม่ทุกครั้งที่เปิด (รายการรูปผูกกับแปลงที่เปิดอยู่) แล้วถอดตอนปิด
+    function onKey(e){
+      if(e.key==='ArrowRight'){ show(idx+1); e.preventDefault(); }
+      else if(e.key==='ArrowLeft'){ show(idx-1); e.preventDefault(); }
+    }
+    function onClick(e){
+      if(e.target.closest('.ld-lb-x')) return close();
+      if(e.target.closest('.ld-lb-nav.prev')) return show(idx-1);
+      if(e.target.closest('.ld-lb-nav.next')) return show(idx+1);
+      // แตะพื้นหลังว่าง (นอกรูป/ปุ่ม) = ปิด — พฤติกรรมที่คนคุ้นจากแอปรูปภาพ
+      if(e.target===lb || e.target.classList.contains('ld-lb-stage')) return close();
+      // รูปกางเต็มเวที (object-fit:contain) — แตะแถบว่างข้างรูปก็ต้องปิดได้เหมือนแตะพื้นหลัง
+      if(e.target===img && img.naturalWidth){
+        var r=img.getBoundingClientRect(), s=Math.min(r.width/img.naturalWidth, r.height/img.naturalHeight);
+        var w=img.naturalWidth*s, h=img.naturalHeight*s;
+        var px=e.clientX-r.left-(r.width-w)/2, py=e.clientY-r.top-(r.height-h)/2;
+        if(px<0||py<0||px>w||py>h) close();
+      }
+    }
+    var x0=null;
+    function onTs(e){ x0=e.touches&&e.touches.length===1 ? e.touches[0].clientX : null; }
+    function onTe(e){
+      if(x0==null) return;
+      var dx=(e.changedTouches[0].clientX)-x0; x0=null;
+      if(Math.abs(dx)>45) show(idx+(dx<0?1:-1));
+    }
+    var stage=lb.querySelector('.ld-lb-stage');
+    lb.addEventListener('keydown', onKey);
+    lb.addEventListener('click', onClick);
+    stage.addEventListener('touchstart', onTs, {passive:true});
+    stage.addEventListener('touchend', onTe);
+    lb.addEventListener('close', function done(){
+      lb.removeEventListener('keydown', onKey);
+      lb.removeEventListener('click', onClick);
+      stage.removeEventListener('touchstart', onTs);
+      stage.removeEventListener('touchend', onTe);
+      lb.removeEventListener('close', done);
+      document.documentElement.classList.remove('ld-lb-lock');
+      if(lastFocus&&lastFocus.focus) lastFocus.focus();
+    });
+    var lastFocus=document.activeElement;
+    document.documentElement.classList.add('ld-lb-lock');
+    if(lb.showModal) lb.showModal(); else lb.setAttribute('open','');
+    show(start||0);
+    // ⚠️ ไม่ยิงสถิติ — ชื่อเหตุการณ์ใหม่ต้องขึ้นทะเบียนทั้ง analytics.js และ server.js ก่อน (กติกาข้อ 6)
+    //    ยิงชื่อที่ไม่มีในทะเบียน = ถูกทิ้งเงียบๆ แล้วคนอ่านสถิติคิดว่าไม่มีใครเปิดดูรูป
   }
 
   // ---------- รหัสทรัพย์ ----------
@@ -431,14 +640,64 @@
     '</a>'+
     '<a class="ld-njguide" href="guides.html#survey">ดูวิธีตรวจสอบที่ดินก่อนซื้อ →</a>';
   }
-  function inquiryHtml(){
+  // ฟอร์มสนใจแปลง — อยู่ในแถบข้าง ใต้การ์ดติดต่อ (แบบกระชับ `brief` ของ njservices.js)
+  function inquiryHtml(l){
     if(!window.NJServices) return '';
     return '<section class="njsv ld-inq" id="ld-inq" aria-labelledby="ld-inq-h">'+
       '<h2 id="ld-inq-h">สนใจแปลงนี้ — ให้ทีมงานติดต่อกลับ</h2>'+
-      '<p class="ld-inq-lede">ระบบแนบรหัสทรัพย์ให้อัตโนมัติแล้ว ทีมงานจะรู้ทันทีว่าคุณสนใจแปลงไหน '+
-        'และถ้าซื้อแล้วอยากให้ดูแลเรื่องโอน ขออนุญาตก่อสร้าง หรือหาผู้รับเหมาต่อ ติ๊กบอกไว้ได้เลย</p>'+
+      '<p class="ld-inq-lede">แนบรหัสทรัพย์ <b>'+esc(l.id)+'</b> ให้อัตโนมัติแล้ว ทีมงานจะรู้ทันทีว่าคุณสนใจแปลงไหน</p>'+
       '<div id="ld-inq-form"></div>'+
     '</section>';
+  }
+
+  // ---------- การ์ดติดต่อในแถบข้าง (แบบการ์ดเอเจนต์ของเว็บตัวอย่าง) ----------
+  // ⚠️ ผู้ติดต่อคือ "ทีมขายของบริษัท" ไม่ใช่ชื่อพนักงานรายคน — เว็บนี้ไม่มีนายหน้าอิสระ
+  //    และห้ามใส่รูป/ชื่อคนที่ไม่ได้ยินยอม (กติกาข้อ 9) · โลโก้บริษัทใช้แทนรูปคน
+  // ⚠️ ปุ่มติดต่อชุดนี้คือ `.ld-cta` ตัวเดิม (ย้ายมาจากกลางหน้า) — data-contact / ปุ่มดูเบอร์ไม่เปลี่ยน
+  //    จึงนับสถิติที่เดิมทุกอย่าง ห้ามทำปุ่มชุดที่สองซ้ำในหน้า (ลีดจะถูกนับจากสองที่)
+  function agentHtml(l){
+    return '<div class="ld-agent">'+
+      '<div class="ld-agent-h">'+
+        '<img src="brand/logo-mark.svg" alt="" width="46" height="46">'+
+        '<div><b>ทีมขาย ที่ดินชัวร์</b><small>บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</small></div>'+
+      '</div>'+
+      '<div class="ld-agent-b">'+
+        '<div class="ld-agent-price"><span>'+(l.type==='rent'?'ค่าเช่า':'ราคาขาย')+'</span><b>'+money(l.estValue)+'</b></div>'+
+        '<p class="ld-agent-code">รหัสทรัพย์ <b>'+esc(l.id)+'</b> · แจ้งรหัสนี้ทุกครั้งที่ติดต่อ</p>'+
+        '<div class="ld-cta">'+
+          '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
+          '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
+          // "คลิกดูเบอร์" — ซ่อนเบอร์ไว้จนกว่าจะกด แล้วค่อยกลายเป็นลิงก์โทรจริง
+          // ⚠️ ปุ่มนี้ยิง phone_reveal **แทน** tel_click ไม่ใช่ยิงทั้งคู่ (ดู PUBLIC_EVENT_TYPES ใน server.js)
+          // ยิงทั้งคู่เมื่อไหร่ = นับคนเดิมสองครั้ง แล้วตัวเลขลีดจะสูงกว่าความจริง
+          '<button type="button" class="ld-btn tel" id="ld-tel" data-reveal="'+esc(l.id)+'">📞 คลิกดูเบอร์โทร</button>'+
+        '</div>'+
+        '<p class="ld-agent-hours">เวลาทำการ จ.–ส. 08:30–17:30 น.</p>'+
+      '</div>'+
+    '</div>';
+  }
+
+  // ---------- แชร์ไปโซเชียล ----------
+  // ลิงก์ที่แชร์ = ที่อยู่ของหน้านี้แบบสะอาด (ตัด utm/fbclid ที่ติดมาจากโฆษณาทิ้ง)
+  // ⚠️ นับเป็น share_property ตัวเดิม (ขึ้นทะเบียนแล้ว) ไม่ใช่ช่องทางติดต่อ — ไม่มี data-contact
+  // ⚠️ ใช้ LINE เป็นปุ่มแรก — ช่องทางขายหลักของบริษัท (ของเว็บตัวอย่างมี LinkedIn ซึ่งลูกค้าเราไม่ได้ใช้)
+  function shareUrlOf(l){
+    var p=location.pathname;
+    return location.origin+p+(/land\.html$/.test(p)?'?id='+encodeURIComponent(l.id):'');
+  }
+  function shareHtml(l){
+    var u=encodeURIComponent(shareUrlOf(l)), t=encodeURIComponent(shortLabel(l)+' | ที่ดินชัวร์');
+    var list=[
+      ['line','LINE','https://social-plugins.line.me/lineit/share?url='+u],
+      ['fb','Facebook','https://www.facebook.com/sharer/sharer.php?u='+u],
+      ['x','X','https://twitter.com/intent/tweet?url='+u+'&text='+t]
+    ];
+    return '<div class="ld-share" role="group" aria-label="แชร์แปลงนี้">'+
+      '<span class="ld-share-h">แชร์แปลงนี้</span>'+
+      list.map(function(s){
+        return '<a class="ld-share-b '+s[0]+'" href="'+esc(s[2])+'" target="_blank" rel="noopener noreferrer" data-share="'+s[0]+'">'+esc(s[1])+'</a>';
+      }).join('')+
+    '</div>';
   }
 
   // ---------- เส้นทางนำทาง (Breadcrumb) ----------
@@ -531,93 +790,110 @@
     var L=l.land||{};
     var tier=l.tier===2?2:1;
     var photos=l.photos||[];
+    var thumbs=l.thumbs||[];
+    var alt=l.parcelInfo||'แปลงที่ดิน';
+    var PT=vocab().PROPERTY_TH||{};
+    var kind=(L.propertyType&&PT[L.propertyType]) ? PT[L.propertyType] : (l.specs&&l.specs.typeTh)||'';
+    // ป้ายระดับข้อมูล — ⚠️ ระดับ 1 ห้ามขึ้น "รังวัดยืนยันแล้ว" เด็ดขาด (กติกาข้อ 10)
     var badge = tier===2
       ? '<span class="ld-badge ok">✓ รังวัดยืนยันแล้ว</span>'
       : '<span class="ld-badge basic">◐ ข้อมูลเบื้องต้น</span>';
-    var areaForWa = (tier===2 && L.checks && L.checks.area && L.checks.area.value) ? L.checks.area.value : L.deedArea;
-    var pw=perWa(l.estValue, areaForWa);
+    var pw=perWaText(l);
 
+    // ---------- โครงหน้า (แบบใหม่ 2026-09-27 · ตามเว็บอสังหาฯ ที่เจ้าของส่งมา แล้วปรับให้เข้ากติกาของเรา) ----------
+    //   แกลเลอรีโมเสกเต็มความกว้าง
+    //   ↓
+    //   [หัวประกาศ: ป้าย · ราคา · ชื่อ · ที่ตั้ง · ตัวเลขสำคัญ · รหัสทรัพย์]   [แถบข้าง: การ์ดติดต่อ + ฟอร์ม (ติดหนึบ)]
+    //   [หัวข้อพับได้: ค่าโอน · โครงสร้าง · รายละเอียด · สาธารณูปโภค · ผลตรวจ · ทำเล · รูปทั้งหมด]
+    //   ↓
+    //   แปลงใกล้เคียง (เต็มความกว้าง)
+    // ⚠️ มือถือเรียงเป็นคอลัมน์เดียว: หัวประกาศ → หัวข้อ → แถบข้าง (ปุ่มติดต่อใช้แถบติดหนึบล่างจอแทน)
+    // ⚠️ ราคายังอยู่บนสุดของเนื้อหา และเครื่องคำนวณค่าโอนเป็นหัวข้อแรก (คำสั่งเจ้าของ 2026-08-30)
     document.getElementById('ld-root').innerHTML=
       breadcrumbHtml(l)+
-      '<div class="ld-gal">'+galleryHtml(photos, l.parcelInfo||'แปลงที่ดิน')+
-        '<div class="ld-badges"><span class="ld-badge type">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+badge+'</div>'+
-        '<div class="ld-wm"><span>ที่ดินชัวร์</span><small>njteedinsure.com</small></div>'+
-      '</div>'+
-      '<div class="ld-body">'+
-        '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
-        (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
-        '<div id="ld-fee"></div>'+
-        // ⚠️ **H1 ต้องเป็นชื่อสั้น ไม่ใช่รายละเอียดทั้งย่อหน้า** (งานที่ 8)
-        // ของเดิมใช้ `parcelInfo` ทั้งก้อน ซึ่งคือ "ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่"
-        // ต่อกัน · เจอจริงยาว 200+ ตัวอักษร อ่านบนผลค้นหาไม่รู้เรื่องและกินพื้นที่ครึ่งจอมือถือ
-        // ข้อความเต็มไม่ได้หายไปไหน — ย้ายลงไปเป็นคำอธิบายใต้ข้อมูลแปลงแทน
-        '<h1 class="ld-title">'+esc(shortLabel(l))+'</h1>'+
-        codeHtml(l)+
-        (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
-        factsHtml(l,L,tier)+
-        // ---- ระลอก Teedin Sure Verified (2026-09-09) ----
-        // ⚠️ ทั้งสามตัวคืนสตริงว่างเมื่อ API ไม่ได้ส่งข้อมูลมา → แปลงเก่าทุกแปลงหน้าตาเหมือนเดิมเป๊ะ
-        // ห้ามเปลี่ยนเป็นวาดกล่องว่างพร้อมข้อความ "ยังไม่มีข้อมูล" — บันไดว่าง 5 ขีดสีเทา
-        // อ่านแล้วเหมือนแปลงถูกตัดสินไปแล้ว ทั้งที่ความจริงคือยังไม่มีใครไปตรวจ (กติกาข้อ 5)
-        (window.NJVerified?NJVerified.ladderHtml(L.verify):'')+
-        (window.NJHealth?NJHealth.tableHtml(L):'')+
-        (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):'')+
-        // คะแนนความพร้อมของข้อมูล (Phase 3) — สรุปรวมของทุกอย่างข้างบน
-        // ⚠️ `l.score` อยู่ระดับบนสุดของประกาศ **ไม่ได้อยู่ใน l.land** (คิดจากทั้งใบ ไม่ใช่เฉพาะข้อมูลแปลง)
-        // ⚠️ คืนสตริงว่างเมื่อ API ไม่ส่งคะแนนมา → แปลงเก่าหน้าตาเหมือนเดิมเป๊ะ (กติกาข้อ 5)
-        (window.NJScore?NJScore.panelHtml(l.score):'')+
-        // แปลงนี้เข้าทางวัตถุประสงค์ไหนบ้าง (Phase 3) — ⚠️ `l.purposes` อยู่ระดับบนสุดของประกาศ
-        // เหมือน `l.score` ไม่ได้อยู่ใน l.land · คืนสตริงว่างเมื่อ API ไม่ส่งมา (แปลงเก่าหน้าตาเหมือนเดิม)
-        (window.NJPurpose?NJPurpose.panelHtml(l.purposes):'')+
-        mapHtml(L)+
-        nearbyHtml(L)+
-        // รายละเอียดเต็ม — ย้ายมาจาก H1 (งานที่ 8) · ขึ้นเฉพาะเมื่อมีข้อความที่ต่างจากชื่อสั้น
-        (l.parcelInfo&&l.parcelInfo!==shortLabel(l)
-          ? '<section class="ld-desc"><h2>รายละเอียดแปลง</h2><p>'+esc(l.parcelInfo)+'</p></section>' : '')+
-        (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':'')+
-        (tier===2?tier2Html(L):tier1Html(L))+
-        '<div class="ld-cta">'+
-          '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
-          '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
-          // "คลิกดูเบอร์" — ซ่อนเบอร์ไว้จนกว่าจะกด แล้วค่อยกลายเป็นลิงก์โทรจริง
-          // ⚠️ ปุ่มนี้ยิง phone_reveal **แทน** tel_click ไม่ใช่ยิงทั้งคู่ (ดู PUBLIC_EVENT_TYPES ใน server.js)
-          // ยิงทั้งคู่เมื่อไหร่ = นับคนเดิมสองครั้ง แล้วตัวเลขลีดจะสูงกว่าความจริง
-          '<button type="button" class="ld-btn tel" id="ld-tel" data-reveal="'+esc(l.id)+'">📞 คลิกดูเบอร์โทร</button>'+
+      galleryHtml(photos, thumbs, alt)+
+      '<div class="ld-layout">'+
+        '<div class="ld-head">'+
+          '<div class="ld-chips"><span class="ld-badge type">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+
+            (kind?'<span class="ld-badge kind">'+esc(kind)+'</span>':'')+badge+'</div>'+
+          '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
+          (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
+          // ⚠️ **H1 ต้องเป็นชื่อสั้น ไม่ใช่รายละเอียดทั้งย่อหน้า** (งานที่ 8)
+          // ของเดิมใช้ `parcelInfo` ทั้งก้อน ซึ่งคือ "ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่"
+          // ต่อกัน · เจอจริงยาว 200+ ตัวอักษร อ่านบนผลค้นหาไม่รู้เรื่องและกินพื้นที่ครึ่งจอมือถือ
+          // ข้อความเต็มไม่ได้หายไปไหน — ย้ายลงไปเป็นหัวข้อ "รายละเอียดทรัพย์" แทน
+          '<h1 class="ld-title">'+esc(shortLabel(l))+'</h1>'+
+          (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
+          statsHtml(l,L,tier)+
+          codeHtml(l)+
         '</div>'+
-        // ทางเข้าหน้านัดตรวจแปลง (Phase 2) — วางแยกจากแถวปุ่มติดต่อโดยตั้งใจ
-        // ⚠️ ไม่ใส่ data-contact และไม่ยิงสถิติติดต่อ — คนกดยังไม่ได้ติดต่อใคร เขาไปกรอกฟอร์มต่อ
-        //    ซึ่งเซิร์ฟเวอร์นับเป็น inspect_submit ให้เองตอนสร้างใบ (นับที่เดียว · กติกาข้อ 6)
-        '<a class="ld-inspect" href="inspect.html?listing='+encodeURIComponent(l.id)+'&from=land_page">'+
-          '<b>ยังไม่มั่นใจ? ให้ช่างรังวัดไปตรวจแปลงนี้ก่อน</b>'+
-          '<small>ตรวจเอกสารสิทธิ์ · หมุดหลักเขต · ทางเข้า–ออก · ค่าใช้จ่ายวันโอน — ส่งคำขอไม่มีค่าใช้จ่าย</small>'+
-        '</a>'+
-        // ทางเข้าเว็บ NJ (สำนักงานช่างรังวัดเอกชน) — งานรังวัดสอบเขตที่ยื่นผ่านสำนักงานที่ดิน (2026-09-23)
-        // ⚠️ ต่างจากกล่องนัดตรวจข้างบนโดยตั้งใจ: อันบน = ทีมที่ดินชัวร์ไปดูแปลงให้ (ไม่มีค่าใช้จ่ายตอนขอ)
-        //    อันนี้ = งานรังวัดอย่างเป็นทางการที่มีค่าบริการและต้องยื่นเรื่องที่สำนักงานที่ดิน
-        // ⚠️ ส่งแค่รหัสทรัพย์ (ข้อมูลที่ประกาศอยู่แล้ว) ไปกับลิงก์ — ไม่มีข้อมูลส่วนบุคคลใน URL
-        //    และติด UTM ให้ฝั่ง NJ รู้ว่ามาจากหน้าไหน · กดแล้วยิง nj_link_click (ไม่ใช่ลีด)
-        njLinkHtml(l)+
-        // ห้องข้อมูลแปลง (Phase 3) — ⚠️ ไม่ใช่ปุ่มดาวน์โหลด แต่เป็นการ "ขอสิทธิ์"
-        // ข้อความต้องบอกตรงๆ ว่าต้องผ่านการอนุมัติก่อน ไม่งั้นคนกดแล้วคาดหวังว่าจะได้ไฟล์ทันที
-        '<a class="ld-inspect ld-room" href="room.html?listing='+encodeURIComponent(l.id)+'">'+
-          '<b>ขอดูเอกสารของแปลงนี้ก่อนตัดสินใจ</b>'+
-          '<small>รายงานรังวัด · รายงานตรวจสอบ · แผนที่ · เอกสารทางเข้า–ออก — ทีมงานยืนยันตัวตนแล้วจึงเปิดให้ดู</small>'+
-        '</a>'+
-        // แถวเครื่องมือของผู้ซื้อ — บันทึก · แชร์ · แจ้งประกาศไม่ถูกต้อง (งานที่ 8)
-        // ⚠️ ปุ่มแจ้งประกาศ **ไม่ใช่ช่องทางติดต่อ** จึงไม่ใส่ data-contact และไม่ยิงสถิติลีด
-        //    คนที่กดคือคนที่เจอข้อมูลผิด ไม่ใช่คนที่สนใจซื้อ (กติกาเดียวกับหน้าพอร์ทัล)
-        '<div class="ld-tools">'+
-          '<button type="button" class="njsave-btn njsave-wide" data-njsave="'+esc(l.id)+'" aria-pressed="false">'+
-            '<span class="njsave-ico" aria-hidden="true">♥</span><span class="njsave-txt">บันทึก</span></button>'+
-          '<button type="button" class="ld-tool" id="ld-share">'+
-            '<span aria-hidden="true">↗</span> แชร์แปลงนี้</button>'+
-          '<a class="ld-tool" id="ld-report" href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">'+
-            '<span aria-hidden="true">⚑</span> แจ้งข้อมูลไม่ถูกต้อง</a>'+
+        '<aside class="ld-aside" aria-label="ติดต่อเรื่องแปลงนี้"><div class="ld-aside-in">'+
+          agentHtml(l)+
+          inquiryHtml(l)+
+        '</div></aside>'+
+        '<div class="ld-content">'+
+          secHtml('ld-s-fee','ประมาณการค่าใช้จ่ายวันโอน','<div id="ld-fee"></div>')+
+          secHtml('ld-s-spec','โครงสร้างและขนาดพื้นที่', specGridHtml(l,L,tier))+
+          // รายละเอียดเต็ม — ย้ายมาจาก H1 (งานที่ 8) · ขึ้นเฉพาะเมื่อมีข้อความที่ต่างจากชื่อสั้น
+          secHtml('ld-s-desc','รายละเอียดทรัพย์',
+            (l.parcelInfo&&l.parcelInfo!==shortLabel(l)
+              ? '<div class="ld-desc"><p>'+esc(l.parcelInfo)+'</p></div>' : '')+
+            (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':''))+
+          secHtml('ld-s-feat','สาธารณูปโภคและจุดเด่นของแปลง', featuresHtml(l,L))+
+          secHtml('ld-s-check','ผลการตรวจสอบแปลง',
+            (tier===2?tier2Html(L):tier1Html(L))+
+            // ---- ระลอก Teedin Sure Verified (2026-09-09) ----
+            // ⚠️ ทั้งหมดคืนสตริงว่างเมื่อ API ไม่ได้ส่งข้อมูลมา → แปลงเก่าหน้าตาเหมือนเดิมเป๊ะ
+            // ห้ามเปลี่ยนเป็นวาดกล่องว่างพร้อมข้อความ "ยังไม่มีข้อมูล" (กติกาข้อ 5)
+            (window.NJVerified?NJVerified.ladderHtml(L.verify):'')+
+            (window.NJHealth?NJHealth.tableHtml(L):'')+
+            // ⚠️ `l.score` / `l.purposes` อยู่ระดับบนสุดของประกาศ **ไม่ได้อยู่ใน l.land**
+            (window.NJScore?NJScore.panelHtml(l.score):'')+
+            (window.NJPurpose?NJPurpose.panelHtml(l.purposes):'')+
+            (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):''))+
+          secHtml('ld-s-loc','ทำเลที่ตั้ง', mapHtml(L)+nearbyHtml(L))+
+          (photos.length>1 ? secHtml('ld-s-photos','รูปภาพทั้งหมด ('+photos.length+')',
+            '<div class="ld-pgrid">'+photos.map(function(src,i){
+              return '<button type="button" class="ld-pgrid-i" data-open="'+i+'" aria-label="เปิดรูปที่ '+(i+1)+' แบบเต็มจอ">'+
+                '<img src="'+esc(thumbs[i]||src)+'"'+fullAttr(thumbs[i],src)+' alt="" loading="lazy" decoding="async"></button>';
+            }).join('')+'</div>') : '')+
+          // ทางเข้าหน้านัดตรวจแปลง (Phase 2) — วางแยกจากปุ่มติดต่อโดยตั้งใจ
+          // ⚠️ ไม่ใส่ data-contact และไม่ยิงสถิติติดต่อ — คนกดยังไม่ได้ติดต่อใคร เขาไปกรอกฟอร์มต่อ
+          //    ซึ่งเซิร์ฟเวอร์นับเป็น inspect_submit ให้เองตอนสร้างใบ (นับที่เดียว · กติกาข้อ 6)
+          '<div class="ld-next">'+
+            '<a class="ld-inspect" href="inspect.html?listing='+encodeURIComponent(l.id)+'&from=land_page">'+
+              '<b>ยังไม่มั่นใจ? ให้ช่างรังวัดไปตรวจแปลงนี้ก่อน</b>'+
+              '<small>ตรวจเอกสารสิทธิ์ · หมุดหลักเขต · ทางเข้า–ออก · ค่าใช้จ่ายวันโอน — ส่งคำขอไม่มีค่าใช้จ่าย</small>'+
+            '</a>'+
+            // ทางเข้าเว็บ NJ (สำนักงานช่างรังวัดเอกชน) — งานรังวัดสอบเขตที่ยื่นผ่านสำนักงานที่ดิน (2026-09-23)
+            // ⚠️ ต่างจากกล่องนัดตรวจข้างบนโดยตั้งใจ: อันบน = ทีมที่ดินชัวร์ไปดูแปลงให้ (ไม่มีค่าใช้จ่ายตอนขอ)
+            //    อันนี้ = งานรังวัดอย่างเป็นทางการที่มีค่าบริการและต้องยื่นเรื่องที่สำนักงานที่ดิน
+            // ⚠️ ส่งแค่รหัสทรัพย์ (ข้อมูลที่ประกาศอยู่แล้ว) ไปกับลิงก์ — ไม่มีข้อมูลส่วนบุคคลใน URL
+            //    และติด UTM ให้ฝั่ง NJ รู้ว่ามาจากหน้าไหน · กดแล้วยิง nj_link_click (ไม่ใช่ลีด)
+            njLinkHtml(l)+
+            // ห้องข้อมูลแปลง (Phase 3) — ⚠️ ไม่ใช่ปุ่มดาวน์โหลด แต่เป็นการ "ขอสิทธิ์"
+            // ข้อความต้องบอกตรงๆ ว่าต้องผ่านการอนุมัติก่อน ไม่งั้นคนกดแล้วคาดหวังว่าจะได้ไฟล์ทันที
+            '<a class="ld-inspect ld-room" href="room.html?listing='+encodeURIComponent(l.id)+'">'+
+              '<b>ขอดูเอกสารของแปลงนี้ก่อนตัดสินใจ</b>'+
+              '<small>รายงานรังวัด · รายงานตรวจสอบ · แผนที่ · เอกสารทางเข้า–ออก — ทีมงานยืนยันตัวตนแล้วจึงเปิดให้ดู</small>'+
+            '</a>'+
+          '</div>'+
+          // แถวเครื่องมือของผู้ซื้อ — บันทึก · แชร์ · แจ้งประกาศไม่ถูกต้อง (งานที่ 8)
+          // ⚠️ ปุ่มแจ้งประกาศ **ไม่ใช่ช่องทางติดต่อ** จึงไม่ใส่ data-contact และไม่ยิงสถิติลีด
+          //    คนที่กดคือคนที่เจอข้อมูลผิด ไม่ใช่คนที่สนใจซื้อ (กติกาเดียวกับหน้าพอร์ทัล)
+          '<div class="ld-tools">'+
+            '<button type="button" class="njsave-btn njsave-wide" data-njsave="'+esc(l.id)+'" aria-pressed="false">'+
+              '<span class="njsave-ico" aria-hidden="true">♥</span><span class="njsave-txt">บันทึก</span></button>'+
+            '<button type="button" class="ld-tool" id="ld-share">'+
+              '<span aria-hidden="true">↗</span> แชร์แปลงนี้</button>'+
+            '<a class="ld-tool" id="ld-report" href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">'+
+              '<span aria-hidden="true">⚑</span> แจ้งข้อมูลไม่ถูกต้อง</a>'+
+          '</div>'+
+          shareHtml(l)+
+          '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
         '</div>'+
-        inquiryHtml()+
-        '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
-        '<div id="ld-related"></div>'+
       '</div>'+
+      '<div id="ld-related"></div>'+
       // แถบติดต่อแบบติดหนึบบนมือถือ (งานที่ 8) — ซ่อนบนเดสก์ท็อปและตอนสั่งพิมพ์
       // ⚠️ ต้องอยู่ต่ำกว่าแบนเนอร์คุกกี้และลิ้นชักเมนู ไม่งั้นไปบังของที่เป็นเรื่องกฎหมาย
       '<div class="ld-sticky" role="group" aria-label="ติดต่อเรื่องแปลงนี้">'+
@@ -630,7 +906,24 @@
     // ⚠️ ห้ามเติมราคาประเมินราชการให้ (ดูเหตุผลใน feecalc.js) — ผู้ซื้อต้องกรอกเอง
     if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue});
 
-    initGallery(document.querySelector('.ld-gal'), photos.length);
+    var root=document.getElementById('ld-root');
+    if(window.NJListing && NJListing.imgFallback) NJListing.imgFallback(root);
+    initGallery(root.querySelector('.ld-gal'));
+    // แตะรูปไหนก็ได้ (โมเสก · ปุ่มดูทั้งหมด · ตารางรูปทั้งหมด) = เปิดเต็มจอที่ใบนั้น — ต้นฉบับเสมอ ไม่ใช่ไฟล์ย่อ
+    root.addEventListener('click', function(e){
+      var t=e.target.closest('[data-open]');
+      if(!t||!root.contains(t)) return;
+      openLightbox(photos, Number(t.getAttribute('data-open'))||0, alt);
+    });
+    // ⚠️ สั่งพิมพ์/บันทึก PDF ต้องกางทุกหัวข้อก่อน — หัวข้อที่ผู้ใช้พับไว้จะหายจากกระดาษทั้งหัวข้อ
+    window.addEventListener('beforeprint', function(){
+      [].forEach.call(root.querySelectorAll('details.ld-sec'), function(d){ d.open=true; });
+    });
+    // ปุ่มแชร์ไปโซเชียล — นับเป็น share_property ตัวเดิม (ไม่ใช่ลีด · ไม่ใช่ช่องทางติดต่อ)
+    root.addEventListener('click', function(e){
+      var s=e.target.closest('[data-share]');
+      if(s&&window.njTrackInternal) njTrackInternal('share_property', l.id);
+    });
     // ปุ่มหมุดบนแผนที่แนวเขต — ต้องต่อหลังวาด HTML เสร็จ (ผูก listener ที่กล่อง ไม่ผูกรายปุ่ม)
     if(window.NJParcelMap&&L.plot) NJParcelMap.init(document.getElementById('ld-root'), L.plot);
     var pdfBtn=document.getElementById('ld-pdf-btn');
@@ -653,7 +946,7 @@
     // ฟอร์มสนใจแปลง — ส่งรหัสแปลงเข้าไปให้ล็อกไว้ ผู้ซื้อจึงไม่มีทางพิมพ์รหัสผิด
     var inqHost=document.getElementById('ld-inq-form');
     if(inqHost&&window.NJServices){
-      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail', province:(l.land||{}).province||'' });
+      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail', province:(l.land||{}).province||'', brief:true });
       if(window.njTrackInternal) njTrackInternal('inquiry_view', l.id);
     }
     // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน

@@ -135,7 +135,7 @@
       ? ' srcset="' + esc(sm) + ' 400w, ' + esc(src) + ' 800w" sizes="(max-width:767px) 120px, 400px"'
       : '';
     var media = src
-      ? '<img src="' + esc(src) + '"' + srcset + ' width="800" height="600" loading="lazy" decoding="async" alt="' +
+      ? '<img src="' + esc(src) + '"' + srcset + fullAttr(src, item.photos[0]) + ' width="800" height="600" loading="lazy" decoding="async" alt="' +
         esc(shortTitleOf(item)) + '">'
       : '<div class="fallback-land" aria-hidden="true"></div>';
     // นับรูปตามจริง ไม่มีรูปก็ไม่ต้องขึ้นตัวเลข
@@ -269,8 +269,31 @@
   // แมปช่องทาง → ชื่อเหตุการณ์ที่จะนับ · เพิ่มช่องทางใหม่ = เพิ่มบรรทัดเดียวตรงนี้
   var CONTACT_TRACK = { line: ['line_click', 'line'], messenger: ['messenger_click', 'messenger'], tel: ['tel_click', 'phone'] };
   // ปุ่มติดต่อบนการ์ดสร้างหลังโหลดข้อมูล จึงผูก listener ที่ container ทีเดียว
+  // ---------- ไฟล์ย่อโหลดไม่ขึ้น = ถอยไปไฟล์ต้นฉบับ ----------
+  // เหตุการณ์จริง 27 ก.ย. 2569: ไฟล์ย่อของทุกแปลงถูกลบจากดิสก์ แต่ API ยังส่งลิงก์มา
+  // การ์ดทั้งเว็บจึงเป็นรูปแตก ทั้งที่ไฟล์ต้นฉบับยังเปิดได้อยู่
+  // ⚠️ data-full ใส่เฉพาะตอนไฟล์ย่อต่างจากต้นฉบับ · สลับได้ครั้งเดียว (ลบ data-full ทิ้งก่อนตั้ง src)
+  //    ไม่งั้นต้นฉบับที่ล้มด้วยจะวนยิง error ไม่รู้จบ · ต้องถอด srcset ด้วย ไม่งั้นเบราว์เซอร์เลือกไฟล์ย่อเดิมซ้ำ
+  function fullAttr(thumb, full) {
+    return (full && thumb && full !== thumb) ? ' data-full="' + esc(full) + '"' : '';
+  }
+  function imgFallback(root) {
+    if (!root || root.__njImgFb) return;
+    root.__njImgFb = true;
+    root.addEventListener('error', function (e) {
+      var img = e.target;
+      if (!img || img.tagName !== 'IMG' || !img.getAttribute('data-full')) return;
+      var full = img.getAttribute('data-full');
+      img.removeAttribute('data-full');
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      img.src = full;
+    }, true);   // error ไม่ bubble — ต้องดักเฟส capture
+  }
+
   function bindGrid(grid, from) {
     if (!grid) return;
+    imgFallback(grid);
     grid.addEventListener('click', function (e) {
       var a = e.target.closest('[data-contact]');
       if (!a) {
@@ -292,6 +315,7 @@
     esc: esc, money: money, num: num, ago: ago, areaTh: areaTh,
     normalize: normalize, card: card, shortTitleOf: shortTitleOf,
     emptyHtml: emptyHtml, loadFailedHtml: loadFailedHtml,
-    fetchListings: fetchListings, bindGrid: bindGrid
+    fetchListings: fetchListings, bindGrid: bindGrid,
+    fullAttr: fullAttr, imgFallback: imgFallback
   };
 })();

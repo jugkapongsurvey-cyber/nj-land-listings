@@ -22,80 +22,143 @@
   border-radius:50%;animation:spin 1s linear infinite;
 }
 
-/* ---------- ภาพหลัก ----------
-   ⚠️ ต้องเป็น object-fit:contain ห้ามกลับไปใช้ cover
+/* ---------- แกลเลอรีรูป (แบบโมเสก · 2026-09-27) ----------
+   มือถือ: แถบปัดนิ้วแนวนอนทีละรูป (scroll-snap) · จอ ≥768px: ใหญ่ 1 + เล็กสูงสุด 4 ใบ
+   ⚠️ รูปใบแรกต้องเป็น object-fit:contain ห้ามกลับไปใช้ cover
    ภาพที่เจ้าของแปลงส่งมามีทั้งรูปถ่ายมือถือ (แนวตั้ง 3:4) และภาพกราฟิกแผนที่ที่ออกแบบมา
-   ซึ่งมีตัวหนังสือชิดขอบ · cover จะครอบตัดส่วนที่เกินกรอบ 16:9 ทิ้ง ทำให้ชื่อสถานที่
-   บนภาพแผนที่ขาดหายไปครึ่งคำ (เจอจริงกับ OP-018 เมื่อ 2026-08-30)
-   contain ย่อทั้งภาพให้อยู่ในกรอบครบ แลกกับมีแถบพื้นหลังด้านข้าง ซึ่งยอมรับได้กว่าข้อมูลหาย */
-/* สัดส่วนกรอบต่างกันตามขนาดจอ (mobile-first ตามกติกาข้อ 1)
-   มือถือใช้กรอบตั้ง 4:5 เพราะรูปจากมือถือเป็นแนวตั้งเกือบทั้งหมด
-   ถ้าใช้ 16:9 บนจอ 375px กรอบจะสูงแค่ ~211px รูปแนวตั้งเหลือกว้างแค่ ~158px เล็กจนดูไม่รู้เรื่อง
-   จอกว้างค่อยกลับไป 16:9 เพื่อไม่ให้ภาพดันราคาและเครื่องคำนวณค่าโอนตกไปใต้ขอบจอ */
-.ld-gal{
-  position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;
-  background:#0B1F3A;
+   ซึ่งมีตัวหนังสือชิดขอบ · cover จะครอบตัดชื่อสถานที่บนภาพแผนที่ขาดครึ่งคำ (เจอจริงกับ OP-018 · 2026-08-30)
+   รูปเล็กใช้ cover ได้เพราะเป็นแค่ตัวอย่าง แตะแล้วเปิดเต็มจอแบบ contain ด้วยไฟล์ต้นฉบับเสมอ */
+.ld-gal{position:relative;margin:0 0 20px}
+.ld-strip{
+  display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+  aspect-ratio:4/3;border-radius:16px;background:#0B1F3A;scrollbar-width:none;
 }
-@media(min-width:640px){ .ld-gal{aspect-ratio:16/9} }
-.ld-gal img{width:100%;height:100%;object-fit:contain;display:block}
+.ld-strip::-webkit-scrollbar{display:none}
+.ld-tile{
+  position:relative;flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;
+  border:0;padding:0;margin:0;background:#0B1F3A;cursor:zoom-in;overflow:hidden;display:block;
+  font:inherit;color:inherit;
+}
+.ld-tile-img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block}
 /* พื้นหลังเบลอ — รูปใบเดียวกันขยายเต็มกรอบแล้วเบลอ ใช้ถมแถบว่างข้างภาพแนวตั้ง
    ให้ดูเป็นการออกแบบ ไม่ใช่กรอบดำที่ดูเหมือนโหลดรูปไม่ขึ้น
    scale เกิน 1 เล็กน้อยเพื่อดันขอบที่เบลอจนโปร่งออกนอกกรอบ ไม่งั้นจะเห็นเส้นจางๆ รอบภาพ */
 .ld-gal-bd{
-  position:absolute;inset:0;z-index:0;
-  object-fit:cover !important;
-  filter:blur(26px) brightness(.62);transform:scale(1.15);
+  position:absolute;inset:0;z-index:0;width:100%;height:100%;
+  object-fit:cover;filter:blur(26px) brightness(.62);transform:scale(1.15);
 }
-@media(prefers-reduced-motion:reduce){.ld-gal-bd{transition:none}}
-/* ช่องว่างตอนยังไม่มีรูป — เดิมอาศัยพื้นหลังของ .ld-gal ซึ่งตอนนี้เปลี่ยนเป็นสีทึบแล้ว
-   จึงต้องย้ายไล่สีมาไว้ตรงนี้เอง ไม่งั้นแปลงที่ไม่มีรูปจะได้กล่องน้ำเงินเปล่าๆ */
-.ld-noimg{
-  width:100%;height:100%;
+/* ช่องว่างตอนยังไม่มีรูป — ห้ามเติมรูปแทน (กติกาข้อ 9) ใช้ไล่สีเรียบๆ บอกว่ายังไม่มีรูป */
+.ld-mosaic.n0 .ld-noimg{
+  aspect-ratio:16/9;border-radius:16px;
   background:linear-gradient(160deg,#8798A9 0 44%,#9CC47F 45% 64%,#6E9556 65% 100%);
 }
-.ld-badges{position:absolute;left:14px;top:14px;display:flex;gap:6px;flex-wrap:wrap;z-index:3}
-.ld-badge{
-  font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;color:#fff;
-  backdrop-filter:blur(5px);white-space:nowrap;
-}
-.ld-badge.type{background:rgba(11,37,73,.9)}
-.ld-badge.ok{background:rgba(28,164,92,.94)}
-.ld-badge.basic{background:rgba(138,96,8,.93)}
-
-/* ---------- สไลด์ภาพแนบ (มากกว่า 1 รูป) ---------- */
-.ld-slide{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;z-index:1}
-.ld-slide.active{opacity:1;z-index:2}
-.ld-gal-ctrl{
-  position:absolute;right:13px;top:14px;z-index:3;display:flex;align-items:center;gap:2px;
-  background:rgba(8,23,43,.72);color:#fff;border-radius:20px;padding:3px 4px;
-}
-.ld-gal-ctrl button{
-  border:none;background:none;color:#fff;cursor:pointer;font-size:16px;line-height:1;
-  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
-}
-.ld-gal-ctrl button:hover{background:rgba(255,255,255,.18)}
-.ld-gal-pause{font-size:12px !important}
-.ld-gal-counter{font-size:11px;font-weight:700;padding:0 3px;white-space:nowrap}
-.ld-dots{
-  position:absolute;left:0;right:0;bottom:12px;z-index:3;
-  display:flex;justify-content:center;gap:6px;
-}
-.ld-dot{
-  width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;
-  background:rgba(255,255,255,.5);
-}
-.ld-dot.active{background:#fff;width:18px;border-radius:4px}
-@media(prefers-reduced-motion:reduce){.ld-slide{transition:none}}
-/* ลายน้ำมุมล่างขวา — ไม่ทับผังแปลงตรงกลางซึ่งเป็นสิ่งที่คนซื้อมาดู */
+/* ลายน้ำ — มุมล่างซ้ายของรูปใบแรก ไม่ทับผังแปลงตรงกลางซึ่งเป็นสิ่งที่คนซื้อมาดู */
 .ld-wm{
-  position:absolute;right:13px;bottom:12px;z-index:3;display:flex;align-items:center;gap:6px;
-  background:rgba(11,37,73,.42);backdrop-filter:blur(3px);padding:5px 11px;border-radius:6px;
+  position:absolute;left:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:6px;
+  background:rgba(11,37,73,.42);backdrop-filter:blur(3px);padding:5px 11px;border-radius:6px;pointer-events:none;
 }
 .ld-wm span{color:#fff;font-size:11.5px;font-weight:700;opacity:.95}
 .ld-wm small{color:rgba(255,255,255,.75);font-size:10px}
+.ld-gal-count{
+  position:absolute;right:12px;top:12px;z-index:4;pointer-events:none;
+  background:rgba(8,23,43,.72);color:#fff;border-radius:20px;padding:5px 11px;
+  font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+}
+.ld-gal-all{
+  position:absolute;right:12px;bottom:12px;z-index:4;min-height:40px;
+  display:inline-flex;align-items:center;gap:7px;padding:0 16px;border:0;border-radius:999px;
+  background:#fff;color:var(--navy);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+  box-shadow:0 6px 18px rgba(8,31,61,.22);
+}
+.ld-gal-all:hover{background:#E8EEF7}
+@media(min-width:768px){
+  .ld-strip{
+    display:grid;gap:8px;overflow:visible;aspect-ratio:auto;background:none;border-radius:0;
+    height:clamp(340px,40vw,500px);
+    grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;
+  }
+  .ld-tile{border-radius:14px}
+  .ld-tile:not(.t0) .ld-tile-img{object-fit:cover}
+  .ld-tile:not(.t0):hover .ld-tile-img{transform:scale(1.03)}
+  .ld-tile-img{transition:transform .35s var(--nj-ease,ease)}
+  .ld-tile.t0{grid-row:1/3}
+  .ld-tile:nth-child(n+6){display:none}
+  .ld-gal-count{display:none}
+  /* จำนวนรูปน้อยกว่า 5 — จัดตะแกรงให้เต็มกรอบ ไม่ทิ้งช่องว่าง (และไม่เติมรูปแทน) */
+  .ld-mosaic.n1 .ld-strip{grid-template-columns:1fr;grid-template-rows:1fr}
+  .ld-mosaic.n2 .ld-strip{grid-template-columns:3fr 2fr;grid-template-rows:1fr}
+  .ld-mosaic.n2 .ld-tile.t0{grid-row:auto}
+  .ld-mosaic.n3 .ld-strip{grid-template-columns:2fr 1fr}
+  .ld-mosaic.n4 .ld-tile:nth-child(4){grid-column:2/4}
+}
+@media(prefers-reduced-motion:reduce){ .ld-tile-img{transition:none} .ld-tile:hover .ld-tile-img{transform:none !important} }
+
+/* ---------- ดูรูปเต็มจอ (lightbox · <dialog>) ---------- */
+.ld-lb{
+  position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;
+  background:rgba(5,12,24,.97);color:#fff;
+}
+.ld-lb[open]{display:flex;flex-direction:column}
+.ld-lb::backdrop{background:rgba(5,12,24,.9)}
+html.ld-lb-lock{overflow:hidden}
+.ld-lb-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 6px 18px;flex:none}
+.ld-lb-count{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.ld-lb-x{
+  width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.12);
+  color:#fff;font-size:20px;cursor:pointer;
+}
+.ld-lb-stage{position:relative;flex:1;min-height:0}
+/* วางรูปแบบ absolute ให้พอดีกรอบเวที — แบบ grid + max-height:100% ความสูงแถวเป็น auto
+   รูปแนวตั้งจึงล้นลงไปทับแถบรูปย่อข้างล่าง (เจอจริงตอนพรีวิว 27 ก.ย. 69) */
+.ld-lb-img{position:absolute;inset:0 8px;width:calc(100% - 16px);height:100%;object-fit:contain;display:block;user-select:none}
+.ld-lb-nav{
+  position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.14);color:#fff;font-size:28px;line-height:1;cursor:pointer;z-index:1;
+}
+.ld-lb-nav.prev{left:10px} .ld-lb-nav.next{right:10px}
+.ld-lb-nav:hover,.ld-lb-x:hover{background:rgba(255,255,255,.26)}
+.ld-lb-wm{left:auto;right:18px;bottom:10px;z-index:1}
+.ld-lb-strip{display:flex;gap:6px;overflow-x:auto;padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));flex:none;scrollbar-width:thin}
+.ld-lb-th{flex:0 0 auto;width:68px;height:50px;padding:0;border:2px solid transparent;border-radius:8px;overflow:hidden;background:#111;opacity:.55;cursor:pointer}
+.ld-lb-th img{width:100%;height:100%;object-fit:cover;display:block}
+.ld-lb-th.on{opacity:1;border-color:var(--nj-gold-500,#D8B96B)}
+.ld-lb button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+@media(max-width:640px){ .ld-lb-nav{display:none} }   /* มือถือใช้ปัดนิ้วแทน ปุ่มลูกศรบังรูป */
+
+/* ---------- ป้ายบนหัวประกาศ ---------- */
+.ld-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.ld-badge{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:6px;color:#fff;white-space:nowrap}
+.ld-badge.type{background:#0B2549}
+.ld-badge.kind{background:#E7EEF5;color:#0B2549}
+.ld-badge.ok{background:#127A47}
+.ld-badge.basic{background:#8A6008}
 
 /* ---------- เนื้อหา ---------- */
-.ld-body{padding:22px 0 0;max-width:760px}
+/* โครงสองคอลัมน์ — ดูคำอธิบายลำดับที่ render() ใน land.js · มือถือเป็นคอลัมน์เดียว */
+.ld-layout{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:16px;
+  grid-template-areas:"head" "content" "aside";
+}
+.ld-head{grid-area:head;min-width:0}
+.ld-content{grid-area:content;min-width:0}
+.ld-aside{grid-area:aside;min-width:0}
+@media(min-width:1024px){
+  .ld-layout{grid-template-columns:minmax(0,1fr) 360px;column-gap:28px;row-gap:16px;
+    grid-template-areas:"head aside" "content aside";align-items:start}
+  .ld-aside{align-self:stretch}
+  /* ⚠️ ติดหนึบที่ "กล่องใน" ไม่ใช่ตัว aside — aside ยืดเต็มความสูงสองแถวให้กล่องในมีรางให้เลื่อน
+     และจำกัดความสูงไว้ในจอ (เลื่อนในกล่องได้) ไม่งั้นจอโน้ตบุ๊กเตี้ยจะมองไม่เห็นปุ่มส่งฟอร์มเลย */
+  .ld-aside-in{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto;
+    overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:4px}
+}
+/* การ์ดสีขาวบนพื้นเทาอ่อน (แบบเว็บตัวอย่าง) — ใช้ :has กับหน้านี้หน้าเดียว เบราว์เซอร์เก่า = พื้นขาวเหมือนเดิม */
+#main:has(> .ld-main){background:#F4F7FA}
+.ld-head,.ld-sec,.ld-agent,.ld-aside .ld-inq{
+  background:#fff;border:1px solid #E3EAF1;border-radius:16px;
+  box-shadow:0 1px 2px rgba(11,31,58,.04);
+}
+.ld-head{padding:20px 20px 18px}
+@media(min-width:640px){ .ld-head{padding:24px 26px 22px} }
 .ld-price{
   font-family:var(--nj-font);font-size:clamp(26px,5.4vw,34px);font-weight:800;
   color:var(--navy);line-height:1.15;
@@ -162,11 +225,15 @@
 .ld-loc{font-size:13.5px;color:var(--sub);margin-bottom:18px}
 .ld-blurb{font-size:14.5px;line-height:1.9;color:var(--sub);margin:0 0 20px}
 
-.ld-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-@media(min-width:640px){.ld-facts{grid-template-columns:repeat(3,1fr)}}
-.ld-fact{background:var(--mist);border-radius:11px;padding:13px 15px}
-.ld-fact b{display:block;font-family:var(--nj-font);font-size:16px;color:var(--ink);line-height:1.35}
-.ld-fact span{font-size:11px;color:#8798A9}
+/* ---------- แถบตัวเลขสำคัญ (เนื้อที่ · พื้นที่ใช้สอย · ห้อง · ที่จอด · หน้ากว้าง) ---------- */
+.ld-stats{list-style:none;margin:4px 0 0;padding:14px 0 0;border-top:1px solid #E3EAF1;
+  display:flex;flex-wrap:wrap;gap:12px 22px}
+.ld-stat{display:grid;grid-template-columns:auto 1fr;column-gap:9px;align-items:center;min-width:0}
+.ld-stat svg{grid-row:1/3;width:26px;height:26px;fill:none;stroke:#1B4B7A;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;background:#EEF3F9;border-radius:8px;padding:5px;box-sizing:content-box}
+.ld-stat b{font-family:var(--nj-font);font-size:15.5px;color:var(--ink);line-height:1.25;overflow-wrap:anywhere}
+.ld-stat span{font-size:11.5px;color:#5A6B7D;line-height:1.3}
+.ld-stats-src{margin:10px 0 0;font-size:11.5px;color:#8A6008}
 
 /* ---------- แผนที่โดยประมาณ ---------- */
 .ld-map{margin:0 0 20px}
@@ -295,20 +362,25 @@
 
 @media(max-width:560px){
   .ld-tier{padding:16px 15px}
-  .ld-body{padding-top:18px}
   .ld-empty-btns{flex-direction:column}
 }
 
 /* ---------- ดาวน์โหลด PDF — ใช้กล่องพิมพ์ของเบราว์เซอร์ (บันทึกเป็น PDF ได้ในตัว) ----------
    ซ่อนของที่กดไม่ได้บนกระดาษ/ใช้พื้นที่ไม่คุ้ม: เมนู, footer, เครื่องคำนวณ (เป็นฟอร์มกรอกเอง),
-   แผนที่ (iframe ไม่พิมพ์ผ่านเบราว์เซอร์ส่วนใหญ่), ปุ่มดาวน์โหลดเอง, ปุ่มควบคุมสไลด์/จุดนำทาง */
+   แผนที่ (iframe ไม่พิมพ์ผ่านเบราว์เซอร์ส่วนใหญ่), ปุ่มดาวน์โหลดเอง, ปุ่มดูรูป/แชร์/ฟอร์ม
+   ⚠️ หัวข้อ "ค่าใช้จ่ายวันโอน" ทั้งหัวข้อถูกซ่อน (ข้างในเป็นฟอร์มกรอกเองล้วน) · หัวข้ออื่นถูกกางให้ก่อนพิมพ์ (beforeprint ใน land.js)
+   ⚠️ รหัสทรัพย์ (.ld-code) ห้ามซ่อน — คนที่พิมพ์ประกาศออกมาคือคนที่ต้องใช้รหัสตอนโทรมาที่สุด */
 @media print{
-  .topbar,.mobile-nav,.sell-banner,footer,.ld-back,#ld-fee,.ld-map,
-  .ld-gal-ctrl,.ld-dots,.ld-pdf-btn{display:none !important}
-  body{background:#fff}
+  .topbar,.mobile-nav,.sell-banner,footer,.ld-back,#ld-fee,#ld-s-fee,#ld-s-photos,.ld-map,
+  .ld-gal-all,.ld-gal-count,.ld-pdf-btn,.ld-share,.ld-lb{display:none !important}
+  body,#main:has(> .ld-main){background:#fff}
   .ld-main{padding:0}
-  .ld-gal{aspect-ratio:auto;height:75mm;border-radius:0}
-  .ld-body{max-width:100%;padding-top:14px}
+  .ld-strip{display:block;height:75mm;aspect-ratio:auto;border-radius:0;overflow:hidden}
+  .ld-tile{height:75mm;border-radius:0}
+  .ld-tile:not(.t0){display:none}
+  .ld-layout{display:block}
+  .ld-head,.ld-sec,.ld-agent{box-shadow:none;border-color:#ccc;margin-bottom:10px}
+  .ld-sec summary .ld-sec-ico{display:none}
   .ld-tier,.ld-upsell,.ld-nb,.ld-nb-g{break-inside:avoid}
   .ld-cta{grid-template-columns:1fr 1fr 1fr}
   .ld-btn{padding:8px 10px;font-size:12px}
@@ -319,11 +391,12 @@
    ปุ่มคัดลอกรหัสทรัพย์ ปุ่มดูเบอร์ และปุ่มดาวน์โหลด PDF — คนที่เดินหน้าเว็บด้วยคีย์บอร์ด
    หรือใช้สวิตช์ช่วยเหลือ จึงมองไม่ออกเลยว่าตอนนี้โฟกัสอยู่ที่ปุ่มไหน
    ใช้ :focus-visible เพื่อไม่ให้กรอบเด้งขึ้นตอนคลิกเมาส์ (ซึ่งเป็นเหตุผลที่คนมักถอดกฎนี้ทิ้ง) */
-.ld-body a:focus-visible,
+#ld-root a:focus-visible,
 .ld-back:focus-visible,
 .ld-btn:focus-visible,
-.ld-gal-ctrl button:focus-visible,
-.ld-dots button:focus-visible,
+.ld-sec summary:focus-visible,
+.ld-pgrid-i:focus-visible,
+.ld-gal-all:focus-visible,
 .ld-code-copy:focus-visible,
 #ld-code-copy:focus-visible,
 #ld-pdf-btn:focus-visible,
@@ -332,9 +405,8 @@
   outline-offset:2px;
   border-radius:8px;
 }
-/* ปุ่มบนภาพเป็นพื้นเข้ม กรอบสีน้ำเงินเข้มจะจมหาย ใช้ขาวแทนบนบริเวณนั้น */
-.ld-gal .ld-gal-ctrl button:focus-visible,
-.ld-gal .ld-dots button:focus-visible{outline-color:#fff}
+/* รูปบนแกลเลอรีเป็นพื้นเข้ม กรอบสีน้ำเงินเข้มจะจมหาย ใช้ขาว + เงาเข้มแทน */
+.ld-tile:focus-visible{outline:3px solid #fff;outline-offset:-3px;box-shadow:inset 0 0 0 6px rgba(11,37,73,.8)}
 
 /* ส่วนใหม่ของระลอก Teedin Sure Verified — ให้ break-inside เหมือนแผงผลตรวจเดิมตอนพิมพ์ */
 @media print{
@@ -485,3 +557,103 @@
 .ldp-desc{margin:0 0 var(--nj-space-4);line-height:var(--nj-lh-body);overflow-wrap:anywhere}
 .ldp-note{margin:0 0 var(--nj-space-3);color:var(--nj-text-muted);font-size:var(--nj-fs-sm)}
 .ldp-alt{margin:0;font-size:var(--nj-fs-sm)}
+
+/* ===========================================================================
+   หน้าแปลงแบบใหม่ (2026-09-27) — หัวข้อพับได้ · ตารางโครงสร้าง · สาธารณูปโภค · การ์ดติดต่อ · แชร์
+   ตามแบบเว็บอสังหาฯ ที่เจ้าของกิจการส่งมา (การ์ดขาว หัวข้อพับได้ แถบข้างติดหนึบ)
+   =========================================================================== */
+
+/* ---------- หัวข้อพับได้ (<details open>) ---------- */
+.ld-sec{margin:0 0 14px;overflow:hidden}
+.ld-sec > summary{
+  display:flex;align-items:center;gap:12px;min-height:56px;padding:12px 20px;cursor:pointer;
+  list-style:none;user-select:none;
+}
+.ld-sec > summary::-webkit-details-marker{display:none}
+.ld-sec > summary h2{flex:1;margin:0;font-size:17px;font-weight:700;line-height:1.4;color:#0B2549}
+.ld-sec-ico{
+  flex:none;width:30px;height:30px;border-radius:50%;background:#EEF3F9;position:relative;
+}
+.ld-sec-ico::before{
+  content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;
+  border-right:2px solid #1B4B7A;border-bottom:2px solid #1B4B7A;
+  transform:translate(-50%,-30%) rotate(225deg);transition:transform .2s var(--nj-ease,ease);
+}
+.ld-sec:not([open]) .ld-sec-ico::before{transform:translate(-50%,-70%) rotate(45deg)}
+.ld-sec > summary:hover .ld-sec-ico{background:#E1EAF4}
+.ld-sec-b{padding:0 20px 20px}
+.ld-sec-b > :first-child{margin-top:0}
+.ld-sec-b > :last-child{margin-bottom:0}
+@media(prefers-reduced-motion:reduce){ .ld-sec-ico::before{transition:none} }
+/* แผงที่มีกรอบ/พื้นของตัวเองอยู่แล้ว (ผลตรวจ · สถานที่ใกล้เคียง · เครื่องคำนวณ) — ไม่ต้องเว้นขอบซ้อน */
+.ld-sec-b .ld-tier,.ld-sec-b .ld-nb{margin-bottom:14px}
+.ld-sec-b .ld-map{margin-bottom:14px}
+#ld-s-fee .fc{margin:0;border:0;padding:0;background:none;box-shadow:none}
+.ld-desc{margin:0 0 14px}
+.ld-sec-b .ld-blurb{margin:0}
+
+/* ---------- ที่มาของข้อมูล (ทีมงานบันทึก / เจ้าของทรัพย์แจ้ง) ---------- */
+.ld-src{display:inline-flex;align-items:center;gap:6px;margin:0 0 10px;font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:999px}
+.ld-src.team{background:#EEF3F9;color:#1B4B7A}
+.ld-src.owner{background:#FDF6E6;color:#7A5608}
+.ld-src.team::before{content:"✓";font-weight:800}
+.ld-src.owner::before{content:"ⓘ"}
+.ld-spec + .ld-src,.ld-feat + .ld-src{margin-top:18px}
+
+/* ---------- ตารางโครงสร้างและขนาดพื้นที่ (3 คอลัมน์แบบเว็บตัวอย่าง) ---------- */
+.ld-spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin:0}
+@media(min-width:640px){ .ld-spec{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.ld-spec-i{padding:10px 0;border-bottom:1px solid #EEF2F6;min-width:0}
+.ld-spec-i dt{font-size:12px;color:#5A6B7D;margin:0 0 2px}
+.ld-spec-i dd{margin:0;font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.45;overflow-wrap:anywhere}
+.ld-dot-z{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+
+/* ---------- สาธารณูปโภคและจุดเด่น ---------- */
+.ld-feat{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 18px}
+.ld-feat li{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);min-height:32px}
+.ld-feat-i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:#E4F4EA;color:#127A47;font-size:12px;font-weight:800;flex:none}
+
+/* ---------- รูปภาพทั้งหมด ---------- */
+.ld-pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.ld-pgrid-i{aspect-ratio:4/3;padding:0;border:0;border-radius:10px;overflow:hidden;background:#E3EAF1;cursor:zoom-in}
+.ld-pgrid-i img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ---------- ทางไปต่อ (นัดตรวจ · เว็บ NJ · ห้องข้อมูล) ---------- */
+.ld-next{margin:4px 0 0}
+.ld-next .ld-inspect{background:#fff}
+
+/* ---------- การ์ดติดต่อในแถบข้าง ---------- */
+.ld-agent{overflow:hidden}
+.ld-agent-h{display:flex;align-items:center;gap:12px;padding:16px 18px;background:#0B2549;color:#fff}
+.ld-agent-h img{flex:none;width:46px;height:46px;border-radius:50%;background:#fff;padding:6px;box-sizing:border-box}
+.ld-agent-h b{display:block;font-size:16px;line-height:1.35}
+.ld-agent-h small{display:block;font-size:11.5px;line-height:1.5;color:#C7DAF2;margin-top:2px}
+.ld-agent-b{padding:16px 18px 14px}
+.ld-agent-price{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding-bottom:12px;border-bottom:1px solid #EEF2F6;margin-bottom:10px}
+.ld-agent-price span{font-size:12.5px;color:#5A6B7D}
+.ld-agent-price b{font-family:var(--nj-font);font-size:22px;font-weight:800;color:#0B2549}
+.ld-agent-code{margin:0 0 12px;font-size:12.5px;color:#5A6B7D;line-height:1.6}
+.ld-agent-code b{font-family:var(--nj-font);font-size:14px;color:#0B2549;letter-spacing:.04em}
+.ld-agent .ld-cta{grid-template-columns:1fr;gap:8px}
+.ld-agent .ld-btn{padding:12px 14px;font-size:14px;display:block}
+.ld-agent-hours{margin:10px 0 0;font-size:12px;color:#8798A9;text-align:center}
+
+/* ฟอร์มสนใจแปลงในแถบข้าง — การ์ดขาวแทนพื้นเทาเดิม */
+.ld-aside .ld-inq{margin:14px 0 0;padding:18px 18px 16px}
+.ld-aside .ld-inq h2{font-size:16.5px;margin-bottom:4px}
+.ld-aside .ld-inq-lede{font-size:12.5px;line-height:1.65;margin-bottom:12px}
+
+/* ---------- แชร์ไปโซเชียล ---------- */
+.ld-share{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.ld-share-h{font-size:13.5px;font-weight:700;color:#0B2549;margin-right:4px}
+.ld-share-b{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:88px;
+  padding:0 14px;border-radius:10px;color:#fff;font-size:13.5px;font-weight:700;text-decoration:none}
+.ld-share-b.line{background:#037C38}   /* เขียว LINE เข้มขึ้นให้ตัวขาวผ่าน AA (4.5:1) — สีแบรนด์ #06C755 ได้แค่ 2.3:1 */
+.ld-share-b.fb{background:#0F64D2}
+.ld-share-b.x{background:#0F1419}
+.ld-share-b:hover{filter:brightness(1.08)}
+.ld-content .ld-tools{margin:18px 0 12px}
