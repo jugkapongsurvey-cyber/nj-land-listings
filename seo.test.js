@@ -146,7 +146,9 @@ ok('⭐ แปลงที่ถูกถอดแล้วยัง noindex เ
 console.log('\n9) ตัวสร้างหน้าแปลงต้องปลอดภัยเมื่อดึงข้อมูลไม่สำเร็จ');
 const gen = read('build/properties.js');
 ok('⭐ ดึงข้อมูลล้มแล้วไม่แตะไฟล์เดิม', /ไม่ได้แตะไฟล์เดิมเลยสักไฟล์/.test(gen) && /process\.exit\(1\)/.test(gen));
-ok('⭐ API ตอบว่างเปล่าก็ไม่ลบของเดิมทิ้ง', /ไม่ลบของเดิมทิ้ง/.test(gen));
+ok('⭐ API ตอบไม่ครบรูปแบบ (ไม่มี count · จำนวนไม่ตรง · มีหน้าถัดไป) = ไม่แตะไฟล์เดิม',
+   /ไม่ครบหรือรูปแบบไม่ถูกต้อง/.test(gen) && /data.count !== data.listings.length/.test(gen) && /hasMore/.test(gen));
+ok('⭐ JSON-LD ที่ฝังในหน้าแปลงหนี "<" (กัน </script> ในข้อความของเจ้าของ)', /jsonInScript/.test(gen) && /u003c/.test(gen));
 ok('แปลงที่หายจาก API แล้วถูกลบไฟล์ทิ้ง', /unlinkSync/.test(gen));
 ok('ใช้คำศัพท์ชุดกลาง ไม่ก๊อปมาไว้เอง', /landvocab\.js/.test(gen) && !/DEED_TH\s*=/.test(gen));
 ok('ใช้ตัวประกอบชื่อชุดกลาง', /landmeta\.js/.test(gen));

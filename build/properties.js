@@ -24,6 +24,9 @@
 //
 // 5. **แปลงที่หายจาก API แล้ว ต้องลบไฟล์ทิ้ง** ไม่งั้นเหลือหน้าของแปลงที่ขายไปแล้วค้างในดัชนี
 //    (หน้านั้นจะ noindex ตัวเองด้วยเมื่อ JS พบว่า API ตอบ 404 — แต่ลบทิ้งไปเลยตรงกว่า)
+//    · รวมถึงกรณี API ยืนยันว่า "ไม่มีแปลงประกาศอยู่เลย" (listings:[] + count:0 ครบรูปแบบ) — เจ้าของรายสุดท้าย
+//      ถอนความยินยอมแล้ว หน้าของเขาต้องหายจากเว็บ ไม่ใช่ค้างไว้เพราะกลัวลบผิด (ตรวจอิสระ 28 ก.ย. 2569)
+//      คำตอบที่ "ไม่ครบรูปแบบ" (ไม่มี count · count ไม่ตรงจำนวน · มีหน้าถัดไป · รหัสแปลงผิดรูป) ยังนับเป็นข้อ 4
 //
 // 6. **ห้ามเติมข้อมูลที่ API ไม่ได้ส่งมา** (กติกาข้อ 5) ช่องไหนว่างให้ข้ามไป
 //    Structured Data ที่ไม่ตรงกับหน้าจอ = โดนตัดสิทธิ์แสดงผลพิเศษทั้งเว็บ ไม่ใช่แค่หน้านี้
@@ -54,6 +57,8 @@ function loadVocab() {
 const VOCAB = loadVocab();
 const META = require(path.join(ROOT, 'landmeta.js'));
 
+// JSON ที่ฝังใน <script> ต้องหนี "<" (และ U+2028/2029 ที่ทำให้ JS พัง) — JSON.stringify ไม่ทำให้
+const jsonInScript = (v) => JSON.stringify(v).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -179,8 +184,10 @@ function render(tpl, l) {
   });
 
   // Structured Data
-  const ld = '  <script type="application/ld+json">' + JSON.stringify(schemaFor(l)) + '</script>\n' +
-             '  <script type="application/ld+json">' + JSON.stringify(breadcrumbFor(l)) + '</script>\n';
+  // ⚠️ JSON.stringify ไม่หนี "<" — ข้อความของเจ้าของ (blurb/parcelInfo) ที่มี "</script>" จะปิดบล็อกแล้วรันสคริปต์ได้
+  //    ต้องแปลงเป็น \u003c เสมอ (ตรวจอิสระ 28 ก.ย. 2569) · ใช้ jsonInScript() ตัวเดียวกับรหัสแปลงด้านล่าง
+  const ld = '  <script type="application/ld+json">' + jsonInScript(schemaFor(l)) + '</script>\n' +
+             '  <script type="application/ld+json">' + jsonInScript(breadcrumbFor(l)) + '</script>\n';
   s = s.replace('</head>', ld + '</head>');
 
   // รหัสแปลง — `land.js` อ่านตัวนี้เมื่อไม่มี `?id=` ใน URL
@@ -190,7 +197,7 @@ function render(tpl, l) {
   const metaTag = /<script src="\/landmeta\.js"( defer)?><\/script>/;
   if (!metaTag.test(s)) throw new Error('ต้นแบบ land.html ไม่มีแท็ก landmeta.js — ฝังรหัสแปลง ' + l.id + ' ไม่ได้');
   s = s.replace(metaTag, (m) =>
-    '<script>window.NJ_LISTING_ID=' + JSON.stringify(String(l.id)) + ';</script>\n  ' + m);
+    '<script>window.NJ_LISTING_ID=' + jsonInScript(String(l.id)) + ';</script>\n  ' + m);
 
   // เนื้อหาที่บอตอ่านได้ — ใส่ไว้ในกล่องเดียวกับที่ land.js จะเขียนทับ
   s = s.replace(/(<div id="ld-root"[^>]*>)([\s\S]*?)(<\/div>)/,
@@ -276,11 +283,16 @@ async function main() {
     process.exit(1);
   }
 
-  const list = Array.isArray(data.listings) ? data.listings : [];
-  if (!list.length) {
-    console.log('⛔ API ตอบสำเร็จแต่ไม่มีแปลงเลย — ไม่ลบของเดิมทิ้ง (อาจเป็นความผิดพลาดชั่วคราว)');
+  // Empty is a valid inventory after the last owner withdraws consent.
+  // Only an explicit, complete response may remove old published artifacts.
+  if (!data || !Array.isArray(data.listings) || !Number.isInteger(data.count) || data.count !== data.listings.length ||
+      (data.paging && (data.paging.total !== data.count || data.paging.hasMore)) ||
+      !data.listings.every(l => l && /^OP-\d+$/.test(String(l.id || ''))) ||
+      new Set(data.listings.map(l => l.id)).size !== data.count) {
+    console.log('⛔ API ตอบข้อมูลไม่ครบหรือรูปแบบไม่ถูกต้อง — ไม่ได้แตะไฟล์เดิมเลยสักไฟล์');
     process.exit(1);
   }
+  const list = data.listings;
 
   // ---------- ทะเบียนที่อยู่เดิม ----------
   // เก็บ "ที่อยู่เก่า → ที่อยู่ใหม่" ของแปลงที่ย้ายที่อยู่ (เช่นทีมเพิ่งกรอกประเภททรัพย์)

@@ -143,7 +143,7 @@ function setupForm() {
       note: String(fd.get('note') || '').trim(),
       pdpa: !!fd.get('pdpa'),
       website: String(fd.get('website') || ''),   // honeypot — คนจริงมองไม่เห็นช่องนี้
-      ref: location.search ? location.search.slice(1, 60) : 'wanted_page'   // เก็บ utm ที่ติดมากับลิงก์โฆษณา
+      ref: (window.NJAttrib && NJAttrib.refText()) || 'wanted_page'   // ที่มาจาก attrib.js — ห้ามยัด query string ดิบ (ตั๋ว/โทเคนจะหลุดเข้าใบ)
     };
 
     var err = validate(v);

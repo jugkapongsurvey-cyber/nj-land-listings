@@ -104,7 +104,7 @@
       (lv && lv.evidence && lv.evidence.length
         ? '<div class="njv-ev"><b>หลักฐานที่เปิดให้ดู</b>' +
           lv.evidence.map(function (e) {
-            return e.url
+            return e.url && /^(https?:[/][/]|[/](?![/]))/i.test(e.url)
               ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.label) + ' ↗</a>'
               : '<span>' + esc(e.label) + '</span>';
           }).join('') + '</div>'

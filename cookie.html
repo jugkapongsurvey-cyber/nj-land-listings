@@ -215,7 +215,9 @@
       <thead><tr><th>ชื่อ</th><th>ที่เก็บ</th><th>ทำอะไร</th><th>อยู่นานแค่ไหน</th></tr></thead>
       <tbody>
         <tr><td><code>njts_consent</code></td><td>localStorage</td><td>จำว่าคุณกดยอมรับหรือปฏิเสธคุกกี้</td><td>จนกว่าคุณจะล้างข้อมูลเว็บไซต์</td></tr>
-        <tr><td><code>njConsignTicket</code></td><td>localStorage</td><td>ตั๋วเปิดใบฝากขายของคุณกลับมาแก้ไข โดยไม่ต้องมีรหัสผ่าน</td><td>14 วัน</td></tr>
+        <tr><td><code>njConsignTickets</code></td><td>localStorage</td><td>ตั๋วเปิดใบฝากขายของคุณกลับมาแก้ไข โดยไม่ต้องมีรหัสผ่าน (เก็บได้หลายใบ)</td><td>14 วัน</td></tr>
+        <tr><td><code>njConsignOwner</code></td><td>localStorage</td><td>ชื่อและเบอร์โทรที่คุณกรอกในฟอร์มฝากขาย เพื่อไม่ต้องพิมพ์ซ้ำตอนฝากแปลงถัดไป — ลบได้ด้วยปุ่ม "ไม่ใช่ฉัน" ในหน้าฝากขาย</td><td>จนกว่าคุณจะกด "ไม่ใช่ฉัน" หรือล้างข้อมูลเว็บไซต์</td></tr>
+        <tr><td><code>njChecklistV1</code></td><td>localStorage</td><td>ข้อที่คุณติ๊กแล้วในเช็กลิสต์ก่อนซื้อที่ดิน (เก็บแค่ว่าติ๊กข้อไหน)</td><td>จนกว่าคุณจะล้างข้อมูลเว็บไซต์</td></tr>
         <tr><td><code>njCompare</code></td><td>sessionStorage</td><td>รายการแปลงที่คุณเลือกไว้เปรียบเทียบ</td><td>ปิดแท็บแล้วหาย</td></tr>
         <tr><td><code>njchat</code></td><td>sessionStorage</td><td>ประวัติแชทบนหน้าจอ เพื่อให้คุยต่อได้เมื่อเปลี่ยนหน้า</td><td>ปิดแท็บแล้วหาย</td></tr>
         <tr><td><code>njSaved</code></td><td>localStorage</td><td>รหัสแปลงที่คุณกดบันทึกไว้ (เก็บแค่รหัส ไม่เก็บราคาหรือข้อมูลแปลง)</td><td>จนกว่าคุณจะเอาออกเอง หรือล้างข้อมูลเว็บไซต์</td></tr>
