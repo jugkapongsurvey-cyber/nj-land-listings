@@ -56,7 +56,7 @@ jobs:
         id: diff
         run: |
           git add -A journal.html journal sitemaps/journal.xml sitemap.xml
-          other=$(git status --porcelain | grep -v '^[AMD]  \(journal\.html\|journal/\|sitemaps/journal\.xml\|sitemap\.xml\)' || true)
+          other=$(git -c core.quotePath=false status --porcelain | grep -v '^[AMD]  \(journal\.html\|journal/\|sitemaps/journal\.xml\|sitemap\.xml\)' || true)
           if [ -n "$other" ]; then echo "⛔ มีไฟล์อื่นเปลี่ยนด้วย — หยุด ไม่ commit"; echo "$other"; exit 1; fi
           if git diff --cached --quiet; then echo "changed=0" >> "$GITHUB_OUTPUT"; echo "ไม่มีอะไรเปลี่ยน"; else echo "changed=1" >> "$GITHUB_OUTPUT"; git diff --cached --stat; fi
 
