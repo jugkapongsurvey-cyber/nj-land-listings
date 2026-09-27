@@ -102,6 +102,11 @@
           '<i class="njsv-hint">รหัสอยู่บนหน้าประกาศของแต่ละแปลง — ยังไม่มีแปลงในใจก็เว้นว่างไว้ได้</i>' +
         '</label>';
 
+    // opt.brief — แบบกระชับสำหรับแถบข้างของหน้าแปลง (2026-09-27 · ตามแบบเว็บอสังหาฯ ที่เจ้าของส่งมา)
+    //   ชื่อ/เบอร์ขึ้นก่อน · ปุ่มเหตุผลแตะเดียว · รายการบริการพับไว้ใน <details> (ไม่บังคับอยู่แล้ว)
+    // ⚠️ **ใช้ท่อส่งเดียวกับแบบเต็มทุกอย่าง** (submit · honeypot · ยินยอม · พันธมิตร) — ต่างกันแค่ลำดับบนจอ
+    //    ห้ามแยกเป็นฟอร์มใหม่ที่ยิงไปอีกเส้นทาง ไม่งั้นลีดจากหน้าแปลงจะนับคนละที่กับหน้าแรก
+    if (opt.brief) return briefHtml(opt, id);
     // opt.wide — วางเต็มความกว้าง (หน้าแรก): รายการบริการกาง 3 คอลัมน์ ส่วนช่องกรอกยุบเป็นการ์ดกลางหน้า
     // ไม่ทำแบบนี้แล้วช่อง "ชื่อ/เบอร์" จะยืดเป็น 1,280px ซึ่งกรอกยากและดูเหมือนหน้าเว็บพัง
     return '<form class="njsv-form' + (opt.wide ? ' njsv-wide' : '') + '" novalidate data-njform>' +
@@ -125,6 +130,38 @@
         '<input type="text" data-njsv="website" class="njsv-hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
         '<div class="njsv-msg" data-njsv-msg role="alert" hidden></div>' +
         '<button type="submit" class="njsv-submit">ส่งเรื่องให้ทีมงานติดต่อกลับ</button>' +
+        '<p class="njsv-pdpa">กดส่ง = ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด ใช้ข้อมูลนี้ติดต่อกลับเรื่องที่ดินและบริการที่เลือกเท่านั้น</p>' +
+      '</div>' +
+    '</form>';
+  }
+
+  // เหตุผลที่ผู้ซื้อทักเข้ามาบ่อยที่สุด — แตะแล้วต่อหน้าข้อความถึงทีมงาน (ช่อง note เดิม ไม่มีช่องใหม่ที่เซิร์ฟเวอร์)
+  // ⚠️ เป็น <button aria-pressed> ไม่ใช่ checkbox โดยตั้งใจ — ตัวส่งเก็บ checkbox ที่ติ๊กทุกตัวเป็น "บริการ"
+  //    ถ้าเป็น checkbox เหตุผลจะถูกส่งไปเป็นคีย์บริการที่เซิร์ฟเวอร์ไม่รู้จักแล้วหายเงียบ
+  var WHY = ['นัดดูสถานที่จริง', 'ขอรูป/ข้อมูลเพิ่มเติม', 'สอบถามราคาต่อรองได้ไหม', 'ปรึกษาเรื่องสินเชื่อ'];
+  function briefHtml(opt, id) {
+    return '<form class="njsv-form njsv-brief" novalidate data-njform>' +
+      (id ? '<input type="hidden" data-njsv="listingId" value="' + esc(id) + '">' : '') +
+      '<div class="njsv-contact">' +
+        '<label class="njsv-field"><span>ชื่อผู้ติดต่อ</span>' +
+          '<input type="text" data-njsv="name" autocomplete="name" enterkeyhint="next" placeholder="ระบุชื่อ"></label>' +
+        '<label class="njsv-field"><span>เบอร์โทร</span>' +
+          '<input type="tel" data-njsv="phone" autocomplete="tel" inputmode="tel" enterkeyhint="done" placeholder="ระบุเบอร์โทร"></label>' +
+        '<div class="njsv-why" role="group" aria-label="เรื่องที่อยากสอบถาม (เลือกได้หลายข้อ)">' +
+          WHY.map(function (w) {
+            return '<button type="button" class="njsv-why-b" data-njsv-why="' + esc(w) + '" aria-pressed="false">' + esc(w) + '</button>';
+          }).join('') +
+        '</div>' +
+        '<label class="njsv-field"><span>ข้อความถึงทีมงาน <i>(ไม่บังคับ)</i></span>' +
+          '<textarea data-njsv="note" rows="2" placeholder="เช่น สะดวกดูที่วันเสาร์นี้ช่วงเช้า"></textarea></label>' +
+        '<details class="njsv-more">' +
+          '<summary>ซื้อแล้วอยากให้ทีมดูแลต่อ? <i>(ไม่บังคับ)</i></summary>' +
+          '<div class="njsv-fieldset">' + checklistHtml({ compact: true }) + '</div>' +
+          '<div class="njsv-pps" data-njsv-pps hidden></div>' +
+        '</details>' +
+        '<input type="text" data-njsv="website" class="njsv-hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<div class="njsv-msg" data-njsv-msg role="alert" hidden></div>' +
+        '<button type="submit" class="njsv-submit">ให้ทีมงานติดต่อกลับ</button>' +
         '<p class="njsv-pdpa">กดส่ง = ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด ใช้ข้อมูลนี้ติดต่อกลับเรื่องที่ดินและบริการที่เลือกเท่านั้น</p>' +
       '</div>' +
     '</form>';
@@ -242,6 +279,16 @@
         renderPps();
       }
     });
+    // ปุ่มเหตุผล (แบบกระชับ) — กดสลับเปิด/ปิด · สถานะบอกทั้งสีและ aria-pressed
+    form.addEventListener('click', function (e) {
+      var w = e.target && e.target.closest ? e.target.closest('[data-njsv-why]') : null;
+      if (!w) return;
+      w.setAttribute('aria-pressed', w.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    });
+    function whyText() {
+      return Array.prototype.map.call(form.querySelectorAll('[data-njsv-why][aria-pressed="true"]'),
+        function (b) { return b.getAttribute('data-njsv-why'); }).join(', ');
+    }
     if (ppsHost) ppsHost.addEventListener('click', function (e) {
       var b = e.target && e.target.closest ? e.target.closest('[data-njsv-pick]') : null;
       if (!b) return;
@@ -264,7 +311,8 @@
         listingId: get('listingId'),
         name: get('name'),
         phone: get('phone'),
-        note: get('note'),
+        // เหตุผลที่แตะเลือกไว้ต่อหน้าข้อความ — ทีมงานเห็นในใบลีดเป็นบรรทัดเดียวกัน
+        note: [whyText() ? '[' + whyText() + ']' : '', get('note')].filter(Boolean).join(' '),
         services: services,
         website: get('website'),
         // ⚠️ ของเดิมยัด query string ดิบเข้าช่องนี้ ซึ่งแปลว่าตั๋วที่ติดมากับลิงก์ (?id=..&t=..)

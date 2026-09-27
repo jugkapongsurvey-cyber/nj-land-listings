@@ -155,3 +155,27 @@
 .njsv-disclose b{ color:var(--njsv-ink); }
 .njsv-refs{ display:grid; gap:3px; margin-top:6px; font-size:13px; }
 .njsv-refs small{ color:var(--njsv-sub); font-size:12px; }
+
+/* ---------- แบบกระชับ (brief) — แถบข้างของหน้าแปลง (2026-09-27) ----------
+   ชื่อ/เบอร์ขึ้นก่อน · ปุ่มเหตุผลแตะเดียว · รายการบริการพับไว้ (ไม่บังคับ) */
+.njsv-brief .njsv-contact{ gap:11px; }
+.njsv-why{ display:flex; flex-wrap:wrap; gap:6px; }
+.njsv-why-b{
+  min-height:36px; padding:6px 12px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--njsv-line); background:#fff; color:var(--njsv-ink);
+  font:inherit; font-size:12.5px; font-weight:600; line-height:1.3;
+}
+.njsv-why-b:hover{ border-color:var(--njsv-accent); }
+/* สถานะเลือกแล้วบอกทั้งสีและเครื่องหมาย ✓ ไม่ใช่สีอย่างเดียว */
+.njsv-why-b[aria-pressed="true"]{ background:#0B2549; border-color:#0B2549; color:#fff; }
+.njsv-why-b[aria-pressed="true"]::before{ content:"✓ "; }
+.njsv-why-b:focus-visible{ outline:3px solid var(--njsv-accent); outline-offset:2px; }
+.njsv-more{ border:1px solid var(--njsv-line); border-radius:10px; background:var(--njsv-soft); }
+.njsv-more > summary{
+  cursor:pointer; padding:11px 13px; font-size:13px; font-weight:700; color:var(--njsv-ink); list-style:none;
+}
+.njsv-more > summary::-webkit-details-marker{ display:none; }
+.njsv-more > summary::after{ content:"＋"; float:right; color:var(--njsv-sub); }
+.njsv-more[open] > summary::after{ content:"－"; }
+.njsv-more > summary i{ font-style:normal; font-weight:400; color:var(--njsv-sub); }
+.njsv-more > .njsv-fieldset, .njsv-more > .njsv-pps{ padding:0 10px 10px; }

@@ -181,5 +181,24 @@ ok('share_property ถูกยิงจริง', land.indexOf("njTrackInterna
 ok('use_calculator ถูกยิงจริง', read('feecalc.js').indexOf("njTrackInternal('use_calculator')") >= 0);
 ok('chat_to_human ถูกยิงจริง', read('njchat.js').indexOf("njTrackInternal('chat_to_human')") >= 0);
 
+console.log('\n10) หน้าแปลงรุ่น 2 (2026-09-27 · โมเสกรูป · หัวข้อพับได้ · ข้อมูลเจ้าของแจ้ง)');
+{
+  const css = read('land.css');
+  const sv = read('njservices.js');
+  ok('⭐ หัวข้อพับได้เปิดไว้ตั้งแต่แรก (บอตและคนพิมพ์ต้องเห็นครบ)', /<details class="ld-sec" id="'\+id\+'" open>/.test(land));
+  ok('⭐ beforeprint กางทุกหัวข้อก่อนพิมพ์', /beforeprint[\s\S]{0,160}details\.ld-sec[\s\S]{0,80}open\s*=\s*true/.test(land));
+  ok('⭐ ข้อมูลจากเจ้าของมีป้ายบอกที่มาว่าทีมยังไม่ได้ตรวจ', /เจ้าของทรัพย์/.test(land) && /ยังไม่ได้ตรวจสอบ/.test(land));
+  ok('⭐ ไม่มี specs = ซ่อน ไม่วาดกล่องว่าง', /var s=l\.specs; if\(!s\|\|!s\.items\) return null;/.test(land));
+  ok('lightbox เป็น <dialog> + ถอยไปใช้แอตทริบิวต์ open', /createElement\('dialog'\)/.test(land) && /lb\.showModal\) lb\.showModal\(\); else lb\.setAttribute\('open',''\)/.test(land));
+  ok('lightbox ปิดแล้วโฟกัสกลับที่รูปเดิม', /lastFocus\.focus\(\)/.test(land));
+  // เจอจริงตอนพรีวิว 27 ก.ย. 69: รูปแนวตั้งแบบ grid + max-height:100% ล้นลงไปทับแถบรูปย่อ
+  ok('⭐ รูปใน lightbox วาง absolute ในกรอบเวที (ไม่ล้นทับแถบรูปย่อ)', /\.ld-lb-img\{position:absolute;inset:0/.test(css));
+  ok('ปุ่มลูกศรอยู่เหนือรูป (z-index)', /\.ld-lb-nav\{[^}]*z-index:1/.test(css));
+  ok('⭐ ฟอร์มข้างใช้ท่อส่งเดิม (brief ไม่แยกเส้นทาง)', /if \(opt\.brief\) return briefHtml\(opt, id\);/.test(sv) && !/fetch\(/.test(sv.slice(sv.indexOf('function briefHtml'), sv.indexOf('// ---------- ทำเนียบ'))));
+  ok('⭐ ปุ่มเหตุผลเป็น button ไม่ใช่ checkbox (ไม่ปนกับรายการบริการ)', /<button type="button" class="njsv-why-b"/.test(sv));
+  ok('ไฟล์ย่อพัง = ถอยไปต้นฉบับ (ดักเฟส capture)', /addEventListener\('error'[\s\S]{0,400}\}, true\)/.test(card));
+  ok('⭐ หน้าแปลงสแตติกได้ <base href="/">', /<base href="\/">/.test(read('build/properties.js')));
+}
+
 console.log('\n' + (fail ? '❌' : '✅') + ' detail: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

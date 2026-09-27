@@ -79,6 +79,10 @@ function bodyHtml(l) {
   if (L.deedType && VOCAB.DEED_TH && VOCAB.DEED_TH[L.deedType]) add('เอกสารสิทธิ์', VOCAB.DEED_TH[L.deedType]);
   if (L.propertyType && VOCAB.PROPERTY_TH && VOCAB.PROPERTY_TH[L.propertyType]) add('ประเภททรัพย์', VOCAB.PROPERTY_TH[L.propertyType]);
   if (L.zoneColor && VOCAB.ZONE_TH && VOCAB.ZONE_TH[L.zoneColor]) add('ผังสีผังเมือง', VOCAB.ZONE_TH[L.zoneColor]);
+  // รายละเอียดที่เจ้าของแจ้ง (ห้องนอน · ห้องน้ำ · พื้นที่ใช้สอย · 2026-09-27) — ตรงกับหัวข้อ "โครงสร้างและขนาดพื้นที่"
+  // ที่ land.js วาด · ⚠️ ต้องบอกที่มาในชื่อแถวเสมอ ไม่งั้นบอตอ่านเป็นข้อมูลที่ทีมตรวจแล้ว
+  const specItems = (l.specs && Array.isArray(l.specs.items)) ? l.specs.items : [];
+  specItems.forEach((it) => { if (it && it.th && it.text) add(it.th + ' (เจ้าของแจ้ง)', it.text); });
 
   // ⚠️ ระดับความน่าเชื่อถือ — ห้ามเขียน "รังวัดยืนยันแล้ว" ให้แปลง tier 1 เด็ดขาด (กติกาข้อ 10)
   add('ระดับข้อมูล', Number(l.tier) === 2 ? 'ตรวจเชิงลึกแล้ว — มีผลรังวัดยืนยันแนวเขต' : 'ข้อมูลเบื้องต้น — ยังไม่ได้รังวัดยืนยันแนวเขต');
@@ -158,6 +162,20 @@ function render(tpl, l) {
 
   // 3) ที่อยู่ไฟล์แบบย่อ → แบบเต็ม (หน้าอยู่ในโฟลเดอร์ y่อย)
   s = s.replace(/(\s(?:href|src)=")(?!https?:|\/\/|#|mailto:|tel:|data:)([^"]+)(")/g, (m, a, p, z) => a + '/' + p + z);
+
+  // 3b) ⚠️ ลิงก์ที่ **JS สร้างทีหลัง** ก็ต้องชี้รากเว็บด้วย (แก้ 27 ก.ย. 2569)
+  //    ข้อ 3 แก้ได้เฉพาะลิงก์ที่อยู่ในไฟล์ต้นแบบ · ลิงก์ที่ land.js / listingcard.js / compare.js วาดตอนเปิดหน้า
+  //    (breadcrumb · "ให้ช่างรังวัดไปตรวจ" · "ขอดูเอกสาร" · การ์ดแปลงใกล้เคียง · แถบเทียบแปลง ฯลฯ)
+  //    เป็นที่อยู่แบบย่อ แล้วเบราว์เซอร์ต่อท้ายโฟลเดอร์ของหน้านี้ → `/properties/…/OP-025/inspect.html` = **404**
+  //    เจอจริงบนเว็บจริง: ทุกลิงก์ในหน้าแปลงแบบสแตติกพาไปหน้าเสีย ซึ่งคือหน้าที่ Google เก็บและที่แชร์กันในไลน์
+  //    ทางแก้ที่ครอบคลุมทุกไฟล์ JS พร้อมกันคือ `<base href="/">` · ต้องวางก่อนแท็กใดๆ ที่มีที่อยู่ (ต่อท้าย charset)
+  // ⚠️ ผลข้างเคียงของ base: ลิงก์ `#…` จะกลายเป็น "หน้าแรก#…" → ต้องเติมที่อยู่ของหน้านี้หน้า # ให้เอง (ข้อ 3c)
+  if (!/<meta charset="utf-8">/i.test(s)) throw new Error('ต้นแบบ land.html ไม่มี <meta charset="utf-8"> — วาง <base> ไม่ได้');
+  s = s.replace(/<base\s[^>]*>\s*/i, '');
+  s = s.replace(/(<meta charset="utf-8">)/i, '$1\n  <base href="/">');
+  // 3c) ลิงก์ในหน้าเดียวกัน (ข้ามไปเนื้อหาหลัก · ติดต่อ) — ชี้ที่อยู่เต็มของหน้านี้ ไม่งั้นพาไปหน้าแรก
+  const selfPath = new URL(META.encUrl(url)).pathname;
+  s = s.replace(/(\shref=")#/g, '$1' + selfPath + '#');
 
   // ชื่อหน้า · คำโปรย · canonical
   s = s.replace(/<title>[\s\S]*?<\/title>/, '<title>' + esc(title) + '</title>');
