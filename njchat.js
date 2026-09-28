@@ -412,7 +412,7 @@
       ['ผังสี', function (x) { var L = x.land || {}; return val(L.zoneColor && V.ZONE_TH ? V.ZONE_TH[L.zoneColor].split(' — ')[0] : ''); }],
       ['ถนนหน้าที่ดิน', function (x) { var L = x.land || {}; return val(L.roadSurface && V.ROAD_TH ? V.ROAD_TH[L.roadSurface] : ''); }],
       ['สิ่งที่แปลงมี', function (x) { var L = x.land || {}; return val((L.features || []).map(function (k) { return V.FEATURE_TH ? V.FEATURE_TH[k] : k; }).join(', ')); }],
-      ['ระดับข้อมูล', function (x) { return x.tier === 2 ? '✓ รังวัดยืนยันแล้ว' : '◐ ข้อมูลเบื้องต้น'; }]
+      ['ระดับข้อมูล', function (x) { return x.tier === 2 ? '✓ ตรวจสอบโดย NJ' : '◐ ข้อมูลเบื้องต้น'; }]
     ];
     var head = '<tr><th></th>' + items.map(function (x) { return '<th>' + link('land.html?id=' + encodeURIComponent(x.id), x.parcelInfo || x.id) + '</th>'; }).join('') + '</tr>';
     var body = rows.map(function (r) { return '<tr><th scope="row">' + esc(r[0]) + '</th>' + items.map(function (x) { return '<td>' + r[1](x) + '</td>'; }).join('') + '</tr>'; }).join('');
