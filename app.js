@@ -60,7 +60,7 @@ function cardHtml(l, i) {
       '<div class="lc-media">' + photo +
         '<div class="lc-chips">' +
           '<span class="lc-chip lc-chip-type">' + esc(TYPE_LABEL[l.type] || 'ฝากขาย') + '</span>' +
-          '<span class="lc-chip lc-chip-ok">✓ รังวัดยืนยันแล้ว</span>' +
+          '<span class="lc-chip lc-chip-ok">✓ ตรวจสอบโดย NJ</span>' +
         '</div>' + pcountHtml +
       '</div>' +
       '<div class="lc-body">' +

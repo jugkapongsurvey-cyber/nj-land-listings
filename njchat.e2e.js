@@ -115,7 +115,7 @@ function check(name, cond, extra) {
     // A = สมุทรปราการ + บ้านเดี่ยว 1 ชั้น → ตรงทั้งสามเงื่อนไข · B = ปทุมธานีแต่เป็นที่ดินเปล่า → ไม่ตรง (ไม่ใช่ซ่อน)
     check('กรองรวมทำเล+ประเภท+ชั้น → เหลือแปลงเดียวที่ตรงจริง', /พบ 1 แปลง/.test(txt) && await cards.count() === 1, txt);
     check('โจทย์ขอ "เปรียบเทียบ" แต่เหลือแปลงเดียว = ไม่มีตารางเทียบ (ไม่เทียบกับของที่ไม่ตรงโจทย์)', await last.locator('.njchat-table').count() === 0);
-    check('การ์ดใช้ตัวเรนเดอร์กลาง (มีป้ายรังวัดยืนยันแล้ว + ราคา + ตร.ว.)', /รังวัดยืนยันแล้ว/.test(await cards.first().innerText()) && /฿2,500,000/.test(await cards.first().innerText()) && /2,941\/ตร\.ว\./.test(await cards.first().innerText()), await cards.first().innerText());
+    check('การ์ดใช้ตัวเรนเดอร์กลาง (มีป้ายตรวจสอบโดย NJ + ราคา + ตร.ว.)', /ตรวจสอบโดย NJ/.test(await cards.first().innerText()) && /฿2,500,000/.test(await cards.first().innerText()) && /2,941\/ตร\.ว\./.test(await cards.first().innerText()), await cards.first().innerText());
     check('ปุ่ม "เทียบ" ของ compare.js ถูกแปะบนการ์ดในแชท', await cards.first().locator('.njcmp-btn').count() === 1);
     await page.screenshot({ path: path.join(outDir, '02-mobile-search.png'), fullPage: false });
 
