@@ -12,7 +12,8 @@
    4. **ไม่คิดเงินเองในหน้านี้** ทุกตัวเลขมาจากเซิร์ฟเวอร์ · ราคาในใบเป็นภาพถ่าย ณ วันที่เปิดใบ
       และเป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา
    5. **เอกสารที่ทีมงานแนบ ลูกค้าเห็นเฉพาะที่ทีมกดแชร์แล้ว** — เซิร์ฟเวอร์กรองให้ตั้งแต่ต้นทาง
-   6. **การชำระเงิน (รับชำระแพ็กเกจ)** — ยอดทุกตัว · QR พร้อมเพย์ · เลขบัญชี มาจากเซิร์ฟเวอร์เท่านั้น
+   6. **การชำระเงิน (รับชำระแพ็กเกจ)** — ยอดทุกตัว · เลขบัญชีบริษัท มาจากเซิร์ฟเวอร์เท่านั้น
+      ⛔ ไม่มี QR พร้อมเพย์ (เจ้าของสั่งยกเลิก 28 ก.ย. 2569) — รับโอนเข้าเลขบัญชีบริษัทอย่างเดียว
       ห้ามบวก/ลบยอดในหน้านี้ · สลิปไม่ใช่เงิน — แนบแล้วยังต้องรอฝ่ายบัญชียืนยัน ห้ามเขียนว่า "ชำระแล้ว" จนกว่า
       เซิร์ฟเวอร์บอก · ปุ่มยืนยันใบเสนอราคาโผล่ตาม order.canAcceptQuote เท่านั้น (ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์)
    ============================================================ */
@@ -23,7 +24,6 @@
   var LINE_URL = 'https://line.me/R/ti/p/@716lffzt';
   var TEL = '02-162-0405';
   var ORDER = null, DOCKIND = {}, BUSY = false;
-  var QR = null;   // { key, html } — กันยิงขอ QR ซ้ำทุกครั้งที่หน้าวาดใหม่ (ยอดเดิม = QR เดิม)
 
   // ⚠️ นี่คือ "คำบนปุ่ม" เท่านั้น — ชุดปุ่มที่กดได้ยังมาจาก order.moves ของเซิร์ฟเวอร์เสมอ
   //    ชื่อสถานะ ("ทีมงานกำลังตรวจ") อ่านบนปุ่มแล้วไม่รู้ว่ากดไปจะเกิดอะไร จึงเขียนเป็นคำกริยาของลูกค้า
@@ -186,15 +186,20 @@
       return '<li><b>' + esc(x.label) + '</b> ' + baht(x.due) +
         (x.paid ? ' <span class="po-tag is-paid">ชำระแล้ว</span>' : '') + '</li>';
     }).join('');
-    var bank = b.bankAcctNo
-      ? '<p class="po-note">หรือโอนเข้าบัญชี ' + esc(b.bankName) + ' เลขที่ <b class="po-acct">' + esc(b.bankAcctNo) + '</b><br>' +
-        'ชื่อบัญชี ' + esc(b.bankAcctName) + (b.bankBranch ? ' · สาขา ' + esc(b.bankBranch) : '') + '</p>'
-      : '';
+    // ยังไม่ตั้งเลขบัญชี (bank.configured = false) = ไม่เดา ชวนทักไลน์ให้ทีมแจ้งเลขบัญชีแทน
+    var bank = b.configured && b.bankAcctNo
+      ? '<div class="po-bank"><p class="po-bank-h">โอนเข้าบัญชีบริษัท</p>' +
+          '<p class="po-bank-row"><span>ธนาคาร</span><b>' + esc(b.bankName || '-') + '</b></p>' +
+          '<p class="po-bank-row"><span>เลขที่บัญชี</span><b class="po-acct">' + esc(b.bankAcctNo) + '</b>' +
+            '<button type="button" class="po-copy" data-copy="' + esc(b.bankAcctNo) + '">คัดลอก</button></p>' +
+          '<p class="po-bank-row"><span>ชื่อบัญชี</span><b>' + esc(b.bankAcctName || '-') + '</b></p>' +
+          (b.bankBranch ? '<p class="po-bank-row"><span>สาขา</span><b>' + esc(b.bankBranch) + '</b></p>' : '') +
+        '</div>'
+      : '<p class="po-wait">ทีมงานจะแจ้งเลขบัญชีสำหรับโอนให้ทางไลน์ — ทักไลน์ <a href="' + LINE_URL + '" target="_blank" rel="noopener" data-contact="line">@716lffzt</a> ได้เลย</p>';
     var due = p.settled
       ? '<p class="po-ok">ชำระครบแล้ว ขอบคุณครับ</p>'
       : (p.next ? '<p class="po-note" style="margin-top:12px">ยอดที่ต้องชำระตอนนี้ (' + esc(p.next.label) + ')</p>' +
           '<p class="po-est po-due">' + baht(p.next.amount) + '</p>' : '') +
-        (b.promptPay ? '<div id="po-qr" class="po-qr"><p class="po-note">กำลังสร้าง QR พร้อมเพย์…</p></div>' : '') +
         bank +
         (p.slip && p.slip.waiting ? '<p class="po-wait">ได้รับสลิปแล้ว รอฝ่ายบัญชีตรวจและยืนยันรับเงิน</p>' : '') +
         '<form id="po-slip" style="margin-top:12px">' +
@@ -210,30 +215,6 @@
       due +
       '<p class="po-note">' + esc(p.note || '') + '</p>' +
     '</div>';
-  }
-
-  // QR ของยอดงวดถัดไป — เซิร์ฟเวอร์คิดยอดและสร้างรูปเอง หน้านี้แค่วางรูป
-  function loadQr() {
-    var box = el('po-qr');
-    var p = ORDER && ORDER.payment;
-    if (!box || !p || !p.next) return;
-    var key = [p.invoiceNo, p.next.n, p.next.amount].join('|');
-    if (QR && QR.key === key) { box.innerHTML = QR.html; return; }
-    fetch(API + base() + '/pay-qr' + tq())
-      .then(function (r) { return r.json().catch(function () { return {}; }); })
-      .then(function (j) {
-        var html = j && j.configured && j.dataUrl
-          ? '<img src="' + esc(j.dataUrl) + '" alt="QR พร้อมเพย์ ยอด ' + esc(baht(j.amount)) + '" width="220" height="220">' +
-            '<p class="po-note">สแกนจ่ายพร้อมเพย์ ' + esc(j.name || '') + ' · ' + baht(j.amount) + '</p>'
-          : '<p class="po-note">' + esc((j && j.reason) || 'ยังสร้าง QR ไม่ได้ — โอนเข้าบัญชีด้านล่างแทนได้') + '</p>';
-        QR = { key: key, html: html };
-        var now = el('po-qr');
-        if (now) now.innerHTML = html;
-      })
-      .catch(function () {
-        var now = el('po-qr');
-        if (now) now.innerHTML = '<p class="po-note">ติดต่อระบบไม่ได้ — โอนเข้าบัญชีด้านล่างแทนได้</p>';
-      });
   }
 
   function timelineHtml(o) {
@@ -265,7 +246,6 @@
         (urgent ? '' : money) + appointHtml(o) + timelineHtml(o) + contactHtml(o) +
       '</div></div>' +
       '<div class="po-disc">' + esc(o.disclaimer || '') + '</div>';
-    loadQr();
   }
 
   /* ---------- เรียก API ---------- */
@@ -318,6 +298,16 @@
         if (m2) { m2.className = 'po-msg is-err'; m2.textContent = 'ติดต่อระบบไม่ได้ — ทักไลน์หาทีมงานได้เลย'; }
       });
   }
+
+  // คัดลอกเลขบัญชี — เลขมาจากเซิร์ฟเวอร์ที่วางไว้บนปุ่ม ไม่ได้พิมพ์ไว้ในไฟล์นี้
+  d.addEventListener('click', function (ev) {
+    var c = ev.target.closest('[data-copy]');
+    if (!c) return;
+    var txt = c.getAttribute('data-copy') || '';
+    var done = function () { c.textContent = 'คัดลอกแล้ว'; setTimeout(function () { c.textContent = 'คัดลอก'; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function () {});
+    else done();
+  });
 
   d.addEventListener('click', function (ev) {
     var t = ev.target.closest('[data-move]');

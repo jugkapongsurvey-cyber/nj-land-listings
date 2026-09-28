@@ -702,9 +702,11 @@ console.log('\nแพ็กเกจบริการ (รอบ 4) — package
     if (!hasAccept) {
       console.log('  ข้าม — เซิร์ฟเวอร์ยังไม่มีเส้นทางรับชำระแพ็กเกจ (deploy ระบบก่อนเว็บเสมอ)');
     } else {
-      check('เซิร์ฟเวอร์มีเส้นทางยืนยันใบเสนอราคาและ QR ของใบสั่งงาน',
-        /'\/api\/public\/package-order\/:id\/pay-qr'/.test(server));
-      check('⭐⭐ หน้าลูกค้าเรียกยืนยันผ่าน /accept-quote และ QR ผ่าน /pay-qr', /'\/accept-quote'/.test(orderJs) && /'\/pay-qr'/.test(orderJs));
+      // ⛔ เจ้าของสั่งยกเลิก QR พร้อมเพย์ของใบสั่งงาน 28 ก.ย. 2569 — รับโอนเข้าเลขบัญชีบริษัทอย่างเดียว
+      check('⭐⭐ เซิร์ฟเวอร์ไม่มีเส้นทาง QR ของใบสั่งงานแล้ว', !/package-order\/:id\/pay-qr/.test(server));
+      check('⭐⭐ หน้าลูกค้าเรียกยืนยันผ่าน /accept-quote และไม่มี QR', /'\/accept-quote'/.test(orderJs) && !/pay-qr|po-qr|QR พร้อมเพย์ ยอด/.test(orderJs));
+      check('⭐ หน้าลูกค้าแสดงเลขบัญชีบริษัทจาก bank.configured ของเซิร์ฟเวอร์ และชวนทักไลน์เมื่อยังไม่ตั้ง',
+        /b\.configured/.test(orderJs) && /bankAcctNo/.test(orderJs) && /ทีมงานจะแจ้งเลขบัญชี/.test(orderJs));
       check('⭐⭐ ปุ่มยืนยันโผล่ตาม order.canAcceptQuote ของเซิร์ฟเวอร์', /o\.canAcceptQuote/.test(orderJs));
       check('⭐⭐ หน้าลูกค้าไม่สร้าง QR พร้อมเพย์เอง (ไม่มี payload/CRC ในหน้าเว็บ)', !/A000000677010111|6304|crc/i.test(orderJs));
       check('⭐ บอกลูกค้าว่าการกดยืนยันไม่ใช่ลายเซ็นอิเล็กทรอนิกส์', /ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์/.test(orderJs));
