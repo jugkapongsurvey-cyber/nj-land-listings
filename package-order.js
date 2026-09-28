@@ -12,6 +12,9 @@
    4. **ไม่คิดเงินเองในหน้านี้** ทุกตัวเลขมาจากเซิร์ฟเวอร์ · ราคาในใบเป็นภาพถ่าย ณ วันที่เปิดใบ
       และเป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา
    5. **เอกสารที่ทีมงานแนบ ลูกค้าเห็นเฉพาะที่ทีมกดแชร์แล้ว** — เซิร์ฟเวอร์กรองให้ตั้งแต่ต้นทาง
+   6. **การชำระเงิน (รับชำระแพ็กเกจ)** — ยอดทุกตัว · QR พร้อมเพย์ · เลขบัญชี มาจากเซิร์ฟเวอร์เท่านั้น
+      ห้ามบวก/ลบยอดในหน้านี้ · สลิปไม่ใช่เงิน — แนบแล้วยังต้องรอฝ่ายบัญชียืนยัน ห้ามเขียนว่า "ชำระแล้ว" จนกว่า
+      เซิร์ฟเวอร์บอก · ปุ่มยืนยันใบเสนอราคาโผล่ตาม order.canAcceptQuote เท่านั้น (ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์)
    ============================================================ */
 (function (w, d) {
   'use strict';
@@ -20,6 +23,7 @@
   var LINE_URL = 'https://line.me/R/ti/p/@716lffzt';
   var TEL = '02-162-0405';
   var ORDER = null, DOCKIND = {}, BUSY = false;
+  var QR = null;   // { key, html } — กันยิงขอ QR ซ้ำทุกครั้งที่หน้าวาดใหม่ (ยอดเดิม = QR เดิม)
 
   // ⚠️ นี่คือ "คำบนปุ่ม" เท่านั้น — ชุดปุ่มที่กดได้ยังมาจาก order.moves ของเซิร์ฟเวอร์เสมอ
   //    ชื่อสถานะ ("ทีมงานกำลังตรวจ") อ่านบนปุ่มแล้วไม่รู้ว่ากดไปจะเกิดอะไร จึงเขียนเป็นคำกริยาของลูกค้า
@@ -101,7 +105,7 @@
         (f.by === 'customer' ? 'คุณส่งเข้ามา' : 'ทีมงานแนบให้') + ' · ' + thaiDate(f.at) + '</small></div>' +
         '<a href="' + API + base() + '/files/' + encodeURIComponent(f.id) + tq() + '" target="_blank" rel="noopener">เปิดไฟล์</a></div>';
     }).join('');
-    var kinds = Object.keys(DOCKIND).map(function (k) {
+    var kinds = Object.keys(DOCKIND).filter(function (k) { return k !== 'slip'; }).map(function (k) {
       return '<option value="' + esc(k) + '">' + esc(DOCKIND[k]) + '</option>';
     }).join('');
     var closed = o.status === 'closed' || o.status === 'cancelled';
@@ -151,9 +155,85 @@
       '<p class="po-note" style="margin-top:0">เลขที่ ' + esc(q.no || q.id) +
       (q.dateISO ? ' · ' + thaiDate(q.dateISO) : '') + '</p>' +
       (total != null ? '<p class="po-est">' + baht(total) + '</p>' : '') +
-      (q.validUntil ? '<p class="po-note">ยืนราคาถึง ' + thaiDate(q.validUntil) + '</p>' : '') +
-      '<p class="po-note">ทีมงานจะส่งลิงก์สำหรับกดยืนยันใบเสนอราคาให้ทางไลน์หรืออีเมล</p>' +
+      (q.whtAmount ? '<p class="po-note">ยอดที่ต้องโอนหลังหัก ณ ที่จ่าย ' + baht(q.netReceive) + '</p>' : '') +
+      (q.validUntil && q.state !== 'accepted' ? '<p class="po-note">ยืนราคาถึง ' + thaiDate(q.validUntil) + '</p>' : '') +
+      (q.state === 'accepted'
+        ? '<p class="po-ok">ยืนยันรับใบเสนอราคาแล้ว' + (q.acceptedAt ? ' เมื่อ ' + thaiDate(q.acceptedAt) : '') + '</p>'
+        : o.canAcceptQuote ? acceptFormHtml()
+          : '<p class="po-note">ทีมงานจะแจ้งเมื่อใบเสนอราคาพร้อมให้ยืนยัน</p>') +
     '</div>';
+  }
+
+  function acceptFormHtml() {
+    return '<form id="po-acc" style="margin-top:12px">' +
+      '<label class="po-f" for="po-acc-name"><span>ชื่อผู้ยืนยัน</span><input id="po-acc-name" maxlength="200" autocomplete="name"></label>' +
+      '<label class="po-f" for="po-acc-note"><span>ข้อความถึงทีมงาน (ถ้ามี)</span><input id="po-acc-note" maxlength="500"></label>' +
+      '<label class="po-chk" for="po-acc-pdpa"><input id="po-acc-pdpa" type="checkbox"> ' +
+        'ยินยอมให้บันทึกชื่อ เวลา และหมายเลขไอพีไว้เป็นหลักฐานการยืนยันนี้ ' +
+        '(<a href="privacy.html" target="_blank" rel="noopener">นโยบายความเป็นส่วนตัว</a>)</label>' +
+      '<button type="submit" class="po-btn is-primary" id="po-acc-go">ยืนยันรับใบเสนอราคา</button>' +
+      '<p class="po-note">การกดยืนยันเป็นการบันทึกการตกลงราคาตามใบเสนอราคานี้ ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์ ' +
+        'หลังยืนยันแล้วระบบจะออกใบแจ้งหนี้และแสดงยอดที่ต้องชำระด้านล่าง</p>' +
+      '<p class="po-msg" id="po-acc-msg" role="status" aria-live="polite"></p>' +
+    '</form>';
+  }
+
+  function paymentHtml(o) {
+    var p = o.payment;
+    if (!p) return '';
+    var b = p.bank || {};
+    var rows = (p.installments || []).map(function (x) {
+      return '<li><b>' + esc(x.label) + '</b> ' + baht(x.due) +
+        (x.paid ? ' <span class="po-tag is-paid">ชำระแล้ว</span>' : '') + '</li>';
+    }).join('');
+    var bank = b.bankAcctNo
+      ? '<p class="po-note">หรือโอนเข้าบัญชี ' + esc(b.bankName) + ' เลขที่ <b class="po-acct">' + esc(b.bankAcctNo) + '</b><br>' +
+        'ชื่อบัญชี ' + esc(b.bankAcctName) + (b.bankBranch ? ' · สาขา ' + esc(b.bankBranch) : '') + '</p>'
+      : '';
+    var due = p.settled
+      ? '<p class="po-ok">ชำระครบแล้ว ขอบคุณครับ</p>'
+      : (p.next ? '<p class="po-note" style="margin-top:12px">ยอดที่ต้องชำระตอนนี้ (' + esc(p.next.label) + ')</p>' +
+          '<p class="po-est po-due">' + baht(p.next.amount) + '</p>' : '') +
+        (b.promptPay ? '<div id="po-qr" class="po-qr"><p class="po-note">กำลังสร้าง QR พร้อมเพย์…</p></div>' : '') +
+        bank +
+        (p.slip && p.slip.waiting ? '<p class="po-wait">ได้รับสลิปแล้ว รอฝ่ายบัญชีตรวจและยืนยันรับเงิน</p>' : '') +
+        '<form id="po-slip" style="margin-top:12px">' +
+          '<label class="po-f" for="po-slip-file"><span>แนบสลิปโอนเงิน (PDF · JPG · PNG)</span>' +
+          '<input id="po-slip-file" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"></label>' +
+          '<button type="submit" class="po-btn is-gold" id="po-slip-go">ส่งสลิป</button>' +
+          '<p class="po-msg" id="po-slip-msg" role="status" aria-live="polite"></p>' +
+        '</form>';
+    return '<div class="po-card" id="po-pay"><h2>การชำระเงิน</h2>' +
+      '<p class="po-note" style="margin-top:0">ใบแจ้งหนี้เลขที่ ' + esc(p.invoiceNo) + ' · ยอดที่ต้องโอนทั้งหมด ' + baht(p.payable) +
+        (p.wht ? ' (หลังหัก ณ ที่จ่าย ' + baht(p.wht) + ')' : '') + '</p>' +
+      (rows ? '<ul class="po-list" style="margin-top:10px">' + rows + '</ul>' : '') +
+      due +
+      '<p class="po-note">' + esc(p.note || '') + '</p>' +
+    '</div>';
+  }
+
+  // QR ของยอดงวดถัดไป — เซิร์ฟเวอร์คิดยอดและสร้างรูปเอง หน้านี้แค่วางรูป
+  function loadQr() {
+    var box = el('po-qr');
+    var p = ORDER && ORDER.payment;
+    if (!box || !p || !p.next) return;
+    var key = [p.invoiceNo, p.next.n, p.next.amount].join('|');
+    if (QR && QR.key === key) { box.innerHTML = QR.html; return; }
+    fetch(API + base() + '/pay-qr' + tq())
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        var html = j && j.configured && j.dataUrl
+          ? '<img src="' + esc(j.dataUrl) + '" alt="QR พร้อมเพย์ ยอด ' + esc(baht(j.amount)) + '" width="220" height="220">' +
+            '<p class="po-note">สแกนจ่ายพร้อมเพย์ ' + esc(j.name || '') + ' · ' + baht(j.amount) + '</p>'
+          : '<p class="po-note">' + esc((j && j.reason) || 'ยังสร้าง QR ไม่ได้ — โอนเข้าบัญชีด้านล่างแทนได้') + '</p>';
+        QR = { key: key, html: html };
+        var now = el('po-qr');
+        if (now) now.innerHTML = html;
+      })
+      .catch(function () {
+        var now = el('po-qr');
+        if (now) now.innerHTML = '<p class="po-note">ติดต่อระบบไม่ได้ — โอนเข้าบัญชีด้านล่างแทนได้</p>';
+      });
   }
 
   function timelineHtml(o) {
@@ -174,13 +254,18 @@
 
   function render() {
     var o = ORDER;
+    // รอลูกค้าทำอะไรอยู่ (ยืนยันใบเสนอราคา / ชำระเงิน) = ยกการ์ดสองใบนี้ขึ้นบนสุด ไม่งั้นบนมือถือต้องเลื่อนผ่านทุกการ์ดก่อน
+    // ⚠️ ตัดสินจากช่องที่เซิร์ฟเวอร์ส่งมาเท่านั้น (canAcceptQuote · payment.settled) ไม่คิดสถานะเอง
+    var urgent = !!(o.canAcceptQuote || (o.payment && !o.payment.settled && o.status === 'payment_pending'));
+    var money = quoteHtml(o) + paymentHtml(o);
     el('po-root').innerHTML = headHtml(o) +
       '<div class="po-grid"><div>' +
-        packagesHtml(o) + docsHtml(o) + filesHtml(o) +
+        (urgent ? money : '') + packagesHtml(o) + docsHtml(o) + filesHtml(o) +
       '</div><div>' +
-        appointHtml(o) + quoteHtml(o) + timelineHtml(o) + contactHtml(o) +
+        (urgent ? '' : money) + appointHtml(o) + timelineHtml(o) + contactHtml(o) +
       '</div></div>' +
       '<div class="po-disc">' + esc(o.disclaimer || '') + '</div>';
+    loadQr();
   }
 
   /* ---------- เรียก API ---------- */
@@ -202,7 +287,8 @@
       .catch(function () { warn('ติดต่อระบบไม่ได้ในตอนนี้'); });
   }
 
-  function post(path, body, msgId, okText) {
+  // okId = ที่วางข้อความสำเร็จ เมื่อฟอร์มเดิมหายไปหลังวาดใหม่ (เช่นฟอร์มยืนยันใบเสนอราคา)
+  function post(path, body, msgId, okText, okId) {
     var msg = el(msgId);
     if (BUSY) return;
     BUSY = true;
@@ -223,7 +309,7 @@
         }
         ORDER = res.j.order;
         render();
-        var after = el(msgId);
+        var after = el(okId || msgId);
         if (after) { after.className = 'po-msg is-ok'; after.textContent = okText; }
       })
       .catch(function () {
@@ -263,6 +349,32 @@
       fd.append('kind', el('po-up-kind').value);
       for (var i = 0; i < input.files.length && i < 5; i++) fd.append('files', input.files[i]);
       post('/files', fd, 'po-up-msg', 'อัปโหลดเรียบร้อย ทีมงานได้รับเอกสารแล้ว');
+    } else if (ev.target && ev.target.id === 'po-acc') {
+      ev.preventDefault();
+      var ma = el('po-acc-msg');
+      if (!String(el('po-acc-name').value || '').trim()) {
+        if (ma) { ma.className = 'po-msg is-err'; ma.textContent = 'กรุณากรอกชื่อผู้ยืนยัน'; }
+        return;
+      }
+      if (!el('po-acc-pdpa').checked) {
+        if (ma) { ma.className = 'po-msg is-err'; ma.textContent = 'กรุณาติ๊กยินยอมก่อนกดยืนยัน'; }
+        return;
+      }
+      post('/accept-quote', {
+        name: el('po-acc-name').value, note: el('po-acc-note').value, pdpa: true
+      }, 'po-acc-msg', 'ยืนยันรับใบเสนอราคาแล้ว — ดูยอดที่ต้องชำระในการ์ด "การชำระเงิน"', 'po-move-msg');
+    } else if (ev.target && ev.target.id === 'po-slip') {
+      ev.preventDefault();
+      var sf = el('po-slip-file');
+      if (!sf || !sf.files || !sf.files.length) {
+        var ms = el('po-slip-msg');
+        if (ms) { ms.className = 'po-msg is-err'; ms.textContent = 'กรุณาเลือกไฟล์สลิปก่อน'; }
+        return;
+      }
+      var fds = new FormData();
+      fds.append('kind', 'slip');
+      fds.append('files', sf.files[0]);
+      post('/files', fds, 'po-slip-msg', 'ส่งสลิปแล้ว รอฝ่ายบัญชีตรวจและยืนยันรับเงิน');
     } else if (ev.target && ev.target.id === 'po-ap') {
       ev.preventDefault();
       post('/appointment', {

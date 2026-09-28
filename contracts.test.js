@@ -697,6 +697,23 @@ console.log('\nแพ็กเกจบริการ (รอบ 4) — package
     check('robots.txt กันหน้าติดตามใบสั่งงาน', /Disallow: \/package-order\.html/.test(read(path.join(WEB, 'robots.txt'))));
     check('⭐ ไม่เก็บตั๋วลง localStorage', !/localStorage\s*\./.test(orderJs) && !/localStorage\s*\./.test(pkgJs));
 
+    // ---------- รับชำระแพ็กเกจ (รอบ 2 หน้าเว็บ) ----------
+    const hasAccept = /'\/api\/public\/package-order\/:id\/accept-quote'/.test(server);
+    if (!hasAccept) {
+      console.log('  ข้าม — เซิร์ฟเวอร์ยังไม่มีเส้นทางรับชำระแพ็กเกจ (deploy ระบบก่อนเว็บเสมอ)');
+    } else {
+      check('เซิร์ฟเวอร์มีเส้นทางยืนยันใบเสนอราคาและ QR ของใบสั่งงาน',
+        /'\/api\/public\/package-order\/:id\/pay-qr'/.test(server));
+      check('⭐⭐ หน้าลูกค้าเรียกยืนยันผ่าน /accept-quote และ QR ผ่าน /pay-qr', /'\/accept-quote'/.test(orderJs) && /'\/pay-qr'/.test(orderJs));
+      check('⭐⭐ ปุ่มยืนยันโผล่ตาม order.canAcceptQuote ของเซิร์ฟเวอร์', /o\.canAcceptQuote/.test(orderJs));
+      check('⭐⭐ หน้าลูกค้าไม่สร้าง QR พร้อมเพย์เอง (ไม่มี payload/CRC ในหน้าเว็บ)', !/A000000677010111|6304|crc/i.test(orderJs));
+      check('⭐ บอกลูกค้าว่าการกดยืนยันไม่ใช่ลายเซ็นอิเล็กทรอนิกส์', /ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์/.test(orderJs));
+      check('⭐ ต้องติ๊กยินยอมก่อนยืนยัน และมีลิงก์นโยบายความเป็นส่วนตัว', /po-acc-pdpa/.test(orderJs) && /privacy\.html/.test(orderJs));
+      check('⭐ สลิปส่งเป็นชนิด slip และบอกว่ารอฝ่ายบัญชีตรวจ (สลิปไม่ใช่เงิน)',
+        /append\('kind', 'slip'\)/.test(orderJs) && /รอฝ่ายบัญชี/.test(orderJs));
+      check('⭐ หน้าลูกค้าไม่บวกลบยอดเงินเอง', !/amount\s*[-+*]\s*|[-+*]\s*[a-z.]*amount\b/i.test(orderJs.replace(/\/\*[\s\S]*?\*\//g, '')));
+    }
+
     // ---------- ทางเข้าหน้าแพ็กเกจ ----------
     check('หน้าแพ็กเกจอยู่ในแผนผังเว็บ', /packages\.html/.test(read(path.join(WEB, 'sitemap.xml'))));
     check('หน้าแรกมีทางเข้าหน้าแพ็กเกจ', /href="packages\.html"/.test(indexHtml));
