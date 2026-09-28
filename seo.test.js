@@ -93,8 +93,9 @@ console.log('\n4) ⭐ ห้ามอ้างว่ารังวัดแล�
 PROPS.forEach(f => {
   const s = read(f);
   const id = idOf(f);
-  const claimsSurvey = /ตรวจเชิงลึกแล้ว — มีผลรังวัดยืนยันแนวเขต/.test(s);
-  const saysBasic = /ข้อมูลเบื้องต้น — ยังไม่ได้รังวัดยืนยันแนวเขต/.test(s);
+  // คำบนแถว "ระดับข้อมูล" ตามป้ายใหม่ "✓ ตรวจสอบโดย NJ" (เจ้าของกิจการเลือก 28 ก.ย. 2569) — ต้องตรงกับ build/properties.js
+  const claimsSurvey = /ตรวจสอบโดย NJ แล้ว — ดูผลตรวจรายหัวข้อในหน้านี้/.test(s);
+  const saysBasic = /ข้อมูลเบื้องต้น — ยังไม่ผ่านการตรวจสอบโดย NJ/.test(s);
   ok(id + ': บอกระดับข้อมูลไว้ชัดเจนข้างเดียว', claimsSurvey !== saysBasic);
 });
 
