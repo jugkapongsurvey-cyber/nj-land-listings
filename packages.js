@@ -359,7 +359,7 @@
       '<label class="pk-f" for="pk-l-note"><span>ข้อความถึงทีมงาน</span><textarea id="pk-l-note" rows="2" maxlength="2000" placeholder="เช่น สะดวกให้ติดต่อช่วงเย็น หรือรายละเอียดทรัพย์เพิ่มเติม"></textarea></label>' +
       '<input type="text" id="pk-l-hp" class="pk-hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
       '<label class="pk-pdpa" for="pk-l-pdpa"><input type="checkbox" id="pk-l-pdpa">' +
-        '<span>ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด เก็บและใช้ข้อมูลนี้เพื่อเสนอบริการและติดต่อกลับเท่านั้น และขอให้ลบเมื่อไรก็ได้</span></label>' +
+        '<span>ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด เก็บและใช้ข้อมูลนี้เพื่อเสนอบริการและติดต่อกลับเท่านั้น และขอให้ลบเมื่อไรก็ได้ · <a href="privacy.html" target="_blank" rel="noopener">อ่านนโยบายความเป็นส่วนตัว</a></span></label>' +
       '<button type="submit" class="pk-btn is-primary" id="pk-l-send" disabled>ส่งให้เจ้าหน้าที่</button>' +
       '<p class="pk-msg" id="pk-l-msg" role="status" aria-live="polite"></p>' +
       '<p class="pk-hint" style="margin-top:8px">หรือทักไลน์ <a href="' + LINE_URL + '" target="_blank" rel="noopener" data-contact="line">@716lffzt</a> · โทร <a href="tel:021620405" data-contact="tel">' + TEL + '</a></p>' +

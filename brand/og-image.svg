@@ -24,11 +24,11 @@
   </g>
   <text x="330" y="252" font-size="96" font-weight="700" fill="#FFFFFF">ที่ดินชัวร์</text>
   <text x="334" y="300" font-size="26" font-weight="600" fill="#7FA8DE" letter-spacing="5">NJ TEEDINSURE</text>
-  <text x="330" y="368" font-size="34" fill="#DCE7F6">ที่ดินทุกแปลง ผ่านการรังวัดยืนยันแล้ว</text>
+  <text x="330" y="368" font-size="34" fill="#DCE7F6">ซื้อ-ขายที่ดิน พร้อมทีมตรวจสอบก่อนตัดสินใจ</text>
   <g transform="translate(330,400)">
-    <rect x="0" y="0" width="330" height="52" rx="26" fill="#16A34A"/>
+    <rect x="0" y="0" width="360" height="52" rx="26" fill="#16A34A"/>
     <path d="M28 26 l9 10 18-21" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="70" y="35" font-size="24" font-weight="700" fill="#FFFFFF">รังวัดโดยช่างมีใบอนุญาต</text>
+    <text x="70" y="35" font-size="24" font-weight="700" fill="#FFFFFF">ช่างรังวัดเอกชนมีใบอนุญาต</text>
   </g>
   <text x="96" y="574" font-size="22" fill="#8FB0DC">โดย บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</text>
 </svg>
