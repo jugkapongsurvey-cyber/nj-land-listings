@@ -135,7 +135,7 @@
       if (p.note) bits.push(esc(p.note));
       if (p.photo) bits.push('มีรูปหมุด');
       return '<button type="button" class="njp-pin" data-i="' + i + '"' +
-        (p.photo ? ' data-photo="' + esc(p.photo) + '"' : '') + '>' +
+        (p.photo && /^(https?:[/][/]|[/](?![/]))/i.test(p.photo) ? ' data-photo="' + esc(p.photo) + '"' : '') + '>' +
         '<b>' + esc(p.p) + '</b>' +
         '<span>' + (bits.length ? bits.join(' · ') : 'ไม่มีหมายเหตุจากช่างรังวัด') + '</span>' +
       '</button>';
