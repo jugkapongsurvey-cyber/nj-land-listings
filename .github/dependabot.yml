@@ -1,0 +1,8 @@
+# Dependabot — เว็บนี้ไม่มี npm dependencies (static ล้วน) จึงเฝ้าแค่ GitHub Actions ที่ใช้ใน workflows/*.yml
+# (ตรวจอิสระ 28 ก.ย. 2569) · "Dependabot alerts" ต้องเปิดเองที่ Settings → Code security (เจ้าของ repo)
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
