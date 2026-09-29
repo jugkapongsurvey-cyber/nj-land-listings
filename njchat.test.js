@@ -137,6 +137,102 @@ console.log('\n4) ตัวจ่ายงาน (route) — ตอบเอง�
   const lk2 = await html('https://www.bam.co.th/property/ABC123');
   check('โหลด agencies.js แล้ว → บอกชื่อหน่วยงาน', /BAM/.test(lk2), lk2);
   check('คำว่า "ลิงก์" เฉยๆ ไม่เข้ากฎนี้', !/agency\.html/.test(String(await html('ส่งลิงก์ให้ได้ไหม'))));
+
+  // ==========================================================================
+  // ชุดความรู้รอบ 30 ก.ย. 2569 — น้องต้องตอบได้ทุกเรื่องที่ระบบ/เว็บมีจริง
+  console.log('\n9) ครอบคลุมทุกระบบ — คำถามลูกค้า → ตอบเองจากกฎ (ไม่ต้องรอ AI)');
+  C._reset();
+  const NEW_KEYS = ['surveyOpt', 'consignMore', 'sellerAccount', 'verifiedLevels', 'toolsAll', 'loan', 'areaTool', 'assess', 'priceAnalysis', 'sample',
+    'checklist', 'payment', 'orderTrack', 'partners', 'partnerApply', 'journal', 'news', 'guides', 'videos', 'inspect', 'room', 'deal', 'purpose',
+    'saveCompare', 'listingDetail', 'agency', 'privacy', 'terms', 'wantedMore'];
+  check('KB ชุดใหม่ครบ ' + NEW_KEYS.length + ' หัวข้อ', NEW_KEYS.every(k => typeof C.KB[k] === 'string' && C.KB[k].length > 60), NEW_KEYS.filter(k => !C.KB[k]).join(','));
+  // ⛔ ไม่มีตัวเลขเงิน (ราคาแพ็กเกจ/ค่าโอน/ค่ารังวัด) ในข้อความตายตัว — ตัวเลขมาจาก API และเครื่องคำนวณเท่านั้น
+  check('⛔ ข้อความชุดใหม่ไม่มีจำนวนเงินบาท/฿', NEW_KEYS.every(k => !/฿|\d[\d,]*\s*บาท/.test(C.KB[k])), NEW_KEYS.filter(k => /฿|\d[\d,]*\s*บาท/.test(C.KB[k])).join(','));
+  check('⛔ ข้อความชุดใหม่ไม่มีเบอร์โทรอื่นนอกจากของบริษัท', NEW_KEYS.every(k => (C.KB[k].match(/0\d{1,2}[- ]?\d{3}[- ]?\d{4}/g) || []).every(t => /021620405|0849158601/.test(t.replace(/\D/g, '')))));
+  let badPromise = [];
+  NEW_KEYS.forEach(k => { const t = C.KB[k].replace(/หนังสือรับรอง/g, 'หนังสือ…').replace(/ที่กรมที่ดินรับรอง/g, 'ที่…'); const re = /(รับรอง|รับประกัน|การันตี)/g; let m; while ((m = re.exec(t))) { if (t.slice(Math.max(0, m.index - 10), m.index).indexOf('ไม่') < 0) badPromise.push(k + ':' + t.slice(Math.max(0, m.index - 10), m.index + 14)); } });
+  check('⛔ คำรับปาก (รับรอง/รับประกัน/การันตี) โผล่ได้เฉพาะในประโยคปฏิเสธ', badPromise.length === 0, badPromise.join(' | '));
+
+  const cases = [
+    ['ฝากขายต้องรังวัดไหม', /ไม่บังคับ/], ['รังวัดแบบไม่เป็นทางการ ลดเท่าไหร่', /50%/], ['ที่ดินยังไม่รังวัดขายได้ไหม', /ข้อมูลเบื้องต้น/],
+    ['ที่ดินติดจำนองฝากขายได้ไหม', /จำนอง/], ['ยกเลิกฝากขายได้ไหม', /ถอนประกาศ|ยกเลิก/], ['ฝากขายกับที่ดินชัวร์ไม่ผูกขาดใช่ไหม', /ไม่ผูกขาด|ไม่ผูก/],
+    ['ระดับการตรวจสอบมีกี่ระดับ', /5 ระดับ/], ['ป้ายเหลือง คืออะไร', /ข้อมูลเบื้องต้น/], ['ที่ตาบอดขึ้นสีอะไร', null],
+    ['เช็กลิสต์ก่อนซื้อ', /16 ข้อ/], ['ก่อนซื้อที่ดินต้องตรวจอะไรบ้าง', /checklist\.html/],
+    ['ค่างวดสินเชื่อผ่อนบ้านคำนวณยังไง', /tools\.html#loan/], ['วัดพื้นที่ที่ดินจากแผนที่', /LandsMaps/], ['แบบประเมินความพร้อมขาย', /tools\.html#assess/],
+    ['ช่วยตั้งราคาขายให้หน่อย', /tools\.html#price/], ['ขอตัวอย่างรายงาน', /tools\.html#sample/],
+    ['ยืนยันใบเสนอราคาแล้วต้องจ่ายยังไง', /ไม่ใช่ลายเซ็นอิเล็กทรอนิกส์/], ['ส่งสลิปตรงไหน', /สลิป/], ['เลขบัญชีบริษัท', /บัญชีบริษัท/],
+    ['ติดตามใบสั่งงานยังไง', /ห้ามส่งต่อ/], ['ลืมรหัสผ่านเจ้าของทรัพย์', /ทีมงานจะโทรหรือทักไลน์/],
+    ['ลืมรหัสเข้าระบบติดตามงานรังวัด', /portal\.html/], ['สมัครเป็นพันธมิตร', /partner-apply\.html/],
+    ['ขออนุญาตก่อสร้างมีบริการไหม', /ค่าแนะนำ/], ['ค่าแนะนำจากพันธมิตรบวกในราคาไหม', /ไม่บวกเพิ่ม/],
+    ['ทรัพย์ bam ตรวจให้ได้ไหม', /agency\.html/], ['ห้องข้อมูลแปลงคืออะไร', /room\.html/], ['เส้นทางการซื้อมีกี่ขั้น', /11 ขั้น/],
+    ['ขอนัดตรวจแปลงก่อนซื้อ', /inspect\.html/], ['มีวิดีโออะไรบ้าง', /videos\.html/], ['สมัครรับข่าวสาร', /ยกเลิกได้/],
+    ['ข้อมูลส่วนบุคคล PDPA', /privacy\.html/], ['ข้อกำหนดการใช้งานเว็บ', /terms\.html/], ['ฝากหาที่ดินฟรีไหม', /wanted\.html/],
+    ['เครื่องมือคำนวณฟรีมีอะไรบ้าง', /tools\.html/], ['บันทึกแปลงไว้ดูทีหลังได้ไหม', /บันทึก/], ['รายงานสุขภาพแปลงคืออะไร', /สุขภาพแปลง|แผนที่แนวเขต/]
+  ];
+  for (const [q, re] of cases) {
+    if (!re) continue;
+    C._reset();
+    const h = await html(q);
+    check('«' + q + '» → ตอบเอง', h !== null && re.test(h), h === null ? '(ไม่เข้ากฎ — ไป AI)' : h.slice(0, 200));
+  }
+
+  console.log('\n10) เรื่องเดิมต้องไม่ถูกแย่ง (คำที่ซ้อนกัน: ใบเสนอราคา · นายหน้า · เทียบ · ค่าโอน · ลืมรหัส)');
+  C._reset();
+  check('ค่ารังวัดยังเป็นเรื่องรังวัด ไม่ถูกดูดไปเครื่องมือวัดพื้นที่', !/LandsMaps/.test(await html('ค่ารังวัดสอบเขต 2 ไร่ เท่าไหร่')));
+  check('ค่าโอนที่ดิน → ค่าโอน ไม่ใช่การชำระเงินแพ็กเกจ', /guides\.html#calc/.test(await html('ค่าโอนที่ดินต้องจ่ายเงินเท่าไหร่')));
+  check('อยากขายที่ดิน → ฝากขาย (ค่านายหน้า)', /ค่านายหน้า/.test(await html('อยากขายที่ดิน')));
+  check('ขอใบเสนอราคาจริง ยังส่งต่อไลน์ ไม่ใช่การชำระเงิน', /line\.me/.test(await html('ขอใบเสนอราคาจริง')));
+  check('ทำไมต้องรังวัดก่อนซื้อ → เหตุผลรังวัด ไม่ใช่ตัวเลือกรังวัดตอนฝากขาย', /คลาดเคลื่อน/.test(await html('ทำไมต้องรังวัดก่อนซื้อ')));
+  check('ผังสีเหลืองคืออะไร → คู่มือผังสี', /tools\.html#zoning/.test(await html('ผังสีเหลืองคืออะไร')));
+  check('ตรวจทรัพย์ขายทอดตลาด → verify.html (ไม่ถูกกฎใหม่แย่ง)', /verify\.html/.test(await html('ทรัพย์ขายทอดตลาด ตรวจให้ได้ไหม')));
+  C._reset();
+  check('มีที่ดินในสมุทรปราการไหม → ยังเป็นโหมดค้นแปลง', !!(await C.route('มีที่ดินในสมุทรปราการไหม')).cards);
+  check('ขั้นตอนโอนกรรมสิทธิ์ → ยังตอบเรื่องวันโอน', /สำนักงานที่ดิน/.test(await html('ขั้นตอนโอนกรรมสิทธิ์')));
+  check('น้ำท่วมไหมช่วงหน้าฝน → ยังไป AI (ไม่เข้ากฎใหม่)', (await C.route('น้ำท่วมไหมช่วงหน้าฝน')) === null);
+  check('ค่าเดินทางต่างจังหวัด → ยังเป็นพื้นที่ให้บริการ', /ทั่วประเทศ/.test(await html('ต่างจังหวัดรับไหม')));
+
+  console.log('\n11) ชิปทุกใบต้องกดแล้วมีคำตอบ (ชิปที่ตอบไม่ได้ = ปุ่มที่ทำให้ลูกค้าเจอทางตัน)');
+  const chipSet = {};
+  C.HOME_CHIPS.forEach(c => { chipSet[c] = 1; });
+  for (const [q] of cases) { C._reset(); const r = await C.route(q); if (r && r.chips) r.chips.forEach(c => { chipSet[c] = 1; }); }
+  const chipList = Object.keys(chipSet);
+  let deadChips = [];
+  for (const c of chipList) { C._reset(); const r = await C.route(c); if (r === null) deadChips.push(c); }
+  check('ชิป ' + chipList.length + ' ใบ ทุกใบมีคำตอบ ไม่ตกไป AI', deadChips.length === 0, deadChips.join(' | '));
+  check('หน้าแรกโชว์ชิปเรื่องใหม่ (แพ็กเกจ · ระดับตรวจสอบ · เครื่องมือ)', /แพ็กเกจ/.test(C.HOME_CHIPS.join('|')) && /ระดับการตรวจสอบ/.test(C.HOME_CHIPS.join('|')) && /เครื่องมือ/.test(C.HOME_CHIPS.join('|')));
+
+  console.log('\n12) แพ็กเกจ — ราคา/ชื่อมาจาก API เท่านั้น (โหลดไม่ได้ = ไม่บอกตัวเลข)');
+  C._reset();
+  w.fetch = function () { return Promise.reject(new Error('no net')); };
+  const pf = await html('แพ็กเกจบริการมีอะไรบ้าง');
+  check('API ล่ม → ไม่มีตัวเลขเงินสักตัว + ชี้หน้าแพ็กเกจ + ไม่เดา', !/฿|\d\s*บาท/.test(pf) && /packages\.html/.test(pf) && /ไม่อยากเดา/.test(pf), pf);
+  const PK = { packages: [
+    { key: 'owner_scan', name: 'ประเมินเบื้องต้นฟรี', group: 'owner', subtitle: 'ให้ทีมดูข้อมูลเบื้องต้น', priceMode: 'range', priceFrom: 0, priceTo: 990, priceUnit: 'job', durationText: '2-3 วันทำการ', included: ['ตรวจเอกสารสิทธิ์เบื้องต้น', 'สรุปผลให้'], excluded: ['งานรังวัด'] },
+    { key: 'owner_verified', name: 'Verified Property', group: 'owner', priceMode: 'from', priceFrom: 29900, priceUnit: 'job', included: ['ตรวจเอกสาร'], excluded: [] },
+    { key: 'inv_corp', name: 'Corporate Subscription', group: 'investor', priceMode: 'quote', priceFrom: null, included: [], excluded: [] },
+    { key: 'addon_x', name: 'บริการเสริมตัวอย่าง', group: 'addon', priceMode: 'fixed', priceFrom: 5000, priceUnit: 'job', included: [], excluded: [] }
+  ], config: { groups: [{ key: 'owner', th: 'สำหรับเจ้าของทรัพย์' }, { key: 'investor', th: 'นักลงทุนและผู้พัฒนาโครงการ' }, { key: 'addon', th: 'บริการเสริม' }] } };
+  let pkFetches = 0;
+  w.fetch = function (u) { pkFetches++; return Promise.resolve({ ok: true, json: () => Promise.resolve(PK) }); };
+  const pa = await html('แพ็กเกจบริการมีอะไรบ้าง');
+  check('รายการแพ็กเกจ → ชื่อครบจาก API + ราคา (0 = "ฟรี" ไม่ใช่ ฿0 · quote = ขอใบเสนอราคา)', /ประเมินเบื้องต้นฟรี — ฟรี – ฿990/.test(pa) && /Verified Property — เริ่มต้น ฿29,900/.test(pa) && /Corporate Subscription — ขอใบเสนอราคา/.test(pa) && !/฿0/.test(pa), pa);
+  check('มีข้อความกำกับ: ประมาณการ + ไม่ใช่การรับประกัน + ลิงก์ packages.html', /ราคาเป็นประมาณการ/.test(pa) && /ไม่ใช่การรับประกัน/.test(pa) && /packages\.html/.test(pa));
+  check('ถามเฉพาะกลุ่มเจ้าของทรัพย์ → ไม่โผล่กลุ่มอื่น', !/Corporate Subscription/.test(await html('แพ็กเกจสำหรับเจ้าของทรัพย์มีอะไรบ้าง')) && /Verified Property/.test(await html('แพ็กเกจสำหรับเจ้าของทรัพย์มีอะไรบ้าง')));
+  const pd = await html('Verified Property ราคาเท่าไหร่ แพ็กเกจนี้');
+  check('ถามชื่อแพ็กเกจ → รายละเอียดใบนั้น', /Verified Property/.test(pd) && /เริ่มต้น ฿29,900/.test(pd) && !/Corporate Subscription/.test(pd), pd);
+  const before = pkFetches; await html('แพ็กเกจมีอะไรบ้าง'); await html('แพ็กเกจมีอะไรบ้าง');
+  check('แคชผลจาก API (ไม่ยิงซ้ำทุกคำถาม)', pkFetches === before, pkFetches - before);
+
+  console.log('\n13) วารสาร — ฉบับล่าสุดจาก API (slug ตรวจรูปแบบก่อนทำลิงก์)');
+  C._reset();
+  w.fetch = function () { return Promise.resolve({ ok: true, json: () => Promise.resolve([{ slug: '2026-w40', title: 'ฉบับที่ 2 ทดสอบ', issue_no: 2 }, { slug: '../evil"><script>', title: 'ไม่ควรเป็นลิงก์' }]) }); };
+  const jr = await html('มีวารสารอะไรให้อ่านบ้าง');
+  check('วารสาร → ลิงก์ฉบับล่าสุด journal/<slug>/ · slug แปลกไม่ถูกทำเป็นลิงก์', /journal\/2026-w40\//.test(jr) && !/evil/.test(jr) && !/<script/.test(jr), jr);
+  w.fetch = function () { return Promise.reject(new Error('no net')); };
+  const jr2 = await html('มีวารสารไหม');
+  check('ดึงวารสารไม่ได้ → ตอบแบบไม่ระบุฉบับ + ลิงก์หน้าวารสาร', /journal\.html/.test(jr2) && /ทุกสัปดาห์/.test(jr2), jr2);
+  w.fetch = function () { return Promise.reject(new Error('no net')); };
+
   console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
