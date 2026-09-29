@@ -239,7 +239,7 @@ function buildConsentBar() {
     //    ข้อความยาวขึ้นทุกบรรทัด = พื้นที่อ่านเนื้อหาหายไปอีกหนึ่งบรรทัดบนมือถือ
     //    คุกกี้ที่จำเป็นไม่ต้องขอความยินยอมอยู่แล้ว รายละเอียดทั้งหมดอยู่ในหน้านโยบาย
     '<div class="nj-consent-text">เราใช้คุกกี้การตลาดเพื่อวัดผลโฆษณา — เลือก "เฉพาะที่จำเป็น" ก็ใช้งานเว็บได้ครบ ' +
-    '<a class="nj-consent-more" href="cookie.html">ตั้งค่าคุกกี้</a></div>' +
+    '<a class="nj-consent-more" href="/cookie.html">ตั้งค่าคุกกี้</a></div>' +
     '<div class="nj-consent-btns">' +
       '<button type="button" class="nj-consent-no">เฉพาะที่จำเป็น</button>' +
       '<button type="button" class="nj-consent-yes">ยอมรับทั้งหมด</button>' +

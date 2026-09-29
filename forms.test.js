@@ -54,7 +54,7 @@ console.log('\n3) ⭐ attrib.js ต้องโหลดทุกหน้า �
 // บันทึกว่าทุกคน "มาจากในเว็บเราเอง" ซึ่งไร้ประโยชน์ทั้งหมด
 // `__fresh_*.html` คือสำเนาชั่วคราวที่สร้างตอนทดสอบด้วยมือ (เติม ?cb= กันแคช) ไม่ใช่หน้าจริง
 const pages = fs.readdirSync(__dirname).filter(f => f.endsWith('.html') && !f.startsWith('__'));
-const noAttrib = pages.filter(f => read(f).indexOf('src="attrib.js"') < 0);
+const noAttrib = pages.filter(f => !/src="\/?attrib\.js"/.test(read(f)));   // 404.html ใช้ /attrib.js
 ok('ทุกหน้า (' + pages.length + ' หน้า) โหลด attrib.js', noAttrib.length === 0, noAttrib.join(', '));
 // ⚠️ เช็กว่า attrib.js อยู่ใน CORE_JS ไม่ใช่ล็อกทั้งบรรทัด — CORE_JS มีไฟล์อื่นร่วมได้
 //    (fontcss.js ถูกเพิ่มเข้ามาตอนแก้ performance 22 ก.ย. 69) แต่ attrib.js ต้องอยู่เสมอ

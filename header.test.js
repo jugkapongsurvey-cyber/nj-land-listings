@@ -46,7 +46,7 @@ ok('⭐ หัวเว็บเป็นลูกตัวแรกของ <b
 function navLinks(src) {
   const m = src.match(/<nav class="njh-nav"[\s\S]*?<\/nav>/);
   if (!m) return null;
-  return [...m[0].matchAll(/<a[^>]*href="([^"]*)"/g)].map(x => x[1]).join(' ');
+  return [...m[0].matchAll(/<a[^>]*href="([^"]*)"/g)].map(x => x[1].replace(/^\//, '')).join(' ');   // 404.html ใช้ /… (ข้อ 12)
 }
 const sigs = {};
 pages.forEach(f => { const s = navLinks(html[f]); (sigs[s] = sigs[s] || []).push(f); });
@@ -122,7 +122,7 @@ ok('อ่าน CORE_CSS จาก build/pages.js ได้', CORE.length >= 3,
 ok('⭐ fonts.css มาก่อนเสมอ (เป็น @font-face ที่เสิร์ฟเอง ต้องประกาศก่อนไฟล์ที่ใช้ฟอนต์)',
    CORE[0] === 'fonts.css', CORE.join(', '));
 pages.forEach(f => {
-  const links = [...html[f].matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]*)"/g)].map(x => x[1]);
+  const links = [...html[f].matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]*)"/g)].map(x => x[1].replace(/^\//, ''));
   const localFirst = links.filter(h => !/^https?:/.test(h)).slice(0, CORE.length);
   ok(f + ' โหลดสไตล์ชีตกลางเป็นชุดแรก',
      CORE.every((c, i) => localFirst[i] === c), localFirst.join(', '));
@@ -199,7 +199,7 @@ ok('ไม่มี Trirong / Sarabun เหลืออยู่ที่ไห
 const fams = new Set([...read('fonts.css').matchAll(/font-family:\s*'([^']+)'/g)].map(m => m[1]));
 ok('⭐ fonts.css ประกาศตระกูลฟอนต์เดียว', fams.size === 1, [...fams].join(' | '));
 ok('ชุดฟอนต์คือ IBM Plex Sans Thai', [...fams][0] === 'IBM Plex Sans Thai', [...fams][0]);
-const noFontCss = pages.filter(f => read(f).indexOf("href=\"fonts.css\"") < 0);
+const noFontCss = pages.filter(f => !/href="\/?fonts\.css"/.test(read(f)));
 ok('ทุกหน้าลิงก์ fonts.css', noFontCss.length === 0, noFontCss.join(', '));
 
 console.log('\n9) หัวเว็บ — กติกาที่ห้ามผ่อน');
@@ -239,6 +239,13 @@ ok('⭐ ไม่มีรหัสสีดิบในคอมโพเนน
 ok('ปุ่มสูงไม่ต่ำกว่า 44px', /\.nj-btn\s*{[^}]*min-height:\s*44px/.test(ccss));
 ok('ช่องกรอกตัวอักษรไม่ต่ำกว่า 16px (กัน iOS ซูมเอง)', /font-size:\s*16px/.test(ccss));
 ok('เคารพ prefers-reduced-motion', /prefers-reduced-motion/.test(ccss));
+
+console.log('\n12) หน้า 404 ใช้ที่อยู่แบบเต็มจากรากทั้งหมด');
+// GitHub Pages เสิร์ฟ 404.html ที่ที่อยู่ที่คนเปิดมา — เปิด /journal/<slug>/ ที่ไม่มีอยู่แล้ว
+// ที่อยู่แบบย่อ (tokens.css) กลายเป็น /journal/<slug>/tokens.css → หน้าไม่มีสไตล์ (เจอจริง 29 ก.ย. 2569)
+const rel404 = (html['404.html'].match(/\s(?:href|src)="(?!https?:|\/\/|#|mailto:|tel:|data:|\/)[^"]+"/g) || []);
+ok('⭐ 404.html ไม่มี href/src แบบย่อ', rel404.length === 0, rel404.slice(0, 3).join(' '));
+ok('แถบคุกกี้ลิงก์ไป /cookie.html (ใช้ได้ทุกโฟลเดอร์)', read('analytics.js').includes('href="/cookie.html"'));
 
 console.log('\n' + (fail ? '❌' : '✅') + ' header: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
