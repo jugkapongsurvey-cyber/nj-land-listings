@@ -62,7 +62,17 @@
 
 /* ตัววารสาร — ⚠️ CSS ของวารสารถูกขังไว้ใต้ .jr-article ตอนสร้างหน้าแล้ว (build/journal.js scopeCss)
    ส่วนนี้แค่กันตาราง/รูป/ลิงก์ยาวไม่ให้ล้นจอ 375px */
-.jr-article{max-width:760px;margin:0 auto;min-width:0;overflow-wrap:anywhere}
+/* ⚠️ ใช้ break-word ไม่ใช่ anywhere — anywhere ทำให้ความกว้างขั้นต่ำของกล่อง flex เหลือตัวอักษรเดียว ข้อความจะเรียงลงเป็นแนวตั้ง */
+.jr-article{max-width:760px;margin:0 auto;min-width:0;overflow-wrap:break-word}
+/* จัดกลาง + กรอบการ์ด — body{margin:0} ของวารสารถูก scope เป็น .jr-article{margin:0} (มาทีหลังใน <style>)
+   ทับ margin:0 auto ข้างบน เนื้อหาจึงชิดซ้าย ต้องใช้ตัวเลือกที่แรงกว่า (29 ก.ย. 2569) */
+.jr-page .jr-article{margin:8px auto 0;border:1px solid var(--nj-border);border-radius:var(--nj-radius-lg);box-shadow:var(--nj-shadow-sm)}
+@media (max-width:791px){ .jr-page .jr-article{border-left:0;border-right:0;border-radius:0;box-shadow:none} }
+/* กันกฎ .eyebrow span ของ marketplace.css (วงกลม 23px แบบ display:grid) รั่วเข้าป้ายหมวด/เลขเรื่องของวารสาร
+   — ถ้าไม่กัน ป้าย "กรมที่ดิน / ..." กับ "เรื่องที่ 1/3" จะถูกบีบเป็นคอลัมน์ตัวอักษรทีละตัว */
+.jr-article .eyebrow{font-weight:var(--nj-fw-normal)}
+.jr-article .eyebrow span{display:inline-block;width:auto;height:auto;place-items:normal;line-height:1.6}
+.jr-article .eyebrow .num{background:none;border-radius:0;color:inherit;font-variant-numeric:tabular-nums}
 .jr-article img,.jr-article video,.jr-article iframe{max-width:100%;height:auto}
 .jr-article table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse}
 .jr-article pre{max-width:100%;overflow-x:auto;white-space:pre-wrap}

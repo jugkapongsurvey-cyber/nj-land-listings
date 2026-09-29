@@ -165,6 +165,11 @@ ok(!/innerHTML/.test(hj), 'journalhome.js ไม่ใช้ innerHTML (ข้�
 ok(/\/api\/journal\?limit=3/.test(hj), 'หน้าแรกดึง ?limit=3');
 ok(/sec\.hidden = true/.test(hj), 'ไม่มีฉบับ = ซ่อนบล็อก');
 ok(!/#[0-9A-Fa-f]{3,8}\b/.test(read('journal.css').replace(/\/\*[\s\S]*?\*\//g, '')), 'journal.css ไม่มีรหัสสีดิบ (ใช้ token)');
+// หน้าอ่านฉบับเต็มชิดซ้าย + ป้ายหมวดเรียงเป็นแนวตั้ง (เว็บจริงฉบับที่ 2 · 29 ก.ย. 2569)
+const jcss = read('journal.css').replace(/\/\*[\s\S]*?\*\//g, '');
+ok(/\.jr-page \.jr-article\{[^}]*margin:[^;}]*auto/.test(jcss), 'จัดกลางด้วยตัวเลือกที่แรงกว่า .jr-article{margin:0} ที่ได้จาก body{} ของวารสาร');
+ok(/\.jr-article \.eyebrow span\{[^}]*display:inline-block[^}]*width:auto/.test(jcss), 'กัน .eyebrow span (วงกลม 23px) ของ marketplace.css ไม่ให้รั่วเข้าวารสาร');
+ok(!/\.jr-article\{[^}]*overflow-wrap:anywhere/.test(jcss), '.jr-article ไม่ใช้ overflow-wrap:anywhere (บีบกล่อง flex เหลือตัวอักษรเดียว)');
 const tok = read('tokens.css');
 ['#0F5C3F', '#B8730A', '#F7F8F5'].forEach((c) => ok(tok.indexOf(c) >= 0, 'token สีวารสาร ' + c));
 ok(/Sitemap: https:\/\/njteedinsure\.com\/sitemaps\/journal\.xml/.test(read('robots.txt')), 'robots.txt ชี้แผนผังวารสาร');
