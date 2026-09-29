@@ -171,6 +171,15 @@ function headerHtml(file, NL) {
 // หนีอักขระพิเศษของ regex — ใช้กับเครื่องหมายเปิด/ปิดบล็อกที่มี `$`, `(`, `[` ปนอยู่
 function rx(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
+// ⚠️ **หน้า 404 ต้องใช้ที่อยู่ไฟล์แบบเต็มจากราก (/…) ทั้งหมด**
+//    GitHub Pages เสิร์ฟ 404.html ที่ "ที่อยู่ที่คนเปิดมา" ไม่ใช่ที่ราก — เปิด /journal/<slug>/ ที่ยังไม่มี
+//    แล้วเบราว์เซอร์ไปหา /journal/<slug>/tokens.css แทน → หน้าไม่มีสไตล์เลย เมนูกลายเป็นรายการหัวข้อ
+//    (เจอจริง 29 ก.ย. 2569 ตอนวารสารฉบับที่ 2 ยังไม่ถูกสร้าง) · กติกาเดียวกับ build/journal.js
+const ROOT_ABS = new Set(['404.html']);
+function absolutize(s) {
+  return s.replace(/(\s(?:href|src)=")(?!https?:|\/\/|#|mailto:|tel:|data:|\/)([^"]+)(")/g, (m, p1, p2, p3) => p1 + '/' + p2 + p3);
+}
+
 function cssHtml(NL) {
   return [CSS_START]
     .concat(PRECONNECT.map(u => '<link rel="preconnect" href="' + u + '" crossorigin>'))
@@ -195,9 +204,10 @@ function build() {
     let src = fs.readFileSync(full, 'utf8');
     const NL = src.includes('\r\n') ? '\r\n' : '\n';
     const before = src;
+    const fix = ROOT_ABS.has(file) ? absolutize : (s => s);
 
     // ---- 1) สไตล์ชีตกลาง ต้องเป็นชุดแรกใน <head> ----
-    const css = cssHtml(NL);
+    const css = fix(cssHtml(NL));
     if (src.includes(CSS_START)) {
       src = src.replace(new RegExp(CSS_START.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + CSS_END.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), css);
     } else {
@@ -208,7 +218,7 @@ function build() {
     }
 
     // ---- 1ข) สคริปต์กลาง ----
-    const js = jsHtml(NL);
+    const js = fix(jsHtml(NL));
     if (src.includes(JS_START)) {
       src = src.replace(new RegExp(rx(JS_START) + '[\\s\\S]*?' + rx(JS_END)), js);
     } else {
@@ -224,7 +234,7 @@ function build() {
     // · บรรพบุรุษที่มี `overflow` ไม่ใช่ `visible` ทำให้ `position:sticky` **ไม่ทำงานเลย**
     // · และต่อให้ทำงาน มันก็หนึบอยู่ได้แค่ในกรอบของ hero แล้วเลื่อนหายไปพร้อม hero
     // เจอจริงหลัง Sprint 1 — หัวเว็บบนหน้าแรกไม่หนึบทั้งที่ CSS ถูกต้อง
-    const head = headerHtml(file, NL);
+    const head = fix(headerHtml(file, NL));
     // ถอดของเก่าออกก่อน (ไม่ว่าจะอยู่ที่ไหน) แล้วค่อยวางใหม่ที่ตำแหน่งที่ถูกต้อง
     if (src.includes(START)) {
       src = src.replace(new RegExp('[ \\t]*' + START.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + END.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\r?\\n?'), '');

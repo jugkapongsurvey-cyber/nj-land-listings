@@ -173,7 +173,7 @@ check('⭐ แถบขอความยินยอมขึ้นมา', !!r
 check('⭐ ยังไม่โหลด Meta Pixel ก่อนได้รับความยินยอม', !r.pixelLoaded());
 check('มีปุ่มปฏิเสธ', !!r.bar().querySelector('.nj-consent-no'));
 check('มีปุ่มยอมรับ', !!r.bar().querySelector('.nj-consent-yes'));
-check('⭐ แถบมีลิงก์ไปนโยบายคุกกี้', !!r.bar().querySelector('a[href="cookie.html"]'),
+check('⭐ แถบมีลิงก์ไปนโยบายคุกกี้', !!r.bar().querySelector('a[href="/cookie.html"]'),
       r.bar().innerHTML.slice(0, 160));
 check('แถบประกาศตัวเองให้เครื่องอ่านหน้าจอรู้', r.bar().getAttribute('role') === 'region' &&
       !!r.bar().getAttribute('aria-label'));
@@ -255,7 +255,7 @@ check('⭐ ปุ่มปฏิเสธบอกว่าได้ "เฉพ�
       /เฉพาะที่จำเป็น/.test(btns), btns);
 // อ่านจาก innerHTML ไม่ใช่ textContent — ตัวอ่าน HTML แบบหยาบข้างบนทิ้งข้อความที่อยู่ก่อน <a>
 check('บอกว่าเลือกเฉพาะที่จำเป็นแล้วยังใช้เว็บได้ครบ', /ใช้งานเว็บได้ครบ/.test(r.bar().innerHTML));
-check('มีทางไปหน้าตั้งค่า/นโยบายคุกกี้', !!r.bar().querySelector('a[href="cookie.html"]'));
+check('มีทางไปหน้าตั้งค่า/นโยบายคุกกี้', !!r.bar().querySelector('a[href="/cookie.html"]'));
 // ⚠️ ยังมีของให้เลือกจริงหมวดเดียว (การตลาด) จึงตั้งใจไม่ทำแผงติ๊กหมวด — ดูเหตุผลใน CLAUDE.md
 check('ยังไม่มีแผงติ๊กหมวด (ตั้งใจ) จึงมีปุ่มแค่ 2 ปุ่ม',
       r.bar().querySelectorAll('button').length === 2);
