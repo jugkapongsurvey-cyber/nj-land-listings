@@ -168,7 +168,7 @@ if (NJP && NJP.computeQuote) {
 }
 
 
-console.log('\n7) ระลอก Teedin Sure Verified — บันได 5 ระดับ · รายงานสุขภาพแปลง · คำศัพท์ชุดกลาง');
+console.log('\n7) ระลอก Teedin Sure Verified — บันได 2 ระดับ · รายงานสุขภาพแปลง · คำศัพท์ชุดกลาง');
 {
   const lvPath = path.join(SRV, 'lib', 'landverify.js');
   if (!fs.existsSync(lvPath)) {
@@ -180,12 +180,12 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 5 ร
     const health = read(path.join(WEB, 'health.js'));
     const parcelmap = read(path.join(WEB, 'parcelmap.js'));
 
-    // 5 ระดับ ต้องตรงกันทั้งคีย์และ **ลำดับ** — ลำดับคือบันไดที่ผู้ซื้อเห็น สลับเมื่อไหร่ความหมายเปลี่ยนทันที
+    // 2 ระดับ (ตัดจาก 5 · 1 ต.ค. 2569) ต้องตรงกันทั้งคีย์และ **ลำดับ** — ลำดับคือบันไดที่ผู้ซื้อเห็น สลับเมื่อไหร่ความหมายเปลี่ยนทันที
     const srvLevels = listAfter(lv, 'const VERIFY_LEVELS');
     const webLevels = (verified.match(/\{ k: '([a-z]+)'/g) || []).map(s => s.slice(6, -1));
     check('ระดับตรงกันทั้งคีย์และลำดับ', same(srvLevels || [], webLevels),
       JSON.stringify(srvLevels) + ' vs ' + JSON.stringify(webLevels));
-    check('มีครบ 5 ระดับ', (srvLevels || []).length === 5, String((srvLevels || []).length));
+    check('มี 2 ระดับ (owner → transfer)', same(srvLevels || [], ['owner', 'transfer']), JSON.stringify(srvLevels));
 
     // สถานะที่เซิร์ฟเวอร์ส่งออกได้ ฝั่งเว็บต้องรู้จักครบ
     // ไม่รู้จักเมื่อไหร่ = ระดับที่ "พบประเด็น" จะถูกวาดเป็น "ยังไม่ได้ตรวจ" เงียบๆ ซึ่งเป็นการปิดบัง

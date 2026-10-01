@@ -40,7 +40,7 @@
   function landOf(x) { return x.land || {}; }
 
   /* ---------- ข้อมูลเต็มของแปลงที่เลือกไว้ (Phase 2) ----------
-     ⚠️ หน้ารวมประกาศส่งข้อมูลมาแบบย่อ — บันได 5 ระดับเหลือแค่ {reached,total}
+     ⚠️ หน้ารวมประกาศส่งข้อมูลมาแบบย่อ — บันไดการตรวจสอบเหลือแค่ {reached,total}
         และ **ไม่ส่งรายงานสุขภาพแปลงมาเลย** (ดู slimLand ใน server.js)
         จึงต้องดึงรายละเอียดของเฉพาะแปลงที่ผู้ใช้เลือก (สูงสุด 4 ใบ) เพิ่มอีกรอบ
      ⚠️ แปลงใดโหลดไม่สำเร็จ ต้องไม่ทำให้ทั้งตารางพัง — ช่องของแปลงนั้นขึ้น "—" ตามกติกาข้อ 5 */
@@ -116,23 +116,31 @@
           ? '<b>✓ ระดับ 2 — ตรวจสอบโดย NJ แล้ว</b><br><span class="njcmp-none">ผลตรวจรายหัวข้อดูได้ในหน้าแปลง</span>'
           : '<b>◐ ระดับ 1 — ข้อมูลเบื้องต้น</b><br><span class="njcmp-none">ยังไม่ผ่านการตรวจสอบโดย NJ</span>';
       }],
-      // ---- แถวของระลอก Phase 2 — บันได 5 ระดับ · รายงานสุขภาพแปลง ----
+      // ---- แถวของระลอก Phase 2 — บันไดการตรวจสอบ 2 ระดับ · รายงานสุขภาพแปลง ----
       // ⚠️ ทุกแถวอ่านจากข้อมูลที่เซิร์ฟเวอร์ส่งมาเท่านั้น ไม่มีการเดาหรือให้คะแนนเอง
       //    แปลงที่ยังไม่มีข้อมูลขึ้น "—" ซึ่งแปลว่า "ยังไม่ได้ตรวจ" ไม่ใช่ "ตรวจแล้วไม่ผ่าน"
-      ['ระดับการตรวจสอบ (จาก 5 ระดับ)', function (x) {
+      // ⚠️ ตัดเหลือ 2 ระดับ 1 ต.ค. 2569 — ตัวเลขและรายชื่อระดับผ่าน NJVerified ที่เดียว
+      //    คำตอบรุ่นเก่าที่ยังมี document/site/survey ต้องไม่โผล่ และต้องไม่ขึ้น "ผ่าน 3 จาก 2"
+      ['ระดับการตรวจสอบ (จาก 2 ระดับ)', function (x) {
         var v = fullLand(x).verify;
         if (!v || !v.total) return DASH;
-        var passed = (v.levels || []).filter(function (l) { return l.status === 'passed' && !l.expired; })
+        var NV = window.NJVerified;
+        var known = (v.levels || []).filter(function (l) { return !NV || NV.isKnown(l.key); });
+        var passed = known.filter(function (l) { return l.status === 'passed' && !l.expired; })
                        .map(function (l) { return l.th; });
-        var issues = (v.levels || []).filter(function (l) { return l.status === 'issue'; }).length;
-        return '<b>ผ่าน ' + v.reached + ' จาก ' + v.total + ' ระดับ</b>' +
+        var issues = known.filter(function (l) { return l.status === 'issue'; }).length;
+        var sum = NV ? NV.summary(v) : { reached: v.reached, total: v.total };
+        return '<b>ผ่าน ' + sum.reached + ' จาก ' + sum.total + ' ระดับ</b>' +
           (passed.length ? '<br><span class="njcmp-none">' + esc(passed.join(' · ')) + '</span>' : '') +
           (issues ? '<br><span class="njcmp-warn">พบประเด็นที่ควรทราบ ' + issues + ' ระดับ</span>' : '');
       }],
       ['ข้อมูลตรวจล่าสุด', function (x) {
         var L = fullLand(x), v = L.verify;
         // วันที่ล่าสุดในบรรดาระดับที่กรอกไว้ · ไม่มีเลยค่อยถอยไปใช้วันรังวัดยืนยันเดิม
-        var days = ((v && v.levels) || []).map(function (l) { return l.at; }).filter(Boolean).sort();
+        // ⚠️ นับเฉพาะระดับที่ยังอยู่บนบันได — วันที่ของระดับที่ถอดแล้วไม่ใช่สิ่งที่ผู้ซื้อเห็นในหน้าแปลง
+        var NV = window.NJVerified;
+        var days = ((v && v.levels) || []).filter(function (l) { return !NV || NV.isKnown(l.key); })
+                     .map(function (l) { return l.at; }).filter(Boolean).sort();
         var last = days.length ? days[days.length - 1] : (L.verifiedAt || '');
         if (!last) return DASH;
         var th = window.NJVerified ? NJVerified.thaiDate(last) : last;

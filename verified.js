@@ -1,11 +1,16 @@
 /* ===========================================================================
-   Teedin Sure Verified — บันไดระดับการตรวจสอบ 5 ระดับ
+   Teedin Sure Verified — บันไดระดับการตรวจสอบ 2 ระดับ
    window.NJVerified · ใช้ร่วมกันทั้งการ์ดแปลงและหน้ารายละเอียด
+
+   ⚠️ ตัดจาก 5 ระดับเหลือ 2 ระดับ (เจ้าของกิจการสั่ง 1 ต.ค. 2569) — ถอด document / site / survey ออก
+      เหลือ owner → transfer · ฝั่งระบบ (lib/landverify.js) ตัดพร้อมกัน
+      ข้อมูลที่ API ส่งมาจากรุ่นเก่า (ยังมีคีย์ที่ถอดแล้ว · total 5) ต้องไม่โผล่บนหน้าเว็บ
+      และต้องไม่ทำให้ตัวเลขเกินจริง — ดู `summary()`
 
    ⚠️ กติกาที่ห้ามผ่อน — อ่านก่อนแก้ไฟล์นี้ทุกครั้ง
 
    1. **ห้ามเติมความหมายให้ข้อมูลที่ API ไม่ได้ส่งมา** (กติกาข้อ 5 ของ CLAUDE.md)
-      ไม่มีก้อน `verify` = ซ่อนทั้งแถบไปเลย ห้ามขึ้นบันไดว่างเปล่า 5 ขีดสีเทา
+      ไม่มีก้อน `verify` = ซ่อนทั้งแถบไปเลย ห้ามขึ้นบันไดว่างเปล่าเป็นขีดสีเทา
       เพราะบันไดว่างอ่านแล้วเหมือน "แปลงนี้แย่" ทั้งที่ความจริงคือ "ยังไม่มีใครไปตรวจ"
       แปลงเก่าทุกแปลงบนเว็บตอนนี้อยู่ในกลุ่มนี้ทั้งหมด
 
@@ -35,18 +40,16 @@
   // ⚠️ ลำดับในอาร์เรย์นี้คือลำดับบนบันได ห้ามสลับ ห้ามแทรกกลาง
   //    `reached` ที่เซิร์ฟเวอร์ส่งมาคือ "ผ่านติดต่อกันจากระดับ 1" ดังนั้น
   //    ชื่อของระดับที่ถึงแล้ว = LEVELS[reached - 1] เสมอ (ป้ายบนการ์ดใช้ข้อนี้)
+  // ⚠️ คีย์ที่ไม่อยู่ในรายการนี้ (document / site / survey ที่ถอดแล้ว หรือคีย์ใหม่ที่เว็บยังไม่รู้จัก)
+  //    **ข้ามทิ้งเสมอ ห้ามวาดเป็นแถว** — ดู `KNOWN`
   var LEVELS = [
     { k: 'owner',    th: 'ข้อมูลจากเจ้าของ',
-      hint: 'ตรวจว่าคนที่ประกาศขายคือเจ้าของหรือผู้มีสิทธิ์จริง' },
-    { k: 'document', th: 'ตรวจเอกสารเบื้องต้น',
-      hint: 'อ่านเอกสารสิทธิ์ที่เจ้าของแสดง เทียบกับข้อมูลที่ประกาศ' },
-    { k: 'site',     th: 'ลงพื้นที่ตรวจสอบ',
-      hint: 'ทีมงานไปถึงแปลงจริง ดูตำแหน่ง ทางเข้าออก และสภาพพื้นที่' },
-    { k: 'survey',   th: 'รังวัดยืนยันแนวเขต',
-      hint: 'มีผลรังวัดหรือข้อมูลแนวเขตจากงานรังวัดจริงประกอบ' },
+      hint: 'ยืนยันว่าคนที่ประกาศขายคือเจ้าของหรือผู้มีสิทธิ์ประกาศจริง' },
     { k: 'transfer', th: 'พร้อมรายงานตรวจสอบ',
-      hint: 'เอกสารสำคัญครบพอที่จะเริ่มขั้นตอนโอนได้ และมีรายงานให้ผู้ซื้ออ่าน' }
+      hint: 'ทีมงานตรวจข้อมูลและเอกสารสำคัญแล้ว ครบพอที่จะเริ่มขั้นตอนซื้อขายและโอนได้ และมีรายงานให้ผู้ซื้ออ่าน' }
   ];
+  var KNOWN = {};
+  LEVELS.forEach(function (def) { KNOWN[def.k] = true; });
   // ชื่อที่แสดงจริง = "ระดับ n · ชื่อสั้น" — เลขระดับช่วยให้ผู้ซื้อเทียบข้ามแปลงได้ทันที
   function levelName(i) { return 'ระดับ ' + (i + 1) + ' · ' + LEVELS[i].th; }
 
@@ -125,7 +128,35 @@
     '</details>';
   }
 
-  // แถบความคืบหน้า 5 ขีด — มีข้อความบอกเสมอ ไม่ใช่มีแต่ขีดสี
+  /* ---- ตัวเลข "ผ่านกี่ระดับจากกี่ระดับ" ที่ปลอดภัยต่อข้อมูลรุ่นเก่า ----
+     ⚠️ total ยึดจำนวนระดับที่เว็บรู้จัก (LEVELS) ไม่ใช่ตัวเลขที่ API ส่งมา
+        คำตอบที่ค้างจากรุ่น 5 ระดับ (แคช/เซิร์ฟเวอร์ยังไม่ deploy) จะได้ไม่ขึ้น "3 จาก 2"
+     ⚠️ ห้ามให้ตัวเลขเกินจริง — ใช้ค่าที่น้อยกว่าเสมอระหว่างที่เซิร์ฟเวอร์บอก กับที่นับได้เองจากแถวที่รู้จัก
+        · มีรายระดับ (หน้ารายละเอียด) = นับ "ผ่านติดต่อกันจากระดับ 1 และยังไม่หมดอายุ" กฎเดียวกับเซิร์ฟเวอร์
+        · มีแค่ {reached,total} (หน้ารวมประกาศ) และ total ไม่ตรงกับบันไดปัจจุบัน = ข้อมูลรุ่นเก่า
+          นับว่าถึงระดับบนสุดเฉพาะเมื่อรุ่นเก่าผ่านครบทุกระดับเท่านั้น นอกนั้นนับได้แค่ระดับ 1 */
+  function summary(v) {
+    var total = LEVELS.length;
+    if (!v) return { reached: 0, total: total };
+    var r = Math.max(0, Math.floor(Number(v.reached) || 0));
+    var srvTotal = Math.floor(Number(v.total) || 0);
+    if (v.levels && v.levels.length) {
+      var byKey = {};
+      v.levels.forEach(function (l) { if (l && KNOWN[l.key]) byKey[l.key] = l; });
+      var own = 0;
+      for (var i = 0; i < LEVELS.length; i++) {
+        var l = byKey[LEVELS[i].k];
+        if (!l || l.status !== 'passed' || l.expired) break;
+        own++;
+      }
+      r = Math.min(r, own);
+    } else if (srvTotal && srvTotal !== total) {
+      r = r >= srvTotal ? total : Math.min(r, total - 1);
+    }
+    return { reached: Math.min(r, total), total: total };
+  }
+
+  // แถบความคืบหน้า 1 ขีดต่อ 1 ระดับ — มีข้อความบอกเสมอ ไม่ใช่มีแต่ขีดสี
   function pipsHtml(reached, total) {
     var out = '';
     for (var i = 0; i < total; i++) out += '<i class="' + (i < reached ? 'on' : '') + '"></i>';
@@ -136,15 +167,19 @@
      คืนสตริงว่างเมื่อ API ไม่ได้ส่ง verify มา → หน้าเว็บซ่อนทั้งหัวข้อ (กติกาข้อ 1) */
   function ladderHtml(v) {
     if (!v || !v.levels || !v.levels.length) return '';
+    // ⚠️ อ่านเฉพาะคีย์ที่รู้จัก — ระดับที่ถอดแล้วจากคำตอบรุ่นเก่าต้องไม่โผล่ ไม่ถูกนับในสรุป
+    var known = v.levels.filter(function (l) { return l && KNOWN[l.key]; });
+    if (!known.length) return '';
     var byKey = {};
-    v.levels.forEach(function (l) { byKey[l.key] = l; });
+    known.forEach(function (l) { byKey[l.key] = l; });
     var rows = LEVELS.map(function (def, i) {
       return rowHtml({ k: def.k, th: def.th, hint: def.hint, name: levelName(i) }, byKey[def.k]);
     }).join('');
-    var issues = v.levels.filter(function (l) { return l.status === 'issue'; }).length;
-    var stale = v.levels.filter(function (l) { return l.expired; }).length;
+    var issues = known.filter(function (l) { return l.status === 'issue'; }).length;
+    var stale = known.filter(function (l) { return l.expired; }).length;
+    var sum = summary(v);
 
-    var summary = 'ผ่านการตรวจสอบ ' + v.reached + ' จาก ' + v.total + ' ระดับ';
+    var summaryText = 'ผ่านการตรวจสอบ ' + sum.reached + ' จาก ' + sum.total + ' ระดับ';
     var extra = [];
     if (issues) extra.push('มี ' + issues + ' ระดับที่พบประเด็นที่ผู้ซื้อควรทราบ');
     if (stale) extra.push('มี ' + stale + ' ระดับที่ถึงกำหนดตรวจใหม่');
@@ -152,8 +187,8 @@
     return '<section class="njv" aria-labelledby="njv-h">' +
       '<div class="njv-head">' +
         '<div><h2 id="njv-h">ระดับการตรวจสอบ<span>Teedin Sure Verified</span></h2>' +
-          '<p>' + esc(summary) + (extra.length ? ' · ' + esc(extra.join(' · ')) : '') + '</p></div>' +
-        pipsHtml(v.reached, v.total) +
+          '<p>' + esc(summaryText) + (extra.length ? ' · ' + esc(extra.join(' · ')) : '') + '</p></div>' +
+        pipsHtml(sum.reached, sum.total) +
       '</div>' +
       rows +
       // ⚠️ ข้อความปิดท้ายนี้ห้ามถอด — เป็นเส้นแบ่งระหว่าง "เราตรวจอะไรไปแล้ว" กับ "เรารับประกันอะไร"
@@ -165,22 +200,24 @@
 
   /* ---- ป้ายย่อ สำหรับการ์ดแปลงบนหน้ารวมประกาศ ----
      รับได้ทั้งก้อนย่อจากหน้ารวม ({reached,total}) และก้อนเต็มจากหน้ารายละเอียด
-     ⚠️ ยังไม่ถึงระดับใดเลย = ไม่ขึ้นป้าย · ป้าย "0 จาก 5" อ่านแล้วแย่กว่าไม่มีป้าย
+     ⚠️ ยังไม่ถึงระดับใดเลย = ไม่ขึ้นป้าย · ป้าย "0 จาก 2" อ่านแล้วแย่กว่าไม่มีป้าย
      และแปลงที่ทีมยังไม่ได้ไล่กรอกจะดูเหมือนถูกตัดสินไปแล้วทั้งที่ยังไม่มีใครไปตรวจ */
   function badgeHtml(v) {
     if (!v || !v.total || !v.reached) return '';
-    // ⚠️ บอก "ชื่อของระดับที่ถึงแล้ว" ไม่ใช่แค่เศษส่วน — "3/5" ไม่ได้บอกผู้ซื้อว่าตรวจอะไรไปแล้ว
+    var sum = summary(v);
+    if (!sum.reached) return '';
+    // ⚠️ บอก "ชื่อของระดับที่ถึงแล้ว" ไม่ใช่แค่เศษส่วน — "1/2" ไม่ได้บอกผู้ซื้อว่าตรวจอะไรไปแล้ว
     //    ซึ่งเป็นคำถามเดียวที่เขาอยากรู้ตอนกวาดสายตาดูการ์ดหลายใบ
-    var i = Math.min(Math.max(Number(v.reached) - 1, 0), LEVELS.length - 1);
+    var i = Math.min(Math.max(sum.reached - 1, 0), LEVELS.length - 1);
     var name = LEVELS[i] ? LEVELS[i].th : '';
-    return '<span class="njv-badge" title="ผ่านการตรวจสอบ ' + v.reached + ' จาก ' + v.total + ' ระดับ — ระดับล่าสุดคือ ' + esc(name) + '">' +
-      '<b>ระดับ ' + v.reached + '/' + v.total + '</b> ' + esc(name) + '</span>';
+    return '<span class="njv-badge" title="ผ่านการตรวจสอบ ' + sum.reached + ' จาก ' + sum.total + ' ระดับ — ระดับล่าสุดคือ ' + esc(name) + '">' +
+      '<b>ระดับ ' + sum.reached + '/' + sum.total + '</b> ' + esc(name) + '</span>';
   }
 
   // ---------- นับตอนผู้ใช้กางดูบันไดการตรวจสอบ (งานที่ 16) ----------
   //
-  // ⚠️ นับครั้งเดียวต่อหนึ่งการเปิดหน้า ไม่ใช่ทุกครั้งที่กางหุบ — บันไดมี 5 แถว
-  //    ถ้านับทุกแถว คนที่สนใจมากจะถูกนับ 5 ครั้ง แล้วตัวเลขอ่านไม่ได้ว่ามีกี่คน
+  // ⚠️ นับครั้งเดียวต่อหนึ่งการเปิดหน้า ไม่ใช่ทุกครั้งที่กางหุบ — บันไดมีหลายแถว
+  //    ถ้านับทุกแถว คนที่สนใจมากจะถูกนับซ้ำหลายครั้ง แล้วตัวเลขอ่านไม่ได้ว่ามีกี่คน
   // ⚠️ ผูกที่ document ด้วย event delegation — บันไดถูกวาดหลังโหลดข้อมูลเสร็จ
   var ladderCounted = false;
   if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
@@ -193,5 +230,6 @@
     }, true);   // เฟส capture — เหตุการณ์ toggle ไม่ bubble
   }
 
-  w.NJVerified = { LEVELS: LEVELS, levelName: levelName, ladderHtml: ladderHtml, badgeHtml: badgeHtml, stateOf: stateOf, thaiDate: thaiDate };
+  w.NJVerified = { LEVELS: LEVELS, levelName: levelName, summary: summary, isKnown: function (k) { return !!KNOWN[k]; },
+                   ladderHtml: ladderHtml, badgeHtml: badgeHtml, stateOf: stateOf, thaiDate: thaiDate };
 })(window, document);

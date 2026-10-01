@@ -1,4 +1,4 @@
-/* ตรวจตัวเรนเดอร์ของระลอก Teedin Sure Verified — บันได 5 ระดับ · รายงานสุขภาพแปลง · แผนที่แนวเขต
+/* ตรวจตัวเรนเดอร์ของระลอก Teedin Sure Verified — บันได 2 ระดับ (เดิม 5 · ตัด 1 ต.ค. 2569) · รายงานสุขภาพแปลง · แผนที่แนวเขต
  *   รันด้วย:  node verified.test.js
  *
  * ⚠️ ไม่พึ่งไลบรารีภายนอก — repo นี้เป็นเว็บสแตติกล้วน ไม่มี package.json และไม่ควรมี node_modules
@@ -39,7 +39,7 @@ console.log('\n1) ⚠️ ไม่มีข้อมูล = ไม่ขึ้�
 {
   ok('ไม่มีบันได → สตริงว่าง', V.ladderHtml(null) === '');
   ok('บันไดว่างเปล่า → สตริงว่าง', V.ladderHtml({}) === '');
-  ok('ไม่มีป้ายบนการ์ดเมื่อยังไม่ถึงระดับใด', V.badgeHtml({ reached: 0, total: 5 }) === '');
+  ok('ไม่มีป้ายบนการ์ดเมื่อยังไม่ถึงระดับใด', V.badgeHtml({ reached: 0, total: 2 }) === '');
   ok('ไม่มีป้ายเมื่อไม่มีข้อมูลเลย', V.badgeHtml(null) === '');
   // ⚠️ ข้อนี้สำคัญที่สุด — แปลงเก่ามี deedType/deedArea/checks อยู่แล้ว ถ้าไม่กั้น
   // ตารางสุขภาพจะโผล่ทุกแปลงในวันที่ deploy ทั้งที่ยังไม่มีใครไปตรวจอะไรเพิ่ม
@@ -52,47 +52,59 @@ console.log('\n1) ⚠️ ไม่มีข้อมูล = ไม่ขึ้�
      P.mapHtml({ points: [{ p: 'A', x: 0, y: 0 }, { p: 'B', x: 10, y: 0 }] }) === '');
 }
 
-console.log('\n2) บันได 5 ระดับ');
+console.log('\n2) บันได 2 ระดับ (ตัดจาก 5 ระดับ 1 ต.ค. 2569)');
 {
+  ok('เหลือ 2 ระดับ owner → transfer ตามลำดับ',
+     V.LEVELS.length === 2 && V.LEVELS[0].k === 'owner' && V.LEVELS[1].k === 'transfer',
+     JSON.stringify(V.LEVELS.map(l => l.k)));
+  ok('ชื่อแสดงมีเลขระดับ 1–2', V.levelName(0).indexOf('ระดับ 1') === 0 && V.levelName(1).indexOf('ระดับ 2') === 0);
+
   const v = {
-    reached: 2, total: 5,
+    reached: 1, total: 2,
     levels: [
       { key: 'owner', th: 'ยืนยันผู้มีสิทธิ์ประกาศ', status: 'passed', expired: false,
         at: '2026-09-01', by: 'ฝ่ายขาย NJ', until: '2027-09-01', hasRef: true,
         done: ['ตรวจบัตรประชาชน'], todo: ['ยังไม่ได้ตรวจหนังสือมอบอำนาจ'], note: '',
         evidence: [{ label: 'หนังสือยินยอม', url: '/uploads/a.pdf' }] },
-      { key: 'document', th: 'ตรวจข้อมูลเอกสารเบื้องต้น', status: 'passed', expired: false,
-        at: '2026-09-02', by: '', until: '', hasRef: false, done: [], todo: [], note: '', evidence: [] },
-      { key: 'site', th: 'ลงพื้นที่ตรวจตำแหน่งและสภาพแปลง', status: 'issue', expired: false,
+      { key: 'transfer', th: 'ข้อมูลและเอกสารพร้อมเข้าสู่ขั้นตอนซื้อขาย', status: 'issue', expired: false,
         at: '2026-09-03', by: '', until: '', hasRef: false, done: [], todo: [],
-        note: 'ทางเข้าแคบกว่าที่แจ้ง', evidence: [] },
-      { key: 'survey', th: 'มีรายงานรังวัดหรือข้อมูลแนวเขตล่าสุด', status: 'passed', expired: true,
-        at: '2024-01-01', by: '', until: '2025-01-01', hasRef: false, done: [], todo: [], note: '', evidence: [] },
-      { key: 'transfer', th: 'ข้อมูลและเอกสารพร้อมเข้าสู่ขั้นตอนซื้อขาย', status: '', expired: false,
-        at: '', by: '', until: '', hasRef: false, done: [], todo: [], note: '', evidence: [] }
+        note: 'ภาระจำยอมยังไม่ได้ปลด', evidence: [] }
     ]
   };
   const h = V.ladderHtml(v);
-  has('บอกจำนวนระดับที่ผ่านเป็นข้อความ', h, 'ผ่านการตรวจสอบ 2 จาก 5 ระดับ');
-  has('แถบความคืบหน้าอ่านออกเสียงได้', h, 'aria-label="ผ่านการตรวจสอบ 2 จาก 5 ระดับ"');
-  ok('ระบายขีดตามจำนวนที่ผ่านจริง', (h.match(/<i class="on">/g) || []).length === 2,
+  has('บอกจำนวนระดับที่ผ่านเป็นข้อความ', h, 'ผ่านการตรวจสอบ 1 จาก 2 ระดับ');
+  has('แถบความคืบหน้าอ่านออกเสียงได้', h, 'aria-label="ผ่านการตรวจสอบ 1 จาก 2 ระดับ"');
+  ok('ระบายขีดตามจำนวนที่ผ่านจริง', (h.match(/<i class="on">/g) || []).length === 1,
      String((h.match(/<i class="on">/g) || []).length));
+  ok('แถบความคืบหน้ามี 2 ขีด', (h.match(/<i class="(on)?">/g) || []).length === 2,
+     String((h.match(/<i class="(on)?">/g) || []).length));
+  ok('วาด 2 แถวพอดี', (h.match(/<details class="njv-row/g) || []).length === 2);
+  has('แถวแรกชื่อระดับ 1', h, 'ระดับ 1 · ข้อมูลจากเจ้าของ');
+  has('แถวที่สองชื่อระดับ 2', h, 'ระดับ 2 · พร้อมรายงานตรวจสอบ');
 
   // ⚠️ ทุกสถานะต้องมีข้อความ ไม่ใช่มีแต่สี
   has('สถานะผ่านมีข้อความ', h, 'ตรวจแล้ว');
   has('สถานะพบประเด็นมีข้อความ', h, 'พบประเด็นที่ควรทราบ');
-  has('สถานะหมดอายุมีข้อความ', h, 'ถึงกำหนดตรวจใหม่แล้ว');
-  has('สถานะยังไม่ตรวจมีข้อความ', h, 'ยังไม่ได้ตรวจ');
-  ok('มีคลาสครบทั้ง 4 สถานะ',
-     ['njv-row ok', 'njv-row issue', 'njv-row stale', 'njv-row none'].every(c => h.indexOf(c) >= 0));
 
   has('รายการที่ตรวจแล้วขึ้นครบ', h, 'ตรวจบัตรประชาชน');
   has('⚠️ รายการที่ยังไม่ได้ตรวจก็ต้องขึ้น ห้ามซ่อน', h, 'ยังไม่ได้ตรวจหนังสือมอบอำนาจ');
   has('บอกว่ามีเลขอ้างอิงงานโดยไม่บอกเลข', h, 'อ้างอิงเลขงานในระบบ');
   has('หลักฐานที่เปิดเผยได้ขึ้นเป็นลิงก์', h, '/uploads/a.pdf');
   has('บอกวันควรตรวจใหม่', h, 'ควรตรวจใหม่ภายใน');
-  has('ระดับที่หมดอายุบอกให้ทักไลน์ขอตรวจซ้ำ', h, 'ถึงกำหนดตรวจใหม่ตั้งแต่');
   has('แถวที่พบประเด็นถูกกางไว้ให้เห็นเลย', h, '<details class="njv-row issue" open>');
+
+  // หมดอายุ + ยังไม่ตรวจ — สองสถานะที่ห้ามอ่านเหมือน "ผ่าน"
+  const h2 = V.ladderHtml({ reached: 0, total: 2, levels: [
+    { key: 'owner', status: 'passed', expired: true, at: '2024-01-01', until: '2025-01-01' },
+    { key: 'transfer', status: '' }
+  ] });
+  has('สถานะหมดอายุมีข้อความ', h2, 'ถึงกำหนดตรวจใหม่แล้ว');
+  has('ระดับที่หมดอายุบอกให้ทักไลน์ขอตรวจซ้ำ', h2, 'ถึงกำหนดตรวจใหม่ตั้งแต่');
+  has('สถานะยังไม่ตรวจมีข้อความ', h2, 'ยังไม่ได้ตรวจ');
+  has('หมดอายุ = ไม่นับว่าผ่าน', h2, 'ผ่านการตรวจสอบ 0 จาก 2 ระดับ');
+  const all4 = h + h2;
+  ok('มีคลาสครบทั้ง 4 สถานะ',
+     ['njv-row ok', 'njv-row issue', 'njv-row stale', 'njv-row none'].every(c => all4.indexOf(c) >= 0));
 
   // ⚠️ ข้อความปิดท้ายห้ามถอด — เส้นแบ่งระหว่าง "ตรวจอะไรไปแล้ว" กับ "รับประกันอะไร"
   has('มีข้อความกำกับว่าไม่ใช่การรับรองทางกฎหมาย', h, 'ไม่ใช่การรับรองสถานะทางกฎหมายของที่ดิน');
@@ -103,7 +115,50 @@ console.log('\n2) บันได 5 ระดับ');
      !/ปลอดภัย 100|รับประกันกรรมสิทธิ์|เรารับประกัน|การันตี/.test(h));
   has('ยังคงข้อความปฏิเสธการรับประกันไว้', h, 'ไม่ใช่คำรับประกัน');
 
-  ok('ป้ายบนการ์ดขึ้นเมื่อผ่านแล้ว', V.badgeHtml({ reached: 2, total: 5 }).indexOf('2/5') >= 0);
+  ok('ป้ายบนการ์ดขึ้นเมื่อผ่านแล้ว', V.badgeHtml({ reached: 1, total: 2 }).indexOf('1/2') >= 0);
+  has('ป้ายบนการ์ดบอกชื่อระดับที่ถึงแล้ว', V.badgeHtml({ reached: 1, total: 2 }), 'ข้อมูลจากเจ้าของ');
+  has('ป้ายผ่านครบ 2 ระดับ', V.badgeHtml({ reached: 2, total: 2 }), 'ระดับ 2/2');
+  has('ป้ายระดับ 2 บอกชื่อระดับ 2', V.badgeHtml({ reached: 2, total: 2 }), 'พร้อมรายงานตรวจสอบ');
+}
+
+console.log('\n2ข) ⚠️ ข้อมูลรุ่นเก่า 5 ระดับ (แคช/เซิร์ฟเวอร์ยังไม่ deploy) ต้องไม่โผล่และไม่เกินจริง');
+{
+  const legacy = {
+    reached: 3, total: 5,
+    levels: [
+      { key: 'owner', th: 'ยืนยันผู้มีสิทธิ์ประกาศ', status: 'passed', expired: false, at: '2026-09-01' },
+      { key: 'document', th: 'ตรวจข้อมูลเอกสารเบื้องต้น', status: 'passed', expired: false, at: '2026-09-02', note: 'โน้ตระดับเอกสาร' },
+      { key: 'site', th: 'ลงพื้นที่ตรวจตำแหน่งและสภาพแปลง', status: 'issue', expired: false, at: '2026-09-03', note: 'ทางเข้าแคบกว่าที่แจ้ง' },
+      { key: 'survey', th: 'มีรายงานรังวัดหรือข้อมูลแนวเขตล่าสุด', status: 'passed', expired: false, at: '2026-09-04' },
+      { key: 'transfer', th: 'ข้อมูลและเอกสารพร้อมเข้าสู่ขั้นตอนซื้อขาย', status: '', expired: false }
+    ]
+  };
+  const h = V.ladderHtml(legacy);
+  ok('วาดแค่ 2 แถว', (h.match(/<details class="njv-row/g) || []).length === 2,
+     String((h.match(/<details class="njv-row/g) || []).length));
+  ['ตรวจเอกสารเบื้องต้น', 'ตรวจข้อมูลเอกสารเบื้องต้น', 'ลงพื้นที่ตรวจ', 'รังวัดยืนยันแนวเขต',
+   'มีรายงานรังวัด', 'โน้ตระดับเอกสาร', 'ทางเข้าแคบกว่าที่แจ้ง', 'ระดับ 3', 'ระดับ 4', 'ระดับ 5'].forEach(t => {
+    hasNot('ไม่มี "' + t + '" จากระดับที่ถอดแล้ว', h, t);
+  });
+  has('ไม่ขึ้น "3 จาก 5" — นับใหม่จากระดับที่ยังอยู่', h, 'ผ่านการตรวจสอบ 1 จาก 2 ระดับ');
+  hasNot('ไม่ขึ้นตัวเลข 5', h, 'จาก 5');
+  hasNot('ประเด็นของระดับที่ถอดแล้วไม่ถูกนับในสรุป', h, 'พบประเด็นที่ผู้ซื้อควรทราบ');
+  ok('แถบความคืบหน้ายังเป็น 2 ขีด', (h.match(/<i class="(on)?">/g) || []).length === 2);
+
+  // ก้อนย่อของหน้ารวมประกาศรุ่นเก่า — รู้แค่ {reached,total} จึงต้องไม่ให้เกินจริง
+  ok('รุ่นเก่า 3/5 → ป้าย 1/2 (ไม่ใช่ 3/2)', V.badgeHtml({ reached: 3, total: 5 }).indexOf('ระดับ 1/2') >= 0,
+     V.badgeHtml({ reached: 3, total: 5 }));
+  ok('รุ่นเก่า 4/5 → ป้าย 1/2 (ระดับ 2 ยังไม่ผ่านจริง)', V.badgeHtml({ reached: 4, total: 5 }).indexOf('ระดับ 1/2') >= 0);
+  ok('รุ่นเก่า 5/5 → ป้าย 2/2', V.badgeHtml({ reached: 5, total: 5 }).indexOf('ระดับ 2/2') >= 0);
+  ok('รุ่นเก่า 0/5 → ไม่มีป้าย', V.badgeHtml({ reached: 0, total: 5 }) === '');
+  ok('ตัวเลขเพี้ยนเกินบันได → ไม่เกิน 2', V.summary({ reached: 9, total: 2 }).reached === 2);
+  ok('summary ไม่มีข้อมูล → 0 จาก 2', V.summary(null).reached === 0 && V.summary(null).total === 2);
+  ok('เซิร์ฟเวอร์บอกผ่าน 2 แต่ระดับ 2 หมดอายุแล้ว → นับ 1', V.summary({ reached: 2, total: 2, levels: [
+    { key: 'owner', status: 'passed' }, { key: 'transfer', status: 'passed', expired: true }] }).reached === 1);
+  ok('คำตอบที่มีแต่ระดับที่ถอดแล้ว → ไม่ขึ้นบันได', V.ladderHtml({ reached: 1, total: 5, levels: [
+    { key: 'document', status: 'passed' }] }) === '');
+  ok('isKnown รู้จักเฉพาะ owner/transfer',
+     V.isKnown('owner') && V.isKnown('transfer') && !V.isKnown('document') && !V.isKnown('site') && !V.isKnown('survey'));
 }
 
 console.log('\n3) รายงานสุขภาพแปลง — 4 สถานะ ทุกสถานะมีข้อความ');
