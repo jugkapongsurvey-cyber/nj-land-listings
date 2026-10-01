@@ -96,9 +96,9 @@
 .card-zone{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:#f2f6fb;font-size:13px;color:#4a5568}
 .card-zone i{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.3);flex:none}
 
-/* ป้ายบันได 5 ระดับ (verified.js) — สไตล์ฐานอยู่ใน verified.css ที่นี่แค่จัดแถว
+/* ป้ายบันไดการตรวจสอบ 2 ระดับ (verified.js) — สไตล์ฐานอยู่ใน verified.css ที่นี่แค่จัดแถว
    ⚠️ ป้ายนี้ **ไม่ได้แทนที่** ป้ายเขียว/ทองบนรูป สองอย่างตอบคนละคำถาม
-      ป้ายบนรูป = "รังวัดแล้วหรือยัง" · ป้ายนี้ = "ตรวจไปแล้วกี่ระดับจาก 5" */
+      ป้ายบนรูป = "รังวัดแล้วหรือยัง" · ป้ายนี้ = "ตรวจไปแล้วกี่ระดับจาก 2" */
 .card-marks{display:flex;gap:6px;flex-wrap:wrap}
 .card-marks:empty{display:none}
 

@@ -61,14 +61,15 @@ function bgOf(cls) {
      bg ? contrast('#ffffff', bg).toFixed(2) + ':1' : '');
 });
 
-console.log('\n2) ระดับการตรวจสอบ 1–5 (งานที่ 7)');
-[['owner', 'ข้อมูลจากเจ้าของ'], ['document', 'ตรวจเอกสารเบื้องต้น'], ['site', 'ลงพื้นที่ตรวจสอบ'],
- ['survey', 'รังวัดยืนยันแนวเขต'], ['transfer', 'พร้อมรายงานตรวจสอบ']].forEach(p => {
+console.log('\n2) ระดับการตรวจสอบ 1–2 (งานที่ 7 · ตัดจาก 5 ระดับ 1 ต.ค. 2569)');
+[['owner', 'ข้อมูลจากเจ้าของ'], ['transfer', 'พร้อมรายงานตรวจสอบ']].forEach(p => {
   ok('ระดับ ' + p[0] + ' ใช้ชื่อ "' + p[1] + '"',
      new RegExp("k: '" + p[0] + "',\\s*th: '" + p[1] + "'").test(ver));
 });
-ok('⭐ คีย์ในฐานข้อมูลไม่เปลี่ยน (ไม่มี migration)',
-   ['owner', 'document', 'site', 'survey', 'transfer'].every(k => ver.indexOf("k: '" + k + "'") >= 0));
+ok('⭐ คีย์ของสองระดับที่เหลือไม่เปลี่ยน (owner · transfer)',
+   ['owner', 'transfer'].every(k => ver.indexOf("k: '" + k + "'") >= 0));
+ok('⭐ ระดับที่ถอดแล้ว (document · site · survey) ไม่อยู่ในบันได',
+   ['document', 'site', 'survey'].every(k => ver.indexOf("k: '" + k + "'") < 0));
 ok('มีเลขระดับกำกับชื่อ', /function levelName/.test(ver));
 ok('ป้ายบนการ์ดบอกชื่อระดับที่ถึงแล้ว ไม่ใช่แค่เศษส่วน', /LEVELS\[i\] \? LEVELS\[i\]\.th/.test(ver));
 ok('⭐ ยังไม่ถึงระดับใดเลย = ไม่ขึ้นป้าย', /if \(!v \|\| !v\.total \|\| !v\.reached\) return/.test(ver));
