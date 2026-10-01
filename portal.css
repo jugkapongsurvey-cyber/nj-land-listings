@@ -121,11 +121,141 @@
 .pt-faq p{font-size:14.5px;line-height:1.9;color:#5A6B7D;margin:0;padding:15px 0 18px;max-width:72ch}
 .pt-faq summary:focus-visible{outline:2px solid #1CA45C;outline-offset:3px;border-radius:8px}
 
+/* ---------- คลิปแนะนำระบบ (#ดูคลิป) · portalclip.js ----------
+   hero ขยายท้ายให้การ์ดคลิปซ้อนขึ้นไปทับขอบล่างของ hero (ดูเป็นชิ้นเดียวกับ hero ไม่ใช่แถบแปะต่อ)
+   ⚠️ video ต้องมี height:auto — แอตทริบิวต์ height="1920" ใน HTML กลายเป็น height:1920px ชนะ aspect-ratio
+   ⚠️ ปุ่มเล่นของเรากับการกดสารบัญใช้ได้เมื่อ .js-ready เท่านั้น (JS ตาย = ยังกดเล่นจากแถบควบคุมของเบราว์เซอร์ได้) */
+.pt-head.has-clip{padding-bottom:96px}
+
+.pt-watch{
+  display:inline-flex;align-items:center;gap:14px;margin:24px 0 0;
+  color:#EAF1FA;font-size:15px;font-weight:600;line-height:1.5;text-decoration:none;
+}
+.pt-watch small{display:block;font-size:12.5px;font-weight:400;color:#A9BCD0;margin-top:1px}
+.pt-watch-ring{
+  flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:#D8B96B;color:#0B1F3A;padding-left:2px;
+  animation:pcPulse 2.6s ease-out infinite;transition:transform .2s ease;
+}
+.pt-watch:hover .pt-watch-ring{transform:scale(1.08)}
+.pt-watch:hover > span:last-child{text-decoration:underline;text-underline-offset:3px}
+.pt-watch:focus-visible{outline:2px solid #D8B96B;outline-offset:5px;border-radius:10px}
+@keyframes pcPulse{
+  0%{box-shadow:0 0 0 0 rgba(216,185,107,.55)}
+  70%,100%{box-shadow:0 0 0 14px rgba(216,185,107,0)}
+}
+
+.pt-clip{position:relative;z-index:1;scroll-margin-top:84px}
+.pc-card{
+  margin-top:-62px;
+  display:grid;grid-template-columns:280px minmax(0,1fr);gap:44px;align-items:start;
+  background:#fff;border:1px solid #E3EAF1;border-radius:24px;padding:34px;
+  box-shadow:0 28px 64px -30px rgba(11,31,58,.55),0 2px 6px rgba(11,31,58,.05);
+}
+
+/* จอคลิป — กรอบกรมท่าหนา + เส้นทองบาง ให้ดูเป็นหน้าจอมือถือที่พรีเซนเตอร์ยืนอยู่ข้างใน */
+.pc-player{position:sticky;top:96px}
+.pc-frame{
+  position:relative;border-radius:28px;overflow:hidden;background:#0B1F3A;border:6px solid #0B1F3A;
+  box-shadow:0 0 0 2px #D8B96B,0 30px 54px -22px rgba(11,31,58,.7);
+}
+.pc-frame video{
+  display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;
+  background:#0B1F3A;border-radius:22px;
+}
+.pc-play{display:none}
+.pt-clip.js-ready .pc-play{
+  display:flex;position:absolute;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;
+  padding:0 14px 28px;border:0;cursor:pointer;color:#fff;font-family:inherit;
+  background:linear-gradient(180deg,rgba(11,31,58,.06) 0%,rgba(11,31,58,.04) 42%,rgba(11,31,58,.84) 100%);
+}
+.pc-ring{
+  width:72px;height:72px;border-radius:50%;display:grid;place-items:center;padding-left:3px;
+  background:#D8B96B;color:#0B1F3A;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  animation:pcPulse 2.6s ease-out infinite;transition:transform .2s ease;
+}
+.pc-play:hover .pc-ring{transform:scale(1.08)}
+.pc-play:focus-visible{outline:3px solid #D8B96B;outline-offset:-4px}
+.pc-play-txt{font-size:16px;font-weight:700;line-height:1.45;text-align:center}
+.pc-play-txt small{display:block;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.85);margin-top:2px}
+.pc-cap{margin:14px 0 0;text-align:center;font-size:12.5px;line-height:1.7;color:#8798A9}
+
+.pc-copy{display:flex;flex-direction:column;gap:16px;min-width:0}
+.pc-eyebrow{font-size:13px;font-weight:700;letter-spacing:.04em;color:#146C43}
+.pc-copy h2{
+  font-size:clamp(23px,3.6vw,31px);font-weight:800;line-height:1.35;color:#0B1F3A;
+  margin:-6px 0 0;letter-spacing:-.01em;
+}
+.pc-lede{font-size:15.5px;line-height:1.9;color:#5A6B7D;margin:0;max-width:62ch}
+
+/* สารบัญบท — ปุ่มกดข้ามไปตอนนั้น · บทที่กำลังเล่นอยู่ไฮไลต์ทอง */
+.pc-chap{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:9px}
+.pc-chap button{
+  display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;
+  background:#fff;border:1px solid #E3EAF1;border-radius:14px;padding:12px 15px;cursor:default;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.pt-clip.js-ready .pc-chap button{cursor:pointer}
+.pt-clip.js-ready .pc-chap button:hover{border-color:#1B4B7A;background:#F8FAFC}
+.pc-chap button:focus-visible{outline:2px solid #1CA45C;outline-offset:2px}
+.pc-t{
+  flex:none;min-width:50px;height:28px;border-radius:8px;margin-top:1px;
+  background:#0B1F3A;color:#fff;text-align:center;
+  font:700 13px/28px 'IBM Plex Sans',ui-monospace,monospace;
+  transition:background .18s ease,color .18s ease;
+}
+.pc-ct{display:block;min-width:0}
+.pc-ct b{display:block;font-size:15.5px;font-weight:700;line-height:1.5;color:#0B1F3A}
+.pc-ct small{display:block;margin-top:2px;font-size:13px;line-height:1.7;color:#5A6B7D}
+.pc-tag{
+  display:inline-block;margin-left:8px;padding:1px 9px;border-radius:99px;vertical-align:1px;
+  font-size:11.5px;font-weight:700;line-height:1.7;color:#146C43;background:#E6F4EC;
+}
+.pc-chap li.on button{background:#F4F7FA;border-color:#D8B96B;box-shadow:inset 4px 0 0 #C79A21}
+.pc-chap li.on .pc-t{background:#D8B96B;color:#0B1F3A}
+
+/* ข้อความเต็มของคลิป — สำหรับคนดูปิดเสียง และให้เครื่องมือค้นหาอ่านได้ */
+/* พับ/กางด้วยปุ่ม + aria-expanded (ไม่ใช้ <details> — ดูเหตุผลใน portal.html) · ไม่มี JS = แสดงเต็ม ปุ่มเป็นแค่หัวข้อ */
+.pc-script{background:#fff;border:1px solid #E3EAF1;border-radius:14px;padding:0 18px}
+.pc-script-h{margin:0;font-size:14.5px;line-height:1.6}
+.pc-script-btn{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:14px;width:100%;
+  padding:15px 0;border:0;background:none;text-align:left;font:inherit;font-weight:600;color:#0B1F3A;cursor:default;
+}
+.pt-clip.js-ready .pc-script-btn{cursor:pointer}
+.pt-clip.js-ready .pc-script-btn::after{content:'+';flex:none;font-size:19px;font-weight:400;color:#8798A9;line-height:1.3}
+.pt-clip.js-ready .pc-script-btn[aria-expanded="true"]::after{content:'\2212'}
+.pc-script-btn:focus-visible{outline:2px solid #1CA45C;outline-offset:3px;border-radius:8px}
+.pc-script-btn[aria-expanded="true"]{border-bottom:1px solid #EEF2F6}
+.pc-script-body{padding:14px 0 6px}
+.pc-script-body[hidden]{display:none}
+.pc-script-body p{font-size:14.5px;line-height:1.95;color:#5A6B7D;margin:0 0 12px;max-width:68ch}
+
+.pc-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:4px}
+.pt-btn-line{background:#fff;color:#0B2549;border:1px solid #DCE3EF;font-weight:600}
+.pt-btn-line:hover{border-color:#0B2549}
+
+@media (max-width:900px){
+  .pc-card{grid-template-columns:230px minmax(0,1fr);gap:30px;padding:26px}
+}
 @media (max-width:760px){
   .pt-grid{grid-template-columns:1fr}
+  /* มือถือ: หัวข้อ → คลิป → รายละเอียด → สารบัญ → ปุ่ม (คลิปคือพระเอก ต้องไม่ไปอยู่ท้ายสุด)
+     display:contents ทำให้ลูกของ .pc-copy กลายเป็นลูกของ .pc-card ตรงๆ แล้วสลับลำดับได้ */
+  .pc-card{display:flex;flex-direction:column;align-items:stretch;gap:16px;padding:22px 16px;border-radius:20px;margin-top:-52px}
+  .pc-copy{display:contents}
+  .pc-eyebrow{order:1}
+  .pc-copy h2{order:2;margin:-6px 0 0}
+  .pc-player{order:3;position:static;width:min(250px,70vw);margin:4px auto}
+  .pc-lede{order:4}
+  .pc-chap{order:5}
+  .pc-script{order:6}
+  .pc-cta{order:7}
 }
 @media (max-width:560px){
   .pt-head{padding:34px 0 34px}
+  .pt-head.has-clip{padding-bottom:84px}
+  .pt-watch{align-items:flex-start}
   .pt-btn{width:100%;justify-content:center}
   .pt-card{padding:18px 17px;gap:13px}
   .pt-card .pt-ico{width:38px;height:38px;font-size:18px;border-radius:10px}
@@ -134,4 +264,6 @@
 
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  /* วงกลมเต้นเป็นแอนิเมชันวนไม่รู้จบ — ลดเวลาเหลือ .01ms จะกลายเป็นกะพริบรัว ต้องปิดทิ้งเลย */
+  .pt-watch-ring,.pc-ring{animation:none !important}
 }

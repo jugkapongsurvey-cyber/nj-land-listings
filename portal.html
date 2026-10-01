@@ -257,7 +257,7 @@
 <main id="main">
 
 <main>
-    <section class="pt-head">
+    <section class="pt-head has-clip">
       <div class="shell">
         <span class="kicker">สำหรับลูกค้าที่ใช้บริการรังวัดกับเรา</span>
         <h1>ระบบติดตามงานรังวัด</h1>
@@ -271,10 +271,74 @@
           <a class="pt-btn pt-btn-main" href="https://app.njteedinsure.com/" target="_blank" rel="noopener">เข้าสู่ระบบติดตามงาน →</a>
           <a class="pt-btn pt-btn-ghost" href="#getcode">ยังไม่มีรหัสเข้าใช้?</a>
         </div>
+        <!-- ลิงก์ไปคลิปแนะนำ (#ดูคลิป) — ลิงก์เปล่า ไม่ใช่ปุ่มกรอบ: hero มีปุ่มหลักแค่ "เข้าสู่ระบบ"
+             data-pc-play ให้ portalclip.js สั่งเล่นในจังหวะคลิก · JS ไม่ทำงานก็ยังเลื่อนไปถึงคลิปตามปกติ -->
+        <a class="pt-watch" href="#ดูคลิป" data-pc-play>
+          <span class="pt-watch-ring" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span>ยังไม่แน่ใจว่าระบบทำอะไรได้บ้าง? ดูคลิป 1 นาที 18 วินาที<small>ฟังจบแล้วเข้าใจทั้งระบบ — มีเสียงพูดบรรยาย</small></span>
+        </a>
         <p class="pt-addr">
           ที่อยู่ของระบบคือ <code>app.njteedinsure.com</code> — เปิดผ่านเบราว์เซอร์ได้ทั้งมือถือและคอมพิวเตอร์
           ไม่ต้องติดตั้งแอป (จะกด “เพิ่มไปยังหน้าจอโฮม” ไว้ใช้เหมือนแอปก็ได้)
         </p>
+      </div>
+    </section>
+
+    <!-- คลิปแนะนำระบบ 1:18 นาที (#ดูคลิป) — video/nj-intro.mp4 ไฟล์เดียวกับแถบ #แนะนำระบบ ของ services.html
+         (พรีเซนเตอร์ = เจ้าของบริษัทเอง · สร้างด้วย AI ฉากสตูดิโอ ไม่ใช่ฟุตเทจหน้างาน · ดูกติกาข้อ 9 ใน CLAUDE.md)
+         ⚠️ ไม่เล่นเอง (มีเสียงพูด · ไฟล์ 11 MB · preload="none") · ใส่ controls ไว้ก่อนแล้ว portalclip.js ถอดออก ห้ามทำกลับด้าน
+         ⚠️ สารบัญบท (data-t = วินาทีที่เริ่ม) และข้อความเต็มต้องตรงกับสิ่งที่คลิปพูดจริง — แก้คลิปเมื่อไหร่ ต้องไล่แก้ตาม
+            ข้อความถอดด้วย whisper large-v3 แล้วแก้คำเพี้ยนด้วยมือ · เวลาบทตรวจกับช่วงเงียบของเสียงแล้ว (คลาดได้ไม่เกิน ~1 วินาที) -->
+    <section class="pt-clip" id="ดูคลิป" aria-labelledby="pc-h">
+      <div class="shell">
+        <div class="pc-card">
+          <div class="pc-player">
+            <div class="pc-frame">
+              <video id="pc-video" src="video/nj-intro.mp4" poster="video/nj-intro-poster.jpg"
+                     playsinline preload="none" controls width="1080" height="1920"
+                     aria-label="วิดีโอแนะนำระบบทำงานของ เอ็นเจ กรุ๊ป และที่ดินชัวร์ ความยาว 1 นาที 18 วินาที"></video>
+              <button type="button" class="pc-play" aria-label="เล่นวิดีโอแนะนำระบบ ความยาว 1 นาที 18 วินาที">
+                <span class="pc-ring" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+                <span class="pc-play-txt">กดเล่นคลิป<small>1 นาที 18 วินาที · มีเสียงพูดบรรยาย</small></span>
+              </button>
+            </div>
+            <p class="pc-cap">คลิปไม่เล่นเอง — กดเมื่อพร้อมฟังเสียง</p>
+          </div>
+
+          <div class="pc-copy">
+            <span class="pc-eyebrow">ดูก่อน แล้วจะเข้าใจทั้งหมด</span>
+            <h2 id="pc-h">ฟังคลิปเดียว 1 นาที 18 วินาที<br>รู้ว่าระบบนี้ช่วยคุณอะไรบ้าง</h2>
+            <p class="pc-lede">พรีเซนเตอร์เล่าให้ฟังตั้งแต่ต้นว่าทำไมเราเขียนระบบเอง ลูกค้าเห็นอะไรได้บ้าง และระบบนี้เชื่อมกับที่ดินชัวร์อย่างไร — อยากฟังตอนไหนเป็นพิเศษ กดที่หัวข้อด้านล่างเพื่อข้ามไปได้เลย</p>
+
+            <ol class="pc-chap" aria-label="หัวข้อในคลิป กดเพื่อข้ามไปฟังตอนนั้น">
+              <li><button type="button" data-t="0"><span class="pc-t">0:00</span><span class="pc-ct"><b>ทำไมเราเขียนระบบใช้เอง</b><small>ไม่ได้ซื้อโปรแกรมสำเร็จรูป แต่พัฒนา NJ Survey System ขึ้นมาเอง</small></span></button></li>
+              <li><button type="button" data-t="10"><span class="pc-t">0:10</span><span class="pc-ct"><b>ลูกค้าเปิดดูสถานะงานได้เอง<span class="pc-tag">ระบบของหน้านี้</span></b><small>รับงาน จ่ายงาน ช่างลงพื้นที่ จนส่งมอบเอกสารอยู่ในระบบเดียว ไม่ต้องโทรตาม</small></span></button></li>
+              <li><button type="button" data-t="27"><span class="pc-t">0:27</span><span class="pc-ct"><b>ที่ดินชัวร์ — ตรวจแปลงก่อนซื้อก่อนขาย</b><small>ตำแหน่งจริง เนื้อที่ ทางเข้าออก ผังเมือง</small></span></button></li>
+              <li><button type="button" data-t="40"><span class="pc-t">0:40</span><span class="pc-ct"><b>สองระบบเชื่อมกัน</b><small>ตรวจในที่ดินชัวร์แล้วอยากรังวัดจริง ข้อมูลส่งต่อเข้า NJ Survey ได้เลย ไม่ต้องเริ่มนับหนึ่งใหม่</small></span></button></li>
+              <li><button type="button" data-t="50"><span class="pc-t">0:50</span><span class="pc-ct"><b>เทียบกันตรงๆ กับแบบทั่วไป</b><small>รับงานทางไลน์ จดใส่ Excel ลูกค้าไม่รู้สถานะ — ต่างกับระบบที่เชื่อมกันทั้งเส้นและย้อนดูได้ทุกงาน</small></span></button></li>
+              <li><button type="button" data-t="70"><span class="pc-t">1:10</span><span class="pc-ct"><b>สรุป และทักปรึกษาฟรี</b><small>ส่งมอบทั้งระบบ เพื่อให้คุณชัวร์ทุกแปลง</small></span></button></li>
+            </ol>
+
+            <!-- ⚠️ ห้ามใช้แท็ก details/summary ที่นี่: build/schema.js ทำ FAQPage จากทุกอันของแท็กนั้นในหน้าที่มีหัวข้อ "คำถามที่พบบ่อย"
+                 อันนี้จะกลายเป็นคำถามปลอม · ใช้ปุ่ม + aria-expanded แทน — ไม่มี JS = ข้อความแสดงเต็ม (portalclip.js เป็นคนพับ) -->
+            <div class="pc-script">
+              <h3 class="pc-script-h"><button type="button" class="pc-script-btn" aria-expanded="true" aria-controls="pc-script-body">อ่านสิ่งที่พูดในคลิป (ข้อความเต็ม) — สำหรับคนที่ดูแบบปิดเสียง</button></h3>
+              <div class="pc-script-body" id="pc-script-body">
+                <p>บริษัทรังวัดมีเป็นร้อย แต่มีกี่เจ้าที่เขียนระบบใช้เอง NJ ไม่ได้ซื้อโปรแกรมสำเร็จรูปมาใช้ เราพัฒนา NJ Survey System ขึ้นมาเอง</p>
+                <p>รับงาน จ่ายงาน ช่างลงพื้นที่ จนถึงส่งมอบเอกสาร อยู่ในระบบเดียว ลูกค้าเปิดดูได้ว่างานถึงขั้นไหน ไม่ต้องโทรตาม และเพราะเป็นระบบของเราเอง หน้างานเจอปัญหาอะไร เราแก้ให้ตรงงานจริงได้ทันที</p>
+                <p>แล้วเรายังมีอีกระบบ ที่ดินชัวร์ ก่อนซื้อก่อนขาย ตรวจข้อมูลแปลงได้ก่อน ตำแหน่งจริง เนื้อที่ ทางเข้าออก ผังเมือง และ 2 ระบบนี้คุยกันได้ด้วยครับ</p>
+                <p>ตรวจในที่ดินชัวร์แล้วอยากรังวัดจริง ข้อมูลส่งต่อเข้า NJ Survey ได้เลย ไม่ต้องเริ่มนับหนึ่งใหม่ ตรวจก่อนซื้อ ให้เรารังวัด ได้เอกสาร จบในเส้นทางเดียว</p>
+                <p>เทียบกันตรงๆ ทั่วไป รับงานทางไลน์ จดใส่ Excel ลูกค้าไม่รู้สถานะ อยากตรวจข้อมูลที่ดิน ต้องไปหาอีกเจ้า NJ มีระบบของตัวเอง ข้อมูลที่ดินของตัวเอง ทีมช่างลงพื้นที่เอง เชื่อมกันทั้งเส้น ย้อนดูได้ทุกงาน</p>
+                <p>คนอื่นขายบริการ เราส่งมอบทั้งระบบ NJ Survey ระบบที่เราสร้างเอง เพื่อให้คุณชัวร์ทุกแปลง ทักมาปรึกษาฟรี</p>
+              </div>
+            </div>
+
+            <div class="pc-cta">
+              <a class="pt-btn pt-btn-main" href="https://app.njteedinsure.com/" target="_blank" rel="noopener">เข้าสู่ระบบติดตามงาน →</a>
+              <a class="pt-btn pt-btn-line" href="#getcode">ยังไม่มีรหัส? ดูวิธีขอ</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -465,5 +529,7 @@
   <script src="save.js" defer></script>
   <script src="njchatload.js" defer></script>
   <script src="menu.js" defer></script>
+  <!-- คลิปแนะนำ (#ดูคลิป) — ใช้ njTrack จาก analytics.js (ไม่บังคับ: ไม่มีก็แค่ไม่นับ) -->
+  <script src="portalclip.js" defer></script>
 </body>
 </html>
