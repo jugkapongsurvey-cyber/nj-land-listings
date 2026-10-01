@@ -242,7 +242,43 @@
     if (!hidden) close(false);            // ขยายจอจนเมนูเต็มกลับมา = ลิ้นชักไม่ควรค้างเปิด
   }
 
+  // ---------- เมนูย่อยบนแถวเดสก์ท็อปเมื่อใช้นิ้วแตะ ----------
+  // แถวเมนูเต็มโผล่ตั้งแต่ 1024px (iPad แนวนอน · แท็บเล็ต Android) แต่เมนูย่อยเปิดด้วย :hover ล้วนๆ
+  // นิ้วไม่มี hover — แตะหัวกลุ่มทีเดียวเบราว์เซอร์ก็เปิดหน้ารวมของกลุ่มเลย เมนูย่อยไม่เคยให้เลือก
+  // กติกา: แตะครั้งแรก = กางเมนูย่อย (ไม่ไปไหน) · แตะซ้ำที่หัวกลุ่มเดิม = ไปหน้ารวมของกลุ่ม · แตะที่อื่น/Esc = ปิด
+  // ⚠️ เมาส์กับคีย์บอร์ดห้ามโดนกฎนี้ — เมาส์ใช้ :hover อยู่แล้วและต้องกดแล้วไปหน้าได้ทันที
+  //    จึงแยกด้วย pointerType ของครั้งที่แตะล่าสุด ไม่ใช่เดาจากขนาดจอ (โน้ตบุ๊กจอสัมผัสมีทั้งสองแบบ)
+  function bindTouchMenus() {
+    var items = document.querySelectorAll('.njh-has-menu');
+    if (!items.length) return;
+    var lastType = 'mouse';
+    function setOpen(li, on) {
+      li.classList.toggle('is-open', on);
+      var t = li.querySelector('.njh-top');
+      if (t) t.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+    function closeAll(except) {
+      Array.prototype.forEach.call(items, function (li) { if (li !== except) setOpen(li, false); });
+    }
+    document.addEventListener('pointerdown', function (e) { lastType = e.pointerType || 'mouse'; }, true);
+    document.addEventListener('click', function (e) {
+      var top = e.target.closest ? e.target.closest('.njh-has-menu > .njh-top') : null;
+      if (!top) { closeAll(null); return; }
+      var li = top.parentNode;
+      // คลิกจากคีย์บอร์ด (detail = 0) หรือเมาส์ = ปล่อยตามเดิม
+      if (lastType === 'mouse' || e.detail === 0) return;
+      if (li.classList.contains('is-open')) return;      // แตะซ้ำ = ไปหน้ารวมของกลุ่ม
+      e.preventDefault();
+      closeAll(li);
+      setOpen(li, true);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAll(null);
+    });
+  }
+
   function boot() {
+    bindTouchMenus();
     nav = findNav();
     if (!nav) return;
     buildPanel();

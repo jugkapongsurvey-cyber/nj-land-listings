@@ -164,6 +164,10 @@
 
   /* ล็อกไม่ให้หน้าเลื่อนอยู่ข้างหลังตอนแผงเปิด */
   html.ls-sheet-open, html.ls-sheet-open body { overflow: hidden; }
+  /* ⚠️ แบนเนอร์คุกกี้ (z 900) สูงกว่าแผงตัวกรอง (860) โดยตั้งใจ — แต่บนมือถือมันสูงเกือบ 200px
+   *    ทับปุ่ม "ค้นหา/ล้างตัวกรอง" ที่ท้ายแผงจนกดไม่ได้ (เห็นจริงบน 390px)
+   *    ซ่อนแบนเนอร์ชั่วคราวตอนแผงเปิด · ปิดแผงแล้วแบนเนอร์กลับมาเหมือนเดิม ไม่ได้ข้ามการขอความยินยอม */
+  html.ls-sheet-open #nj-consent { display: none; }
 
   .ls-actions { position: sticky; bottom: 0; background: var(--nj-white); padding-top: var(--nj-space-3); }
   .ls-saved { margin-right: 0; flex: 1 1 100%; }

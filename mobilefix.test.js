@@ -198,5 +198,72 @@ ok('index.html preload ฟอนต์หัวข้อ พร้อม crossor
 ok('หัวข้อยังเขียนว่า "ที่ดิน" และ "ที่ตรวจสอบได้" (ข้อความไม่ถูกแตะ)',
    /<h1>ซื้อ–ขายที่ดิน มั่นใจกว่า<br><span>ด้วยข้อมูลที่ตรวจสอบได้<\/span><\/h1>/.test(idx));
 
+// ---------------------------------------------------------------------------
+console.log('\n4) แท็บเล็ต/มือถือ — ตะแกรงการ์ด · ส่วนหัว · เมนูย่อยแบบแตะ · ฟอร์ม (ตรวจ 1 ต.ค. 2569)');
+const lc = noComments(read('listingcard.css'));
+const hd = noComments(read('header.css'));
+const mjs = read('menu.js');
+const uic = noComments(read('ui.css'));
+const lsc = noComments(read('listings.css'));
+
+// 4a) หน้ารวมประกาศใช้ class="land-grid" — ต้องมีกฎตะแกรงของชื่อนั้นจริง (เคยไม่มี → การ์ดกว้างเต็มจอ)
+const lhtml = read('listings.html');
+const gridCls = (lhtml.match(/class="([^"]*)"\s+id="listing-grid"/) || [])[1] || '';
+ok('listings.html ตะแกรงการ์ดมี class', !!gridCls, gridCls);
+gridCls.split(/\s+/).filter(Boolean).forEach(c => {
+  const defined = [lc, noComments(read('marketplace.css')), noComments(read('home.css'))]
+    .some(css => new RegExp('\\.' + c + '\\{[^}]*display:grid').test(css));
+  ok('⭐ class "' + c + '" ของ #listing-grid มีกฎ display:grid ในไฟล์ CSS ที่หน้านั้นโหลด', defined);
+});
+ok('⭐ .land-grid เป็น 3 คอลัมน์ minmax(0,1fr)', /\.land-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/.test(lc));
+ok('.land-grid ≤1023px = 2 คอลัมน์ · ≤767px = 1 คอลัมน์',
+   /max-width:1023px\)\{\s*\.land-grid\{grid-template-columns:repeat\(2,/.test(lc) &&
+   /max-width:767px\)\{\s*\.land-grid\{grid-template-columns:1fr/.test(lc));
+ok('ข้อความโหลด/ไม่พบผลกินทั้งแถว (.land-grid > :not(.land-card))', /\.land-grid > :not\(\.land-card\)\{grid-column:1\/-1\}/.test(lc));
+
+// 4b) สไตล์การ์ดรุ่นเก่าใน marketplace.css รั่วเข้าการ์ดรุ่นใหม่ — ต้องมีตัวล้าง
+const mk = noComments(read('marketplace.css'));
+ok('ยืนยันต้นเหตุ: marketplace.css ยังมี .card-tags แบบ position:absolute (ถ้าลบแล้ว ลบตัวล้างได้)',
+   /\.card-tags\s*\{[^}]*position:absolute/.test(mk));
+ok('⭐ listingcard.css ล้าง .card-tags ให้เป็น static (ไม่ลอยทับป้ายบนรูป)', /\.land-card \.card-tags\{position:static/.test(lc));
+ok('⭐ ชิป .tag/.card-zone ในแถวแท็กกลับเป็นสีอ่อน 13px (ชนะ .card-tags span ของรุ่นเก่า)',
+   /\.land-card \.card-tags span\.tag\{[^}]*background:#f2f6fb[^}]*font-size:13px/.test(lc) &&
+   /\.land-card \.card-tags span\.card-zone\{[^}]*background:#f2f6fb/.test(lc));
+ok('⭐ .photo-count ไม่ถูกยืดด้วย bottom ของรุ่นเก่า', /\.land-card \.photo-count\{bottom:auto\}/.test(lc));
+
+// 4c) การ์ดแนวนอนบนมือถือต้องไม่ดันล้นการ์ดที่จอ 320px
+ok('⭐ การ์ดแนวนอน grid-template-columns: 120px minmax(0,1fr) (ไม่ใช่ 1fr ที่ยืดตามเนื้อหา)',
+   /\.land-card\.is-compact\{display:grid;grid-template-columns:120px minmax\(0,1fr\)\}/.test(lc));
+ok('.card-body ของการ์ดแนวนอนมี min-width:0', /\.land-card\.is-compact \.card-body\{min-width:0\}/.test(lc));
+ok('ราคา + ราคาต่อตร.ว. ตัดบรรทัดได้เมื่อแคบ (flex-wrap)', /\.land-card\.is-compact \.card-price\{flex-wrap:wrap/.test(lc));
+ok('จอ ≤360px ย่อรูปเหลือ 100px', /max-width:360px\)\{[^}]*\.land-card\.is-compact\{grid-template-columns:100px minmax\(0,1fr\)\}/.test(lc));
+
+// 4d) ส่วนหัวบนแท็บเล็ต
+ok('⭐ ≤1023px: โลโก้กินที่ว่าง ปุ่มทั้งหมดชิดขวา (.njh-brand margin-right:auto)',
+   /max-width:\s*1023px\)\s*\{[\s\S]*?\.njh-brand\s*\{\s*margin-right:\s*auto/.test(hd));
+const mid = (hd.match(/min-width:\s*1024px\)\s*and\s*\(max-width:\s*1139px\)\s*\{([\s\S]*?)\n\}/) || [])[1] || '';
+ok('⭐ 1024–1139px มีกฎบีบแถวเมนู (แถวล้นทับปุ่ม "ฝากขายฟรี" ที่ 1024)', !!mid, mid);
+ok('1024–1139px: ตัวอักษรเมนู ≥ 14px', parseFloat((mid.match(/\.njh-top\s*\{[^}]*font-size:\s*([\d.]+)px/) || [])[1]) >= 14);
+ok('จุดตัดลิ้นชัก (1023) ยังเป็นค่าเดิม — ไม่ไปแตะ', /@media \(max-width: 1023px\) \{\s*\.njh-nav \{ display: none; \}/.test(hd));
+
+// 4e) เมนูย่อยบนจอสัมผัส (แท็บเล็ตแนวนอน 1024+) — เมนูย่อยเดิมเปิดด้วย :hover ล้วน
+ok('⭐ header.css: .njh-has-menu.is-open เปิดเมนูย่อยได้เหมือน :hover', /\.njh-has-menu\.is-open > \.njh-panel/.test(hd));
+ok('⭐ menu.js มี bindTouchMenus และเรียกใน boot ก่อนหา nav', /function bindTouchMenus\(\)/.test(mjs) && /function boot\(\) \{\s*bindTouchMenus\(\);/.test(mjs));
+ok('แยกเมาส์/นิ้วด้วย pointerType ไม่เดาจากขนาดจอ', /e\.pointerType/.test(mjs) && /lastType === 'mouse'/.test(mjs));
+ok('คีย์บอร์ด (detail=0) ไม่ถูกดัก', /e\.detail === 0/.test(mjs));
+ok('แตะซ้ำที่กลุ่มที่เปิดอยู่ = ไปหน้ารวมของกลุ่ม (ไม่ preventDefault ซ้ำ)', /classList\.contains\('is-open'\)\) return;/.test(mjs));
+ok('แตะที่อื่น/Esc ปิดเมนูย่อย', /closeAll\(null\)/.test(mjs) && /e\.key === 'Escape'\) closeAll/.test(mjs));
+
+// 4f) ตัวกรองมือถือ + แบนเนอร์คุกกี้
+ok('⭐ แผงตัวกรองเปิดอยู่ = ซ่อนแบนเนอร์คุกกี้ชั่วคราว (ไม่ให้บังปุ่มค้นหา)', /html\.ls-sheet-open #nj-consent\s*\{\s*display:\s*none/.test(lsc));
+
+// 4g) ฟอร์มใน .cs-formcard ทั้งสามหน้า
+const uiFlat = uic.replace(/\s+/g, ' ');
+ok('⭐ ui.css ให้ฟอร์มทั้งสาม (#consign-form #verify-form #wanted-form) มีขอบใน + grid + ช่องไฟ',
+   /#consign-form,#verify-form,#wanted-form\{padding:20px 22px 24px;display:grid;gap:15px\}/.test(uiFlat));
+const formIds = {};
+['consign.html', 'verify.html', 'wanted.html'].forEach(f => { formIds[f] = (read(f).match(/<form id="([^"]+)"/) || [])[1]; });
+ok('ฟอร์มของสามหน้ายังใช้ id ที่ ui.css รู้จัก', Object.values(formIds).every(id => /^(consign|verify|wanted)-form$/.test(id)), JSON.stringify(formIds));
+
 console.log('\n' + (fail ? '❌' : '✅') + ' mobilefix: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

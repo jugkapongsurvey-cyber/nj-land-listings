@@ -110,7 +110,11 @@
 .cs-formtitle{font-size:20px;font-weight:700;line-height:1.3}
 .cs-formsub{font-size:12.5px;color:rgba(255,255,255,.9);margin-top:4px}
 
-#consign-form{padding:20px 22px 24px;display:grid;gap:15px}
+/* ⚠️ ต้องครอบทั้งสามฟอร์มใน .cs-formcard (ฝากขาย · ตรวจทรัพย์ · ฝากหา) — เคยมีแค่ #consign-form
+ *    หน้าตรวจทรัพย์/ฝากหาจึงไม่มีขอบในของการ์ด ป้ายชื่อช่องชิดขอบซ้าย ช่องกรอกชนขอบการ์ด และไม่มีช่องไฟระหว่างช่อง
+ *    (เห็นทุกขนาดจอ · ชัดสุดบนมือถือ/แท็บเล็ต) — เพิ่มฟอร์มใหม่ใน .cs-formcard ต้องเพิ่ม id ที่นี่ด้วย */
+#consign-form,#verify-form,#wanted-form{padding:20px 22px 24px;display:grid;gap:15px}
+.cs-formcard form > *{min-width:0}   /* ช่องของ grid มี min-width:auto — เนื้อหายาวดันฟอร์มล้นจอได้ */
 
 /* honeypot — ต้องซ่อนแบบที่บอทตรวจไม่พบง่ายๆ แต่ไม่ใช้ display:none เพราะบอทบางตัวข้ามช่องที่ display:none */
 .cs-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}

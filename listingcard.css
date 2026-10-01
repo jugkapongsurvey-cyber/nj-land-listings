@@ -14,6 +14,19 @@
 .land-card:hover{box-shadow:0 12px 32px rgba(11,31,58,.14);transform:translateY(-2px)}
 .land-card[data-href]{cursor:pointer}
 
+/* ---------- ตะแกรงการ์ดของหน้ารวมประกาศ (listings.html · class="land-grid") ----------
+ * ⚠️ **ต้องมีกฎนี้ — เคยไม่มีเลย** หน้ารวมประกาศใช้ชื่อคลาส `land-grid` แต่กฎตะแกรงใน marketplace.css
+ *    ชื่อ `.listing-grid` (หน้าแรกใช้ `.grid-3` ใน home.css) ชื่อไม่ตรงกัน → ตะแกรงเป็น block ธรรมดา
+ *    การ์ดแต่ละใบกว้างเต็มจอ 768px ขึ้นไป (วัดจริง 1024px: การ์ดกว้าง 969 สูง 970 · 1440px: กว้าง 1180)
+ *    รูป 4:3 ขยายใหญ่เท่าจอ ผู้ซื้อบนแท็บเล็ตต้องปัดผ่านรูปทีละใบ
+ * ⚠️ ใช้ minmax(0,1fr) ไม่ใช่ 1fr — ค่า 1fr ห้ามคอลัมน์แคบกว่าเนื้อหาที่ยาวที่สุด การ์ดจึงดันตะแกรงล้นจอ
+ *    3 → 2 → 1 คอลัมน์ ตรงกับ .grid-3 หน้าแรก (1023 / 767) ให้สองหน้าหน้าตาเหมือนกัน */
+.land-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+/* ข้อความโหลด/ไม่พบผล/ข้อความผิดพลาดต้องกินทั้งแถว ไม่ใช่ถูกยัดอยู่ในคอลัมน์แรก */
+.land-grid > :not(.land-card){grid-column:1/-1}
+@media (max-width:1023px){ .land-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:767px){ .land-grid{grid-template-columns:1fr;gap:12px} }
+
 .card-media{position:relative;aspect-ratio:4/3;background:#dde5df;overflow:hidden;height:auto}
 .card-media img{display:block;width:100%;height:100%;object-fit:cover}
 /* ไม่มีรูป = พื้นลายเส้นแทน ไม่ใช่ไอคอนรูปแตกหรือช่องว่าง */
@@ -44,6 +57,32 @@
 .tag{display:inline-block;padding:4px 8px;border-radius:6px;font-size:13px;background:#f2f6fb;color:#4a5568}
 .tag-orange{background:#fff4e5;color:#b45309}
 .tag-green{background:#e8f7ee;color:#15803d}
+/* ---------- ล้างกฎการ์ดรุ่นเก่าใน marketplace.css ที่ยังรั่วเข้ามาในหน้ารวมประกาศ ----------
+ * ⚠️ หน้ารวมประกาศ (listings.html) โหลด marketplace.css ก่อนไฟล์นี้ ซึ่งยังมีสไตล์การ์ดรุ่นเก่าอยู่ และ
+ *    ไฟล์นี้เขียนทับได้เฉพาะ "ช่องที่ตัวเองประกาศ" ช่องที่รุ่นเก่าตั้งไว้แต่ไฟล์นี้ไม่ได้พูดถึงจึงค้างอยู่
+ *    ผลที่เห็นบนแท็บเล็ต/จอคอม (วัดจริงที่ 768–1440px):
+ *      · `.card-tags{position:absolute;left:12px;top:12px}` ลอยทับป้าย "ขาย" "ตรวจสอบโดย NJ" บนรูปพอดี
+ *        (ในรุ่นใหม่ .card-tags เป็นแถวในเนื้อการ์ด ไม่ใช่ป้ายบนรูป)
+ *      · `.card-tags span{background:navy;color:#fff;font-size:10px}` ความจำเพาะสูงกว่า .tag จึงชนะ
+ *        → ชิปเนื้อที่/ผังสี/เอกสารสิทธิ์กลายเป็นกล่องน้ำเงินตัวขาว 10px เล็กและเข้มผิดชุดสี
+ *      · `.photo-count{bottom:10px}` + top:12px จากไฟล์นี้ → ป้ายจำนวนรูปถูกยืดสูงเกือบทั้งรูป (236px)
+ *      · `.card-zone{margin-top:8px}` ทำให้ป้ายผังสีต่ำกว่าชิปข้างๆ
+ *    ⚠️ ห้ามลบกฎเหล่านี้เพราะ "ดูซ้ำซ้อน" — ถ้าวันหนึ่งตัดการ์ดรุ่นเก่าออกจาก marketplace.css ได้หมดค่อยลบ */
+.land-card .card-tags{position:static;left:auto;top:auto}
+.land-card .card-tags span.tag{
+  background:#f2f6fb;color:#4a5568;font-size:13px;font-weight:400;padding:4px 8px;border-radius:6px;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+.land-card .card-tags span.card-zone{
+  background:#f2f6fb;color:#4a5568;font-size:13px;font-weight:400;padding:4px 8px;border-radius:6px;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+.land-card .card-tags span.tag-orange{background:#fff4e5;color:#b45309}
+.land-card .card-tags span.tag-green{background:#e8f7ee;color:#15803d}
+.land-card .photo-count{bottom:auto}
+.land-card .card-zone{margin-top:0}
+.land-card .card-price{line-height:1.35;margin-bottom:0}
+
 .card-foot{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #eef1f5;padding-top:10px;margin-top:4px;font-size:12px;color:#646f84}
 .card-foot .score{font-weight:600;color:#15803d;white-space:nowrap}
 .card-foot .score.is-low{color:#b45309}
@@ -98,7 +137,13 @@
  * รูป 4:3 เต็มความกว้าง × การ์ดหลายใบ = ต้องปัดนิ้วผ่านรูปอย่างเดียวเกือบสองพันพิกเซล
  * จึงสลับเป็นการ์ดแนวนอน รูปเล็กซ้าย ข้อความขวา ตามที่ดีไซน์กำหนด */
 @media (max-width:767px){
-  .land-card.is-compact{display:grid;grid-template-columns:120px 1fr}
+  /* ⚠️ minmax(0,1fr) + min-width:0 บน .card-body — ไม่ใส่ ราคา/วันอัปเดตดันเนื้อหาให้กว้างกว่าคอลัมน์
+     แล้วล้นออกนอกการ์ดที่จอ 320px (วัดจริง: ราคาต่อตร.ว. ล้น 16px · "อัปเดต …" ล้น 5–12px) */
+  .land-card.is-compact{display:grid;grid-template-columns:120px minmax(0,1fr)}
+  .land-card.is-compact .card-body{min-width:0}
+  .land-card.is-compact .card-price{flex-wrap:wrap;column-gap:8px;row-gap:3px}
+  .land-card.is-compact .card-title,
+  .land-card.is-compact .card-foot{overflow-wrap:anywhere}
   .land-card.is-compact .card-media{aspect-ratio:auto;height:100%;min-height:112px}
   /* เว้นที่ท้ายการ์ดให้ปุ่มบันทึก/เทียบที่ลอยอยู่มุมล่างขวา ไม่งั้นมันทับบรรทัดรหัสทรัพย์
      ซึ่งเป็นบรรทัดที่ทีมใช้จับคู่ผู้ซื้อกับเจ้าของ (เจอจริงตอนวัดบนจอ 375px)
@@ -142,4 +187,12 @@
   .land-card.is-compact .card-badges{left:6px;top:6px}
   .land-card.is-compact .badge{font-size:10.5px;padding:3px 6px}
   .land-card:not(.is-compact) .card-media{aspect-ratio:16/9}
+}
+
+/* ---------- จอแคบมาก (≤360px) — iPhone SE · Android เล็ก ----------
+ * รูป 120px กินเกือบครึ่งการ์ด ข้อความขวาเหลือราว 150px ย่อรูปลงเหลือ 100px ให้ข้อความหายใจได้ */
+@media (max-width:360px){
+  .land-card.is-compact{grid-template-columns:100px minmax(0,1fr)}
+  .land-card.is-compact .card-body{padding-left:10px;padding-right:10px}
+  .land-card.is-compact .card-price b{font-size:17px}
 }
