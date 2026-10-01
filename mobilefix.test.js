@@ -236,6 +236,9 @@ ok('⭐ การ์ดแนวนอน grid-template-columns: 120px minmax(0,
    /\.land-card\.is-compact\{display:grid;grid-template-columns:120px minmax\(0,1fr\)\}/.test(lc));
 ok('.card-body ของการ์ดแนวนอนมี min-width:0', /\.land-card\.is-compact \.card-body\{min-width:0\}/.test(lc));
 ok('ราคา + ราคาต่อตร.ว. ตัดบรรทัดได้เมื่อแคบ (flex-wrap)', /\.land-card\.is-compact \.card-price\{flex-wrap:wrap/.test(lc));
+ok('⭐ การ์ดแนวนอนบนมือถือไม่ซ่อนป้ายระดับการตรวจสอบ (.card-marks)',
+   !/\.land-card\.is-compact \.card-marks[^{]*\{[^}]*display:none/.test(lc) &&
+   !/\.land-card\.is-compact \.card-marks,/.test(lc));
 ok('จอ ≤360px ย่อรูปเหลือ 100px', /max-width:360px\)\{[^}]*\.land-card\.is-compact\{grid-template-columns:100px minmax\(0,1fr\)\}/.test(lc));
 
 // 4d) ส่วนหัวบนแท็บเล็ต

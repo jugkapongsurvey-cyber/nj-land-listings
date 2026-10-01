@@ -153,7 +153,6 @@
   .land-card.is-compact .card-price b{font-size:18px}
   .land-card.is-compact .card-desc,
   .land-card.is-compact .card-tags,
-  .land-card.is-compact .card-marks,
   .land-card.is-compact .photo-count,
   .land-card.is-compact .card-badges .badge:not(.badge-verified):not(.badge-basic){display:none}
 
@@ -186,6 +185,11 @@
   .land-card.is-compact .card-title{font-size:13px}
   .land-card.is-compact .card-badges{left:6px;top:6px}
   .land-card.is-compact .badge{font-size:10.5px;padding:3px 6px}
+  /* ป้ายระดับการตรวจสอบต้องเห็นบนการ์ดมือถือด้วย (เจ้าของสั่ง 1 ต.ค. 69 · เดิมซ่อนทั้งแถว)
+     ชื่อระดับ 2 ยาว จึงย่อตัวอักษรและให้ขึ้นบรรทัดใหม่ในช่องข้อความ ⚠️ ห้ามกลับไปซ่อน .card-marks */
+  .land-card.is-compact .card-marks{margin-top:2px}
+  .land-card.is-compact .njv-badge{font-size:10px;padding:2px 7px;line-height:1.5}
+  .land-card.is-compact .njv-badge b{font-size:10.5px}
   .land-card:not(.is-compact) .card-media{aspect-ratio:16/9}
 }
 
