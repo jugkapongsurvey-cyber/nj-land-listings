@@ -252,5 +252,31 @@ ok('ขอบข้างย่อตาม 3 breakpoint ตามที่อ�
 ok('ฟอนต์ยังเป็น IBM Plex Sans Thai ตระกูลเดียว',
    /--font:'IBM Plex Sans Thai'/.test(css) && !/Trirong|Sarabun|Manrope/.test(css));
 
+console.log('\n13) คลิปแนะนำ 30 วินาที (#ดูคลิป)');
+const clip = (home.match(/<section class="introclip"[\s\S]*?<\/section>/) || [''])[0];
+const introjs = read('introclip.js');
+const introCode = introjs.replace(/\/\/.*$/gm, '');
+ok('⭐ มีแถบ #ดูคลิป', clip.length > 200 && /id="ดูคลิป"/.test(clip));
+ok('⭐ แถบคลิปอยู่ต่อจาก hero ก่อน trust',
+   home.indexOf('<section class="hero"') < home.indexOf('<section class="introclip"') &&
+   home.indexOf('<section class="introclip"') < home.indexOf('<section class="trust"'));
+ok('ใช้ไฟล์คลิปที่มีอยู่จริง (ไม่อัปโหลดซ้ำ)',
+   /src="video\/teedinsure-ad\.mp4"/.test(clip) && fs.existsSync(path.join(__dirname, 'video/teedinsure-ad.mp4')) &&
+   /poster="video\/teedinsure-ad-poster\.jpg"/.test(clip) && fs.existsSync(path.join(__dirname, 'video/teedinsure-ad-poster.jpg')));
+ok('⭐ ไม่เล่นเอง: preload="none" และไม่มี autoplay', /preload="none"/.test(clip) && !/autoplay/.test(clip));
+ok('⭐ มี controls ตั้งแต่ HTML (JS ตายก็ยังกดเล่นได้) และมี playsinline', /<video[^>]*\scontrols[\s>]/.test(clip) && /playsinline/.test(clip));
+ok('⭐ ใส่ width/height กัน layout shift', /width="1080"\s+height="1920"/.test(clip));
+ok('ปุ่มเล่นมีชื่อให้เครื่องอ่านหน้าจอ', /<button[^>]*class="ic-play"[^>]*aria-label="[^"]+"/.test(clip));
+ok('⭐ ไม่ชน id ของ services.html (#ตรวจก่อนโอน / #แนะนำระบบ)', !/id="(ตรวจก่อนโอน|แนะนำระบบ)"/.test(home));
+ok('⭐ ไม่ใช้ data-nj-intro-play และไม่โหลด njintro.js', !/data-nj-intro-play/.test(home) && !/src="njintro\.js"/.test(home));
+ok('หน้าแรกโหลด introclip.js', /<script src="introclip\.js" defer><\/script>/.test(home));
+ok('hero มีลิงก์ไปคลิป และไม่ใช่ปุ่ม .btn', /<a class="hero-clip" href="#ดูคลิป" data-ic-play>/.test(hero));
+ok('⭐ introclip.js ถอด controls แล้วเล่นในจังหวะคลิก ไม่ preventDefault ไม่ autoplay',
+   /removeAttribute\('controls'\)/.test(introCode) && /vid\.play\(\)/.test(introCode) &&
+   !/preventDefault/.test(introCode) && !/autoplay/.test(introCode));
+ok('⭐ ปุ่มของเราซ่อนไว้จนกว่า JS ใส่ .js-ready', /\.ic-play\{display:none\}/.test(css) && /\.introclip\.js-ready \.ic-play\{display:flex/.test(css));
+ok('⭐ video ต้องมี height:auto (กัน height="1920" ชนะ aspect-ratio)', /\.ic-frame video\{[^}]*height:auto/.test(css));
+ok('ไม่มี on*= ใน HTML ของแถบ (CSP)', !/\son[a-z]+=/.test(clip));
+
 console.log('\n' + (fail ? '❌' : '✅') + ' homepage: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

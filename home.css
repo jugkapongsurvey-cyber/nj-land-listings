@@ -190,6 +190,59 @@ h1,h2,h3,p{margin:0}
   .search-foot .more{display:none}
 }
 
+/* ========== คลิปแนะนำ 30 วินาที (#ดูคลิป) ==========
+   คลิปเป็นแนวตั้ง 9:16 (1080×1920) — ยัดกรอบ 16:9 ไม่ได้ จึงวางเป็นสองคอลัมน์ คลิปซ้าย + เนื้อความขวา
+   แล้วซ้อนกันบนจอแคบ · ความกว้างคลิปถูกคุมไว้ ไม่งั้นบนมือถือสูงเกินจอ (375px → 667px)
+   ⚠️ พื้นสว่างเท่านั้น — ถัดลงไปคือแถบ trust (สว่าง) และ .standard (กรมท่า) อยู่ไกลลงไป ไม่ติดกัน
+   ⚠️ `video` ต้องมี height:auto — แอตทริบิวต์ height="1920" ใน HTML กลายเป็น height:1920px ชนะ aspect-ratio
+   ⚠️ ปุ่มเล่นของเราซ่อนไว้จนกว่า introclip.js ใส่ .js-ready (JS ตาย = ยังกดเล่นจากแถบควบคุมของเบราว์เซอร์ได้) */
+.introclip{padding:0 0 40px}
+.ic-card{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:56px;align-items:center;
+  background:var(--bg-3);border:1px solid var(--line);border-radius:var(--r-xl);padding:32px 56px 32px 32px}
+.ic-player{order:-1}
+.ic-frame{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--navy);box-shadow:var(--shadow-md);border:1px solid var(--line-2)}
+.ic-frame video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;background:var(--navy)}
+.ic-play{display:none}
+.introclip.js-ready .ic-play{display:flex;position:absolute;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;
+  padding:0 12px 24px;border:0;cursor:pointer;color:#fff;font-family:inherit;
+  background:linear-gradient(180deg,rgba(11,31,58,.08) 0%,rgba(11,31,58,.04) 45%,rgba(11,31,58,.78) 100%)}
+.ic-play-ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--gold-light);color:var(--navy);box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .2s ease}
+.ic-play:hover .ic-play-ring{transform:scale(1.07)}
+.ic-play:focus-visible{outline:3px solid var(--gold-light);outline-offset:-3px}
+.ic-play-txt{font-size:15px;font-weight:600;line-height:1.4;text-align:center}
+.ic-play-txt small{display:block;font-size:12px;font-weight:400;color:rgba(255,255,255,.82);margin-top:2px}
+.ic-copy{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.ic-copy h2{max-width:560px}
+.ic-lede{font-size:16px;line-height:1.7;color:var(--ink-2);max-width:560px;margin:0}
+.ic-steps{list-style:none;margin:4px 0 6px;padding:0;display:grid;gap:12px;max-width:560px}
+.ic-steps li{display:flex;gap:14px;align-items:flex-start}
+.ic-steps .n{flex:0 0 32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+.ic-steps b{display:block;font-size:16px;line-height:1.4}
+.ic-steps span{font-size:14px;line-height:1.55;color:var(--ink-2)}
+.ic-copy .btn{margin-top:6px}
+@media (max-width:1023px){
+  .ic-card{grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:32px;padding:24px}
+}
+@media (max-width:767px){
+  .introclip{padding-bottom:28px}
+  /* มือถือ: หัวข้อ → คลิป → รายละเอียด → ปุ่ม (คลิปคือพระเอก ต้องไม่ไปอยู่ท้ายสุดใต้ปุ่ม)
+     display:contents ทำให้ลูกของ .ic-copy กลายเป็นลูกของ .ic-card ตรงๆ แล้วสลับลำดับได้ */
+  .ic-card{display:flex;flex-direction:column;align-items:stretch;gap:14px;padding:20px 16px;border-radius:var(--r-lg)}
+  .ic-copy{display:contents}
+  .ic-copy .eyebrow{order:1}
+  .ic-copy h2{order:2}
+  .ic-player{order:3;width:min(240px,68vw);margin:6px auto}
+  .ic-lede{order:4}
+  .ic-steps{order:5}
+  .ic-copy .btn{order:6;min-height:48px;text-align:center}
+}
+/* ลิงก์ "ดูคลิป" ใต้คำโปรยของ hero — ลิงก์เปล่า + วงกลมทอง ไม่ใช่ปุ่มกรอบเต็ม
+   hero ต้องมีปุ่มหลักปุ่มเดียวคือ "ค้นหาที่ดิน" (homepage.test.js ข้อ 2) */
+.hero-clip{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;font-size:15px;font-weight:600;color:var(--navy);text-decoration:none;min-height:44px}
+.hero-clip-ico{width:36px;height:36px;border-radius:50%;background:var(--gold-light);color:var(--navy);display:grid;place-items:center;flex-shrink:0;transition:transform .2s ease}
+.hero-clip:hover .hero-clip-ico{transform:scale(1.08)}
+.hero-clip:hover span:last-child{text-decoration:underline}
+
 /* ========== TRUST BAR ========== */
 .trust .container{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-top:24px;padding-bottom:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .trust .container{margin-left:auto;margin-right:auto}

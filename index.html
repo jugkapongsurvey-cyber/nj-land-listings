@@ -262,6 +262,12 @@
         <span class="hero-pill">ทุกแปลงแสดงระดับข้อมูลที่ตรวจสอบแล้ว</span>
         <h1>ซื้อ–ขายที่ดิน มั่นใจกว่า<br><span>ด้วยข้อมูลที่ตรวจสอบได้</span></h1>
         <p class="hero-lead">ค้นหาทรัพย์ ฝากขาย ตรวจเอกสารและแนวเขตก่อนตัดสินใจ พร้อมทีมช่างรังวัดเอกชนดูแลทุกขั้นตอน</p>
+        <!-- ลิงก์ไปคลิปแนะนำ 30 วิ (#ดูคลิป) — ลิงก์เปล่า ไม่ใช่ปุ่มกรอบ: hero มีปุ่มหลักได้แค่ "ค้นหาที่ดิน"
+             data-ic-play ให้ introclip.js สั่งเล่นในจังหวะคลิก · JS ไม่ทำงานก็ยังเลื่อนไปถึงคลิปตามปกติ -->
+        <a class="hero-clip" href="#ดูคลิป" data-ic-play>
+          <span class="hero-clip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span>ยังไม่เข้าใจว่าเราช่วยอะไรได้? ดูคลิป 30 วินาที</span>
+        </a>
 
         <!-- ⚠️ **id ทุกตัวในฟอร์มนี้ถูก `marketplace.js` อ่านแบบไม่เช็ก null**
              `search-form` `search-input` `type-filter` `price-filter` `size-filter` + `[data-purpose]`
@@ -336,6 +342,41 @@
           <div><span class="check-dot" aria-hidden="true">✓</span>ขนาดพื้นที่ตรงโฉนด</div>
           <div><span class="check-dot" aria-hidden="true">✓</span>เอกสารสิทธิ์ · ภาระผูกพัน</div>
           <div><span class="check-dot" aria-hidden="true">✓</span>ผังเมือง · ทางเข้าออก</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= คลิปแนะนำ 30 วินาที =================
+       ⚠️ คลิปเดียวกับ video/teedinsure-ad.mp4 ที่ services.html#ตรวจก่อนโอน ใช้อยู่ (พรีเซนเตอร์หญิง
+          เจ้าของยืนยันความยินยอมของเจ้าของภาพแล้ว 2026-09-07 · ดูกติกาข้อ 10 ใน CLAUDE.md)
+       ⚠️ ห้ามใช้ id #ตรวจก่อนโอน / #แนะนำระบบ ที่นี่ — สองชื่อนี้เป็นของ services.html (homepage.test.js ข้อ 7)
+       ⚠️ ไม่เล่นเอง (มีเสียงพูด · preload="none") · ใส่ controls ไว้ก่อนแล้ว introclip.js ถอดออก ห้ามทำกลับด้าน
+       ⚠️ ข้อความ 3 ข้อด้านขวาต้องเป็นสิ่งที่คลิปพูดจริง — แก้คลิปเมื่อไหร่ ต้องไล่แก้ข้อความตาม -->
+  <section class="introclip" id="ดูคลิป" aria-labelledby="ic-h">
+    <div class="container">
+      <div class="ic-card">
+        <div class="ic-copy">
+          <span class="eyebrow">มาครั้งแรก? เริ่มที่นี่</span>
+          <h2 class="h2" id="ic-h">ดูคลิป 30 วินาที<br>เข้าใจก่อนว่าที่ดินชัวร์ช่วยอะไรคุณได้</h2>
+          <p class="ic-lede">ก่อนจ่ายมัดจำที่ดิน ควรรู้ให้ครบว่าแปลงนั้นมีอะไรซ่อนอยู่ — พรีเซนเตอร์เล่าให้ฟังสั้นๆ ว่าเราตรวจอะไรให้บ้าง</p>
+          <ol class="ic-steps">
+            <li><span class="n" aria-hidden="true">1</span><div><b>ข้อมูลโฉนด</b><span>ประเภทเอกสารสิทธิ์และเนื้อที่ตามที่ระบุในเอกสาร</span></div></li>
+            <li><span class="n" aria-hidden="true">2</span><div><b>ผังเมืองและภาระผูกพัน</b><span>ผังสีของแปลง และประเด็นที่ควรตรวจเพิ่มก่อนตัดสินใจ</span></div></li>
+            <li><span class="n" aria-hidden="true">3</span><div><b>ทางเข้าออก</b><span>แปลงติดถนนจริงไหม เข้าออกทางไหนได้บ้าง</span></div></li>
+          </ol>
+          <a class="btn btn-navy" href="verify.html">ให้เราตรวจแปลงให้ →</a>
+        </div>
+        <div class="ic-player">
+          <div class="ic-frame">
+            <video id="ic-video" src="video/teedinsure-ad.mp4" poster="video/teedinsure-ad-poster.jpg"
+                   playsinline preload="none" controls width="1080" height="1920"
+                   aria-label="วิดีโอแนะนำที่ดินชัวร์ ตรวจข้อมูลแปลงก่อนโอน ความยาว 30 วินาที"></video>
+            <button type="button" class="ic-play" aria-label="เล่นวิดีโอแนะนำที่ดินชัวร์ 30 วินาที">
+              <span class="ic-play-ring" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+              <span class="ic-play-txt">ดูคลิป 30 วินาที<small>มีเสียงพูดบรรยาย</small></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -658,6 +699,8 @@
 <script src="sellform.js" defer></script>
 <!-- บล็อกวารสารฉบับล่าสุด — ต้องมาหลัง analytics.js (อ่าน NJ_API_BASE) -->
 <script src="journalhome.js" defer></script>
+<!-- คลิปแนะนำ 30 วินาที (#ดูคลิป) — ใช้ njTrack จาก analytics.js (ไม่บังคับ: ไม่มีก็แค่ไม่นับ) -->
+<script src="introclip.js" defer></script>
 
 
 </body>
