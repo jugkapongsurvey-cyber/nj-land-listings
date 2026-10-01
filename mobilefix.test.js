@@ -265,5 +265,21 @@ const formIds = {};
 ['consign.html', 'verify.html', 'wanted.html'].forEach(f => { formIds[f] = (read(f).match(/<form id="([^"]+)"/) || [])[1]; });
 ok('ฟอร์มของสามหน้ายังใช้ id ที่ ui.css รู้จัก', Object.values(formIds).every(id => /^(consign|verify|wanted)-form$/.test(id)), JSON.stringify(formIds));
 
+// ---------------------------------------------------------------------------
+console.log('\n5) ตรวจต่อ: หน้าที่วาดการ์ดต้องโหลดสไตล์การ์ด · หน้านโยบาย (ตรวจ 1 ต.ค. 2569 รอบ 2)');
+// หน้าไหนเรียก NJListing.card/NJL.card ในไฟล์ JS ของตัวเอง = หน้านั้นวาดการ์ดแปลง ต้องโหลด listingcard.css ด้วย
+// (land.html กับ purpose.html เคยไม่โหลด → การ์ดเหลือสไตล์รุ่นเก่า ราคาชิดกัน ชิปลอยทับรูป)
+const cardPages = { 'land.html': 'land.js', 'purpose.html': 'purpose.js' };
+Object.keys(cardPages).forEach(page => {
+  const h = read(page);
+  ok(page + ' ยังวาดการ์ดด้วย NJListing/NJL.card (ถ้าเลิกแล้ว ลบข้อนี้ได้)', /(NJListing|NJL)\.card|\.map\(NJListing\.card\)/.test(read(cardPages[page])));
+  const iMk = h.indexOf('href="marketplace.css"');
+  const iLc = h.indexOf('href="listingcard.css"');
+  ok('⭐ ' + page + ' โหลด listingcard.css', iLc > 0);
+  ok('⭐ ' + page + ' โหลด listingcard.css หลัง marketplace.css (ความจำเพาะเท่ากัน ไฟล์หลังชนะ)', iMk > 0 && iLc > iMk);
+});
+ok('.ld-rel-grid ใช้ minmax(0,1fr) (การ์ดไม่ดันตะแกรงล้นจอ)', /\.ld-rel-grid \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/.test(read('land.css')));
+ok('⭐ หน้านโยบาย: หัวข้อ .lg-body h2 ชิดซ้าย (.cs-h2 ตั้งกลางไว้)', /\.lg-body h2 \{[^}]*text-align: left/.test(read('legal.css')));
+
 console.log('\n' + (fail ? '❌' : '✅') + ' mobilefix: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

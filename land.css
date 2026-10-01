@@ -465,7 +465,7 @@ html.ld-lb-lock{overflow:hidden}
 /* ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ---------- */
 .ld-rel { margin: var(--nj-space-7) 0 0; padding-top: var(--nj-space-6); border-top: 1px solid var(--nj-border); }
 .ld-rel h2 { margin: 0 0 var(--nj-space-4); font-size: var(--nj-fs-h3); color: var(--nj-text-strong); }
-.ld-rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--nj-space-4); }
+.ld-rel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nj-space-4); }
 .ld-rel-more {
   display: inline-flex;
   align-items: center;
@@ -484,11 +484,11 @@ html.ld-lb-lock{overflow:hidden}
 .ld-sticky { display: none; }
 
 @media (max-width: 900px) {
-  .ld-rel-grid { grid-template-columns: repeat(2, 1fr); }
+  .ld-rel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
-  .ld-rel-grid { grid-template-columns: 1fr; }
+  .ld-rel-grid { grid-template-columns: minmax(0, 1fr); }
   .ld-tools > * { flex: 1 1 100%; justify-content: center; }
 
   /* ⚠️ z-index ต้องต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (950)
