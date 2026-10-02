@@ -75,7 +75,12 @@ ok('⭐ ถอด controls แล้วเล่นในจังหวะค�
 ok('⭐ เล่นไม่สำเร็จแล้วคืนปุ่มเล่น', /catch\(function\(\)\{[^}]*btn\.style\.display = ''/.test(code));
 ok('⭐ คลิปยังไม่โหลด (preload none) ต้องรอ loadedmetadata ก่อนกระโดดเวลา', /loadedmetadata/.test(code) && /currentTime = t/.test(code));
 ok('⭐ JS เป็นคนพับข้อความเต็ม (ไม่มี JS = แสดงเต็ม)', /sbody\.hidden = true/.test(code) && /aria-expanded/.test(code));
-ok('นับครั้งแรกที่กดเล่นด้วยชื่อของหน้านี้', /content_name: 'portal_intro_clip'/.test(code));
+ok('⭐ ชื่อเหตุการณ์นับอ่านจาก data-track ของแต่ละแถบ (ไม่ฝังชื่อเดียวทั้งไฟล์)', /content_name: sec\.getAttribute\('data-track'\)/.test(code));
+ok('แถบแรกนับเป็น portal_intro_clip', /<section class="pt-clip"[^>]*data-track="portal_intro_clip"/.test(page));
+ok('⭐ JS วนทุก .pt-clip ไม่ผูก id เดี่ยว (getElementById หมาย #ดูคลิป เดิมใช้ไม่ได้แล้ว)',
+   /querySelectorAll\('\.pt-clip'\)/.test(code) && !/getElementById\('ดูคลิป'\)/.test(code));
+ok('⭐ กดเล่นแถบหนึ่งต้องหยุดอีกแถบ (เสียงพูดสองคลิปห้ามทับกัน)', /\.vid\.pause\(\)/.test(code));
+ok('ลิงก์ [data-pc-play] อ่านแถบปลายทางจาก href', /\[data-pc-play\]/.test(code) && /decodeURIComponent/.test(code));
 ok('ครอบ njTrack ด้วย try/catch (ไม่มีก็ไม่พัง)', /typeof njTrack === 'function'/.test(code) && /try \{ njTrack/.test(code));
 
 console.log('\n6) portal.css');
@@ -85,6 +90,44 @@ ok('⭐ video ต้องมี height:auto (กัน height="1920" ชนะ 
 ok('⭐ ปิดแอนิเมชันวงกลมเต้นเมื่อผู้ใช้ตั้งลดการเคลื่อนไหว (วนไม่รู้จบ — .01ms จะกะพริบรัว)',
    /prefers-reduced-motion[\s\S]*\.pc-ring[\s\S]*animation:none/.test(css));
 ok('มือถือสลับลำดับ: หัวข้อ → คลิป → สารบัญ', /\.pc-copy\{display:contents\}/.test(css) && /\.pc-player\{order:3/.test(css));
+
+console.log('\n7) คลิปสอนใช้งาน (#วิธีใช้)');
+const sec2 = (page.match(/<section class="pt-sec pt-clip pt-howto"[\s\S]*?<\/section>/) || [''])[0];
+const DURATION2 = 89; // วินาที — video/portal-tutorial.mp4 ยาว 1:29
+ok('⭐ มีแถบ #วิธีใช้ อยู่ในเนื้อหาหน้า (หลังหัวข้อ "เข้าไปแล้วเห็นอะไรบ้าง" ก่อน #getcode)',
+   sec2.length > 500 && /id="วิธีใช้"/.test(sec2) &&
+   page.indexOf('เข้าไปแล้วเห็นอะไรบ้าง') < page.indexOf('id="วิธีใช้"') &&
+   page.indexOf('id="วิธีใช้"') < page.indexOf('id="getcode"'));
+ok('ใช้ไฟล์คลิป + โปสเตอร์ที่มีอยู่จริง',
+   /src="video\/portal-tutorial\.mp4"/.test(sec2) && fs.existsSync(path.join(__dirname, 'video/portal-tutorial.mp4')) &&
+   /poster="video\/portal-tutorial-poster\.jpg"/.test(sec2) && fs.existsSync(path.join(__dirname, 'video/portal-tutorial-poster.jpg')));
+ok('⭐ ไม่เล่นเอง (preload="none" · ไม่มี autoplay) · controls ใน HTML · playsinline · มี width/height',
+   /preload="none"/.test(sec2) && !/autoplay/.test(sec2) && /<video[^>]*\scontrols[\s>]/.test(sec2) &&
+   /playsinline/.test(sec2) && /width="1080"\s+height="1920"/.test(sec2));
+ok('ไฟล์คลิปไม่ใหญ่เกิน 8 MB (ลูกค้าดูบนมือถือ)', fs.statSync(path.join(__dirname, 'video/portal-tutorial.mp4')).size < 8 * 1024 * 1024);
+ok('วิดีโอและปุ่มเล่นมีชื่อให้เครื่องอ่านหน้าจอ',
+   /<video[^>]*aria-label="[^"]+"/.test(sec2) && /<button[^>]*class="pc-play"[^>]*aria-label="[^"]+"/.test(sec2));
+ok('⭐ ติดตามด้วยชื่อ portal_tutorial_clip (คนละชื่อกับคลิปแรก)', /data-track="portal_tutorial_clip"/.test(sec2));
+ok('⭐ ไม่ใช้ <details> (build/schema.js นับเป็นคำถาม FAQPage ปลอม)', !/<details\b/i.test(sec2));
+const t2 = [...sec2.matchAll(/<button type="button" data-t="(\d+)"><span class="pc-t">(\d+):(\d\d)<\/span>/g)]
+  .map(m => ({ t: +m[1], label: +m[2] * 60 + +m[3] }));
+ok('มีอย่างน้อย 4 บท · บทแรก 0 วินาที · เรียงจากน้อยไปมาก', t2.length >= 4 && t2[0].t === 0 && t2.every((x, i) => i === 0 || x.t > t2[i - 1].t), JSON.stringify(t2));
+ok('⭐ ทุกบทเริ่มก่อนจบคลิป (ไม่เกิน ' + DURATION2 + ' วินาที)', t2.every(x => x.t < DURATION2 - 3));
+ok('⭐ ป้ายเวลาที่เห็นตรงกับ data-t ทุกบท', t2.every(x => x.t === x.label), JSON.stringify(t2));
+ok('⭐ ข้อความเต็มมีครบ 7 ท่อน (ตรงกับเสียง 7 ท่อน) · ประโยคเปิดและปิดของคลิป',
+   (sec2.match(/<div class="pc-script-body"[\s\S]*?<\/div>/) || [''])[0].split('<p>').length - 1 === 7 &&
+   /สวัสดีครับ วันนี้จะพาดู/.test(sec2) && /ทักไลน์หรือโทรหาทีมงาน/.test(sec2));
+ok('⭐ บอกตรงๆ ว่าเป็นข้อมูลตัวอย่างสมมติ และเสียงสร้างด้วย AI', /ข้อมูลตัวอย่างสมมติ/.test(sec2) && /สร้างด้วย AI/.test(sec2));
+ok('ข้อความเต็มพับด้วยปุ่ม aria-controls ชี้ id ที่ไม่ซ้ำกับคลิปแรก',
+   /aria-controls="pc-script-body-2"/.test(sec2) && /id="pc-script-body-2"/.test(sec2) && !/id="pc-script-body"/.test(sec2));
+const ids = [...page.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);
+ok('⭐ ไม่มี id ซ้ำทั้งหน้า (สองแถบใช้คลาสร่วมกัน แต่ id ต้องแยก)', new Set(ids).size === ids.length,
+   ids.filter((x, i) => ids.indexOf(x) !== i).join(','));
+ok('ไม่มี on*= ในแถบ · ลิงก์ออกนอกเว็บมี rel="noopener"', !/\son[a-z]+=/.test(sec2) &&
+   (sec2.match(/target="_blank"/g) || []).length === (sec2.match(/rel="noopener"/g) || []).length);
+ok('⭐ ไม่ดึงการ์ดขึ้นไปทับขอบบน (margin-top:0 หลัง @media ของ .pc-card)',
+   /\.pt-howto \.pc-card\{margin-top:0\}/.test(css) &&
+   css.indexOf('.pt-howto .pc-card{margin-top:0}') > css.indexOf('@media (max-width:760px)'));
 
 console.log('\n' + (fail ? '❌' : '✅') + ' portalclip: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

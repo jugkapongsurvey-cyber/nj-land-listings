@@ -262,6 +262,10 @@
   .pt-contact a{width:100%;justify-content:center}
 }
 
+/* คลิปสอนใช้งาน (#วิธีใช้) อยู่ในเนื้อหาหน้า ไม่ได้ซ้อนทับ hero — ไม่ต้องดึงการ์ดขึ้นไปทับขอบบน
+   ⚠️ ต้องเขียนหลัง @media ของ .pc-card ด้านบนและใช้ 2 คลาส ไม่งั้นมือถือยังได้ margin-top:-52px */
+.pt-howto .pc-card{margin-top:0}
+
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
   /* วงกลมเต้นเป็นแอนิเมชันวนไม่รู้จบ — ลดเวลาเหลือ .01ms จะกลายเป็นกะพริบรัว ต้องปิดทิ้งเลย */
