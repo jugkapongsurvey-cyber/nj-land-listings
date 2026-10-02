@@ -92,6 +92,9 @@
     } else if (H.access === 'shared') {
       out.push(row('ทางเข้า–ออก', 'warn', v.ACCESS_TH.shared,
         (ac.note || '') || 'ใช้ทางร่วมกับแปลงข้างเคียงแต่ยังไม่ได้จดทะเบียน — ควรตรวจสอบสิทธิ์การใช้ทางเพิ่มเติม'));
+    } else if (H.access === 'other') {
+      out.push(row('ทางเข้า–ออก', 'warn', v.ACCESS_TH.other,
+        (ac.note || '') || 'ทางเข้าออกไม่ใช่แบบมาตรฐาน — สอบถามรายละเอียดกับทีมงาน และตรวจสอบสิทธิ์การใช้ทางก่อนตัดสินใจ'));
     } else if (H.access) {
       out.push(row('ทางเข้า–ออก', ac.status === 'warn' ? 'warn' : 'ok', v.ACCESS_TH[H.access] || H.access,
         ac.note || (ac.value ? ('หน้ากว้างทางเข้า ' + ac.value) : 'ทีมงานตรวจทางเข้าออกในสนามแล้ว')));
