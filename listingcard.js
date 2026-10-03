@@ -78,7 +78,10 @@
       thumbsSm: Array.isArray(item.thumbsSm) ? item.thumbsSm : [], // 400×300
       // คะแนนความพร้อมของข้อมูล (Phase 3) — เซิร์ฟเวอร์ส่ง null มาเมื่อยังไม่มีใครกรอกผลตรวจอะไรเลย
       // ⚠️ ห้ามแปลง null เป็น 0 ที่นี่ — 0 กับ "ยังไม่มีใครไปตรวจ" คนละเรื่องกันโดยสิ้นเชิง
-      score: item.score || null
+      score: item.score || null,
+      // ใครดูแลการขาย (รูปแบบบริการ A/B/C ของระบบ) — 'owner' ขายเองชัวร์ · 'nj' ฝากขายชัวร์ · '' ใบตามเงื่อนไขเดิม
+      // ⚠️ ค่าที่ไม่รู้จัก = '' (หน้าตาเหมือนประกาศเดิมทุกอย่าง) ห้ามเดา
+      saleBy: item.saleBy === 'owner' || item.saleBy === 'nj' ? item.saleBy : ''
     };
   }
 
@@ -208,7 +211,10 @@
         // ⚠️ `data-contact` คือสิ่งที่ `bindGrid()` ใช้นับลีด และใช้กันไม่ให้คลิกทะลุไปหน้ารายละเอียด
         '<div class="card-agent">' +
           '<span class="agent-avatar" aria-hidden="true">NJ</span>' +
-          '<div><b>ทีมที่ดินชัวร์</b>' + (when ? '<small>' + esc(when) + '</small>' : '') + '</div>' +
+          // ป้ายใครดูแลการขาย — ประกาศขายเองชัวร์ผู้ซื้อติดต่อเจ้าของผ่านฟอร์มในหน้าประกาศ (ปุ่มด้านขวายังเป็นช่องทางของทีม)
+          (item.saleBy === 'owner'
+            ? '<div><b>เจ้าของขายเอง</b><small>ติดต่อเจ้าของในหน้าประกาศ</small></div>'
+            : '<div><b>ทีมที่ดินชัวร์</b>' + (item.saleBy === 'nj' ? '<small>ดูแลการขาย' + (when ? ' · ' + esc(when) : '') + '</small>' : (when ? '<small>' + esc(when) + '</small>' : '')) + '</div>') +
           '<span class="contact-mini">' +
             '<a href="' + LINE + '" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์ เรื่องแปลง ' + esc(item.id) + '">●</a>' +
             '<a href="' + FB + '" target="_blank" rel="noopener" class="fb" data-contact="messenger" aria-label="ติดต่อทางเมสเซนเจอร์ เรื่องแปลง ' + esc(item.id) + '">f</a>' +
