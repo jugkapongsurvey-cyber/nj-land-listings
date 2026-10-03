@@ -59,7 +59,7 @@ const SERVICES = [
   { key: 'verify', th: 'ส่งทรัพย์ให้ทีมตรวจสอบก่อนซื้อ', path: '/verify.html' },
   { key: 'inspect', th: 'นัดช่างตรวจแปลงก่อนซื้อ', path: '/inspect.html' },
   { key: 'packages', th: 'แพ็กเกจวิเคราะห์ที่ดิน', path: '/packages.html' },
-  { key: 'consign', th: 'ฝากขายที่ดินฟรี', path: '/consign.html' },
+  { key: 'consign', th: 'ฝากขายที่ดิน', path: '/consign.html' },
   { key: 'wanted', th: 'ฝากหาที่ดินตามโจทย์', path: '/wanted.html' },
   { key: 'agency', th: 'ทรัพย์บังคับคดีและทรัพย์ธนาคาร', path: '/agency.html' },
   { key: 'tools', th: 'เครื่องมือคำนวณค่าโอนและค่างวด', path: '/tools.html' }

@@ -25,7 +25,7 @@
 
   // เรียงตามลำดับที่ควรเจอ — เอาอันแรกที่มีลิงก์จริง
   var NAV_SELECTORS = ['header nav', '.topbar nav', 'nav.header-nav', '.header-nav'];
-  // ปุ่มหลักบนหัวเว็บ (ฝากขายฟรี) — ชุดสไตล์ต่างกันใช้คลาสคนละแบบ
+  // ปุ่มหลักบนหัวเว็บ (ฝากขายที่ดิน) — ชุดสไตล์ต่างกันใช้คลาสคนละแบบ
   var CTA_SELECTORS = ['.njh-cta', '.top-actions .post-btn', 'header a[href="consign.html"]', '.header-cta'];
   // ทางเข้าพอร์ทัลลูกค้า — วางไว้นอก <nav> โดยตั้งใจ (เหตุผลอยู่ใน menu.css)
   // จอเล็กซ่อนลิงก์ตัวจริงไว้ ลิ้นชักจึงต้องหยิบมาแสดงแทน ไม่งั้นทางเข้านี้หายไปทั้งบนมือถือ
@@ -171,7 +171,7 @@
       var b = document.createElement('a');
       b.className = 'njmenu-cta';
       b.href = cta.getAttribute('href') || 'consign.html';
-      b.textContent = (cta.textContent || 'ฝากขายฟรี').replace(/^＋\s*/, '').trim();
+      b.textContent = (cta.textContent || 'ฝากขายที่ดิน').replace(/^＋\s*/, '').trim();
       panel.appendChild(b);
     }
 

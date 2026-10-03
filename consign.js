@@ -278,6 +278,8 @@ function setLead(d) {
   renderKeep(d);
   if (d && d.submittedAt) markSent();
   applyCancelled(d);
+  // บริการของใบนี้ตัดสินว่ากล่องบัญชีเป็นทางเลือกหรือขั้นที่จำเป็น — ต้องวาดใหม่ทุกครั้งที่ได้ข้อมูลจริง
+  renderClaim();
   // ตัวอย่างประกาศอ่าน LEAD.data ด้วย (รูปที่แนบ · ขึ้นเว็บแล้วหรือยัง · ยกเลิกหรือยัง)
   // เรียกจากที่นี่ที่เดียวเหมือน applyCancelled — ทุกเส้นทางวิ่งผ่าน setLead หมด
   if (PV) PV.paint();
@@ -319,7 +321,14 @@ var REPORT_WAIT = {
   consent: ['ทีมงานกำลังจัดทำเอกสารให้',
             'ประกาศจะขึ้นเว็บหลังได้รับหนังสือยินยอมเผยแพร่ข้อมูลที่เซ็นกลับมาแล้ว — ทีมงานจะติดต่อไปเรื่องเอกสารนี้ ถ้าอยากให้เร็วขึ้น ทักไลน์บอกได้เลย'],
   review:  ['ทีมงานกำลังตรวจข้อมูลแปลง',
-            'เราจะไม่ลงประกาศจนกว่าจะตรวจข้อมูลและรูปเรียบร้อย — แนบรูปแปลงเพิ่มด้านล่างจะช่วยให้ตรวจได้เร็วขึ้น']
+            'เราจะไม่ลงประกาศจนกว่าจะตรวจข้อมูลและรูปเรียบร้อย — แนบรูปแปลงเพิ่มด้านล่างจะช่วยให้ตรวจได้เร็วขึ้น'],
+  // รหัสจากรูปแบบบริการ (ระบบหลังบ้าน lib/servicemodel.js) — ใบตามเงื่อนไขเดิมไม่เคยได้รหัสเหล่านี้
+  inspect_only: ['บริการนี้ไม่ลงประกาศบนเว็บ',
+                 'คุณเลือกบริการตรวจทรัพย์อย่างเดียว — ถ้าอยากลงประกาศขายด้วย ทักไลน์ให้ทีมงานเปลี่ยนบริการให้ได้เลย'],
+  need_account: ['รอผูกใบนี้กับบัญชีเจ้าของทรัพย์',
+                 'บริการที่ลงประกาศต้องมีบัญชีเจ้าของทรัพย์ก่อนขึ้นเว็บ — สมัครด้วยอีเมลแล้วกด "เก็บใบนี้ไว้ในบัญชีของฉัน" ด้านบน'],
+  role_buyer: ['ทรัพย์นี้ส่งมาตรวจในฐานะผู้ซื้อ',
+               'ทรัพย์ที่ผู้ซื้อส่งมาตรวจลงประกาศไม่ได้ — การลงประกาศต้องมาจากเจ้าของหรือผู้ที่เจ้าของอนุญาต']
 };
 function renderReport(d) {
   var box = $('cs-report');
@@ -630,12 +639,22 @@ function enterSavedMode() {
 // ⚠️ ตั๋วส่งไปใน #fragment ไม่ใช่ ?query — fragment ไม่ถูกส่งไปกับคำขอ HTTP จึงไม่ค้างใน log ของเซิร์ฟเวอร์
 //    และ seller.js ย้ายตั๋วเข้า sessionStorage แล้วล้างออกจากแถบที่อยู่ทันที
 var SELLER_ON = false;
+// ⚠️ บริการที่ลงประกาศ (ขายเองชัวร์/ฝากขายชัวร์) ขึ้นเว็บได้เมื่อผูกบัญชีแล้วเท่านั้น (ด่านอยู่ที่เซิร์ฟเวอร์)
+//    กล่องนี้จึงเปลี่ยนจาก "ทางเลือก" เป็น "ขั้นต่อไปที่จำเป็น" · สวิตช์บัญชีปิด = บอกว่าทีมงานจะตั้งบัญชีให้ (ไม่มีลิงก์)
 function renderClaim() {
-  var box = $('cs-claim'), a = $('cs-claim-link');
+  var box = $('cs-claim'), a = $('cs-claim-link'), need = $('cs-claim-need'), noacc = $('cs-claim-noacc');
   if (!box || !a) return;
-  var ok = SELLER_ON && LEAD.id && LEAD.token;
+  var key = (LEAD.data && LEAD.data.service) || (SVC ? SVC.current() : '');
+  var svc = SVC ? SVC.serviceOf(key) : null;
+  var mustAcc = !!(svc && svc.needsAccount);
+  var has = !!(LEAD.id && LEAD.token);
+  var ok = has && (SELLER_ON || mustAcc);
   box.hidden = !ok;
-  if (ok) a.href = NJ_API_BASE + '/seller.html#claim=' + encodeURIComponent(LEAD.id) + '&t=' + encodeURIComponent(LEAD.token);
+  box.classList.toggle('cs-claim-must', mustAcc);
+  if (need) need.hidden = !mustAcc;
+  if (noacc) noacc.hidden = !(mustAcc && !SELLER_ON);
+  a.hidden = !SELLER_ON;
+  if (ok && SELLER_ON) a.href = NJ_API_BASE + '/seller.html#claim=' + encodeURIComponent(LEAD.id) + '&t=' + encodeURIComponent(LEAD.token);
 }
 
 // ---------- เติมค่ากลับลงฟอร์ม (ตอนเปิดหน้าใหม่แล้วกลับมาแก้ต่อ) ----------
@@ -668,6 +687,8 @@ function fillForm(d) {
   // ประเภททรัพย์ก่อนตัวเลือกรังวัด (ห้องชุดซ่อนเนื้อที่ดิน แล้วค่ารังวัดต้องวาดตาม)
   if (PT) PT.applyFromLead(d);
   if (SV) SV.applyFromLead(d);
+  // บริการ A/B/C หลัง SV — ใบเดิมที่ไม่มีบริการจะซ่อนกล่องบริการแล้วเปิดกล่องรังวัดแบบเดิมคืน
+  if (SVC) SVC.applyFromLead(d);
   // เคยยินยอมไปแล้วตอนบันทึกครั้งแรก — ติ๊กคืนให้ ไม่ต้องให้ติ๊กซ้ำทุกครั้งที่กลับมาแก้
   var pdpa = document.querySelector('#consign-form [name="pdpa"]');
   if (pdpa) pdpa.checked = true;
@@ -798,6 +819,7 @@ function startNewParcel() {
   // อยู่ในตัวคุมของมันเอง ต้องล้างด้วย ไม่งั้นแปลงใหม่ได้รายละเอียดของแปลงก่อนติดไป
   if (PT) PT.reset();
   if (SV) SV.reset();
+  if (SVC) SVC.reset();
   if (AP) AP.render();
   // การ์ดตัวอย่างของแปลงก่อนหน้าต้องหายไปพร้อมกัน ไม่ใช่ค้างอยู่เหนือฟอร์มเปล่า
   if (PV) PV.reset();
@@ -1005,6 +1027,171 @@ function setupSurvey(getProvince, getTotalWa) {
 // ⚠️ **โหลดไม่สำเร็จ = ไม่มีส่วนนี้ ฟอร์มที่เหลือยังส่งได้ตามเดิม** (ถือเป็นที่ดินเหมือนก่อนมีฟีเจอร์นี้)
 // ⚠️ ทุกแบบฟอร์มมีโครงเดียวกัน: ขนาด → รายละเอียดรายประเภท → เอกสารสิทธิ์และภาระผูกพัน → ค่าเช่า (เมื่อฝากเช่า)
 //    ไม่มีช่องไหนบังคับ · ค่าที่ส่งไปเซิร์ฟเวอร์ตรวจ/ตัดซ้ำเสมอ
+// ============================================================================
+//  รูปแบบบริการ 3 แบบ — ตรวจชัวร์ · ขายเองชัวร์ · ฝากขายชัวร์ (เพิ่ม 2026-10-03)
+// ============================================================================
+//
+// ⚠️ รายการบริการ บทบาทผู้ส่ง สิ่งที่รวม/ไม่รวม และระยะเวลา มาจาก spec.serviceModel ที่เดียว
+//    (lib/servicemodel.js ของระบบหลังบ้าน · ส่งมากับ GET /api/public/consign/spec) — **ห้ามพิมพ์รายการซ้ำในไฟล์นี้**
+// ⚠️ spec ไม่มีก้อนนี้ (สวิตช์ service_abc ปิด / โหลดไม่สำเร็จ) = กล่องซ่อน ฟอร์มทำงานแบบเดิมทุกอย่าง
+// ⚠️ ค่าตรวจ = ราคารังวัดแบบไม่เป็นทางการ + ค่าเดินทาง (spec.serviceModel.feeBasis) คิดที่ pricing.js ผ่าน NJSurveyQuote
+//    โหลดไม่ได้ / ตารางรุ่นเก่ายังไม่รู้จักแบบไม่เป็นทางการ = ไม่แสดงตัวเลข ให้ทีมงานแจ้งแทน **ห้ามเดาตัวเลข**
+// ⚠️ เปิดใบเดิมที่ไม่มีบริการ (ฝากก่อนเปิดบริการ 3 แบบ) = ซ่อนกล่องนี้ แล้วเปิดกล่องรังวัดแบบเดิมคืน
+//    เซิร์ฟเวอร์ไม่เติมบริการให้ใบเดิมอยู่แล้ว (ห้ามเปลี่ยนเงื่อนไขย้อนหลัง)
+// ⚠️ ผู้ซื้อเลือกได้แค่บริการที่ไม่ลงประกาศ — ตัวเลือกบทบาทถูกกรองตามบริการ และเซิร์ฟเวอร์ตรวจซ้ำ (400)
+var SVC = null;
+function setupService(getProvince, getTotalWa, onChange) {
+  var box = $('cs-svc'), grid = $('cs-svc-grid'), detail = $('cs-svc-detail'), roleSel = $('cs-role'), fee = $('cs-svc-fee');
+  if (!box || !grid || !roleSel) return null;
+  var survey = $('cs-survey');
+  var model = null, cur = '', role = '', legacy = false, lastKey = null;
+
+  function serviceOf(k) {
+    if (!model || !k) return null;
+    return (model.services || []).filter(function (s) { return s.key === k; })[0] || null;
+  }
+  function on() { return !!model && !legacy; }
+
+  function drawGrid() {
+    grid.innerHTML = (model.services || []).map(function (s) {
+      return '<label><input type="radio" name="service" value="' + esc(s.key) + '"' + (s.key === cur ? ' checked' : '') + '>' +
+        '<span><b>' + esc(s.th) + '</b><small>' + esc(s.full) + '</small></span></label>';
+    }).join('');
+  }
+  function drawRoles() {
+    var s = serviceOf(cur);
+    var roles = (model.roles || []).filter(function (r) { return !s || !s.listing || r.listing; });
+    if (role && !roles.some(function (r) { return r.key === role; })) role = '';
+    roleSel.innerHTML = '<option value="">— เลือก —</option>' + roles.map(function (r) {
+      return '<option value="' + esc(r.key) + '"' + (r.key === role ? ' selected' : '') + '>' + esc(r.th) + '</option>';
+    }).join('');
+  }
+  function drawDetail() {
+    var s = serviceOf(cur);
+    if (!s) {
+      detail.innerHTML = '<div class="cs-svc-hint">เลือกบริการด้านบน แล้วระบบจะบอกว่าแต่ละแบบรวมอะไรบ้าง</div>';
+      return;
+    }
+    var t = model.terms || {};
+    detail.innerHTML = '<div class="cs-svc-box">' +
+      '<div class="cs-svc-tag">' + esc(s.tagline) + '</div>' +
+      '<div class="cs-svc-who">เหมาะกับ: ' + esc(s.who) + '</div>' +
+      '<ul class="cs-svc-list inc">' + (s.includes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
+      ((s.excludes || []).length ? '<div class="cs-svc-sub">ไม่รวม</div><ul class="cs-svc-list exc">' +
+        s.excludes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+      '<div class="cs-svc-line"><b>ค่าใช้จ่าย:</b> ' + esc(s.fee) + '</div>' +
+      (s.listing && t.listingDays
+        ? '<div class="cs-svc-line">ประกาศพื้นฐานอยู่บนเว็บ ' + esc(t.listingDays) + ' วัน และต่ออายุได้</div>' : '') +
+      (s.broker
+        ? '<div class="cs-svc-line">ไม่ผูกขาด — คุณยังขายเองหรือขายผ่านนายหน้าอื่นได้' +
+          (t.buyerProtectMonths ? ' · ถ้าขายให้ผู้ซื้อที่เราแนะนำภายใน ' + esc(t.buyerProtectMonths) + ' เดือน คิดค่านายหน้าตามสัญญา' : '') + '</div>'
+        : '') +
+      (s.needsAccount
+        ? '<div class="cs-svc-line must">ต้องมี<b>บัญชีเจ้าของทรัพย์</b>ก่อนประกาศขึ้นเว็บ — สมัครด้วยอีเมลได้หลังบันทึกฟอร์ม</div>' : '') +
+    '</div>';
+  }
+
+  // ---------- ค่าตรวจประมาณการ ----------
+  function feeBox(inner) { return '<div class="cs-sv-box">' + inner + '</div>'; }
+  function drawFee() {
+    var s = serviceOf(cur);
+    if (!s) { fee.innerHTML = ''; return; }
+    var wa = getTotalWa();
+    if (!(wa > 0)) {
+      fee.innerHTML = feeBox('<div class="cs-sv-sub">กรอก<b>เนื้อที่</b>ด้านล่าง แล้วระบบจะคำนวณค่าตรวจประมาณการให้ทันที · ' +
+        'ห้องชุดและทรัพย์ที่ไม่มีเนื้อที่ดิน ทีมงานแจ้งค่าตรวจตอนโทรกลับ</div>');
+      return;
+    }
+    if (!window.NJSurveyQuote) { fee.innerHTML = ''; return; }
+    var fb = model.feeBasis || {};
+    NJSurveyQuote.load().then(function () {
+      if (serviceOf(cur) !== s) return;            // ผู้ใช้เปลี่ยนบริการระหว่างรอตารางราคา
+      var prov = getProvince();
+      var informal = fb.surveyMode === 'informal';
+      if (informal && !(NJSurveyQuote.informalReady && NJSurveyQuote.informalReady())) {
+        // ตารางราคารุ่นเก่ายังไม่รู้จักแบบไม่เป็นทางการ — ไม่เดาตัวเลข
+        fee.innerHTML = feeBox('<div class="cs-sv-sub"><b>ค่าตรวจทรัพย์</b> คิดจากค่ารังวัดแบบไม่เป็นทางการ (ค่างานลด 50%) รวมค่าเดินทาง — ' +
+          'ทีมงานแจ้งยอดก่อนเริ่มงานเสมอ</div>');
+        return;
+      }
+      var r = NJSurveyQuote.quoteFromWa(wa, fb.jobType || 'สอบเขต', { province: prov, informal: informal });
+      if (!r) { fee.innerHTML = ''; return; }
+      var baht = function (x) { return Math.round(Number(x) || 0).toLocaleString('en-US'); };
+      var tv = r.travel;
+      fee.innerHTML = feeBox(
+        '<div class="cs-sv-price">≈ ฿' + baht(r.subtotal) + '<small>ค่าตรวจทรัพย์โดยประมาณ</small></div>' +
+        (tv ? '<div class="cs-sv-sub">รวมค่าดำเนินการนอกพื้นที่ <b>' + esc(tv.zoneLabel || tv.zone) + '</b> แล้ว ' +
+              '(฿' + baht(tv.total) + (tv.nights > 0 ? ' · รวมค่าที่พักทีมงาน ' + tv.nights + ' คืน' : '') + ')</div>'
+            : (prov ? ''
+              : '<div class="cs-sv-sub"><b>ยังไม่ได้เลือกจังหวัด</b> — ยอดนี้ยังไม่รวมค่าดำเนินการนอกพื้นที่' +
+                (NJSurveyQuote.travelRangeText() ? ' ซึ่งอยู่ระหว่าง ' + esc(NJSurveyQuote.travelRangeText()) + 'ตามระยะทาง' : '') + '</div>')) +
+        '<div class="cs-sv-sub">คิดจากค่ารังวัดแบบไม่เป็นทางการ (ช่างเอกชน) ช่วงพื้นที่ ' + esc(r.rangeLabel) + '<br>' +
+          '<b>เป็นราคาประมาณการ ไม่ใช่ใบเสนอราคา</b> — ยอดจริงขึ้นกับหน้างานและเอกสาร ทีมงานแจ้งก่อนเริ่มงานเสมอ · ยังไม่รวม VAT · ' +
+          'รังวัดแบบเป็นทางการ (ยื่นสำนักงานที่ดิน) เสนอราคาแยกได้ถ้าต้องการ</div>');
+    }, function () {
+      fee.innerHTML = feeBox('<div class="cs-sv-sub">ตอนนี้ยังโหลดตารางราคาไม่ได้ — ' +
+        '<a href="' + LINE_OA_URL + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมงานแจ้งค่าตรวจ →</a></div>');
+    });
+  }
+
+  function show() {
+    var o = on();
+    box.hidden = !o;
+    // บริการ 3 แบบรวมการรังวัดแบบไม่เป็นทางการไว้ในค่าตรวจแล้ว — ซ่อนกล่องรังวัดแบบเดิมกันราคาซ้อนสองที่
+    if (survey) survey.hidden = o;
+  }
+  function render() {
+    if (!model) return;
+    show();
+    if (!on()) return;
+    drawGrid(); drawRoles(); drawDetail();
+    lastKey = null; sync();
+  }
+  function sync() {
+    if (!on()) return;
+    var key = [cur, getTotalWa(), getProvince()].join('|');
+    if (key === lastKey) return;               // ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว — วาดใหม่เฉพาะตอนค่าเปลี่ยนจริง
+    lastKey = key;
+    drawFee();
+  }
+
+  grid.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || t.name !== 'service') return;
+    cur = t.value;
+    drawRoles(); drawDetail();
+    lastKey = null; sync();
+    if (onChange) onChange();
+  });
+  roleSel.addEventListener('change', function () { role = roleSel.value; if (onChange) onChange(); });
+
+  return {
+    setModel: function (m) {
+      if (!m || !Array.isArray(m.services) || !m.services.length || !Array.isArray(m.roles)) return;
+      model = m; render();
+    },
+    serviceOf: serviceOf,
+    current: function () { return on() ? cur : ''; },
+    // ส่งกับฟอร์ม — กล่องปิดอยู่ = ไม่ส่งอะไร (ใบตามเงื่อนไขเดิม)
+    value: function () { return on() ? { service: cur, submitterRole: role } : {}; },
+    check: function () {
+      if (!on()) return null;
+      if (!serviceOf(cur)) return { field: 'service', msg: 'กรุณาเลือกบริการ' };
+      if (!role) return { field: 'submitterRole', msg: 'กรุณาเลือกว่าคุณเกี่ยวข้องกับทรัพย์นี้อย่างไร' };
+      return null;
+    },
+    sync: sync,
+    applyFromLead: function (d) {
+      legacy = !(d && d.service);
+      cur = (d && d.service) || '';
+      role = (d && d.submitterRole) || '';
+      render();
+      if (!model && survey) survey.hidden = false;
+    },
+    reset: function () { legacy = false; cur = ''; role = ''; render(); }
+  };
+}
+
 var PT = null;
 function setupPropertyType(onChange) {
   var box = $('cs-ptype'), grid = $('cs-ptype-grid'), det = $('cs-details'), body = $('cs-dt-body');
@@ -1131,6 +1318,8 @@ function setupPropertyType(onChange) {
   fetch(NJ_API_BASE + '/api/public/consign/spec').then(function (r) { return r.ok ? r.json() : null; })
     .then(function (sp) {
       if (sp && sp.sellerAccounts === true) { SELLER_ON = true; renderClaim(); }
+      // รูปแบบบริการ 3 แบบ — มีก้อนนี้เฉพาะเมื่อสวิตช์ service_abc เปิด (ไม่มี = ฟอร์มแบบเดิม)
+      if (sp && sp.serviceModel && SVC) { SVC.setModel(sp.serviceModel); renderClaim(); }
       if (!sp || !Array.isArray(sp.types) || !sp.types.length || !sp.layout || !sp.fields) return;
       spec = sp;
       grid.innerHTML = sp.types.map(function (t) {
@@ -1246,21 +1435,27 @@ function setupForm() {
     provinceList: 'cs-province-list', amphoeList: 'cs-amphoe-list', tambonList: 'cs-tambon-list',
     zip: 'cs-zip', note: 'cs-loc-note', pinned: SERVICE_PROVINCES,
     // เปลี่ยนจังหวัด = สถานะบังคับรังวัดอาจเปลี่ยนตาม ต้องวาดกล่องรังวัดใหม่ทันที
-    onChange: function () { if (SV) SV.sync(); }
+    onChange: function () { if (SV) SV.sync(); if (SVC) SVC.sync(); }
   });
   var areaPrice = NJLandForm.initAreaPrice({
     rai: 'cs-rai', ngan: 'cs-ngan', wa: 'cs-wa',
     price: 'cs-price', unitName: 'priceUnit',
     areaOut: 'cs-area-out', priceOut: 'cs-price-out', priceLabel: 'cs-price-label',
-    // เปลี่ยนเนื้อที่ = ค่ารังวัดประมาณการเปลี่ยนตาม
-    onChange: function () { if (SV) SV.sync(); }
+    // เปลี่ยนเนื้อที่ = ค่ารังวัดประมาณการ (และค่าตรวจของบริการ) เปลี่ยนตาม
+    onChange: function () { if (SV) SV.sync(); if (SVC) SVC.sync(); }
   });
   // ประเภททรัพย์ต้องมาก่อนกล่องรังวัดและตัวอย่างประกาศ (ห้องชุดซ่อนเนื้อที่ดินแล้วค่ารังวัดต้องวาดใหม่)
-  PT = setupPropertyType(function () { if (SV) SV.sync(); if (PV) PV.sync(); });
+  PT = setupPropertyType(function () { if (SV) SV.sync(); if (SVC) SVC.sync(); if (PV) PV.sync(); });
   // สร้างหลังสองตัวบน เพราะต้องอ่านค่าจากทั้งคู่ (และทั้งคู่จะเรียก SV.sync กลับมา)
   SV = setupSurvey(
     function () { return addr ? addr.value().province : ''; },
     function () { return areaPrice ? areaPrice.value().totalWa : 0; }
+  );
+  // กล่องรูปแบบบริการ — สร้างหลัง SV เพราะซ่อน/เปิดกล่องรังวัดของ SV ตามบริการ
+  SVC = setupService(
+    function () { return addr ? addr.value().province : ''; },
+    function () { return areaPrice ? areaPrice.value().totalWa : 0; },
+    function () { renderClaim(); }
   );
   // กล่องตัวอย่างประกาศ — ต้องมาหลัง SV เพราะอ่านตัวเลือกรังวัดที่ SV ตัดสิน
   // (เขตบังคับ SV.value() คืน 'yes' เสมอ ตัวอย่างจึงพูดตรงกับสิ่งที่จะถูกบันทึกจริง)
@@ -1312,6 +1507,9 @@ function setupForm() {
       // ประเภททรัพย์ + รายละเอียด — เซิร์ฟเวอร์ตรวจกับ spec ของตัวเองซ้ำเสมอ ช่องที่ไม่รู้จักถูกทิ้ง
       propertyType: PT ? PT.value().propertyType : '',
       details: PT ? PT.value().details : {},
+      // รูปแบบบริการ + บทบาทผู้ส่ง (กล่องปิด = ไม่ส่ง · ใบตามเงื่อนไขเดิม) — เซิร์ฟเวอร์ตรวจซ้ำเสมอ
+      service: SVC ? (SVC.value().service || '') : '',
+      submitterRole: SVC ? (SVC.value().submitterRole || '') : '',
       pdpa: !!fd.get('pdpa'),
       website: String(fd.get('website') || ''),        // honeypot — คนจริงมองไม่เห็นช่องนี้
       // ⚠️ ของเดิมยัด query string ดิบเข้าช่องนี้ ซึ่งแปลว่าตั๋วที่ติดมากับลิงก์ (?id=..&t=..)
@@ -1327,7 +1525,7 @@ function setupForm() {
       if (last) v.prev = { id: last.id, t: last.t };
     }
 
-    var err = validate(v);
+    var err = validate(v) || (SVC ? SVC.check() : null);
     if (err) { showErr(err.msg, err.field); return; }
     showErr('');
 

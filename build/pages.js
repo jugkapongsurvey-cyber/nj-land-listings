@@ -55,7 +55,7 @@ const NAV = [
   },
   {
     label: 'ขาย/ฝากทรัพย์', href: 'consign.html', items: [
-      { label: 'ฝากขายที่ดิน', href: 'consign.html', note: 'ไม่มีค่าใช้จ่ายล่วงหน้า' },
+      { label: 'ฝากขายที่ดิน', href: 'consign.html', note: 'ตรวจชัวร์ · ขายเองชัวร์ · ฝากขายชัวร์' },
       { label: 'แพ็กเกจบริการ', href: 'packages.html', note: 'ตรวจสอบ · เตรียมขาย · ฝากขาย' },
       { label: 'เข้าสู่ระบบเจ้าของทรัพย์', href: SELLER_LOGIN, note: 'ดูแปลงที่ฝาก · ใบเสนอราคา · ยืนยันก่อนประกาศ' },
       { label: 'สมัครเป็นพันธมิตร', href: 'partner-apply.html', note: 'ผู้ให้บริการด้านที่ดิน' }
@@ -84,7 +84,7 @@ const NAV = [
   { label: 'ติดตามงาน', href: 'portal.html', portal: true }
 ];
 
-const CTA = { label: 'ฝากขายฟรี', href: 'consign.html' };
+const CTA = { label: 'ฝากขายที่ดิน', href: 'consign.html' };
 
 // สไตล์ชีตกลาง — ต้องมาก่อนไฟล์อื่นเสมอ (tokens ถูกทับได้ แต่ทับใครไม่ได้)
 // ⚠️ fonts.css ต้องมาก่อนเสมอ — เป็น @font-face ที่เสิร์ฟเอง (ดู build/fonts.js)

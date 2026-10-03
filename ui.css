@@ -373,6 +373,39 @@
    (เจ้าของเจอจริง 26 ก.ย. 2569 ช่องไฟฟ้า/ประปา/บ่อบาดาลขึ้นเป็นกรอบว่าง) */
 .cs-chips label:has(input:checked){ border-color:var(--green); background:#F0FAF3; color:#0F6B38; }
 .cs-chips input{ accent-color:var(--green); }
+
+/* ---------- รูปแบบบริการ 3 แบบ (เพิ่ม 2026-10-03 · ตัวเลือกวาดจาก spec.serviceModel) ----------
+   ⚠️ ระบุ color ทุกตัว — ฟอร์มอยู่ใน .cs-hero ที่ตั้ง color:#fff (บทเรียนเดียวกับ .cs-chips) */
+.cs-svc{ display:grid; gap:10px; }
+.cs-svc-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.cs-svc-grid label{ position:relative; display:block; min-width:0; }
+.cs-svc-grid input{ position:absolute; opacity:0; width:0; height:0; }
+.cs-svc-grid span{
+  display:flex; flex-direction:column; gap:3px; min-height:72px; padding:10px 10px; cursor:pointer;
+  border:1.5px solid var(--border); border-radius:11px; background:#fff; color:var(--ink); line-height:1.35;
+}
+.cs-svc-grid span b{ font-size:14px; font-weight:800; }
+.cs-svc-grid span small{ font-size:11.5px; color:#5B6E86; }
+.cs-svc-grid input:checked + span{ border-color:var(--green); background:#F0FAF3; color:#0F6B38; }
+.cs-svc-grid input:focus-visible + span{ box-shadow:0 0 0 3.5px rgba(22,163,74,.18); }
+.cs-svc-hint{ font-size:12.5px; color:#5B6E86; background:#F7F9FC; border:1px dashed #DCE3EF; border-radius:10px; padding:10px 12px; }
+.cs-svc-box{ background:#F7F9FC; border:1px solid #DCE3EF; border-radius:10px; padding:11px 13px; color:var(--ink); display:grid; gap:6px; }
+.cs-svc-tag{ font-size:13.5px; font-weight:700; color:#0B2549; }
+.cs-svc-who, .cs-svc-line{ font-size:12.5px; color:#3D5470; line-height:1.55; }
+.cs-svc-line.must{ color:#8A4B00; background:#FFF6E5; border-radius:8px; padding:6px 9px; }
+.cs-svc-sub{ font-size:11.5px; font-weight:800; color:#3D5470; }
+.cs-svc-list{ margin:0; padding:0; list-style:none; display:grid; gap:3px; font-size:12.5px; color:var(--ink); line-height:1.5; }
+.cs-svc-list li{ padding-left:20px; position:relative; }
+.cs-svc-list.inc li::before{ content:"✓"; position:absolute; left:2px; color:var(--green); font-weight:800; }
+.cs-svc-list.exc li::before{ content:"✕"; position:absolute; left:2px; color:#8093AA; }
+.cs-svc-role{ min-width:0; }
+.cs-claim-need{ display:block; color:#8A4B00; margin-bottom:2px; }
+.cs-claim-noacc{ display:block; color:#3D5470; margin-bottom:4px; }
+.cs-claim.cs-claim-must{ background:#FFF9EC; border-color:#F1D48A; }
+@media (max-width:640px){
+  .cs-svc-grid{ grid-template-columns:1fr; }
+  .cs-svc-grid span{ min-height:0; }
+}
 @media (max-width:420px){
   .cs-ptype-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   .cs-dt-grid{ grid-template-columns:1fr; }
