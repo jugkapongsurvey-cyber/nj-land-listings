@@ -353,8 +353,13 @@
     }).join('');
     var when=thaiDate(L.verifiedAt);
     var by=L.verifiedBy?(' โดย '+esc(L.verifiedBy)):'';
+    // สรุปตรวจแล้ว/ยังไม่ตรวจ — บอกตรงๆ ว่ายังเหลือหัวข้อไหน (ยังไม่ตรวจ ≠ ไม่มีปัญหา)
+    var chk=L.checks||{}, done=CHECKS.filter(function(c){ return (chk[c.k]||{}).status; }).length;
+    var sum='<p class="ld-tier-sum">ตรวจแล้ว <b>'+done+'</b> จาก '+CHECKS.length+' หัวข้อ'+
+      (done<CHECKS.length?' · ยังไม่ตรวจ '+(CHECKS.length-done)+' หัวข้อ (ยังไม่ตรวจ ไม่ได้แปลว่าไม่มีประเด็น)':'')+'</p>';
     return '<section class="ld-tier t2">'+
       '<div class="ld-tier-h"><b>✓ ระดับ 2 — ตรวจสอบเชิงลึกแล้ว</b><em>ใบอนุญาต 351</em></div>'+
+      sum+
       rows+
       '<p class="ld-tier-foot">'+
         (when?('ตรวจสอบเมื่อ '+esc(when)+esc(by)+' · '):'')+
@@ -647,13 +652,60 @@
     '<a class="ld-njguide" href="guides.html#survey">ดูวิธีตรวจสอบที่ดินก่อนซื้อ →</a>';
   }
   // ฟอร์มสนใจแปลง — อยู่ในแถบข้าง ใต้การ์ดติดต่อ (แบบกระชับ `brief` ของ njservices.js)
+  // ⚠️ ประกาศขายเองชัวร์ (saleBy 'owner') ใช้ฟอร์มส่งถึงเจ้าของแทน — ต้องติ๊กยินยอมเสมอ (เปิดเผยข้อมูลให้บุคคลที่สาม)
+  //    เซิร์ฟเวอร์เป็นคนตัดสินว่าส่งถึงเจ้าของได้จริงไหม (route ในคำตอบ) หน้านี้แค่ขอ
   function inquiryHtml(l){
+    if(l.saleBy==='owner') return ownerFormHtml(l);
     if(!window.NJServices) return '';
     return '<section class="njsv ld-inq" id="ld-inq" aria-labelledby="ld-inq-h">'+
       '<h2 id="ld-inq-h">สนใจแปลงนี้ — ให้ทีมงานติดต่อกลับ</h2>'+
       '<p class="ld-inq-lede">แนบรหัสทรัพย์ <b>'+esc(l.id)+'</b> ให้อัตโนมัติแล้ว ทีมงานจะรู้ทันทีว่าคุณสนใจแปลงไหน</p>'+
       '<div id="ld-inq-form"></div>'+
     '</section>';
+  }
+
+  function ownerFormHtml(l){
+    return '<section class="njsv ld-inq ld-own" id="ld-inq" aria-labelledby="ld-inq-h">'+
+      '<h2 id="ld-inq-h">ติดต่อเจ้าของทรัพย์</h2>'+
+      '<p class="ld-inq-lede">ประกาศ <b>ขายเองชัวร์</b> — เจ้าของขายเอง กรอกชื่อและเบอร์ ระบบจะส่งถึงเจ้าของให้ เจ้าของติดต่อกลับเอง · รหัสทรัพย์ <b>'+esc(l.id)+'</b></p>'+
+      '<form class="njsv-form" id="ld-own-form" novalidate>'+
+        '<label class="njsv-field"><span>ชื่อผู้ติดต่อ</span><input type="text" name="name" maxlength="80" autocomplete="name" placeholder="ระบุชื่อ"></label>'+
+        '<label class="njsv-field"><span>เบอร์โทร</span><input type="tel" name="phone" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="ระบุเบอร์โทร"></label>'+
+        '<label class="njsv-field"><span>ข้อความถึงเจ้าของ <i>(ไม่บังคับ)</i></span><textarea name="note" rows="2" maxlength="500" placeholder="เช่น สะดวกดูที่วันเสาร์นี้ช่วงเช้า"></textarea></label>'+
+        '<input type="text" name="website" class="njsv-hp" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+        '<label class="ld-own-ck"><input type="checkbox" name="pdpa"> <span>ยินยอมให้ส่งชื่อ เบอร์ และข้อความนี้ถึงเจ้าของทรัพย์ เพื่อติดต่อกลับเรื่องทรัพย์นี้เท่านั้น และให้บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด เก็บบันทึกการส่งไว้</span></label>'+
+        '<div class="njsv-msg" data-own-msg role="alert" hidden></div>'+
+        '<button type="submit" class="njsv-submit">ส่งถึงเจ้าของทรัพย์</button>'+
+      '</form>'+
+      '<p class="ld-own-note">ที่ดินชัวร์ไม่ได้เป็นตัวแทนการขายของประกาศนี้ · ดูผลการตรวจสอบแปลงในหัวข้อด้านล่าง · สอบถามเรื่องข้อมูลแปลงกับทีมงานทางไลน์ได้</p>'+
+    '</section>';
+  }
+  function bindOwnerForm(l){
+    var form=document.getElementById('ld-own-form'); if(!form) return;
+    var msg=form.querySelector('[data-own-msg]'), btn=form.querySelector('button[type="submit"]'), sending=false;
+    function v(n){ var el=form.elements[n]; return el?String(el.value||'').trim():''; }
+    function say(kind,text){ msg.className='njsv-msg '+kind; msg.textContent=text; msg.hidden=false; }
+    if(window.njTrackInternal) njTrackInternal('inquiry_view', l.id);
+    form.addEventListener('submit', function(e){
+      e.preventDefault(); if(sending) return;
+      if(!v('name')){ say('bad','กรุณากรอกชื่อผู้ติดต่อ'); return; }
+      if(v('phone').replace(/\D/g,'').length<9){ say('bad','กรุณากรอกเบอร์โทรให้ครบ'); return; }
+      if(!form.elements.pdpa.checked){ say('bad','กรุณาติ๊กยินยอมให้ส่งข้อมูลถึงเจ้าของทรัพย์ก่อน'); return; }
+      var body={ listingId:l.id, name:v('name'), phone:v('phone'), note:v('note'), website:v('website'),
+        shareWithOwner:true, pdpa:true, ref:(window.NJAttrib&&NJAttrib.refText())||'land_owner' };
+      if(window.NJAttrib) body.attrib=NJAttrib.value();
+      sending=true; btn.disabled=true; say('wait','กำลังส่ง...');
+      var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
+      fetch(base+'/api/public/inquiry',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if(!r.ok) throw new Error(d.error||'ส่งไม่สำเร็จ'); return d; }); })
+        .then(function(d){
+          // เซิร์ฟเวอร์ตัดสินปลายทาง — route 'owner' = ส่งถึงเจ้าของ · อย่างอื่น = ทีมงานติดต่อกลับแทน (บอกตามจริง)
+          var toOwner=d&&d.route==='owner';
+          form.parentNode.innerHTML='<div class="njsv-done"><b>✓ '+(toOwner?'ส่งถึงเจ้าของทรัพย์แล้ว':'ส่งเรื่องให้ทีมงานแล้ว')+'</b>'+
+            '<span>'+(toOwner?'เจ้าของจะติดต่อกลับเอง':'ทีมงานจะติดต่อกลับภายใน 1 วันทำการ')+' — รหัสทรัพย์ <b>'+esc(l.id)+'</b>'+(d&&d.id?' · เลขที่เรื่อง <b>'+esc(d.id)+'</b>':'')+'</span></div>';
+        })
+        .catch(function(err){ sending=false; btn.disabled=false; say('bad',err.message||'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง หรือทักไลน์'); });
+    });
   }
 
   // ---------- การ์ดติดต่อในแถบข้าง (แบบการ์ดเอเจนต์ของเว็บตัวอย่าง) ----------
@@ -665,7 +717,10 @@
     return '<div class="ld-agent">'+
       '<div class="ld-agent-h">'+
         '<img src="brand/logo-mark.svg" alt="" width="46" height="46">'+
-        '<div><b>ทีมขาย ที่ดินชัวร์</b><small>บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</small></div>'+
+        // ใครดูแลการขาย (saleBy จากระบบ) — ใบตามเงื่อนไขเดิม ('') หน้าตาเหมือนเดิมทุกตัวอักษร
+        (l.saleBy==='owner'
+          ? '<div><b>เจ้าของทรัพย์ขายเอง</b><small>ประกาศขายเองชัวร์ · ติดต่อเจ้าของผ่านฟอร์มด้านล่าง · ทีมที่ดินชัวร์ตอบเรื่องข้อมูลแปลงทางไลน์</small></div>'
+          : '<div><b>ทีมขาย ที่ดินชัวร์</b><small>'+(l.saleBy==='nj'?'ฝากขายชัวร์ — ทีมที่ดินชัวร์ดูแลการขาย · ':'')+'บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</small></div>')+
       '</div>'+
       '<div class="ld-agent-b">'+
         '<div class="ld-agent-price"><span>'+(l.type==='rent'?'ค่าเช่า':'ราคาขาย')+'</span><b>'+money(l.estValue)+'</b></div>'+
@@ -950,6 +1005,7 @@
     });
 
     // ฟอร์มสนใจแปลง — ส่งรหัสแปลงเข้าไปให้ล็อกไว้ ผู้ซื้อจึงไม่มีทางพิมพ์รหัสผิด
+    if(l.saleBy==='owner') bindOwnerForm(l);
     var inqHost=document.getElementById('ld-inq-form');
     if(inqHost&&window.NJServices){
       NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail', province:(l.land||{}).province||'', brief:true });

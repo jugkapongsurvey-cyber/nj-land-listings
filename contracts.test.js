@@ -762,5 +762,27 @@ console.log('\nบัญชีเจ้าของทรัพย์ — ลิ
   check('⭐ หน้าฝากขายไม่มีช่องกรอกรหัสผ่าน (ฟอร์มรหัสอยู่บน app.njteedinsure.com เท่านั้น)', !/type="password"/.test(chtml));
 })();
 
+console.log('\nรูปแบบบริการ A/B/C รอบ 2 — ป้ายใครดูแลการขาย · ส่งถึงเจ้าของ · อายุประกาศ');
+(function () {
+  const sm = path.join(SRV, 'lib', 'servicemodel.js');
+  if (!fs.existsSync(sm)) { console.log('  ข้าม — ยังไม่มี lib/servicemodel.js ที่ฝั่งเซิร์ฟเวอร์'); return; }
+  const smSrc = read(sm);
+  const srv = read(path.join(SRV, 'server.js'));
+  const card = read(path.join(WEB, 'listingcard.js'));
+  const land = read(path.join(WEB, 'land.js'));
+  const cjs = read(path.join(WEB, 'consign.js'));
+  // ค่าของ saleBy ที่ระบบส่งออก — เว็บต้องรู้จักครบ ('owner' · 'nj') ไม่งั้นป้ายหายเงียบ
+  // อ่านจาก SERVICES ของระบบตรงๆ (lib ล้วน require ได้ ไม่เปิดเซิร์ฟเวอร์)
+  const saleVals = require(sm).SERVICES.map(x => x.saleBy).filter(Boolean).filter((x, i, arr) => arr.indexOf(x) === i).sort();
+  check('⭐ ระบบส่งออก saleBy ใน publicListings', /saleBy:\s*servicemodel\.saleByOf\(o\)/.test(srv));
+  check('ค่าของ saleBy ที่ระบบใช้ = owner/nj และเว็บรู้จักครบ', saleVals.join() === 'nj,owner' &&/item\.saleBy === 'owner' \|\| item\.saleBy === 'nj'/.test(card));
+  check('⭐ ฟอร์มส่งถึงเจ้าของส่ง shareWithOwner + pdpa และใช้ช่องติ๊ก (ไม่ใช่กดส่ง = ยินยอม)', /shareWithOwner:true, pdpa:true/.test(land) && /name="pdpa"/.test(land) && /form\.elements\.pdpa\.checked/.test(land));
+  check('ระบบรับ shareWithOwner และต้องติ๊กยินยอม (need_share_consent)', /b\.shareWithOwner === true/.test(srv) && /need_share_consent/.test(srv));
+  check('หน้าแปลงอ่านปลายทางจากคำตอบ (route) ไม่เดาเอง', /d\.route==='owner'/.test(land) && /route: inq\.route \|\| 'nj'/.test(srv));
+  check('ฟอร์มส่งถึงเจ้าของมีกับดักบอท website', /name="website" class="njsv-hp"/.test(land));
+  const waitKeys = Object.keys((smSrc.match(/const BLOCK_TH = \{([\s\S]*?)\};/) || ['', ''])[1].split('\n').reduce((a, l) => { const m = /^\s*(\w+):/.exec(l); if (m) a[m[1]] = 1; return a; }, {}));
+  check('⭐ หน้าฝากขายมีข้อความรอของทุกด่านบริการ (รวม expired)', waitKeys.length >= 4 && waitKeys.every(k => new RegExp('\\b' + k + ':').test(cjs)), waitKeys.join(','));
+})();
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

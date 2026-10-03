@@ -657,3 +657,8 @@ html.ld-lb-lock{overflow:hidden}
 .ld-share-b.x{background:#0F1419}
 .ld-share-b:hover{filter:brightness(1.08)}
 .ld-content .ld-tools{margin:18px 0 12px}
+/* ฟอร์มส่งถึงเจ้าของ (ขายเองชัวร์) + สรุปตรวจแล้ว/ยังไม่ตรวจ — รูปแบบบริการ A/B/C รอบ 2 */
+.ld-own-ck{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.6;color:#334155;cursor:pointer}
+.ld-own-ck input{margin-top:3px;flex:0 0 auto;width:16px;height:16px}
+.ld-own-note{font-size:12px;line-height:1.65;color:#5A7091;margin:12px 0 0}
+.ld-tier-sum{font-size:13px;color:#334155;margin:8px 0 10px;line-height:1.6}
