@@ -132,6 +132,11 @@
       new: function (a, b) { return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0); }
     };
     list.sort(by[f.sort] || by.new);
+    // ประกาศเด่นขึ้นก่อน (หมุนลำดับวันละครั้ง) — เฉพาะการเรียงตั้งต้น "อัปเดตล่าสุด"
+    // ⚠️ ผู้ใช้เลือกเรียงตามราคา/เนื้อที่เอง = เคารพลำดับที่เขาขอ ห้ามแทรกประกาศเด่นขึ้นหัว
+    //    ("ราคาต่ำ → สูง" ที่มีแปลงราคาสูงอยู่บนสุด = บอกข้อมูลผิดกับผู้ซื้อ) · ป้ายยังแสดงบนการ์ดตามปกติ
+    //    กรองจังหวัดแล้วก็ยังขึ้นก่อนในจังหวัดนั้น เพราะกรองก่อนแล้วค่อยจัดลำดับ
+    if ((f.sort || 'new') === 'new' && window.NJLandMeta && NJLandMeta.featuredFirst) list = NJLandMeta.featuredFirst(list);
     return { list: list, hiddenUnknown: hiddenUnknown };
   }
 
@@ -154,6 +159,13 @@
         'ไม่ได้แปลว่าแปลงนั้นไม่ตรงเงื่อนไข ทักไลน์ถามทีมงานได้เลย';
     } else { un.hidden = true; un.textContent = ''; }
 
+    // ข้อความกำกับป้ายประกาศเด่น — ขึ้นเฉพาะเมื่อมีประกาศเด่นอยู่ในผลลัพธ์
+    var fn = $('featured-note');
+    if (fn) {
+      var nf = r.list.filter(function (x) { return x.featured; }).length;
+      fn.hidden = !nf;
+      fn.textContent = nf ? ('★ ' + ((window.NJLandMeta && NJLandMeta.FEATURED_NOTE) || '')) : '';
+    }
     if (!r.list.length) { grid.innerHTML = NJL.emptyHtml(state.loaded && state.listings.length > 0); return; }
     grid.innerHTML = r.list.map(NJL.card).join('');
   }

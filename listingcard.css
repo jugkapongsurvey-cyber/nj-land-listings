@@ -44,6 +44,9 @@
  *    เหตุผลเต็มอยู่ที่ .badge-verified ใน home.css */
 .badge-verified{background:#15803d}
 .badge-basic{background:#8a6d1f}
+/* ประกาศเด่น — พื้นขาวขอบทอง ไม่ใช้สีเขียว (สีของ "ตรวจสอบโดย NJ") และไม่ใช้ทองทึบ (สีของ "ข้อมูลเบื้องต้น")
+ * ⚠️ เป็นพื้นที่ที่เจ้าของจ่ายเอง ห้ามทำให้ดูเหมือนป้ายรับรอง · ข้อความ #6b4500 บนขาว 8.5:1 ผ่าน AA */
+.badge-featured{background:#fff;color:#6b4500;border:1px solid #d9a21b;padding:3px 7px}
 .photo-count{position:absolute;right:12px;top:12px;background:rgba(11,31,58,.72);color:#e5c76b;font-size:12px;padding:4px 8px;border-radius:6px}
 
 .card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px}
@@ -154,7 +157,7 @@
   .land-card.is-compact .card-desc,
   .land-card.is-compact .card-tags,
   .land-card.is-compact .photo-count,
-  .land-card.is-compact .card-badges .badge:not(.badge-verified):not(.badge-basic){display:none}
+  .land-card.is-compact .card-badges .badge:not(.badge-verified):not(.badge-basic):not(.badge-featured){display:none}
 
   /* ปุ่มบันทึก/เทียบบนการ์ดแนวนอน — ช่องรูปเหลือกว้าง 120px วางปุ่มทับไม่ได้
    * ⚠️ **ห้ามซ่อนปุ่มทั้งสองบนมือถือ** ผู้ซื้อที่ดินส่วนใหญ่เปิดจากมือถือ ซ่อนแล้วเท่ากับ
