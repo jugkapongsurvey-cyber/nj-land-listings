@@ -81,7 +81,9 @@
       score: item.score || null,
       // ใครดูแลการขาย (รูปแบบบริการ A/B/C ของระบบ) — 'owner' ขายเองชัวร์ · 'nj' ฝากขายชัวร์ · '' ใบตามเงื่อนไขเดิม
       // ⚠️ ค่าที่ไม่รู้จัก = '' (หน้าตาเหมือนประกาศเดิมทุกอย่าง) ห้ามเดา
-      saleBy: item.saleBy === 'owner' || item.saleBy === 'nj' ? item.saleBy : ''
+      saleBy: item.saleBy === 'owner' || item.saleBy === 'nj' ? item.saleBy : '',
+      // ประกาศเด่น — ระบบคิดวันหมด/สิทธิ์ให้แล้ว ส่งมาแค่ true/false · ไม่ส่ง/ค่าอื่น = ไม่ใช่ประกาศเด่น (ห้ามเดา)
+      featured: item.featured === true
     };
   }
 
@@ -109,6 +111,12 @@
       : hex;
     return '<span class="card-zone" title="' + esc('ผังสี: ' + (V.ZONE_TH[key] || '')) + '">' +
       '<i style="background:' + bg + '" aria-hidden="true"></i>ผัง' + esc(V.zoneShort ? V.zoneShort(key) : key) + '</span>';
+  }
+
+  // ข้อความกำกับป้ายประกาศเด่น — อ่านจาก landmeta.js ที่เดียว (ไม่มีไฟล์นั้น = ข้อความถอยไว้ตรงนี้)
+  function featuredNote() {
+    var LM = window.NJLandMeta;
+    return (LM && LM.FEATURED_NOTE) || 'ประกาศเด่น = ตำแหน่งแสดงที่เจ้าของประกาศชำระค่าบริการ ไม่ใช่การรับรองแปลงจากที่ดินชัวร์';
   }
 
   // ระดับคะแนนความพร้อม → คลาสของตัวเลขท้ายการ์ด (เขียว/ส้ม ตามดีไซน์)
@@ -192,6 +200,8 @@
       '<div class="card-media">' + media +
         '<div class="card-badges">' +
           '<span class="badge">' + (item.type === 'rent' ? 'ให้เช่า' : 'ขาย') + '</span>' +
+          // ⚠️ ป้ายประกาศเด่นต้องมีข้อความว่าเป็นพื้นที่ที่เจ้าของจ่ายเอง ไม่ใช่การรับรองแปลง (title + aria-label)
+          (item.featured ? '<span class="badge badge-featured" title="' + esc(featuredNote()) + '" aria-label="ประกาศเด่น — ' + esc(featuredNote()) + '">★ ประกาศเด่น</span>' : '') +
           (item.tier === 2
             ? '<span class="badge badge-verified">✓ ตรวจสอบโดย NJ</span>'
             : '<span class="badge badge-basic">ข้อมูลเบื้องต้น</span>') +

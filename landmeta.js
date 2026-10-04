@@ -133,6 +133,29 @@
   function pageUrl(l, vocab) { return SITE_URL + '/' + pagePath(l, vocab); }
   // ⚠️ ที่อยู่ที่จะเขียนลง HTML หรือ XML ต้องเข้ารหัสก่อน
   //    ภาษาไทยที่ไม่ได้เข้ารหัสใน href/loc พังกับตัวอ่านบางตัว (และ sitemap ที่ไม่ผ่านการตรวจ)
+  // ---------- ประกาศเด่น (ระบบหลังบ้านส่ง featured: true/false มาใน /api/public/listings) ----------
+  // ⚠️ ป้ายคือตำแหน่งแสดงที่เจ้าของชำระค่าบริการ ไม่ใช่การรับรองแปลง — ข้อความนี้ต้องติดไปกับป้ายทุกที่
+  var FEATURED_NOTE = 'ประกาศเด่น = ตำแหน่งแสดงที่เจ้าของประกาศชำระค่าบริการ ไม่ใช่การรับรองแปลงจากที่ดินชัวร์ ' +
+    'และไม่รับประกันจำนวนผู้เข้าชม ผู้สนใจ หรือผลการขาย';
+  // วันตามเวลาไทยนับจาก 1970 — ใช้หมุนลำดับวันละครั้ง (ไทยไม่มีเวลาออมแสง)
+  function bkkDayIndex(now) {
+    var t = now == null ? Date.now() : (typeof now === 'number' ? now : Date.parse(now));
+    if (!isFinite(t)) t = Date.now();
+    return Math.floor((t + 7 * 3600000) / 86400000);
+  }
+  // ประกาศเด่นขึ้นก่อน แล้วตามด้วยที่เหลือ "ตามลำดับเดิมที่ส่งเข้ามา"
+  // ⚠️ ลำดับในกลุ่มประกาศเด่น **หมุนวันละครั้ง ไม่สุ่มทุกครั้งที่เปิด** — เรียงตามรหัสแล้วเลื่อนจุดเริ่มตามวัน
+  //    ทุกใบได้ขึ้นอันดับแรกเท่ากัน · คนเปิดซ้ำในวันเดียวกันเห็นลำดับเดิม (ไม่กระโดดไปมา)
+  // ⚠️ อ่านเฉพาะ featured === true จากระบบ ห้ามเดาจากช่องอื่น · ไม่แก้อาร์เรย์ที่ส่งเข้ามา
+  function featuredFirst(list, now) {
+    var arr = Array.isArray(list) ? list : [];
+    var feat = arr.filter(function (x) { return x && x.featured === true; });
+    if (!feat.length) return arr.slice();
+    feat.sort(function (a, b) { return String(a.id || '').localeCompare(String(b.id || '')); });
+    var k = bkkDayIndex(now) % feat.length;
+    var rot = feat.slice(k).concat(feat.slice(0, k));
+    return rot.concat(arr.filter(function (x) { return !(x && x.featured === true); }));
+  }
   function encUrl(u) { return encodeURI(String(u == null ? '' : u)); }
   // ที่อยู่ชุดเดิมของ Sprint 5 — ยังเปิดได้ แต่กลายเป็นหน้าพาไปที่อยู่ใหม่
   function legacyPath(id) { return 'p/' + String(id) + '.html'; }
@@ -145,6 +168,7 @@
     titleOf: titleOf, metaDesc: metaDesc,
     slugSeg: slugSeg, slugPathWith: slugPathWith,
     pagePath: pagePath, pageUrl: pageUrl, encUrl: encUrl,
-    legacyPath: legacyPath, legacyUrl: legacyUrl, dynamicUrl: dynamicUrl
+    legacyPath: legacyPath, legacyUrl: legacyUrl, dynamicUrl: dynamicUrl,
+    FEATURED_NOTE: FEATURED_NOTE, bkkDayIndex: bkkDayIndex, featuredFirst: featuredFirst
   };
 });
