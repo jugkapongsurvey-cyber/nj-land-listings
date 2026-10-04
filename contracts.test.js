@@ -784,5 +784,35 @@ console.log('\nรูปแบบบริการ A/B/C รอบ 2 — ป้
   check('⭐ หน้าฝากขายมีข้อความรอของทุกด่านบริการ (รวม expired)', waitKeys.length >= 4 && waitKeys.every(k => new RegExp('\\b' + k + ':').test(cjs)), waitKeys.join(','));
 })();
 
+console.log('\nรูปแบบบริการ A/B/C รอบ 3ค — ป้ายตรวจโดยที่ดินชัวร์ (inspected)');
+(function () {
+  const srv = read(path.join(SRV, 'server.js'));
+  const card = read(path.join(WEB, 'listingcard.js'));
+  const land = read(path.join(WEB, 'land.js'));
+  if (!/function inspectedOf\(o\)/.test(srv)) { console.log('  ข้าม — ฝั่งระบบยังไม่ส่ง inspected (deploy ระบบก่อนเว็บ)'); }
+  else check('⭐ ระบบส่ง inspected เฉพาะประกาศที่มีรูปแบบบริการ', /inspected:\s*servicemodel\.saleByOf\(o\) \? inspectedOf\(o\) : null/.test(srv));
+  // รันฟังก์ชันจริงของการ์ด (ไม่ grep) — ⚠️ ตั้ง window ชั่วคราวแล้วคืนค่าเดิม
+  const had = 'window' in global, prevW = global.window;
+  global.window = {};
+  new Function(read(path.join(WEB, 'landvocab.js')))();
+  new Function(card)();
+  const NJL = global.window.NJListing;
+  const T = NJL.inspectedText;
+  check('⭐ ไม่มีผลตรวจจริง = ไม่มีป้าย (undefined · null · any:false)', T(undefined) === '' && T(null) === '' && T({ any: false, checksDone: 3 }) === '' && T({ any: 'true', checksDone: 3 }) === '');
+  check('ตรวจแล้วกี่หัวข้อ บอกจำนวนตามจริง', T({ any: true, checksDone: 2, checksTotal: 7 }) === 'ตรวจแล้ว 2 จาก 7 หัวข้อ');
+  check('ไม่มีผลตรวจ 7 หัวข้อ → ใช้บันไดตรวจสอบ → ลงพื้นที่', T({ any: true, checksDone: 0, verifyReached: 1, verifyTotal: 2 }) === 'ยืนยันแล้ว 1 จาก 2 ระดับ' && T({ any: true, site: true }) === 'ลงพื้นที่แล้ว');
+  check('ตัวเลขผิดรูปไม่ทำให้เกิดข้อความแปลก', T({ any: true, checksDone: 'abc', verifyReached: -3 }) === '');
+  const it = NJL.normalize({ id: 'OP-1', saleBy: 'owner', inspected: { any: true, checksDone: 3, checksTotal: 7 } }, 0);
+  check('การ์ดขายเองชัวร์ที่ตรวจแล้วขึ้น "ตรวจโดยที่ดินชัวร์"', /ตรวจโดยที่ดินชัวร์ · ตรวจแล้ว 3 จาก 7 หัวข้อ/.test(NJL.card(it)));
+  const it0 = NJL.normalize({ id: 'OP-2', saleBy: 'owner', inspected: { any: false } }, 0);
+  check('การ์ดขายเองชัวร์ที่ยังไม่ตรวจ = ข้อความเดิม ไม่มีป้าย', !/ตรวจโดยที่ดินชัวร์/.test(NJL.card(it0)) && /ติดต่อเจ้าของในหน้าประกาศ/.test(NJL.card(it0)));
+  const it1 = NJL.normalize({ id: 'OP-3', saleBy: '' }, 0);
+  check('ประกาศเงื่อนไขเดิมไม่มีป้าย', it1.inspected === null && !/ตรวจโดยที่ดินชัวร์/.test(NJL.card(it1)));
+  check('หน้าแปลงใช้ตัวตัดสินเดียวกับการ์ด (NJListing.inspectedText)', /NJListing\.inspectedText\(l\.inspected\)/.test(land) && land.indexOf("(l.saleBy?inspectedLine(l):'')") >= 0);
+  if (had) global.window = prevW; else delete global.window;
+  const insSrc = (card.match(/function inspectedText[\s\S]*?\n  \}/) || [''])[0] + (land.match(/function inspectedLine[\s\S]*?\n  \}/) || [''])[0];
+  check('⭐ ป้ายไม่ใช้ถ้อยคำรับรอง/การันตี', insSrc.length > 100 && !/รับรอง|การันตี|รับประกัน/.test(insSrc));
+})();
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

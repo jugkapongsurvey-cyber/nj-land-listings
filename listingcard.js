@@ -50,6 +50,24 @@
     return rai + '-' + ngan + '-' + wa + ' ไร่';
   }
 
+  // ตรวจอะไรแล้ว (รูปแบบบริการ รอบ 3ค) — ระบบนับให้ที่เซิร์ฟเวอร์ที่เดียว (inspectedOf ใน server.js)
+  // ⚠️ ป้าย "ตรวจโดยที่ดินชัวร์" ขึ้นได้เฉพาะเมื่อ any === true (มีผลตรวจจริงอย่างน้อยหนึ่งอย่าง)
+  //    ไม่ส่งมา / any ไม่ใช่ true / ตัวเลขผิดรูป = null (ไม่มีป้าย) — ห้ามเดา ห้ามติดป้ายให้ประกาศที่ยังไม่มีใครตรวจ
+  function inspectedOf(x) {
+    if (!x || x.any !== true) return null;
+    var n = function (v) { v = Number(v); return isFinite(v) && v >= 0 ? Math.floor(v) : 0; };
+    return { any: true, checksDone: n(x.checksDone), checksTotal: n(x.checksTotal), verifyReached: n(x.verifyReached), verifyTotal: n(x.verifyTotal), site: x.site === true };
+  }
+  // ข้อความบอกว่าตรวจอะไรไปแล้ว — บอกจำนวนตามจริง ไม่ใช่คำรับรองผล
+  function inspectedText(x) {
+    var i = inspectedOf(x);
+    if (!i) return '';
+    if (i.checksDone > 0) return 'ตรวจแล้ว ' + i.checksDone + (i.checksTotal ? ' จาก ' + i.checksTotal : '') + ' หัวข้อ';
+    if (i.verifyReached > 0) return 'ยืนยันแล้ว ' + i.verifyReached + (i.verifyTotal ? ' จาก ' + i.verifyTotal : '') + ' ระดับ';
+    if (i.site) return 'ลงพื้นที่แล้ว';
+    return '';
+  }
+
   function normalize(item, index) {
     return {
       id: item.id || ('land-' + index),
@@ -82,6 +100,8 @@
       // ใครดูแลการขาย (รูปแบบบริการ A/B/C ของระบบ) — 'owner' ขายเองชัวร์ · 'nj' ฝากขายชัวร์ · '' ใบตามเงื่อนไขเดิม
       // ⚠️ ค่าที่ไม่รู้จัก = '' (หน้าตาเหมือนประกาศเดิมทุกอย่าง) ห้ามเดา
       saleBy: item.saleBy === 'owner' || item.saleBy === 'nj' ? item.saleBy : '',
+      // ตรวจอะไรแล้ว (เฉพาะประกาศที่มีรูปแบบบริการ) — null = ไม่มีป้าย
+      inspected: inspectedOf(item.inspected),
       // ประกาศเด่น — ระบบคิดวันหมด/สิทธิ์ให้แล้ว ส่งมาแค่ true/false · ไม่ส่ง/ค่าอื่น = ไม่ใช่ประกาศเด่น (ห้ามเดา)
       featured: item.featured === true
     };
@@ -223,7 +243,7 @@
           '<span class="agent-avatar" aria-hidden="true">NJ</span>' +
           // ป้ายใครดูแลการขาย — ประกาศขายเองชัวร์ผู้ซื้อติดต่อเจ้าของผ่านฟอร์มในหน้าประกาศ (ปุ่มด้านขวายังเป็นช่องทางของทีม)
           (item.saleBy === 'owner'
-            ? '<div><b>เจ้าของขายเอง</b><small>ติดต่อเจ้าของในหน้าประกาศ</small></div>'
+            ? '<div><b>เจ้าของขายเอง</b><small>' + (inspectedText(item.inspected) ? 'ตรวจโดยที่ดินชัวร์ · ' + esc(inspectedText(item.inspected)) : 'ติดต่อเจ้าของในหน้าประกาศ') + '</small></div>'
             : '<div><b>ทีมที่ดินชัวร์</b>' + (item.saleBy === 'nj' ? '<small>ดูแลการขาย' + (when ? ' · ' + esc(when) : '') + '</small>' : (when ? '<small>' + esc(when) + '</small>' : '')) + '</div>') +
           '<span class="contact-mini">' +
             '<a href="' + LINE + '" target="_blank" rel="noopener" class="line" data-contact="line" aria-label="ติดต่อทางไลน์ เรื่องแปลง ' + esc(item.id) + '">●</a>' +
@@ -330,6 +350,7 @@
     LINE: LINE, FB: FB, TEL: TEL, TEL2: TEL2,
     esc: esc, money: money, num: num, ago: ago, areaTh: areaTh,
     normalize: normalize, card: card, shortTitleOf: shortTitleOf,
+    inspectedOf: inspectedOf, inspectedText: inspectedText,
     emptyHtml: emptyHtml, loadFailedHtml: loadFailedHtml,
     fetchListings: fetchListings, bindGrid: bindGrid,
     fullAttr: fullAttr, imgFallback: imgFallback
