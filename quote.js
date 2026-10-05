@@ -126,9 +126,16 @@
       '<p class="qt-wht">หัก ณ ที่จ่ายเป็นภาษีที่ผู้จ่ายเงินนำส่งกรมสรรพากรแทนผู้รับเงิน ' +
       'ไม่ใช่ส่วนลด · กรุณาออกหนังสือรับรองการหักภาษีให้ทีมงานด้วย</p>'
     ) : '';
-    return '<div class="qt-card"><h2>รายการและยอดเงิน</h2><div class="qt-lines">' + lines + '</div>' +
-      '<div class="qt-sum"><span>รวมก่อนภาษีมูลค่าเพิ่ม</span><b>' + baht(d.subtotal) + '</b></div>' +
-      (d.vatRate ? ('<div class="qt-sum"><span>ภาษีมูลค่าเพิ่ม ' + esc(String(d.vatRate)) + '%</span><b>' + baht(d.vat) + '</b></div>') : '') +
+    // vatMode 'incl' = ราคาในรายการรวม VAT แล้ว (ระบบหลังบ้านเลือกไว้ 5 ต.ค. 69) — ผลรวมรายการ = ยอดรวมทั้งสิ้น
+    //   แสดงยอดรวมรายการก่อน แล้วถอดมูลค่าก่อน VAT / VAT ที่รวมอยู่ ตามตัวเลขจากเซิร์ฟเวอร์ (ไม่คิดเอง)
+    var incl = d.vatMode === 'incl' && d.vatRate;
+    var sums = incl
+      ? ('<div class="qt-sum"><span>รวมทุกรายการ (รวมภาษีมูลค่าเพิ่มแล้ว)</span><b>' + baht(d.grand) + '</b></div>' +
+        '<div class="qt-sum"><span>มูลค่าก่อนภาษีมูลค่าเพิ่ม</span><b>' + baht(d.subtotal) + '</b></div>' +
+        '<div class="qt-sum"><span>ภาษีมูลค่าเพิ่ม ' + esc(String(d.vatRate)) + '% (รวมอยู่ในราคาแล้ว)</span><b>' + baht(d.vat) + '</b></div>')
+      : ('<div class="qt-sum"><span>รวมก่อนภาษีมูลค่าเพิ่ม</span><b>' + baht(d.subtotal) + '</b></div>' +
+        (d.vatRate ? ('<div class="qt-sum"><span>ภาษีมูลค่าเพิ่ม ' + esc(String(d.vatRate)) + '%</span><b>' + baht(d.vat) + '</b></div>') : ''));
+    return '<div class="qt-card"><h2>รายการและยอดเงิน</h2><div class="qt-lines">' + lines + '</div>' + sums +
       '<div class="qt-sum is-total"><span>ยอดรวมทั้งสิ้น</span><b>' + baht(d.grand) + '</b></div>' + wht + '</div>';
   }
 
