@@ -29,7 +29,10 @@ function walkProps(dir, rel, out) {
   }
   return out;
 }
-const PROPS = walkProps(path.join(__dirname, 'properties'), 'properties/', []);
+// ⚠️ แปลงที่ย้ายที่อยู่ (เช่นทีมเพิ่งกรอกประเภททรัพย์) มี "หน้าพาไป" ค้างที่อยู่เดิมใต้ properties/ ด้วย
+//    ไม่ใช่หน้าแปลง (ไม่มี canonical ชี้ตัวเอง ไม่มีเนื้อหา) — ข้ามไป ตัวที่ตรวจหน้าพาไปคือ propurl.test.js ข้อ 3ข
+const PROPS = walkProps(path.join(__dirname, 'properties'), 'properties/', [])
+  .filter((f) => { const h = read(f); return !(/http-equiv="refresh"/.test(h) && !/class="ldp-title"/.test(h)); });
 const idOf = (rel) => rel.replace(/\/index\.html$/, '').split('/').pop();
 
 console.log('\n1) ⭐ หน้าแปลงมีเนื้อหาอยู่ใน HTML ต้นทางจริง');
