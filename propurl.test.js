@@ -30,7 +30,16 @@ function walk(dir, rel, out) {
   return out;
 }
 
-const PROP_DIRS = walk(path.join(ROOT, 'properties'), 'properties/', []);
+// ⚠️ แปลงที่ย้ายที่อยู่ (เช่นทีมเพิ่งกรอกประเภททรัพย์) ตัวสร้างวาง "หน้าพาไป" ไว้ที่อยู่เดิมใต้ properties/ ด้วย
+//    หน้านั้นไม่ใช่หน้าแปลง (ไม่มี canonical ชี้ตัวเอง ไม่มีเนื้อหา) — แยกออกจาก PROP_DIRS ไม่งั้นข้อ 2/3/5 นับผิด
+//    และ Action สร้างหน้าแปลงแดงทุกรอบ ทำให้แปลงใหม่ไม่ขึ้นเว็บ (เจอจริงเมื่อ OP-024 เปลี่ยนเป็น "บ้านเดี่ยว" 5 ต.ค. 2569)
+const ALL_DIRS = walk(path.join(ROOT, 'properties'), 'properties/', []);
+const isMovedStub = (d) => {
+  const h = read(d + 'index.html');
+  return /http-equiv="refresh"/.test(h) && !/class="ldp-title"/.test(h);
+};
+const PROP_DIRS = ALL_DIRS.filter((d) => !isMovedStub(d));
+const MOVED_STUBS = ALL_DIRS.filter(isMovedStub);
 const STUBS = fs.existsSync(path.join(ROOT, 'p'))
   ? fs.readdirSync(path.join(ROOT, 'p')).filter((f) => f.endsWith('.html')) : [];
 const REDIR = JSON.parse(read('redirects.json'));
@@ -67,6 +76,19 @@ for (const f of STUBS) {
   ok('p/' + f + ' — มีลิงก์ที่กดได้จริง (เผื่อสคริปต์ถูกบล็อก)', /<a href="https:\/\/njteedinsure\.com\/properties\//.test(html));
   ok('⭐ p/' + f + ' — ห้ามใส่ noindex (ขัดกับ canonical และตัดค่าที่ส่งต่อทิ้ง)',
      !/noindex/.test(html));
+}
+
+console.log('\n3ข) ⭐ หน้าพาไปของแปลงที่ย้ายที่อยู่ (ที่อยู่เดิมใต้ properties/)');
+for (const d of MOVED_STUBS) {
+  const html = read(d + 'index.html');
+  const m = html.match(/<link rel="canonical" href="([^"]+)">/);
+  const target = m ? decodeURI(m[1]).replace(META.SITE_URL, '') : '';
+  ok(d + ' — canonical ชี้ที่อยู่ใหม่ (ไม่ใช่ตัวเอง)', !!m && /^\/properties\//.test(target) && target !== '/' + d, m && m[1]);
+  ok(d + ' — มี meta refresh', /http-equiv="refresh"/.test(html));
+  ok(d + ' — มีลิงก์ที่กดได้จริง', /<a href="https:\/\/njteedinsure\.com\/properties\//.test(html));
+  ok('⭐ ' + d + ' — ห้ามใส่ noindex', !/noindex/.test(html));
+  ok(d + ' — ที่อยู่ใหม่มีหน้าแปลงจริง', PROP_DIRS.indexOf(target.replace(/^\//, '')) >= 0, target);
+  ok(d + ' — จดไว้ในทะเบียน redirects.json', REDIR['/' + d] === target, REDIR['/' + d]);
 }
 
 console.log('\n4) ⭐ ทะเบียนที่อยู่เดิม (redirects.json)');
