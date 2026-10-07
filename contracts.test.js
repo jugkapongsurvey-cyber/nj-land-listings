@@ -629,6 +629,9 @@ console.log('\nแพ็กเกจบริการ (รอบ 4) — package
     check('⭐ ไม่มีชนิดใหม่ซ้ำกับ line_click/tel_click',
       (webEvents || []).indexOf('contact_line') < 0 && (webEvents || []).indexOf('call_staff') < 0);
     check('หน้าแพ็กเกจยิงเหตุการณ์ผ่าน njTrackInternal ตัวกลาง', /njTrackInternal/.test(pkgJs));
+    // ระบบหลังบ้านซ่อนแท็บ "เจ้าของทรัพย์" / "นักลงทุนฯ" ได้ด้วยสวิตช์ (7 ต.ค. 69) — หน้าเว็บวาดแท็บตาม config.groups เท่านั้น
+    check('⭐ เหลือกลุ่มเดียวไม่วาดแถบแท็บ', pkgJs.indexOf('groups.length > 1 ?') >= 0);
+    check('⭐ หน้าแพ็กเกจไม่ซ่อนกลุ่มเอง (ไม่มีคีย์กลุ่ม owner/investor ฝังไว้)', pkgJs.indexOf("'owner'") < 0 && pkgJs.indexOf("'investor'") < 0);
 
     // ---------- ราคาและรายการต้องมาจากเซิร์ฟเวอร์เท่านั้น (ข้อกำหนดข้อ 4) ----------
     check('⭐⭐ หน้าแพ็กเกจเรียกแคตตาล็อกจาก /api/public/packages', /\/api\/public\/packages/.test(pkgJs));
