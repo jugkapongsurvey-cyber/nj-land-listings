@@ -106,7 +106,10 @@ const robots = read('robots.txt');
 const on = K.robotsWith(robots, true);
 ok(on.indexOf('Sitemap: https://njteedinsure.com/sitemaps/knowledge.xml') >= 0, 'มีบทความ = เพิ่มบรรทัด Sitemap');
 ok(K.robotsWith(on, true) === on, 'รันซ้ำไม่เพิ่มซ้ำ');
-ok(K.robotsWith(on, false) === robots.replace(/\r\n/g, robots.indexOf('\r\n') >= 0 ? '\r\n' : '\n'), '⭐ ไม่มีบทความ = บรรทัด Sitemap หายไป (ไม่ชี้ไฟล์ที่ไม่มี)');
+// ⚠️ เทียบกับ robots.txt "ที่ตัดบรรทัด Sitemap ของบทความออกแล้ว" ไม่ใช่ robots.txt ดิบ — ใน Action ตัวสร้างเพิ่มบรรทัดนั้นลงไฟล์ก่อนรันเทสต์
+//    (เมื่อมีบทความขึ้นเว็บ) ถ้าเทียบกับไฟล์ดิบ เทสต์จะแดงทุกรอบที่มีบทความ แล้ว Action ไม่ commit หน้าบทความเลย (เจอจริง 7 ต.ค. 2569)
+const stripped = K.robotsWith(robots, false);
+ok(K.robotsWith(on, false) === stripped && stripped.indexOf('knowledge.xml') < 0, '⭐ ไม่มีบทความ = บรรทัด Sitemap หายไป (ไม่ชี้ไฟล์ที่ไม่มี)');
 
 console.log('\n7) ผลลัพธ์เหมือนเดิมทุกไบต์ + ต้นแบบ');
 const again = K.plan(tpl, API([art(1), art(2, { category: 'survey-boundary', publishedAt: '2026-09-21T01:00:00.000Z' })]));
