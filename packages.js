@@ -119,8 +119,10 @@
     var cards = S.data.packages
       .filter(function (p) { return p.group === S.group; })
       .map(cardHtml).join('');
+    // เหลือกลุ่มเดียว (กลุ่มอื่นถูกปิดด้วยสวิตช์ที่ระบบหลังบ้าน) = ไม่ต้องมีแถบแท็บ
+    // ⚠️ กลุ่มไหนแสดงตัดสินที่เซิร์ฟเวอร์ (config.groups) ที่เดียว — หน้านี้ห้ามซ่อนกลุ่มเอง
     el('pk-root').innerHTML =
-      '<div class="pk-tabs" role="tablist" aria-label="กลุ่มแพ็กเกจ">' + tabs + '</div>' +
+      (groups.length > 1 ? '<div class="pk-tabs" role="tablist" aria-label="กลุ่มแพ็กเกจ">' + tabs + '</div>' : '') +
       '<div class="pk-grid">' + (cards || '<p class="pk-empty">ยังไม่มีแพ็กเกจในกลุ่มนี้</p>') + '</div>';
   }
 
