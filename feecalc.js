@@ -59,6 +59,11 @@
     townhouse:  { label:'ทาวน์เฮาส์ / บ้านแถว 2 ชั้น',   build:true, home:true,  code:'202',   decay:.01, cap:.40 },
     commercial: { label:'ตึกแถว / อาคารพาณิชย์ 2 ชั้น',  build:true, home:true,  code:'402',   decay:.01, cap:.40 },
     condo:      { label:'อาคารอยู่อาศัยรวม ไม่เกิน 5 ชั้น', build:true, home:true, code:'520/1', decay:.01, cap:.40 },
+    // ห้องชุด (อ.ช.2) — ฐานคำนวณคือ "ราคาประเมินห้องชุดต่อ ตร.ม. × ขนาดห้อง" ที่ผู้ใช้กรอกเองทั้งสองช่อง (รอบคอนโด 2)
+    //   unit = ใช้ช่องกรอกห้องชุดแทนช่องที่ดิน/สิ่งปลูกสร้าง · ไม่มี code/decay = ไม่มีตัวช่วยประมาณ
+    //   ⚠️ ไม่ฝังและไม่เติมราคาประเมินห้องชุดให้ (กติกาข้อ 1) — ข้อมูลราคาที่ดินในระบบเป็นของที่ดินเท่านั้น ใช้กับห้องชุดไม่ได้
+    //   ⚠️ ใช้อัตราโอน/ภาษี/หัก ณ ที่จ่ายชุดเดียวกับทุกประเภทด้านล่าง ไม่มีสูตรชุดที่สอง · มาตรการลดค่าโอนต้องให้ผู้ใช้ติ๊กเอง (home:true)
+    condounit:  { label:'ห้องชุด (คอนโดมิเนียม · อ.ช.2)', build:false, unit:true, home:true },
     warehouse:  { label:'คลังสินค้า ไม่เกิน 300 ตร.ม.',  build:true, home:false, code:'501',   decay:.02, cap:.60 }
   };
 
@@ -106,8 +111,14 @@
     var type = TYPES[typeKey];
 
     var sale = num(b.salePrice);
-    var landGiven = num(b.landAppraisal) > 0;
-    var land = num(b.landAppraisal);
+    // ห้องชุด: ไม่มีราคาประเมินที่ดินแยก — ช่องที่ดินถูกเมินแม้มีค่าค้าง (ผู้ใช้สลับประเภทมาจากที่ดินเปล่า)
+    var landGiven = !type.unit && num(b.landAppraisal) > 0;
+    var land = type.unit ? 0 : num(b.landAppraisal);
+    // ห้องชุด: ราคาประเมินต่อ ตร.ม. × ขนาดห้อง ต้องกรอกครบทั้งสองช่อง ไม่ครบ = ถือว่ายังไม่รู้ราคาประเมิน (ใช้ราคาซื้อขายแทนพร้อมคำเตือน)
+    var unit = null;
+    if (type.unit && num(b.unitRate) > 0 && num(b.unitSqm) > 0) {
+      unit = { rate: num(b.unitRate), sqm: num(b.unitSqm), value: num(b.unitRate) * num(b.unitSqm) };
+    }
 
     // ราคาประเมินสิ่งปลูกสร้าง — กรอกเองมาก่อนเสมอ ถ้าไม่กรอกค่อยลองประมาณให้
     var buildGiven = type.build && num(b.buildingAppraisal) > 0;
@@ -121,9 +132,9 @@
       }
     }
 
-    var apprGiven = landGiven || buildGiven || !!est;
+    var apprGiven = landGiven || buildGiven || !!est || !!unit;
     // ไม่รู้ราคาประเมินเลย → ใช้ราคาซื้อขายแทน (ได้ตัวเลขสูงกว่าจริง ต้องเตือน)
-    var appraisal = apprGiven ? (land + building) : sale;
+    var appraisal = apprGiven ? (land + building + (unit ? unit.value : 0)) : sale;
     if (apprGiven && appraisal <= 0) appraisal = sale;
 
     if (!(sale > 0) && !apprGiven) return null;
@@ -182,7 +193,7 @@
              appraisal:appraisal, land:land, building:building,
              estimated:!!est && !buildGiven, est:est,
              assumed:!apprGiven, years:years, company:company,
-             type:typeKey, typeLabel:type.label, hasBuilding:type.build,
+             type:typeKey, typeLabel:type.label, hasBuilding:type.build, isUnit:!!type.unit, unit:unit,
              registered:registered, discountOn:discountOn, feeRate:feeRate };
   }
 
@@ -205,6 +216,12 @@
         (r.estimated ? ' <i>(ประมาณจาก ' + baht(r.est.area) + ' ตร.ม. × ' + baht(r.est.rate) +
                        ' บาท/ตร.ม. หักค่าเสื่อม ' + Math.round(r.est.dep * 100) + '%)</i>' : '') +
         '</span></div>';
+    }
+
+    // ห้องชุด: แจกแจงว่าราคาประเมินมาจากตัวเลขที่ผู้ใช้กรอก (ราคาต่อ ตร.ม. × ขนาดห้อง)
+    if (r.unit){
+      breakdown = '<div class="fc-break"><b>ราคาประเมินห้องชุดที่ใช้คำนวณ ' + baht(r.appraisal) + ' บาท</b>' +
+        '<span>' + baht(r.unit.rate) + ' บาท/ตร.ม. × ' + r.unit.sqm + ' ตร.ม. <i>(ตัวเลขที่คุณกรอกเอง)</i></span></div>';
     }
 
     var warns = '';
@@ -245,13 +262,24 @@
       '<div class="fc-grid">' +
         '<label>ประเภททรัพย์<select data-fc="propertyType">' + typeOpts + '</select></label>' +
         '<label>ราคาซื้อขาย (บาท)<input type="text" inputmode="numeric" data-fc="salePrice" value="' + (sale ? baht(sale) : '') + '" placeholder="เช่น 5,000,000"></label>' +
-        '<label>ราคาประเมินที่ดิน (บาท)<input type="text" inputmode="numeric" data-fc="landAppraisal" placeholder="ถ้าไม่ทราบ เว้นว่างไว้ได้"></label>' +
+        '<label data-fc-landrow>ราคาประเมินที่ดิน (บาท)<input type="text" inputmode="numeric" data-fc="landAppraisal" placeholder="ถ้าไม่ทราบ เว้นว่างไว้ได้"></label>' +
         '<label>ผู้ขายเป็น<select data-fc="sellerType"><option value="person">บุคคลธรรมดา</option><option value="company">นิติบุคคล / บริษัท</option></select></label>' +
         '<label>ถือครองมาแล้ว (ปี)<input type="number" min="1" max="10" step="1" data-fc="years" value="5"></label>' +
       '</div>' +
 
       '<div class="fc-sub" data-fc-building hidden>' +
-        '<div class="fc-sub-h">สิ่งปลูกสร้าง</div>' +
+        '<div class="fc-sub-h" data-fc-subh>สิ่งปลูกสร้าง</div>' +
+        // ห้องชุด: ช่องกรอกราคาประเมินต่อ ตร.ม. × ขนาดห้อง (ผู้ใช้กรอกเอง · ไม่เติมให้) — ซ่อนเมื่อเป็นประเภทอื่น
+        '<div data-fc-uonly hidden>' +
+          '<div class="fc-grid">' +
+            '<label>ราคาประเมินห้องชุด (บาท/ตร.ม.)<input type="text" inputmode="numeric" data-fc="unitRate" placeholder="ทราบตัวเลขจริง กรอกตรงนี้"></label>' +
+            '<label>ขนาดห้อง (ตร.ม.)<input type="text" inputmode="decimal" data-fc="unitSqm" data-fc-dec placeholder="เช่น 32.5"></label>' +
+          '</div>' +
+          '<p class="fc-note">ราคาประเมินห้องชุดต่อ ตร.ม. ต้องกรอกเอง — ระบบไม่เติมให้ ค้นได้ที่ ' +
+            '<a href="https://assessprice.treasury.go.th/" target="_blank" rel="noopener">ระบบค้นหาราคาประเมินของกรมธนารักษ์</a> ' +
+            'หรือสอบถามเจ้าหน้าที่สำนักงานที่ดิน · ขนาดห้องดูจากหนังสือกรรมสิทธิ์ห้องชุด (อ.ช.2) · ถ้าไม่กรอก ระบบจะคิดจากราคาซื้อขายแทนและเตือนว่ายอดสูงกว่าจริง</p>' +
+        '</div>' +
+        '<div data-fc-bonly>' +
         '<div class="fc-grid">' +
           '<label>ราคาประเมินสิ่งปลูกสร้าง (บาท)<input type="text" inputmode="numeric" data-fc="buildingAppraisal" placeholder="ทราบตัวเลขจริง กรอกตรงนี้"></label>' +
           '<label>หรือประมาณจากพื้นที่ (ตร.ม.)<input type="text" inputmode="numeric" data-fc="buildingArea" placeholder="เช่น 150"></label>' +
@@ -264,6 +292,7 @@
         '<p class="fc-note">กรอกราคาประเมินสิ่งปลูกสร้างเองจะแม่นที่สุด — ค้นได้ที่ ' +
           '<a href="https://assessprice.treasury.go.th/" target="_blank" rel="noopener">ระบบค้นหาราคาประเมินของกรมธนารักษ์</a> ' +
           'หรือถามเจ้าหน้าที่สำนักงานที่ดิน ถ้ากรอกแค่พื้นที่กับอายุ ระบบจะประมาณให้แบบคร่าว ๆ</p>' +
+        '</div>' +
         '<label class="fc-check"><input type="checkbox" data-fc="registered"> ' +
           'ผู้ขายมีชื่อในทะเบียนบ้านหลังนี้มาแล้วเกิน 1 ปี <i>(ได้ยกเว้นภาษีธุรกิจเฉพาะ แม้ถือครองไม่ถึง 5 ปี)</i></label>' +
         '<label class="fc-check"><input type="checkbox" data-fc="govDiscount"> ' +
@@ -280,9 +309,13 @@
 
     var out = el.querySelector('[data-fc-out]');
     var buildBox = el.querySelector('[data-fc-building]');
+    var bOnly = el.querySelector('[data-fc-bonly]'), uOnly = el.querySelector('[data-fc-uonly]');
+    var landRow = el.querySelector('[data-fc-landrow]'), subH = el.querySelector('[data-fc-subh]');
     var rateBox = el.querySelector('[data-fc-rate]');
     var provSel = el.querySelector('[data-fc="province"]');
     var rateShow = el.querySelector('[data-fc-rateshow]');
+    // เลือกประเภทตั้งต้นให้ตามหน้าที่เรียก (เช่น หน้าประกาศคอนโดเลือก "ห้องชุด") — เลือกเฉพาะประเภท ไม่เติมตัวเลขใดๆ
+    if (o.propertyType && TYPES[o.propertyType]) el.querySelector('[data-fc="propertyType"]').value = o.propertyType;
 
     // โหลดบัญชีราคาสิ่งปลูกสร้างของกรมธนารักษ์ — ล้มเหลวก็ยังใช้เครื่องคำนวณได้
     // แค่ตัวช่วยประมาณจะใช้ไม่ได้ ต้องกรอกราคาประเมินเองแทน ห้าม fallback เป็นตัวเลขที่เดา
@@ -304,7 +337,11 @@
     function update(){
       var v = read();
       var t = TYPES[v.propertyType] || TYPES.land;
-      buildBox.hidden = !t.build;
+      // กล่องนี้ถือช่องร่วมของที่อยู่อาศัยด้วย (ทะเบียนบ้าน · มาตรการรัฐ) จึงแสดงทั้งสิ่งปลูกสร้างและห้องชุด
+      buildBox.hidden = !(t.build || t.unit);
+      bOnly.hidden = !t.build; uOnly.hidden = !t.unit;
+      landRow.hidden = !!t.unit;                    // ห้องชุดไม่มีราคาประเมินที่ดินแยก
+      subH.textContent = t.unit ? 'ห้องชุด' : 'สิ่งปลูกสร้าง';
       rateBox.hidden = !(t.home && v.govDiscount);
       if (rateShow) {
         var rt = rateOf(v.propertyType, v.province);
@@ -316,7 +353,11 @@
     }
     el.addEventListener('input', function(e){
       var f = e.target;
-      if (f.type === 'text' && f.hasAttribute('data-fc')){
+      if (f.type === 'text' && f.hasAttribute('data-fc-dec')){
+        // ช่องทศนิยม (ขนาดห้อง ตร.ม.) — ไม่ปัดเป็นจำนวนเต็ม · เหลือเลขกับจุดเดียว
+        var s = String(f.value).replace(/[^0-9.]/g, ''), p = s.indexOf('.');
+        f.value = p < 0 ? s : s.slice(0, p + 1) + s.slice(p + 1).replace(/\./g, '');
+      } else if (f.type === 'text' && f.hasAttribute('data-fc')){
         var n = num(f.value);
         f.value = n > 0 ? baht(n) : '';
       }

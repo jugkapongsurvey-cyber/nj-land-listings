@@ -1011,7 +1011,7 @@
 
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
     // ⚠️ ห้ามเติมราคาประเมินราชการให้ (ดูเหตุผลใน feecalc.js) — ผู้ซื้อต้องกรอกเอง
-    if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue});
+    if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue,propertyType:(l.land&&l.land.propertyType==='condo')?'condounit':''});
 
     var root=document.getElementById('ld-root');
     if(window.NJListing && NJListing.imgFallback) NJListing.imgFallback(root);

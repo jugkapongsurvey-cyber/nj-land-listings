@@ -163,5 +163,66 @@ r = calc({ propertyType:'house', salePrice:5000000, landAppraisal:2000000,
            buildingAppraisal:1000000, buildingRate:99999, province:'10', sellerType:'person', years:6 });
 eq('กรอกราคาเองแล้ว buildingRate ต้องไม่ถูกใช้', r.appraisal, 3000000);
 
+// ---------------------------------------------------------------------------
+// ส่วนที่ 6 — โหมดห้องชุด (condounit · รอบคอนโด 2 · 10 ต.ค. 2569)
+//   ราคาประเมินห้องชุดต่อ ตร.ม. × ขนาดห้อง กรอกเองทั้งคู่ · ไม่ฝัง/ไม่เติมราคาประเมิน · อัตราชุดเดียวกับทุกประเภท
+// ---------------------------------------------------------------------------
+console.log('เคส 17 — ห้องชุด ราคาซื้อขาย 3,200,000 · ประเมิน 50,000 บาท/ตร.ม. × 32 ตร.ม. = 1,600,000 · บุคคลธรรมดา ถือครอง 6 ปี');
+let u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'person', years:6 });
+eq('ราคาประเมินที่ใช้คำนวณ = ต่อ ตร.ม. × ขนาดห้อง', u.appraisal, 1600000);
+eq('ค่าธรรมเนียมโอน 2% ของ 1,600,000', row(u,'transfer').v, 32000);
+has('ครบ 5 ปี ต้องเป็นอากรแสตมป์', u, 'stamp', true);
+eq('อากรแสตมป์ 0.5% ของราคาซื้อขาย 3,200,000 (สูงกว่าราคาประเมิน)', row(u,'stamp').v, 16000);
+eq('ภาษีเงินได้หัก ณ ที่จ่าย (คำนวณมือ: (1,600,000×0.4)/6 × 5% × 6)', row(u,'wht').v, 32000, 1);
+eq('รวมค่าใช้จ่ายวันโอน', u.total, 80000, 1);
+eq('ผู้ซื้อครึ่งค่าโอน', u.buyer, 16000);
+ok('ติดธง isUnit และไม่ใช่สิ่งปลูกสร้าง', u.isUnit === true && u.hasBuilding === false && u.unit.sqm === 32 && u.unit.rate === 50000);
+ok('มีราคาประเมินจากผู้ใช้ = ไม่ติดธง assumed', u.assumed === false);
+
+console.log('เคส 18 — ขนาดห้องทศนิยม และค่ามีคอมมา');
+u = calc({ propertyType:'condounit', salePrice:'4,000,000', unitRate:'60,000', unitSqm:'32.5', sellerType:'person', years:6 });
+eq('60,000 × 32.5 = 1,950,000', u.appraisal, 1950000);
+
+console.log('เคส 19 — ⭐ ไม่ครบทั้งสองช่อง = ยังไม่รู้ราคาประเมิน ใช้ราคาซื้อขายแทนและติดธง (ไม่เดาขนาด/ราคา)');
+u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, sellerType:'person', years:6 });
+ok('มีแต่ราคาต่อ ตร.ม. → assumed', u.assumed === true && u.appraisal === 3200000 && u.unit === null);
+u = calc({ propertyType:'condounit', salePrice:3200000, unitSqm:32, sellerType:'person', years:6 });
+ok('มีแต่ขนาดห้อง → assumed', u.assumed === true && u.appraisal === 3200000);
+u = calc({ propertyType:'condounit', salePrice:3200000, sellerType:'person', years:6 });
+ok('ไม่กรอกอะไร → assumed ใช้ราคาซื้อขาย', u.assumed === true && u.appraisal === 3200000);
+ok('⭐ ไม่ใส่ตัวเลขห้องชุดเลย = ไม่มีทางได้ราคาประเมินที่ระบบเดาให้ (ไม่มีตัวช่วยประมาณ)', estimateBuilding('condounit', 32, 5, 50000, '10') === null);
+
+console.log('เคส 20 — ⭐ ราคาประเมินที่ดินที่ค้างในช่อง ไม่ถูกรวมเข้าห้องชุด (ห้องชุดไม่มีราคาที่ดินแยก)');
+u = calc({ propertyType:'condounit', salePrice:3200000, landAppraisal:9999999, unitRate:50000, unitSqm:32, sellerType:'person', years:6 });
+eq('ยังเป็น 1,600,000', u.appraisal, 1600000);
+eq('ช่องที่ดินเป็น 0', u.land, 0);
+
+console.log('เคส 21 — ⭐ ใช้สูตร/อัตราชุดเดียวกับที่ดิน (ไม่มีสูตรชุดที่สอง): ฐานเท่ากัน ผลต้องเท่ากันทุกบรรทัด');
+const asLand = calc({ propertyType:'land', salePrice:3200000, landAppraisal:1600000, sellerType:'person', years:6 });
+ok('รายการและยอดทุกบรรทัดเท่ากับกรณีที่ดินที่ฐานเท่ากัน',
+   JSON.stringify(calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'person', years:6 }).rows.map(x => [x.k, Math.round(x.v)])) ===
+   JSON.stringify(asLand.rows.map(x => [x.k, Math.round(x.v)])));
+u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'person', years:2 });
+has('ถือครอง 2 ปี ไม่มีชื่อในทะเบียนบ้าน → ภาษีธุรกิจเฉพาะ', u, 'sbt', true);
+eq('ภาษีธุรกิจเฉพาะ 3.3% ของ 3,200,000', row(u,'sbt').v, 105600);
+u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'person', years:2, registered:true });
+has('ห้องชุดที่อยู่อาศัย มีชื่อในทะเบียนบ้านครบ 1 ปี → ยกเว้นภาษีธุรกิจเฉพาะ (ใช้กติกาเดียวกับที่อยู่อาศัยอื่น)', u, 'sbt', false);
+u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'company', years:9 });
+has('ผู้ขายนิติบุคคลเสียภาษีธุรกิจเฉพาะเสมอ', u, 'sbt', true);
+
+console.log('เคส 22 — ⭐ มาตรการลดค่าโอน: ไม่ติ๊ก = 2% เสมอ · ติ๊กเองถึงลด (ห้องชุดเป็นที่อยู่อาศัย)');
+u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'person', years:6 });
+ok('ไม่ติ๊ก = ไม่ลด', u.discountOn === false && Math.abs(row(u,'transfer').v - 32000) < 0.5);
+u = calc({ propertyType:'condounit', salePrice:3200000, unitRate:50000, unitSqm:32, sellerType:'person', years:6, govDiscount:true, govRate:0.01 });
+ok('ติ๊กเองแล้วเลือก 0.01% จึงลด', u.discountOn === true && Math.abs(row(u,'transfer').v - 160) < 0.5);
+
+console.log('เคส 23 — ⭐ ไม่ฝังตัวเลขราคาประเมินห้องชุดในโค้ด และไม่แตะข้อมูลราคาที่ดิน');
+const fcSrc = fs.readFileSync(__dirname + '/feecalc.js', 'utf8');
+const unitDef = (fcSrc.match(/condounit:\s*\{[^}]*\}/) || [''])[0];
+ok('นิยามประเภทห้องชุดไม่มีราคา/อัตราต่อ ตร.ม. ฝังไว้', unitDef && !/rate|price|code|\d{4,}/.test(unitDef.replace(/label:'[^']*'/, '')), unitDef);
+ok('เรียกเครือข่ายที่เดียวคือบัญชีสิ่งปลูกสร้าง (BUILDING_URL) ไม่มีแหล่งราคาประเมินห้องชุด/ที่ดินเพิ่ม', (fcSrc.match(/fetch\(/g) || []).length === 1 && /fetch\(BUILDING_URL\)/.test(fcSrc));
+ok('ประเภทห้องชุดไม่ปนในรายการประมาณสิ่งปลูกสร้างของ valuecalc (build:false)', global.window.NJFeeCalc.TYPES.condounit.build === false);
+ok('คงประเภท condo เดิม (อาคารอยู่อาศัยรวม) ไว้ ไม่เปลี่ยนความหมาย', global.window.NJFeeCalc.TYPES.condo.build === true && global.window.NJFeeCalc.TYPES.condo.code === '520/1');
+
 console.log('\n' + (fail ? '✗ ไม่ผ่าน ' + fail + ' ข้อ · ผ่าน ' + pass : '✓ ผ่านทั้งหมด ' + pass + ' ข้อ'));
 process.exit(fail ? 1 : 0);
