@@ -1281,6 +1281,18 @@ function setupPropertyType(onChange) {
     if (ttl) ttl.textContent = 'รายละเอียด' + (t ? t.th : 'ทรัพย์');
     det.hidden = false;
     syncArea();
+    syncStudio();
+  }
+  // เลือก "สตูดิโอ" (ลักษณะห้อง) → ช่องห้องนอนปิดและล้างค่า — สตูดิโอไม่มีห้องนอนแยก
+  // ⚠️ ไม่ใช่ "ห้องนอน = 0": เซิร์ฟเวอร์ทิ้งช่องห้องนอนเมื่อเป็นสตูดิโอ (ไม่ได้กรอก ≠ 0) หน้านี้แค่บอกผู้กรอกให้ตรงกัน
+  //   ไม่มีช่อง roomType/bedrooms ใน spec (ประเภทอื่น) = ไม่ทำอะไร
+  function syncStudio() {
+    var br = body.querySelector('[data-dt="bedrooms"]');
+    if (!br || !field('roomType')) return;
+    var studio = vals.roomType === 'studio';
+    br.disabled = studio;
+    if (studio) { br.value = ''; vals.bedrooms = ''; br.placeholder = 'สตูดิโอ — ไม่มีห้องนอนแยก'; }
+    else br.placeholder = (field('bedrooms') || {}).hint || '';
   }
   function allKeys() {
     var out = [];
@@ -1309,7 +1321,7 @@ function setupPropertyType(onChange) {
   function reset() { cur = 'land'; vals = {}; render(); }
 
   body.addEventListener('input', readDom);
-  body.addEventListener('change', function () { readDom(); if (onChange) onChange(); });
+  body.addEventListener('change', function () { readDom(); syncStudio(); if (onChange) onChange(); });
   grid.addEventListener('change', function (e) {
     var t = e.target;
     if (!t || t.name !== 'propertyType') return;
