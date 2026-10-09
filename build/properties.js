@@ -79,6 +79,8 @@ function bodyHtml(l) {
   add('รหัสทรัพย์', l.id);
   if (Number(l.estValue) > 0) add('ราคา', baht(l.estValue) + ' บาท');
   if (Number(l.pricePerWa) > 0) add('ราคาต่อตารางวา', baht(l.pricePerWa) + ' บาท');
+  // ห้องชุด: เซิร์ฟเวอร์คิดจากขนาดห้องที่เจ้าของแจ้ง (ยังไม่ได้ตรวจวัด) — บอกที่มาในชื่อแถวเหมือนแถว specs ข้างล่าง
+  if (Number(l.pricePerSqm) > 0) add('ราคาต่อตารางเมตร (คิดจากขนาดห้องที่เจ้าของแจ้ง)', baht(l.pricePerSqm) + ' บาท');
   add('เนื้อที่', L.deedArea);
   add('ที่ตั้ง', META.localityOf(l) || L.locality);
   if (L.deedType && VOCAB.DEED_TH && VOCAB.DEED_TH[L.deedType]) add('เอกสารสิทธิ์', VOCAB.DEED_TH[L.deedType]);

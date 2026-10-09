@@ -68,6 +68,7 @@
     var bits = [shortLabel(l, vocab)];
     if (Number(l.estValue) > 0) bits.push('ราคา ' + Number(l.estValue).toLocaleString('th-TH') + ' บาท');
     if (Number(l.pricePerWa) > 0) bits.push(Number(l.pricePerWa).toLocaleString('th-TH') + ' บาท/ตร.ว.');
+    if (Number(l.pricePerSqm) > 0) bits.push(Number(l.pricePerSqm).toLocaleString('th-TH') + ' บาท/ตร.ม.');
     var DEED = (vocab && vocab.DEED_TH) || {};
     if (L.deedType && DEED[L.deedType]) bits.push(DEED[L.deedType]);
     var head = bits.join(' · ');

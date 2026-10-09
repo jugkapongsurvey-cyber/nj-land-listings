@@ -139,5 +139,31 @@ ok('⭐ ดึงข้อมูลไม่สำเร็จ = ไม่แต
 ok('⭐ ไม่มีรายการทิ้งจากทะเบียนที่อยู่เดิม', !/delete redir\[/.test(gen));
 ok('หน้าพาไปไม่มี noindex ในตัวสร้าง', !/stubHtml[\s\S]{0,600}noindex/.test(gen));
 
+console.log('\n8) ⭐ คอนโด (2026-10-10): ที่อยู่หน้าแปลงใช้ชื่อสั้น "คอนโด" และที่อยู่เดิมยังเปิดได้');
+{
+  const VOCAB = (function () {
+    const sb = { window: {} };
+    require('vm').createContext(sb);
+    require('vm').runInContext(read('landvocab.js'), sb, { filename: 'landvocab.js' });
+    return sb.window.NJVocab;
+  })();
+  const condo = { id: 'OP-900', land: { propertyType: 'condo', province: 'กรุงเทพมหานคร', amphoe: 'เขตวัฒนา' } };
+  ok('ประเภทคอนโดเข้าที่อยู่เป็น /properties/คอนโด/…',
+     META.pagePath(condo, VOCAB) === 'properties/คอนโด/กรุงเทพมหานคร/เขตวัฒนา/OP-900/', META.pagePath(condo, VOCAB));
+  const noType = { id: 'OP-900', land: { province: 'กรุงเทพมหานคร', amphoe: 'เขตวัฒนา' } };
+  ok('⭐ ยังไม่กรอกประเภท = ที่อยู่ชั่วคราว /properties/ทรัพย์/… (ไม่เดาเป็นคอนโด)',
+     META.pagePath(noType, VOCAB) === 'properties/ทรัพย์/กรุงเทพมหานคร/เขตวัฒนา/OP-900/');
+  ok('ที่อยู่ชุดเดิม p/<รหัส>.html ของแปลงเดียวกันไม่ขึ้นกับประเภท (ใช้เป็นหน้าพาไปได้ทุกกรณี)',
+     META.legacyPath('OP-900') === 'p/OP-900.html');
+  ok('ชื่อหน้าของคอนโดไม่ขึ้นเป็น "ที่ดินเปล่า"', /คอนโด/.test(META.titleOf(condo, VOCAB)) && !/ที่ดินเปล่า/.test(META.titleOf(condo, VOCAB)),
+     META.titleOf(condo, VOCAB));
+  ok('คำอธิบายหน้า (meta description) ของคอนโดบอกราคาต่อ ตร.ม. เมื่อเซิร์ฟเวอร์ส่งมา',
+     /100,000 บาท\/ตร\.ม\./.test(META.metaDesc(Object.assign({ estValue: 3200000, pricePerSqm: 100000 }, condo), VOCAB)));
+  ok('ไม่มี pricePerSqm = ไม่เดาใส่ราคาต่อ ตร.ม. ในคำอธิบายหน้า', !/ตร\.ม\./.test(META.metaDesc(Object.assign({ estValue: 3200000 }, condo), VOCAB)));
+  const gen2 = read('build/properties.js');
+  ok('ตัวสร้างหน้าแปลงแสดงราคาต่อ ตร.ม. เฉพาะเมื่อ > 0 และบอกที่มาเจ้าของแจ้ง',
+     /pricePerSqm\) > 0\) add\('ราคาต่อตารางเมตร \(คิดจากขนาดห้องที่เจ้าของแจ้ง\)'/.test(gen2));
+}
+
 console.log('\n' + (fail ? '❌' : '✅') + ' propurl: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

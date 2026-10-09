@@ -15,7 +15,7 @@
   var esc = NJL.esc, money = NJL.money, num = NJL.num, areaTh = NJL.areaTh;
 
   // ต้องตรงกับ LAND_DEEDS / LAND_ZONES / LAND_ROADS / LAND_FACINGS / PARCEL_FEATURES ใน server.js
-  var DEED_TH = { chanote: 'โฉนด (น.ส.4)', nor3gor: 'น.ส.3ก', nor3: 'น.ส.3', other: 'อื่นๆ' };
+  var DEED_TH = { chanote: 'โฉนด (น.ส.4)', nor3gor: 'น.ส.3ก', nor3: 'น.ส.3', condo_title: 'ห้องชุด (อ.ช.2)', other: 'อื่นๆ' };
   var ZONE_TH = {
     yellow: 'เหลือง — ที่อยู่อาศัยหนาแน่นน้อย', orange: 'ส้ม — ที่อยู่อาศัยหนาแน่นปานกลาง',
     brown: 'น้ำตาล — ที่อยู่อาศัยหนาแน่นมาก', red: 'แดง — พาณิชยกรรม',
@@ -172,6 +172,8 @@
       ['ราคารวม', function (x) { return x.estValue > 0 ? '<b>' + esc(money(x.estValue)) + '</b>' : DASH; }],
       ['ราคาต่อ ตร.ว.', function (x) { return x.pricePerWa > 0 ? '฿' + num(x.pricePerWa) : DASH; }],
       ['ราคาต่อไร่', function (x) { return x.pricePerRai > 0 ? '฿' + num(x.pricePerRai) : DASH; }],
+      // ห้องชุด: เซิร์ฟเวอร์คิดจากขนาดห้องที่เจ้าของแจ้ง · ที่ดินไม่มีค่านี้ → "—" (ห้ามหารเอง)
+      ['ราคาต่อ ตร.ม. (ห้องชุด)', function (x) { return x.pricePerSqm > 0 ? '฿' + num(x.pricePerSqm) : DASH; }],
       ['ค่าใช้จ่ายวันโอน', function (x) {
         // ⚠️ ห้ามใส่ตัวเลขให้เอง — ค่าธรรมเนียมโอนคิดจาก **ราคาประเมินราชการ** ซึ่งเว็บนี้
         //    ตั้งใจไม่เผยแพร่ (ใครเห็นค่าโอนก็หารกลับได้ราคาประเมินทันที แล้วเจ้าของที่ดิน

@@ -227,10 +227,24 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 2 ร
 
     // สำเนาคำศัพท์ชุดเดิมที่ยังกระจายอยู่ 3 ที่ (landvocab.js · listings.js · comparepage.js)
     const cmp = read(path.join(WEB, 'comparepage.js'));
-    ['chanote', 'nor3gor', 'nor3', 'other'].forEach(function (k) {
+    ['chanote', 'nor3gor', 'nor3', 'condo_title', 'other'].forEach(function (k) {
       check('DEED_TH มี ' + k + ' ครบทั้ง 3 สำเนา',
         vocab.indexOf(k + ':') >= 0 && listings.indexOf(k + ':') >= 0 && cmp.indexOf(k + ':') >= 0);
     });
+
+    // ประเภทคอนโด (2026-10-10): คีย์ที่ผูกกับระบบหลังบ้าน + ราคาต่อ ตร.ม. ต้องมาจากเซิร์ฟเวอร์เท่านั้น
+    var srvPropSlice = server.slice(server.indexOf('LAND_PROPERTY_TYPES ='), server.indexOf('LAND_PROPERTY_TYPES =') + 200);
+    var srvDeedSlice = server.slice(server.indexOf('LAND_DEEDS ='), server.indexOf('LAND_DEEDS =') + 200);
+    check('PROPERTY_TH มีคอนโด และ DEED_TH มีห้องชุด (อ.ช.2) ตรงกับระบบหลังบ้าน',
+      /condo:\s*'คอนโด'/.test(vocab) && /condo_title:\s*'ห้องชุด \(อ\.ช\.2\)'/.test(vocab) &&
+      srvPropSlice.indexOf("'condo'") >= 0 && srvDeedSlice.indexOf("'condo_title'") >= 0);
+    var landJs = read(path.join(WEB, 'land.js')), cardJs = read(path.join(WEB, 'listingcard.js'));
+    check('ราคาต่อ ตร.ม. ของห้องชุดคิดที่เซิร์ฟเวอร์ (pricePerSqm) — หน้าเว็บไม่หารเอง',
+      /pricePerSqm,/.test(server) && !/estValue\s*\/\s*(?:sqm|roomSqm|area)/i.test(landJs + cardJs));
+    check('ราคาต่อ ตร.ม. ที่ไม่มีข้อมูลต้องซ่อน (เงื่อนไข > 0) ทั้งการ์ดและหน้าแปลง',
+      /pricePerSqm\s*>\s*0/.test(cardJs) && /Number\(l\.pricePerSqm\)\|\|0/.test(landJs));
+    check('ห้องชุดไม่อยู่ในลำดับ "น.ส.3ก ขึ้นไป" ของตัวกรองโฉนด (ห้องชุดไม่ใช่ที่ดิน)',
+      !/f\.deed === 'nor3gor'[^;]*condo_title/.test(listings) && !/nor3gor'[^;]*condo_title/.test(read(path.join(WEB, 'njchat.js'))));
 
     // ⚠️ กติกาที่ห้ามผ่อน — ไฟล์ที่ผู้ซื้ออ่านห้ามมีคำรับประกัน
     [['verified.js', verified], ['health.js', health], ['parcelmap.js', parcelmap]].forEach(function (pair) {

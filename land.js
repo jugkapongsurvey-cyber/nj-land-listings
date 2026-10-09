@@ -209,6 +209,12 @@
     var n=Number(l.pricePerWa)||0;
     return n>0 ? '≈ '+n.toLocaleString('th-TH')+' บาท/ตร.ว.' : '';
   }
+  // ราคาต่อ ตร.ม. ของห้องชุด — ⚠️ เซิร์ฟเวอร์คิดจากขนาดห้องที่ "เจ้าของแจ้ง" (pricePerSqm) ห้ามหารเองในเบราว์เซอร์
+  // 0 = ไม่มีขนาดห้อง/ไม่มีราคา/ประกาศเช่า → ซ่อน (ไม่เดา) · ที่มาของขนาดห้องบอกในหัวข้อ "โครงสร้างและขนาดพื้นที่"
+  function perSqmText(l){
+    var n=Number(l.pricePerSqm)||0;
+    return n>0 ? '≈ '+n.toLocaleString('th-TH')+' บาท/ตร.ม.' : '';
+  }
 
   // "0-0-33.9" → "33.9 ตร.ว." · "2-1-50 ไร่" → "2 ไร่ 1 งาน 50 ตร.ว." — อ่านง่ายกว่ารูปแบบย่อ
   // อ่านไม่ออก = คืนข้อความเดิมทั้งก้อน ห้ามเดา (เนื้อที่ผิดทำให้ราคาต่อหน่วยผิดตาม)
@@ -296,6 +302,9 @@
     var dup={ frontageM:!!L.frontage, roadAccess:!!L.roadSurface, floors:Number(L.floors)>0 };
     var own=((l.specs&&l.specs.items)||[]).filter(function(s){ return !dup[s.k] && s.k!=='utilities'; })
       .map(function(s){ return [s.th, s.text]; });
+    // ราคาต่อ ตร.ม. คำนวณจากขนาดห้องที่เจ้าของแจ้ง → อยู่ในกลุ่มที่ติดป้ายข้อมูลจากเจ้าของ (ไม่ปนกับค่าที่ทีมตรวจวัด)
+    var psq=perSqmText(l);
+    if(psq && own.length) own.push(['ราคาต่อ ตร.ม. (คิดจากขนาดห้อง)', psq]);
 
     function grid(rows){
       return '<dl class="ld-spec">'+rows.map(function(r){
@@ -865,7 +874,7 @@
     var badge = tier===2
       ? '<span class="ld-badge ok">✓ ตรวจสอบโดย NJ</span>'
       : '<span class="ld-badge basic">◐ ข้อมูลเบื้องต้น</span>';
-    var pw=perWaText(l);
+    var pw=perWaText(l)||perSqmText(l);
 
     // ---------- โครงหน้า (แบบใหม่ 2026-09-27 · ตามเว็บอสังหาฯ ที่เจ้าของส่งมา แล้วปรับให้เข้ากติกาของเรา) ----------
     //   แกลเลอรีโมเสกเต็มความกว้าง
