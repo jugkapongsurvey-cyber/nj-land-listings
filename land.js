@@ -377,6 +377,36 @@
     '</section>';
   }
 
+  // ผลตรวจเฉพาะห้องชุด (รอบคอนโด 2 · `l.condoChecks` อยู่ระดับบนสุดของประกาศ ไม่ได้อยู่ใน `l.land`)
+  // ⚠️ หัวข้อ ข้อความสถานะ วันที่ ผู้ตรวจ และข้อความกำกับ มาจาก API ทั้งหมด — ห้ามพิมพ์รายการ/คำปฏิเสธซ้ำไว้ที่นี่
+  //    (ต้นฉบับคือ lib/condochecks.js ฝั่งระบบ · `contracts.test.js` ล็อกว่าไฟล์นี้ไม่มีรายการฝัง)
+  // ⚠️ null = ไม่ใช่คอนโด/ยังไม่มีข้อไหนตรวจ → คืนสตริงว่าง ไม่วาดกล่องว่าง (กติกาข้อ 5)
+  // ⚠️ ข้อที่ยังไม่ตรวจต้องแสดงเป็นขีด "—" พร้อมคำว่า "ยังไม่ได้ตรวจ" ห้ามซ่อนและห้ามแสดงเป็นผ่าน (ยังไม่ตรวจ ≠ ไม่มีปัญหา)
+  // ⚠️ ชุดนี้แยกจากแผง "ระดับ 1/2" — ไม่ได้เปลี่ยนระดับข้อมูลของประกาศ จึงใช้คลาส .tc คนละสีกับ .t1/.t2 และไม่ใช้ป้าย "ตรวจโดย NJ"
+  function condoChecksHtml(l){
+    var cc=l&&l.condoChecks;
+    if(!cc||!cc.items||!cc.items.length) return '';
+    var done=cc.items.filter(function(i){ return i.status; }).length;
+    var rows=cc.items.map(function(i){
+      var st=i.status||'';
+      var ico = st==='ok'   ? '<span class="ld-ico ok">✓</span>'
+              : st==='warn' ? '<span class="ld-ico warn">!</span>'
+              :               '<span class="ld-ico none">—</span>';
+      var line=[i.statusTh||'', i.at?('ตรวจเมื่อ '+thaiDate(i.at)):''].filter(Boolean).join(' · ');
+      var note=i.note?'<span>'+esc(i.note)+'</span>':'';
+      var val=i.value?'<span class="ld-val">'+esc(i.value)+'</span>':'';
+      return '<div class="ld-crow'+(st?'':' dim')+'">'+ico+'<div><b>'+esc(i.th)+'</b>'+
+        '<span class="ld-cst">'+esc(line)+'</span>'+note+'</div>'+val+'</div>';
+    }).join('');
+    return '<section class="ld-tier tc">'+
+      '<div class="ld-tier-h"><b>🏢 ผลตรวจเฉพาะห้องชุด</b><em>'+esc(cc.by||'')+'</em></div>'+
+      '<p class="ld-tier-sum">ตรวจแล้ว <b>'+done+'</b> จาก '+cc.items.length+' หัวข้อ'+
+        (done<cc.items.length?' · ยังไม่ตรวจ '+(cc.items.length-done)+' หัวข้อ (ยังไม่ตรวจ ไม่ได้แปลว่าไม่มีประเด็น)':'')+'</p>'+
+      rows+
+      '<p class="ld-tier-foot">'+esc(cc.disclaim||'')+' · ชุดตรวจนี้แยกจากระดับข้อมูลของประกาศ ไม่ได้เปลี่ยนระดับ 1/2</p>'+
+    '</section>';
+  }
+
   // แผนที่แปลง — มี 2 โหมด ขึ้นกับว่าทีมงานปักหมุดให้แปลงนี้ไว้หรือยัง
   //   pinLat/pinLng มีค่า = ทีมงานเลือกจุดนี้เองในระบบว่าให้ลูกค้าเห็นได้ → ปักหมุดตำแหน่งจริง
   //   ไม่มี              = ถอยไปค้นด้วยข้อความทำเล ได้แผนที่ระดับพื้นที่ ไม่ใช่จุดแม่นยำ
@@ -927,6 +957,7 @@
             (window.NJScore?NJScore.panelHtml(l.score):'')+
             (window.NJPurpose?NJPurpose.panelHtml(l.purposes):'')+
             (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):''))+
+          secHtml('ld-s-condo','ผลตรวจเฉพาะห้องชุด', condoChecksHtml(l))+
           secHtml('ld-s-loc','ทำเลที่ตั้ง', mapHtml(L)+nearbyHtml(L))+
           (photos.length>1 ? secHtml('ld-s-photos','รูปภาพทั้งหมด ('+photos.length+')',
             '<div class="ld-pgrid">'+photos.map(function(src,i){
