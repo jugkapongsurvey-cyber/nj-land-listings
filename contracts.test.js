@@ -246,6 +246,20 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 2 ร
     check('ห้องชุดไม่อยู่ในลำดับ "น.ส.3ก ขึ้นไป" ของตัวกรองโฉนด (ห้องชุดไม่ใช่ที่ดิน)',
       !/f\.deed === 'nor3gor'[^;]*condo_title/.test(listings) && !/nor3gor'[^;]*condo_title/.test(read(path.join(WEB, 'njchat.js'))));
 
+    // ชุดตรวจเฉพาะห้องชุด (รอบคอนโด 2): หัวข้อ/ข้อความสถานะ/คำปฏิเสธมาจาก API เท่านั้น — เว็บไม่พิมพ์รายการซ้ำ
+    var ccLib = read(path.join(SRV, 'lib', 'condochecks.js'));
+    var ccKeys = (ccLib.match(/\{ k: '([a-z_]+)',\s+th:/g) || []).map(function (m) { return m.match(/'([a-z_]+)'/)[1]; });
+    check('ชุดตรวจห้องชุดฝั่งระบบมี 5 หัวข้อ และเว็บไม่ฝังคีย์/ชื่อหัวข้อ/คำปฏิเสธซ้ำ',
+      ccKeys.length === 5 && ccKeys.every(function (k) { return landJs.indexOf(k) < 0; }) &&
+      !/ปลอดหนี้ค่าส่วนกลาง|โควตาต่างชาติ|ไม่ใช่การรับรองกรรมสิทธิ์/.test(landJs));
+    check('หน้าแปลงอ่านชุดตรวจห้องชุดจาก l.condoChecks (ระดับบนสุดของประกาศ) และไม่วาดเมื่อไม่มีข้อมูล',
+      /l\.condoChecks/.test(landJs) && /if\(!cc\|\|!cc\.items\|\|!cc\.items\.length\) return ''/.test(landJs) &&
+      /condoChecks:\s*isCondoOpp\(o\)/.test(server));
+    check('ชุดตรวจห้องชุดไม่ใช้ป้ายระดับ 1/2 (.t1/.t2) และไม่อ้างว่า "ตรวจโดย NJ" — ใช้ .tc แยกต่างหาก',
+      /ld-tier tc/.test(landJs) && !/ตรวจโดย NJ/.test(landJs.slice(landJs.indexOf('function condoChecksHtml'), landJs.indexOf('function mapHtml'))));
+    check('ข้อความที่ส่งออกสาธารณะของชุดตรวจห้องชุดไม่มีชื่อผู้ตรวจ (by ภายในไม่ออก)',
+      /by:\s*PUBLIC_BY/.test(ccLib) && !/\bby:\s*x\.by/.test(ccLib.slice(ccLib.indexOf('function publicChecks'))));
+
     // ⚠️ กติกาที่ห้ามผ่อน — ไฟล์ที่ผู้ซื้ออ่านห้ามมีคำรับประกัน
     [['verified.js', verified], ['health.js', health], ['parcelmap.js', parcelmap]].forEach(function (pair) {
       check(pair[0] + ' ไม่มีคำรับประกัน',

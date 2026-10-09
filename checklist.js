@@ -43,7 +43,10 @@
   var rs = document.querySelector('[data-cl-reset]');
   if (rs) rs.addEventListener('click', function () {
     if (!window.confirm('ล้างข้อที่ติ๊กไว้ทั้งหมด?')) return;
-    save({});
+    // ล้างเฉพาะข้อของหน้านี้ — หน้าเช็กลิสต์ที่ดินกับห้องชุดใช้ที่เก็บเดียวกันแต่คีย์ข้อไม่ซ้ำกัน (ห้องชุดขึ้นต้น cd-)
+    var cur = load();
+    boxes.forEach(function (b) { delete cur[b.getAttribute('data-cl')]; });
+    save(cur);
     boxes.forEach(function (b) { b.checked = false; });
     paint();
   });

@@ -287,6 +287,13 @@ html.ld-lb-lock{overflow:hidden}
 }
 .ld-tier.t1 .ld-tier-h em{background:#B08D57}
 .ld-tier.t2 .ld-tier-h em{background:var(--green)}
+/* ผลตรวจเฉพาะห้องชุด — แยกสีจาก t1/t2 ตั้งใจ: ไม่ใช่ระดับข้อมูลของประกาศ (ห้ามใช้เขียวของ "ตรวจโดย NJ" หรือเหลืองของ "ข้อมูลเบื้องต้น") */
+.ld-tier.tc{background:#F4F7FB;border-color:#B9C7DA}
+.ld-tier.tc .ld-tier-h b{color:#1F3A5F}
+.ld-tier.tc .ld-tier-h em{background:#5B6F8A}
+.ld-tier.tc .ld-tier-foot{color:#4A5A70}
+.ld-crow .ld-cst{font-weight:700;color:var(--ink);margin-top:0}
+.ld-crow.dim .ld-cst{color:#8798A9;font-weight:500}
 
 .ld-crow{
   display:flex;gap:11px;align-items:flex-start;

@@ -121,8 +121,12 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 // หน้าไหนถือว่า "อยู่ในกลุ่มนี้" — ใช้ตัดสิน aria-current
 function pageOf(href) { return String(href).split('#')[0].split('?')[0]; }
 
+// หน้าที่ไม่มีรายการของตัวเองในเมนู แต่เป็นหน้าคู่ของรายการหนึ่ง — ให้ทำเครื่องหมายหน้าปัจจุบันที่รายการนั้น
+// (เช็กลิสต์ห้องชุดเป็นหน้าคู่ของเช็กลิสต์ที่ดิน · แถวเมนูเต็มแล้ว เพิ่มรายการใหม่ไม่ได้)
+const CURRENT_AS = { 'checklist-condo.html': 'checklist.html' };
+
 function headerHtml(file, NL) {
-  const cur = file;
+  const cur = CURRENT_AS[file] || file;
   const L = [];
   L.push(START);
   L.push('<a class="njh-skip" href="#main">ข้ามไปเนื้อหาหลัก</a>');

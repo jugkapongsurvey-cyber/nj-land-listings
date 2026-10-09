@@ -35,3 +35,8 @@
   .cl-item{break-inside:avoid}
   .cl-item p a{color:#000}
 }
+
+/* ลิงก์สลับระหว่างเช็กลิสต์ที่ดิน ↔ ห้องชุด (ใต้คำนำของหัวหน้า) */
+.cl-switch{margin-top:8px}
+.cl-switch a{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+@media print{.cl-switch{display:none}}
