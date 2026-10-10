@@ -136,6 +136,27 @@
     return t.state === 'none' ? '' : t.value;
   }
 
+  // หน้ากว้างเป็นเมตร (null = ไม่มีตัวเลขที่เชื่อได้) — ชิปบนการ์ดประกาศใช้ตัวนี้ (10 ต.ค. 2569)
+  // แหล่งเดียวกับหน้าแปลง: health.widthM (ทีมกรอกเป็นตัวเลข) มาก่อน แล้วค่อย land.frontage (ข้อความอิสระ)
+  // ⚠️ frontage เป็นข้อความที่ทีมพิมพ์เอง ("หน้ากว้าง 46 เมตร ลึก 13 เมตร" · "8 เมตร" · "6")
+  //    · รับเฉพาะเลขที่มีหน่วย ม./เมตร — เลขเปล่าไม่นับ (ห้ามเดาหน่วย กติกาเดียวกับเนื้อที่วัดจริง)
+  //    · มีคำว่า "กว้าง" = เอาเลขหลังคำนั้น · ไม่มี = ต้องเป็นเลข+หน่วยล้วนทั้งช่อง (กันหยิบความลึกมาเป็นหน้ากว้าง)
+  //    · "กว้าง" ต้องเป็น "หน้ากว้าง" หรือขึ้นต้นข้อความ — "ถนนกว้าง 8 เมตร" คือความกว้างถนน ไม่ใช่หน้าแปลง
+  //    · สองแหล่งได้ตัวเลขต่างกัน = ไม่แสดง (ขัดกันเอง ไม่เลือกข้างแทนผู้ซื้อ)
+  var FR_WIDE = /(?:^\s*|หน้า)กว้าง[^\d]{0,12}(\d+(?:\.\d+)?)\s*(?:ม\.?|เมตร)(?![ก-๙a-z])/;
+  var FR_ONLY = /^\s*(\d+(?:\.\d+)?)\s*(?:ม\.?|เมตร)\s*$/;
+  function frontageM(L) {
+    L = L || {};
+    var w = Number((L.health || {}).widthM);
+    w = isFinite(w) && w > 0 ? w : null;
+    var t = String(L.frontage == null ? '' : L.frontage).replace(/,/g, '');
+    var m = FR_WIDE.exec(t) || FR_ONLY.exec(t);
+    var f = m ? Number(m[1]) : null;
+    if (!(f > 0)) f = null;
+    if (w != null && f != null && Math.abs(w - f) > 0.5) return null;
+    return w != null ? w : f;
+  }
+
   /* ---------- คำนวณ 14 หัวข้อจากข้อมูลที่ API ส่งมาจริง ----------
      L = ก้อน land ที่มาจาก /api/public/listings/:id */
   function topicRow(label, t) {
@@ -340,5 +361,5 @@
   }
 
   w.NJHealth = { tableHtml: tableHtml, rowsOf: rowsOf, STATE_TH: STATE_TH,
-    topic: topic, measuredArea: measuredArea, isAreaValue: isAreaValue };
+    topic: topic, measuredArea: measuredArea, isAreaValue: isAreaValue, frontageM: frontageM };
 })(window, document);

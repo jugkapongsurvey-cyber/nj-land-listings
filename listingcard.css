@@ -111,6 +111,22 @@
 .card-marks{display:flex;gap:6px;flex-wrap:wrap}
 .card-marks:empty{display:none}
 
+/* ---------- แถวข้อมูลที่ทีมตรวจ/บันทึกแล้ว (listingcard.js → factsHtml · 10 ต.ค. 2569) ----------
+ * ⚠️ ชื่อคลาส .card-checked ไม่ใช่ .card-facts — marketplace.css ยังมี .card-facts รุ่นเก่า (เส้นขอบบน-ล่าง)
+ *    ซึ่งรั่วเข้ามาในหน้าที่โหลดไฟล์นั้น
+ * ⚠️ สถานะบอกด้วยไอคอน (✓ ! ✕) คู่กับสีเสมอ ห้ามบอกด้วยสีอย่างเดียว
+ * ⚠️ แถวนี้ต้องเห็นบนมือถือ (ต่างจาก .card-tags ที่ซ่อน) — ป้ายผังสีย้ายมาอยู่แถวนี้ด้วยเหตุผลนั้น */
+.card-checked{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 0;padding:0;list-style:none}
+.card-ck{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:3px 8px;border-radius:6px;
+  background:#f2f6fb;color:#4a5568;font-size:12px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-ck i{font-style:normal;font-weight:700}
+.card-ck.is-ok{background:#e8f7ee;color:#166534}
+.card-ck.is-warn{background:#fff4e5;color:#92400e}
+.card-ck.is-bad{background:#fdecec;color:#991b1b}
+.card-ck.card-ck-zone{padding:0;background:none}
+.land-card .card-checked .card-zone{font-size:12px;padding:3px 8px;margin:0}
+.card-ck.card-ck-zone .card-zone i{width:12px;height:12px}
+
 /* ---------- แถวติดต่อท้ายการ์ด ----------
  * ⚠️ ดีไซน์ชุดใหม่ไม่ได้วาดแถวนี้ไว้ แต่เจ้าของสั่งให้คงไว้ (22 ก.ย. 69) — เป็นจุดรับลีดจริง
  *    จึงเขียนใหม่ด้วยโทเคนชุดเดียวกับการ์ด ไม่ได้ยกสไตล์เดิมจาก marketplace.css มาทั้งก้อน
@@ -197,6 +213,14 @@
   /* ป้ายระดับการตรวจสอบต้องเห็นบนการ์ดมือถือด้วย (เจ้าของสั่ง 1 ต.ค. 69 · เดิมซ่อนทั้งแถว)
      ชื่อระดับ 2 ยาว จึงย่อตัวอักษรและให้ขึ้นบรรทัดใหม่ในช่องข้อความ ⚠️ ห้ามกลับไปซ่อน .card-marks */
   .land-card.is-compact .card-marks{margin-top:2px}
+  /* แถวข้อมูลที่ตรวจแล้วบนการ์ดแนวนอน — ตัวเล็กลง · ช่องไฟแคบลง ให้การ์ดไม่สูงขึ้นมาก */
+  /* การ์ดแนวนอนบนมือถือ: แถวเดียว 2 ชิปแรก (เรียงตามความสำคัญแล้ว) — กันการ์ดสูงขึ้น · ชิปที่เหลือดูได้ในหน้าแปลง */
+  .land-card.is-compact .card-checked{gap:4px;margin-top:1px;flex-wrap:nowrap;overflow:hidden}
+  .land-card.is-compact .card-checked > li:nth-child(n+3){display:none}
+  .land-card.is-compact .card-ck{flex:0 1 auto;min-width:0}
+  .land-card.is-compact .card-ck.card-ck-zone{padding:0}
+  .land-card.is-compact .card-ck,
+  .land-card.is-compact .card-checked .card-zone{font-size:10.5px;padding:2px 6px}
   .land-card.is-compact .njv-badge{font-size:10px;padding:2px 7px;line-height:1.5}
   .land-card.is-compact .njv-badge b{font-size:10.5px}
   .land-card:not(.is-compact) .card-media{aspect-ratio:16/9}

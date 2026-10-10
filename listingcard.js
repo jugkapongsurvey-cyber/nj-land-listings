@@ -138,6 +138,58 @@
       '<i style="background:' + bg + '" aria-hidden="true"></i>ผัง' + esc(V.zoneShort ? V.zoneShort(key) : key) + '</span>';
   }
 
+  // ---------- แถวข้อมูลที่ทีมตรวจ/บันทึกแล้ว (รอบ 3 · 10 ต.ค. 2569) ----------
+  // ผู้ซื้อเห็นจุดต่างของเรา (ข้อมูลตรวจจริง) โดยไม่ต้องเปิดหน้าแปลง · สูงสุด CK_MAX ชิป เรียงตามความสำคัญ
+  // ⚠️⚠️ กติกาที่ห้ามผ่อน
+  //  1. หมุดหลักเขต · ทางเข้า–ออก อ่านผ่าน NJHealth.topic() ตัวเดียวกับหน้าแปลงเท่านั้น (ห้ามอ่าน checks/health ตรง)
+  //     และขึ้นเฉพาะเมื่อหน้าแปลงก็แสดงหัวข้อนั้น (ระดับ 2 หรือมีรายงานสุขภาพ) — การ์ดกับหน้าแปลงต้องไม่ขัดกัน
+  //  2. API รุ่นเก่าที่ไม่ส่งคีย์ health ในหน้ารวม = ไม่ขึ้นสองชิปนั้น (topic จะถอยไปอ่าน checks อย่างเดียวแล้วขัดกับหน้าแปลง)
+  //  3. ยังไม่ได้ตรวจ (สถานะ none) = ไม่มีชิป · ห้ามขึ้น "ไม่มี" · ห้ามเดาค่า
+  //  4. ข้อความอิสระที่ทีมพิมพ์ในผลตรวจไม่ขึ้นบนการ์ด — ใช้ค่าโครงสร้างจากรายงานสุขภาพ หรือคำมาตรฐาน
+  //  5. ข้อมูลที่เจ้าของแจ้ง (specs) ไม่ขึ้นแถวนี้ · หน้ากว้างผ่าน NJHealth.frontageM (เลขเปล่าไม่นับ)
+  var CK_MAX = 4;
+  var CK_ICON = { ok: '✓', warn: '!', bad: '✕' };
+  function ckLi(cls, text, title) {
+    return '<li class="card-ck' + (cls ? ' ' + cls : '') + '"' + (title ? ' title="' + esc(title) + '"' : '') + '>' + text + '</li>';
+  }
+  function ckState(state, label, value) {
+    // ไอคอนกำกับทุกสถานะ — ห้ามบอกด้วยสีอย่างเดียว
+    return ckLi('is-' + state, '<i aria-hidden="true">' + CK_ICON[state] + '</i>' + esc(label + (value ? ' ' + value : '')),
+      label + (value ? ' ' + value : '') + ' (ข้อมูลจากทีมงาน)');
+  }
+  var CK_WORD = { ok: 'ตรวจแล้ว', warn: 'ต้องตรวจเพิ่ม', bad: 'ต้องตรวจเพิ่ม' };
+  function factsHtml(item) {
+    var L = item.land || {}, V = window.NJVocab || {}, H = window.NJHealth, out = [];
+    var showTopics = !!H && ('health' in L) && (item.tier === 2 || !!L.health);
+    if (showTopics) {
+      var ac = H.topic(L, 'access');
+      if (ac.state !== 'none') {
+        var AT = V.ACCESS_TH || {};
+        var av = (ac.src === 'health' && !ac.conflict && L.health && AT[L.health.access]) ? AT[L.health.access] : CK_WORD[ac.state];
+        out.push(ckState(ac.state, 'ทางเข้าออก', av));
+      }
+      var mk = H.topic(L, 'markers');
+      if (mk.state !== 'none') {
+        var HH = L.health || {}, mv = CK_WORD[mk.state];
+        if (mk.src === 'health' && !mk.conflict && HH.markerTotal > 0 && HH.markerFound != null) {
+          mv = (HH.markerFound >= HH.markerTotal ? 'พบครบ ' : 'พบ ') + HH.markerFound + '/' + HH.markerTotal;
+        }
+        out.push(ckState(mk.state, 'หมุดหลักเขต', mv));
+      }
+    }
+    var zone = zoneChip(L.zoneColor);
+    if (zone) out.push(ckLi('card-ck-zone', zone));
+    var fm = H && H.frontageM ? H.frontageM(L) : null;
+    if (fm) out.push(ckLi('', esc('หน้ากว้าง ≈ ' + num(fm) + ' ม.'), 'หน้ากว้างโดยประมาณจากทีมงาน ไม่ใช่ค่ารังวัด'));
+    if (L.roadSurface && V.ROAD_TH && V.ROAD_TH[L.roadSurface]) {
+      if (L.roadSurface === 'none') out.push(ckState('bad', V.ROAD_TH.none, ''));
+      else out.push(ckLi('', esc('ถนน' + V.ROAD_TH[L.roadSurface] + (Number(L.roadLanes) > 0 ? ' ' + Number(L.roadLanes) + ' เลน' : ''))));
+    }
+    if (L.deedType && V.DEED_TH && V.DEED_TH[L.deedType]) out.push(ckLi('', esc(V.DEED_TH[L.deedType])));
+    if (!out.length) return '';
+    return '<ul class="card-checked" aria-label="ข้อมูลที่ทีมงานตรวจหรือบันทึกแล้ว">' + out.slice(0, CK_MAX).join('') + '</ul>';
+  }
+
   // ข้อความกำกับป้ายประกาศเด่น — อ่านจาก landmeta.js ที่เดียว (ไม่มีไฟล์นั้น = ข้อความถอยไว้ตรงนี้)
   function featuredNote() {
     var LM = window.NJLandMeta;
@@ -189,11 +241,7 @@
     var tags = [];
     var a = areaTh(item.totalWa);
     if (a) tags.push('<span class="tag">' + esc(a) + '</span>');
-    var zone = zoneChip(LP.zoneColor);
-    if (zone) tags.push(zone);
-    if (LP.deedType && V.DEED_TH && V.DEED_TH[LP.deedType]) {
-      tags.push('<span class="tag">' + esc(V.DEED_TH[LP.deedType]) + '</span>');
-    }
+    // ผังสีกับเอกสารสิทธิ์ย้ายไปแถวข้อมูลที่ตรวจแล้ว (factsHtml) — แถวนี้ซ่อนบนมือถือ แถวนั้นไม่ซ่อน
     var PT = V.PROPERTY_TH || {};
     if (LP.propertyType && PT[LP.propertyType]) {
       tags.push('<span class="tag">' + esc(PT[LP.propertyType]) + (LP.floors > 0 ? ' ' + LP.floors + ' ชั้น' : '') + '</span>');
@@ -237,6 +285,7 @@
       '<div class="card-body">' +
         '<div class="card-price"><b>' + money(item.estValue) + '</b>' + perWa + '</div>' +
         '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(shortTitleOf(item)) + '</a></h3>' +
+        factsHtml(item) +
         (item.blurb ? '<div class="card-desc">' + esc(item.blurb) + '</div>' : '') +
         (tags.length ? '<div class="card-tags">' + tags.join('') + '</div>' : '') +
         (marks ? '<div class="card-marks">' + marks + '</div>' : '') +
