@@ -1056,7 +1056,7 @@ function setupService(getProvince, getTotalWa, onChange, getPropType) {
   var model = null, cur = '', role = '', legacy = false, lastKey = null;
 
   // ห้องชุด (คอนโด): ลงฟรี ไม่บังคับค่าตรวจ (เจ้าของตัดสิน 10 ต.ค. 69) — ถ้อยคำมาจาก spec.serviceModel.condoFree ที่เดียว
-  // ไม่มี condoFree (ระบบรุ่นเก่า) = ไม่เปลี่ยนอะไร · ค่านายหน้าเมื่อขายสำเร็จไม่แตะ
+  // ไม่มี condoFree (ระบบรุ่นเก่า) = ไม่เปลี่ยนอะไร
   function condoFree() {
     return model && model.condoFree && getPropType && getPropType() === 'condo' ? model.condoFree : null;
   }

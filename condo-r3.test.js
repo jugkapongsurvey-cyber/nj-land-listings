@@ -102,7 +102,7 @@ ok('ห้องชุด = ไม่คิดค่าตรวจประม�
 ok('เปลี่ยนประเภททรัพย์ = วาดบรรทัด "ค่าใช้จ่าย" ใหม่ (sync เช็กธงคอนโดในคีย์)', /condoFree\(\) \? 'condo' : ''/.test(svcFn) && /wasCondo/.test(svcFn));
 ok('ไม่มี condoFree ใน spec (ระบบรุ่นเก่า) = ไม่เปลี่ยนอะไร', /model && model\.condoFree && getPropType/.test(svcFn));
 ok('ตัวอ่านประเภททรัพย์ส่งเข้า setupService จาก PT', /return PT \? PT\.value\(\)\.propertyType : ''/.test(cs));
-ok('ไม่แตะข้อความค่านายหน้า (ยังขั้นบันไดเดิม) — ไม่มีอัตราใหม่ในบล็อกคอนโด', !/%/.test(between(svcFn, 'function condoFree', 'function serviceOf')));
+ok('บล็อกคอนโดไม่พูดถึงค่านายหน้า/อัตรา — ถ้อยคำเป็นกลางตามนโยบายลงฟรี', !/%|นายหน้า/.test(between(svcFn, 'function condoFree', 'function serviceOf')));
 
 console.log('\n✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
