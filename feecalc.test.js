@@ -224,7 +224,7 @@ ok('เรียกเครือข่ายที่เดียวคือ�
 ok('ประเภทห้องชุดไม่ปนในรายการประมาณสิ่งปลูกสร้างของ valuecalc (build:false)', global.window.NJFeeCalc.TYPES.condounit.build === false);
 ok('คงประเภท condo เดิม (อาคารอยู่อาศัยรวม) ไว้ ไม่เปลี่ยนความหมาย', global.window.NJFeeCalc.TYPES.condo.build === true && global.window.NJFeeCalc.TYPES.condo.code === '520/1');
 
-console.log('เคส 24 — ⭐ ราคาประเมินที่ทีมงานตรวจ (แปลงที่เจ้าของยินยอม · 10 ต.ค. 2569)');
+console.log('เคส 24 — ⭐ ราคาประเมินที่ทีมงานตรวจ (แปลงที่ทีมบันทึกค่า · ทาง ก · 10 ต.ค. 2569)');
 let tA = calc({ propertyType:'land', salePrice:8000000, landAppraisal:'5,000,000', landFromTeam:'5000000', sellerType:'person', years:6 });
 ok('ใช้ราคาประเมินจากทีม = ไม่ติดธง assumed', tA.assumed === false);
 ok('ติดธง teamAppraisal เมื่อช่องยังเป็นตัวเลขของทีม', tA.teamAppraisal === true);

@@ -898,7 +898,7 @@ console.log('\nแหล่งความจริงเดียวต่อ�
   check('⭐ รูปแบบ "เนื้อที่วัดจริงต้องเป็นตัวเลขเนื้อที่" ตรงกันทั้งสองฝั่ง', diff.length === 0, diff.join(' · '));
 })();
 
-// ---------- ราคาประเมินราชการต่อแปลง (ทาง ข · เฉพาะแปลงที่เจ้าของยินยอม · 10 ต.ค. 2569) ----------
+// ---------- ราคาประเมินราชการต่อแปลง (ทาง ก · ทุกแปลงที่ทีมบันทึกค่า · 10 ต.ค. 2569) ----------
 (function () {
   console.log('\nราคาประเมินราชการ (ช่อง appraisal ของประกาศ)');
   const libP = path.join(SRV, 'lib', 'appraisal.js');
@@ -919,7 +919,8 @@ console.log('\nแหล่งความจริงเดียวต่อ�
   check('⭐ ทุกคีย์ที่ land.js อ่าน มีอยู่ใน publicView ของระบบ (' + [...used].join(',') + ')', used.size > 0 && missing.length === 0, missing.join(','));
   check('publicView ส่งครบ 8 คีย์ (perWa total totalWa cycle source checkedAt lookupUrl disclaim)',
     ['perWa', 'total', 'totalWa', 'cycle', 'source', 'checkedAt', 'lookupUrl', 'disclaim'].every(k => keys.indexOf(k) >= 0), keys.join(','));
-  check('publicView ไม่ส่งชื่อผู้บันทึก/บันทึกความยินยอม/หมายเหตุภายใน', !/\b(by|note|web|at)\s*:/.test(ret));
+  check('publicView ไม่ส่งชื่อผู้บันทึก/ที่มา/หมายเหตุภายใน', !/\b(by|note|web|at|basis)\s*:/.test(ret));
+  check('ระบบไม่มีสวิตช์ยินยอมเหลือใน publicView (ทาง ก)', !/web\.on/.test(pv.slice(0, pv.indexOf('return {'))));
   const lu = (lib.match(/LOOKUP_URL\s*=\s*'([^']+)'/) || [])[1] || '';
   check('LOOKUP_URL ของระบบเป็น https', /^https:\/\//.test(lu), lu);
   // หน้าแปลงอ่านช่องนี้ผ่าน apprOf ที่เดียว (ตัดคอมเมนต์ก่อนนับ)
