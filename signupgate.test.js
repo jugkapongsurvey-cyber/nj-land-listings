@@ -29,13 +29,15 @@ ok('⭐ ไม่มีช่องรหัสผ่านบนเว็บน
 ok('บอกขั้นตอน: ใบเสนอราคาแพ็กเกจ → แสดงผลรังวัดบนประกาศ → เจ้าของอนุมัติเองก่อนขึ้นเว็บ',
    /ใบเสนอราคาแพ็กเกจ/.test(gate) && /แสดงผลการรังวัดตรวจสอบบนประกาศ/.test(gate) && /กดอนุมัติเอง/.test(gate));
 ok('มีทั้งปุ่มสมัครและปุ่มเข้าสู่ระบบ', /id="cs-gate-reg"/.test(gate) && /id="cs-gate-login"/.test(gate));
-ok('บอกทางออกสำหรับคนที่ต้องการแค่ตรวจทรัพย์ (ตรวจชัวร์ไม่ต้องสมัคร)', /ตรวจชัวร์/.test(gate));
+ok('⭐ ตรวจชัวร์ก็ต้องสมัครด้วย (เจ้าของสั่ง 10 ต.ค. 69) — ไม่มีข้อความว่าส่งได้โดยไม่ต้องสมัคร',
+   /ทุกบริการ \(ตรวจชัวร์ · ขายเองชัวร์ · ฝากขายชัวร์\)/.test(gate) && !/โดยไม่ต้องสมัคร/.test(gate));
 ok('"ต้องการ" (ฝากขาย/ฝากเช่า) ยังเห็นหลังด่าน', /<div class="cs-field cs-gate-keep">\s*<span class="cs-label">ต้องการ<\/span>/.test(html));
 
 console.log('\n2) consign.js — เปิดด่านเมื่อไหร่');
 const gateFn = (js.match(/function gateOn\(\) \{[\s\S]*?\n\}/) || [''])[0];
-ok('⭐ ด่านตัดสินจาก needsAccount ของบริการใน spec (ไม่พิมพ์รายชื่อบริการซ้ำในเว็บ)',
-   /SVC\.serviceOf\(SVC\.current\(\)\)/.test(gateFn) && /s\.needsAccount/.test(gateFn) && !/selfsell|broker/.test(gateFn));
+ok('⭐ ด่านขึ้นทุกบริการเมื่อระบบส่งรูปแบบบริการมา (ไม่ผูกกับ needsAccount · ไม่พิมพ์รายชื่อบริการในเว็บ)',
+   /return SVC\.active\(\);/.test(gateFn) && !/needsAccount/.test(gateFn) && !/selfsell|broker|inspect/.test(gateFn) &&
+   /active: function \(\) \{ return on\(\); \}/.test(js));
 ok('ใบที่บันทึกไว้แล้ว (LEAD.id) แก้ต่อได้ · สวิตช์บัญชีปิด = ไม่มีด่าน', /if \(LEAD\.id \|\| !SELLER_ON \|\| !SVC\) return false;/.test(gateFn));
 ok('⭐ ลิงก์ส่งแค่ key บริการผ่าน #fragment ไปหน้า seller.html (ไม่ส่งชื่อ/เบอร์)',
    /NJ_API_BASE \+ '\/seller\.html#start=consign&svc=' \+ encodeURIComponent\(key\)/.test(js) &&
