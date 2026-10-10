@@ -401,6 +401,56 @@
       (url ? ' · <a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">ค้นราคาประเมินเองที่ระบบของกรมธนารักษ์ →</a>' : '')+'</p>';
   }
 
+  // ---------- ราคาเทียบเคียงในย่านนี้ (10 ต.ค. 2569 · เจ้าของกิจการตัดสิน "สรุป + รายการย่อ") ----------
+  // ⚠️ อ่านจาก d.priceComps ของ /api/public/listings/:id เท่านั้น — ทุกตัวเลข ป้าย และข้อความกำกับคิด/เขียนที่เซิร์ฟเวอร์
+  //    (lib/landcomps.js publicSummary) · null/ไม่มีคีย์ (ไม่ถึง 3 รายการ · API รุ่นเก่า) = ไม่วาดอะไร หน้าตาเดิมทุกไบต์
+  //    · ห้ามคิดค่ากลาง/ตำแหน่ง/ระยะเองในเบราว์เซอร์ · ข้อความกำกับ (disclaim) ห้ามถอด
+  var CMP_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  function cmpMonth(ym){
+    var m=/^(\d{4})-(\d{2})$/.exec(String(ym||''));
+    return m ? CMP_MON[Number(m[2])-1]+' '+(Number(m[1])+543) : '';
+  }
+  function cmpOf(pc){
+    return pc && Number(pc.n)>=3 && pc.perWa && Number(pc.perWa.median)>0 && Array.isArray(pc.rows) ? pc : null;
+  }
+  function compsHtml(pc){
+    pc=cmpOf(pc); if(!pc) return '';
+    function baht(v){ return '฿'+Number(v).toLocaleString('th-TH'); }
+    var w=pc.perWa, lo=Number(w.min), hi=Number(w.max), span=hi-lo;
+    function at(v){ return span>0 ? Math.max(0,Math.min(100,(Number(v)-lo)/span*100)) : 50; }
+    var from=cmpMonth(pc.dateFrom), to=cmpMonth(pc.dateTo);
+    var when=from ? (from===to ? 'ข้อมูลเดือน '+from : 'ข้อมูลช่วง '+from+' – '+to) : '';
+    var lead=[esc(pc.label||'ช่วงราคาในพื้นที่'), pc.n+' รายการในรัศมี '+esc(pc.radiusKm)+' กม.'];
+    if(when) lead.push(when);
+    var p=pc.position, pos='', dot='';
+    if(p && Number(p.perWa)>0){
+      var pct=Number(p.pct)||0;
+      pos='<p class="ld-cmp-pos is-'+esc(p.key)+'">แปลงนี้ <b>'+baht(p.perWa)+'/ตร.ว.</b> — '+esc(p.th)+
+        (p.key==='near' ? '' : ' '+Math.abs(pct)+'%')+'</p>';
+      dot='<span class="ld-cmp-dot" style="left:'+at(p.perWa).toFixed(1)+'%" title="แปลงนี้"></span>';
+    }
+    var aria='ราคาต่อตารางวา ต่ำสุด '+baht(lo)+' ค่ากลาง '+baht(w.median)+' สูงสุด '+baht(hi)+
+      (p&&Number(p.perWa)>0 ? ' แปลงนี้ '+baht(p.perWa) : '');
+    var rows=pc.rows.map(function(r){
+      return '<tr><td class="num">'+baht(r.perWa)+'</td><td>ภายใน '+esc(r.km)+' กม.</td><td>'+esc(r.propTypeTh||'')+
+        '</td><td>'+esc(r.sourceTh||'')+'</td><td>'+(esc(cmpMonth(r.month))||'ไม่ระบุ')+'</td></tr>';
+    }).join('');
+    return '<p class="ld-cmp-lead">'+lead.join(' · ')+'</p>'+
+      '<div class="ld-cmp-bar" role="img" aria-label="'+esc(aria)+'">'+
+        '<div class="ld-cmp-track"><span class="ld-cmp-mid" style="left:'+at(w.median).toFixed(1)+'%"></span>'+dot+'</div>'+
+        '<div class="ld-cmp-scale"><span>ต่ำสุด<b>'+baht(lo)+'</b></span><span class="mid">ค่ากลาง<b>'+baht(w.median)+'</b></span>'+
+        '<span class="hi">สูงสุด<b>'+baht(hi)+'</b></span></div>'+
+      '</div>'+pos+
+      '<div class="ld-cmp-wrap"><table class="ld-cmp-tbl"><caption>รายการเทียบเคียงที่ใกล้ที่สุด (ราคาต่อตารางวา)</caption>'+
+        '<thead><tr><th scope="col">ราคา/ตร.ว.</th><th scope="col">ระยะ</th><th scope="col">ประเภท</th><th scope="col">ที่มา</th><th scope="col">ข้อมูลเมื่อ</th></tr></thead>'+
+        '<tbody>'+rows+'</tbody></table></div>'+
+      (Number(pc.more)>0 ? '<p class="ld-cmp-more">และอีก '+Number(pc.more)+' รายการที่ไกลกว่า (นับรวมในช่วงราคาแล้ว)</p>' : '')+
+      (pc.undated>0 ? '<p class="ld-cmp-more">'+Number(pc.undated)+' รายการไม่ระบุวันที่ของข้อมูล</p>' : '')+
+      (pc.mixedNote ? '<p class="ld-cmp-note">'+esc(pc.mixedNote)+'</p>' : '')+
+      '<p class="ld-cmp-note">'+esc(pc.disclaim||'ไม่ใช่การประเมินราคา เป็นข้อมูลที่ทีมรวบรวม ณ วันที่ระบุ')+
+        (pc.asOf ? ' (สรุป ณ '+esc(thaiDate(pc.asOf))+')' : '')+'</p>';
+  }
+
   // ---------- สาธารณูปโภคและจุดเด่นของแปลง ----------
   // features[] = ทีมติ๊กเอง · utilities = เจ้าของแจ้ง · แยกกลุ่มและบอกที่มาเหมือนตารางข้างบน
   function featuresHtml(l, L){
@@ -1020,6 +1070,8 @@
     }).catch(function(){ /* ไม่มีแปลงใกล้เคียงก็ไม่ต้องขึ้นอะไร */ });
   }
 
+  // ราคาเทียบเคียงในย่านนี้ = d.priceComps ของเส้นทางแปลงเดียว (ไม่ได้อยู่ใน listing) · ตั้งก่อนเรียก render · ไม่มี = ไม่มีหัวข้อนั้น
+  var priceComps=null;
   function render(l){
     var L=l.land||{};
     var tier=l.tier===2?2:1;
@@ -1090,6 +1142,7 @@
             (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):''))+
           secHtml('ld-s-condo','ผลตรวจเฉพาะห้องชุด', condoChecksHtml(l))+
           secHtml('ld-s-loc','ทำเลที่ตั้ง', mapHtml(L)+nearbyHtml(L))+
+          secHtml('ld-s-comps','ราคาเทียบเคียงในย่านนี้', compsHtml(priceComps))+
           (photos.length>1 ? secHtml('ld-s-photos','รูปภาพทั้งหมด ('+photos.length+')',
             '<div class="ld-pgrid">'+photos.map(function(src,i){
               return '<button type="button" class="ld-pgrid-i" data-open="'+i+'" aria-label="เปิดรูปที่ '+(i+1)+' แบบเต็มจอ">'+
@@ -1283,6 +1336,7 @@
         var l=d&&d.listing;
         // ไม่เจอ = อาจขายไปแล้วหรือเจ้าของถอนประกาศ ต้องบอกตามจริง ไม่ใช่บอกว่าเว็บพัง
         if(!l){ markGone(); fail('ไม่พบแปลงที่ดินนี้แล้ว','แปลงนี้อาจขายไปแล้ว หรือเจ้าของขอถอนประกาศ — ทักไลน์มาสอบถามแปลงอื่นที่ใกล้เคียงได้'); return; }
+        priceComps=d.priceComps||null;
         render(l);
         // นับว่ามีคนเปิดดูแปลงนี้ — ยิงหลังจากพบแปลงจริงแล้วเท่านั้น
         // ยิงตั้งแต่ตอนเปิดหน้า = นับรวมลิงก์เสียและแปลงที่ถอนประกาศไปแล้วเข้าไปด้วย

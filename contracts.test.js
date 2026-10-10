@@ -935,5 +935,54 @@ console.log('\nแหล่งความจริงเดียวต่อ�
   check('หน้าแปลงไม่ฝังที่อยู่ระบบค้นราคาประเมิน (ใช้ lookupUrl ของ API)', !/assessprice/.test(land));
 })();
 
+
+// ---------- ราคาเทียบเคียงในย่านนี้ (priceComps · เจ้าของกิจการตัดสิน "สรุป + รายการย่อ" 10 ต.ค. 2569) ----------
+(function () {
+  console.log('\nราคาเทียบเคียงในย่านนี้ (priceComps ของหน้าแปลง)');
+  const libP = path.join(SRV, 'lib', 'landcomps.js');
+  if (!fs.existsSync(libP) || read(libP).indexOf('function publicSummary') < 0) {
+    console.log('  ข้าม — ระบบสาขานี้ยังไม่มี landcomps.publicSummary'); return;
+  }
+  const LC = require(libP);
+  const land = read(path.join(WEB, 'land.js'));
+  const blk = land.slice(land.indexOf('var CMP_MON'), land.indexOf('// ---------- สาธารณูปโภคและจุดเด่นของแปลง'));
+  check('land.js มีตัววาดหัวข้อราคาเทียบเคียง (compsHtml)', blk.indexOf('function compsHtml') >= 0);
+  // ข้อมูลตัวอย่างจากตัวคำนวณจริงของระบบ (แปลง 1 ไร่ · 4 รายการรอบตัว · 1 ใบไม่มีวันที่)
+  const S = { oppId: 'OP-T', lat: 13.85, lng: 100.08, totalWa: 400, askTotal: 5200000 };
+  const c = (km, price, kind, date) => LC.normalizeComp({ id: 'MC-9' + km, kind: kind || 'listing', price, totalWa: 400,
+    lat: S.lat + km / 111, lng: S.lng, precision: 'pin', dealDate: date == null ? '2026-08-01' : date,
+    source: 'นายหน้าลับ', sourceUrl: 'https://example.com/x', note: 'บันทึกลับ' }, '2026-10-10T00:00:00Z');
+  const pc = LC.publicSummary(S, [c(1, 4000000), c(2, 4400000, 'sold', '2026-03-02'), c(3, 4800000), c(4, 4600000, 'listing', '')],
+    { today: '2026-10-10' }, {}, {});
+  check('ระบบคืนก้อนสรุปเมื่อมี ≥ 3 รายการ', !!pc && pc.n === 4);
+  // ทุกคีย์ที่ compsHtml อ่าน ต้องมีในผลของระบบจริง
+  const code = blk.replace(/\/\/[^\n]*/g, '');
+  const need = { pc: pc, w: pc.perWa, p: pc.position, r: pc.rows[0] };
+  const miss = [];
+  Object.keys(need).forEach(v => {
+    (code.match(new RegExp('\\b' + v + '\\.([a-zA-Z]+)', 'g')) || []).forEach(m => {
+      const k = m.split('.')[1];
+      if (['length', 'map', 'join', 'toFixed'].indexOf(k) < 0 && !(k in need[v])) miss.push(m);
+    });
+  });
+  check('⭐ ทุกคีย์ที่ land.js อ่านจาก priceComps มีอยู่ในผลของ publicSummary', miss.length === 0, miss.join(','));
+  // วาดจริงด้วยตัววาดของหน้าแปลง (ตัดออกมารันใน node)
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const thaiDate = iso => String(iso || '');
+  const compsHtml = new Function('esc', 'thaiDate', blk + '\nreturn compsHtml;')(esc, thaiDate);
+  const html = compsHtml(pc);
+  check('วาดหัวข้อได้ + ข้อความกำกับ "ไม่ใช่การประเมินราคา"', html.indexOf('ไม่ใช่การประเมินราคา') >= 0 && html.indexOf('<table') >= 0);
+  check('แสดงต่ำสุด/ค่ากลาง/สูงสุดตามที่ระบบส่ง', ['฿10,000', '฿11,250', '฿12,000'].every(t => html.indexOf(t) >= 0), html.slice(0, 300));
+  check('แสดงตำแหน่งแปลงนี้ (สูงกว่าค่ากลาง 16%)', html.indexOf('สูงกว่าค่ากลาง 16%') >= 0);
+  check('ใบที่ไม่มีวันที่ขึ้น "ไม่ระบุ" ไม่เดาเดือน', html.indexOf('>ไม่ระบุ<') >= 0);
+  check('⛔ หน้าแปลงไม่มีชื่อ/ลิงก์/บันทึกของรายการเทียบเคียง', ['นายหน้าลับ', 'example.com', 'บันทึกลับ', 'MC-9'].every(t => html.indexOf(t) < 0));
+  check('⭐ ไม่ถึง 3 รายการ (null) / API รุ่นเก่า (undefined) = ไม่วาดอะไร', compsHtml(null) === '' && compsHtml(undefined) === '' &&
+    compsHtml(LC.publicSummary(S, [c(1, 4000000), c(2, 4400000)], { today: '2026-10-10' }, {}, {})) === '');
+  check('ประกาศเช่า (position null) วาดได้ ไม่มีจุดแปลงนี้', (function () {
+    const h = compsHtml(Object.assign({}, pc, { position: null })); return h.indexOf('ld-cmp-dot') < 0 && h.indexOf('<table') >= 0;
+  })());
+  check('⭐ land.js ไม่คิดค่ากลาง/ระยะเอง (ไม่มี sort/reduce/Math.round/ceil ในตัววาด)', !/\.sort\(|\.reduce\(|Math\.(round|ceil|floor)/.test(code));
+  check('land.js อ่านก้อนนี้จาก d.priceComps ของเส้นทางแปลงเดียว', /priceComps=d\.priceComps/.test(land) && /compsHtml\(priceComps\)/.test(land));
+})();
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
