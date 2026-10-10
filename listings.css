@@ -1,7 +1,13 @@
-/* หน้ารวมประกาศ — เฉพาะแผงตัวกรอง · การ์ดแปลงใช้สไตล์เดิมจาก marketplace.css
+/* หน้ารวมประกาศ — แถบหัว · แถวค้นหา · แถบชิป · แผงตัวกรอง · มุมมองแผนที่
+   การ์ดแปลงใช้สไตล์เดิมจาก marketplace.css + listingcard.css
    (ห้ามเขียนสไตล์การ์ดซ้ำที่นี่ ไม่งั้นการ์ดหน้านี้กับหน้าอื่นจะค่อยๆ เพี้ยนจากกัน) */
 
-.ls-head{position:relative;background:var(--navy);color:#fff;padding:52px 0 46px;overflow:hidden}
+/* ⚠️ [hidden] ต้องชนะ display ที่ตั้งในไฟล์นี้ (กับดักเดิมของ repo — หน้านี้ไม่ได้โหลด ui.css ที่มีกฎ !important) */
+.ls-chips[hidden],.ls-chip[hidden],.ls-view[hidden],.ls-map[hidden],.land-grid[hidden],.ls-backdrop[hidden],
+.lm-pop[hidden]{display:none !important}
+
+/* ===== แถบหัว — เตี้ยลง 10 ต.ค. 69 เพื่อให้รายการแปลงอยู่ในจอแรก (เดิม 52/46px ดันการ์ดลงไป 732px ที่จอ 1440×900) ===== */
+.ls-head{position:relative;background:var(--navy);color:#fff;padding:24px 0 22px;overflow:hidden}
 /* ภาพพื้นหลังแถบหัว — ไฟล์ถูกครอปมาเป็นแถบยาว 1600×306 ให้ใกล้สัดส่วนแถบนี้อยู่แล้ว
    จึงไม่ต้องเล็ง object-position หนีอะไร ปล่อย center ได้ตรง ๆ และเหลือให้ cover เฉือนแค่ขอบบนล่าง
    ที่ต้องครอปเป็นไฟล์แทนการเล็งเอา เพราะแถบนี้กว้างเต็มจอเสมอ (ภาพไม่เคยถูกเฉือนด้านข้าง)
@@ -16,14 +22,74 @@
     linear-gradient(180deg,rgba(11,31,58,0.5) 0%,rgba(11,31,58,0.18) 45%,rgba(11,31,58,0.55) 100%);
 }
 .ls-head>.shell{position:relative;z-index:1}
-.ls-head h1{margin:0 0 8px;font-size:27px;font-weight:700;line-height:1.35}
-.ls-head p{margin:0;font-size:15px;line-height:1.7;color:#CFE0F7;max-width:58ch}
+.ls-head h1{margin:0 0 6px;font-size:25px;font-weight:700;line-height:1.35}
+.ls-head p{margin:0;font-size:14px;line-height:1.65;color:#CFE0F7;max-width:72ch}
 /* ทางเข้าหน้าค้นตามวัตถุประสงค์ — คนที่ยังไม่รู้ว่าจะกรองอะไร ควรมีทางเริ่มจาก "จะเอาไปทำอะไร" */
-.ls-purpose-link{margin:9px 0 0;font-size:14px;line-height:1.7;color:#CFE0F7}
+.ls-purpose-link{margin:6px 0 0;font-size:14px;line-height:1.65;color:#CFE0F7}
 .ls-purpose-link a{color:#fff;font-weight:600;text-decoration:underline}
 
-.ls-wrap{padding:22px 0 60px}
+.ls-wrap{padding:16px 0 60px}
 
+/* ===== แถวค้นหา + ปุ่มแจ้งเตือน ===== */
+.ls-top{display:flex;gap:10px;align-items:stretch;margin-bottom:10px}
+.ls-search{display:flex;flex:1 1 auto;min-width:0;gap:8px}
+.ls-q{flex:1 1 auto;min-width:0;display:flex}
+.ls-q input{
+  width:100%;height:46px;border:1px solid var(--nj-gray-300);border-radius:var(--nj-radius-md);padding:0 14px;
+  font-size:16px;font-family:inherit;color:var(--nj-text-strong);background:var(--nj-white);outline:none
+}
+.ls-q input:focus{border-color:var(--nj-navy-600);box-shadow:0 0 0 3px var(--nj-navy-100)}
+.ls-q-go{
+  height:46px;padding:0 20px;border:0;border-radius:var(--nj-radius-md);background:var(--nj-navy-900);color:var(--nj-white);
+  font:inherit;font-weight:var(--nj-fw-semi);cursor:pointer
+}
+.ls-alert{
+  display:inline-flex;align-items:center;gap:6px;height:46px;padding:0 16px;flex:0 0 auto;
+  border:1px solid var(--nj-gold-600);border-radius:var(--nj-radius-md);background:var(--nj-white);
+  color:var(--nj-navy-900);font-size:var(--nj-fs-sm);font-weight:var(--nj-fw-semi);text-decoration:none;white-space:nowrap
+}
+.ls-alert:hover{background:var(--nj-surface-alt)}
+.ls-alert-s{display:none}
+.ls-q-go:focus-visible,.ls-alert:focus-visible,.ls-chip:focus-visible,.ls-view:focus-visible,.ls-sort select:focus-visible{
+  outline:2px solid var(--nj-focus);outline-offset:2px
+}
+
+/* ===== แถบชิปแถวเดียว — เลื่อนแนวนอนได้ ไม่ตัดขึ้นบรรทัดใหม่ ===== */
+.ls-chips{
+  display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;margin:0 0 10px;padding:2px 0 4px
+}
+.ls-chips::-webkit-scrollbar{display:none}
+.ls-chip{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;
+  border:1px solid var(--nj-gray-300);border-radius:var(--nj-radius-pill);background:var(--nj-white);
+  color:var(--nj-text-strong);font:inherit;font-size:var(--nj-fs-sm);white-space:nowrap;cursor:pointer
+}
+.ls-chip:hover{border-color:var(--nj-navy-600)}
+.ls-chip:not(.ls-chip-all):not(.ls-chip-clear)::after{content:"▾";font-size:11px;color:var(--nj-text-muted)}
+/* ชิปที่มีค่ากรองอยู่ = พื้นน้ำเงินเข้ม (ป้ายบอกค่าด้วยข้อความด้วย ไม่ได้บอกด้วยสีอย่างเดียว) */
+.ls-chip.is-on{background:var(--nj-navy-900);border-color:var(--nj-navy-900);color:var(--nj-white)}
+.ls-chip.is-on::after{color:var(--nj-gold-500)}
+.ls-chip-all{font-weight:var(--nj-fw-semi)}
+.ls-chip-all b{color:inherit}
+.ls-chip-clear{border-style:dashed;color:var(--nj-text-muted)}
+
+/* ===== แถวผลลัพธ์: พบ n แปลง · เรียงลำดับ · สลับแผนที่ ===== */
+.ls-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:0 0 10px}
+.ls-bar .ls-note{margin:0 auto 0 0;flex:1 1 auto;min-width:0}
+.ls-sort{display:inline-flex;align-items:center;gap:6px;font-size:var(--nj-fs-sm);color:var(--nj-text-muted)}
+.ls-sort select{
+  height:40px;max-width:210px;border:1px solid var(--nj-gray-300);border-radius:var(--nj-radius-md);padding:0 10px;
+  font:inherit;font-size:var(--nj-fs-sm);color:var(--nj-text-strong);background:var(--nj-white)
+}
+.ls-view{
+  display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;
+  border:1px solid var(--nj-navy-900);border-radius:var(--nj-radius-pill);background:var(--nj-white);
+  color:var(--nj-navy-900);font:inherit;font-size:var(--nj-fs-sm);font-weight:var(--nj-fw-semi);cursor:pointer
+}
+.ls-view[aria-pressed="true"]{background:var(--nj-navy-900);color:var(--nj-white)}
+
+/* ===== แผงตัวกรอง (ตอนไม่มี JS = ฟอร์มธรรมดาในหน้า) ===== */
 .ls-filters{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:18px}
 .ls-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
 .ls-field{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:0 1 auto}
@@ -38,7 +104,7 @@
 .ls-feats{border:0;border-top:1px dashed var(--line);padding:12px 0 0;margin:0 0 12px}
 .ls-feats legend{font-size:12px;font-weight:600;color:var(--sub);padding:0}
 .ls-feats>div{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:8px}
-.ls-feats label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);cursor:pointer}
+.ls-feats label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);cursor:pointer;min-height:32px}
 
 .ls-actions{display:flex;gap:10px;flex-wrap:wrap}
 .ls-actions .post-btn,.ls-actions .outline-btn{cursor:pointer;font-family:inherit;font-size:14px}
@@ -51,26 +117,9 @@
   border:1px solid #F5E4BE;border-radius:12px;padding:10px 13px}
 .ls-loading{color:var(--muted);font-size:14px;padding:20px 2px}
 
-@media (max-width:760px){
-  .ls-head{padding:34px 0 28px}
-  /* จอแคบ ภาพถูกเฉือนด้านข้างจนเหลือราว 1 ใน 3 ตรงกลาง (พอดีตัวครอบครัว) ไม่ต้องเลื่อนเฟรม
-     แต่ต้องเพิ่มความทึบของม่าน เพราะคำโปรยกินความกว้างเกือบเต็มจอ ไม่เหลือฝั่งที่ปล่อยให้ภาพสว่างได้ */
-  .ls-head-veil{
-    background:
-      linear-gradient(90deg,rgba(11,31,58,0.92) 0%,rgba(11,31,58,0.84) 55%,rgba(11,31,58,0.5) 100%),
-      linear-gradient(180deg,rgba(11,31,58,0.45) 0%,rgba(11,31,58,0.3) 50%,rgba(11,31,58,0.55) 100%);
-  }
-  .ls-head h1{font-size:22px}
-  .ls-filters{padding:14px}
-  /* จอแคบ: ช่องกรองเรียงสองคอลัมน์ ไม่ใช่บีบให้เตี้ยจนกดยาก */
-  .ls-field{min-width:0;flex:1 1 calc(50% - 6px)}
-  .ls-field.ls-grow{flex:1 1 100%}
-  .ls-actions .post-btn,.ls-actions .outline-btn{flex:1 1 auto;text-align:center}
-}
-
 /* =====================================================================
- * Sprint 3 — ตัวกรอง "เฉพาะที่บันทึกไว้" + แผงตัวกรองแบบ Bottom Sheet บนจอเล็ก
- * (2026-09-20 · งานที่ 4) · ค่าสีมาจาก tokens.css
+ * Sprint 3 — ตัวกรอง "เฉพาะที่บันทึกไว้" + แผงตัวกรองแบบหน้าต่าง
+ * (2026-09-20 · งานที่ 4 · ขยายเป็นทุกความกว้าง 10 ต.ค. 69) · ค่าสีมาจาก tokens.css
  * ===================================================================== */
 
 .ls-saved {
@@ -86,89 +135,191 @@
 .ls-saved input { width: 18px; height: 18px; accent-color: var(--nj-navy-900); }
 .ls-saved b { color: var(--nj-navy-600); }
 
-/* ปุ่มเปิดแผงตัวกรอง — เดสก์ท็อปไม่ต้องมี เพราะแผงกางอยู่แล้ว */
-.ls-open { display: none; }
 .ls-sheet-head { display: none; }
 
-@media (max-width: 860px) {
-  /* ⚠️ ซ่อนแผงเฉพาะเมื่อ JS ทำงานแล้ว (`body.ls-js`) — ไม่งั้น JS พังแล้วตัวกรองหายทั้งหน้า */
-  .ls-open {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 48px;
-    margin-bottom: var(--nj-space-4);
-    border: 1px solid var(--nj-gray-300);
-    background: var(--nj-white);
-    color: var(--nj-navy-900);
-    font-size: var(--nj-fs-body);
-    font-weight: var(--nj-fw-semi);
-    cursor: pointer;
-  }
-  .ls-open:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+/* ⚠️ เป็นหน้าต่างเฉพาะเมื่อ JS ทำงานแล้ว (`body.ls-js`) — ไม่งั้น JS พังแล้วตัวกรองหายทั้งหน้า
+ *    มือถือ = bottom sheet (ของเดิม) · จอคอม ≥861px = แผงข้างขวา (10 ต.ค. 69 · แทนฟอร์มที่กางกินจอแรก) */
+body.ls-js .ls-filters {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* ⚠️ ต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (950) — สองอย่างนั้นต้องอยู่เหนือเสมอ */
+  z-index: 860;
+  max-height: 86vh;
+  margin: 0;
+  padding: 0 var(--nj-space-4) calc(var(--nj-space-5) + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  background: var(--nj-white);
+  border: 0;
+  border-top: 1px solid var(--nj-border);
+  border-radius: var(--nj-radius-lg) var(--nj-radius-lg) 0 0;
+  box-shadow: 0 -12px 40px rgba(11, 31, 58, 0.26);
+  transform: translateY(100%);
+  visibility: hidden;
+  transition: transform var(--nj-dur) var(--nj-ease), visibility 0s linear var(--nj-dur);
+}
+html.ls-sheet-open body.ls-js .ls-filters {
+  transform: none;
+  visibility: visible;
+  /* ⚠️ ขาเปิดไม่มีหน่วงเวลา — เหตุผลเดียวกับเมนูย่อยบนหัวเว็บ
+   *    แผงที่ "เปิดแล้วแต่ยังมองไม่เห็น" อ่านเหมือนปุ่มเสีย */
+  transition: transform var(--nj-dur) var(--nj-ease), visibility 0s linear 0s;
+}
+/* ฉากหลังมืด — กดแล้วปิดแผง */
+.ls-backdrop { position: fixed; inset: 0; z-index: 855; background: rgba(11, 31, 58, 0.42); }
 
+body.ls-js .ls-sheet-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 calc(var(--nj-space-4) * -1) var(--nj-space-4);
+  padding: var(--nj-space-4);
+  background: var(--nj-white);
+  border-bottom: 1px solid var(--nj-border);
+  font-size: var(--nj-fs-h4);
+  color: var(--nj-text-strong);
+}
+.ls-sheet-x {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--nj-text-muted);
+  cursor: pointer;
+}
+.ls-sheet-x:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+/* ช่องในแผงเรียงสองคอลัมน์ ไม่ใช่บีบให้เตี้ยจนกดยาก */
+body.ls-js .ls-field { min-width: 0; flex: 1 1 calc(50% - 6px); }
+body.ls-js .ls-field.ls-grow { flex: 1 1 100%; }
+body.ls-js .ls-actions { position: sticky; bottom: 0; background: var(--nj-white); padding-top: var(--nj-space-3); }
+body.ls-js .ls-saved { margin-right: 0; flex: 1 1 100%; }
+body.ls-js .ls-actions .post-btn,
+body.ls-js .ls-actions .outline-btn { flex: 1 1 auto; text-align: center; min-height: 44px; }
+
+/* ล็อกไม่ให้หน้าเลื่อนอยู่ข้างหลังตอนแผงเปิด */
+html.ls-sheet-open, html.ls-sheet-open body { overflow: hidden; }
+/* ⚠️ แบนเนอร์คุกกี้ (z 900) สูงกว่าแผงตัวกรอง (860) โดยตั้งใจ — แต่บนมือถือมันสูงเกือบ 200px
+ *    ทับปุ่ม "ค้นหา/ล้างตัวกรอง" ที่ท้ายแผงจนกดไม่ได้ (เห็นจริงบน 390px)
+ *    ซ่อนแบนเนอร์ชั่วคราวตอนแผงเปิด · ปิดแผงแล้วแบนเนอร์กลับมาเหมือนเดิม ไม่ได้ข้ามการขอความยินยอม */
+html.ls-sheet-open #nj-consent { display: none; }
+
+@media (min-width: 861px) {
   body.ls-js .ls-filters {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* ⚠️ ต่ำกว่าแบนเนอร์คุกกี้ (900) และลิ้นชักเมนู (950) — สองอย่างนั้นต้องอยู่เหนือเสมอ */
-    z-index: 860;
-    max-height: 86vh;
-    margin: 0;
-    padding: 0 var(--nj-space-4) calc(var(--nj-space-5) + env(safe-area-inset-bottom, 0px));
-    overflow-y: auto;
-    background: var(--nj-white);
-    border-top: 1px solid var(--nj-border);
-    box-shadow: 0 -12px 40px rgba(11, 31, 58, 0.26);
-    transform: translateY(100%);
-    visibility: hidden;
-    transition: transform var(--nj-dur) var(--nj-ease), visibility 0s linear var(--nj-dur);
-  }
-  html.ls-sheet-open body.ls-js .ls-filters,
-  html.ls-sheet-open .ls-filters {
-    transform: none;
-    visibility: visible;
-    /* ⚠️ ขาเปิดไม่มีหน่วงเวลา — เหตุผลเดียวกับเมนูย่อยบนหัวเว็บ
-     *    แผงที่ "เปิดแล้วแต่ยังมองไม่เห็น" อ่านเหมือนปุ่มเสีย */
-    transition: transform var(--nj-dur) var(--nj-ease), visibility 0s linear 0s;
-  }
-
-  body.ls-js .ls-sheet-head {
-    position: sticky;
+    left: auto;
     top: 0;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 calc(var(--nj-space-4) * -1);
-    padding: var(--nj-space-4);
-    background: var(--nj-white);
-    border-bottom: 1px solid var(--nj-border);
-    font-size: var(--nj-fs-h4);
-    color: var(--nj-text-strong);
+    width: min(480px, 100vw);
+    max-height: none;
+    border-top: 0;
+    border-left: 1px solid var(--nj-border);
+    border-radius: 0;
+    box-shadow: -12px 0 40px rgba(11, 31, 58, 0.22);
+    transform: translateX(100%);
   }
-  .ls-sheet-x {
-    min-width: 44px;
-    min-height: 44px;
-    border: 0;
-    background: none;
-    font-size: 20px;
-    line-height: 1;
-    color: var(--nj-text-muted);
-    cursor: pointer;
+}
+
+/* ===== มุมมองแผนที่ (listmap.js) ===== */
+.ls-map { position: relative; margin: 0 0 18px; }
+.lm-note { margin: 0 0 8px; font-size: var(--nj-fs-sm); color: var(--nj-text-muted); }
+.lm-tolist {
+  border: 0; background: none; padding: 0; font: inherit; color: var(--nj-link);
+  text-decoration: underline; cursor: pointer;
+}
+.lm-view {
+  position: relative; overflow: hidden; height: min(64vh, 600px); min-height: 340px;
+  background: var(--nj-gray-200); border: 1px solid var(--nj-border); border-radius: var(--nj-radius-lg);
+  touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+}
+.lm-view:active { cursor: grabbing; }
+.lm-view:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+.lm-layer, .lm-tiles, .lm-pins { position: absolute; inset: 0; }
+.lm-tiles img { position: absolute; width: 256px; height: 256px; max-width: none; pointer-events: none; }
+/* หมุดราคา — ปลายแหลมชี้ตำแหน่งจริง (ฐานของป้ายคือจุดหมุด) */
+.lm-pin {
+  position: absolute; transform: translate(-50%, calc(-100% - 7px));
+  padding: 4px 9px; border: 2px solid var(--nj-white); border-radius: var(--nj-radius-pill);
+  background: var(--nj-navy-900); color: var(--nj-white); font: inherit; font-size: 12.5px;
+  font-weight: var(--nj-fw-semi); line-height: 1.3; white-space: nowrap; cursor: pointer;
+  box-shadow: var(--nj-shadow-md);
+}
+.lm-pin::after {
+  content: ""; position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%);
+  border: 7px solid transparent; border-top-color: var(--nj-navy-900);
+}
+.lm-pin.is-featured { background: var(--nj-gold-700); }
+.lm-pin.is-featured::after { border-top-color: var(--nj-gold-700); }
+.lm-pin.is-on, .lm-pin:hover { background: var(--nj-gold-500); color: var(--nj-navy-900); z-index: 2; }
+.lm-pin.is-on::after, .lm-pin:hover::after { border-top-color: var(--nj-gold-500); }
+.lm-pin:focus-visible { outline: 3px solid var(--nj-focus); outline-offset: 2px; z-index: 2; }
+.lm-zoom { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+.lm-zoom button {
+  width: 40px; height: 40px; border: 1px solid var(--nj-gray-300); border-radius: var(--nj-radius-md);
+  background: var(--nj-white); color: var(--nj-navy-900); font: inherit; font-size: 18px; cursor: pointer;
+  box-shadow: var(--nj-shadow-sm);
+}
+.lm-zoom button:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+/* ที่มาของภาพแผนที่ — เงื่อนไขการใช้ไทล์ OSM ห้ามซ่อน · มุมซ้ายล่าง เพราะปุ่มแชทลอยอยู่มุมขวาล่างของจอ (บังได้บนมือถือ) */
+.lm-attr {
+  position: absolute; left: 0; bottom: 0; z-index: 3; padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.86); font-size: 11px; color: var(--nj-text);
+  border-top-right-radius: var(--nj-radius-sm);
+}
+.lm-attr a { color: var(--nj-link); }
+/* การ์ดของหมุดที่กด — ใช้ NJListing.card ตัวกลาง ลอยในกรอบแผนที่ เหนือแถบที่มาของแผนที่ (bottom 28px) */
+.lm-pop {
+  position: absolute; left: 12px; bottom: 28px; z-index: 4; width: min(380px, calc(100% - 24px));
+  max-height: calc(100% - 96px); overflow: auto; touch-action: pan-y; cursor: auto; border-radius: 14px; box-shadow: var(--nj-shadow-lg);
+}
+.lm-pop .land-card { margin: 0; }
+.lm-pop .card-desc { display: none; }
+.lm-pop-x {
+  position: sticky; top: 6px; float: right; z-index: 5; width: 36px; height: 36px; margin: 6px 6px -42px 0;
+  border: 0; border-radius: 50%; background: rgba(11, 31, 58, 0.78); color: var(--nj-white); font-size: 16px; cursor: pointer;
+}
+.lm-foot { margin: 8px 0 0; font-size: var(--nj-fs-xs); color: var(--nj-text-muted); line-height: 1.6; }
+
+@media (prefers-reduced-motion: reduce) {
+  body.ls-js .ls-filters, html.ls-sheet-open body.ls-js .ls-filters { transition: none; }
+}
+
+@media (max-width:760px){
+  .ls-head{padding:14px 0 12px}
+  /* จอแคบ ภาพถูกเฉือนด้านข้างจนเหลือราว 1 ใน 3 ตรงกลาง (พอดีตัวครอบครัว) ไม่ต้องเลื่อนเฟรม
+     แต่ต้องเพิ่มความทึบของม่าน เพราะคำโปรยกินความกว้างเกือบเต็มจอ ไม่เหลือฝั่งที่ปล่อยให้ภาพสว่างได้ */
+  .ls-head-veil{
+    background:
+      linear-gradient(90deg,rgba(11,31,58,0.92) 0%,rgba(11,31,58,0.84) 55%,rgba(11,31,58,0.5) 100%),
+      linear-gradient(180deg,rgba(11,31,58,0.45) 0%,rgba(11,31,58,0.3) 50%,rgba(11,31,58,0.55) 100%);
   }
-  .ls-sheet-x:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
-
-  /* ล็อกไม่ให้หน้าเลื่อนอยู่ข้างหลังตอนแผงเปิด */
-  html.ls-sheet-open, html.ls-sheet-open body { overflow: hidden; }
-  /* ⚠️ แบนเนอร์คุกกี้ (z 900) สูงกว่าแผงตัวกรอง (860) โดยตั้งใจ — แต่บนมือถือมันสูงเกือบ 200px
-   *    ทับปุ่ม "ค้นหา/ล้างตัวกรอง" ที่ท้ายแผงจนกดไม่ได้ (เห็นจริงบน 390px)
-   *    ซ่อนแบนเนอร์ชั่วคราวตอนแผงเปิด · ปิดแผงแล้วแบนเนอร์กลับมาเหมือนเดิม ไม่ได้ข้ามการขอความยินยอม */
-  html.ls-sheet-open #nj-consent { display: none; }
-
-  .ls-actions { position: sticky; bottom: 0; background: var(--nj-white); padding-top: var(--nj-space-3); }
-  .ls-saved { margin-right: 0; flex: 1 1 100%; }
+  .ls-head h1{font-size:20px;margin-bottom:4px}
+  .ls-head p{font-size:13px;line-height:1.6}
+  /* คำอธิบายป้ายระดับซ่อนบนจอแคบ (10 ต.ค. 69) — ให้รายการแปลงขึ้นในจอแรก
+     ความหมายเดียวกันอยู่บนการ์ดทุกใบแล้ว (ป้าย "ข้อมูลเบื้องต้น"/"ตรวจสอบโดย NJ" + ระดับ x/2) · จอคอมยังแสดงครบ */
+  .ls-head p.ls-lede{display:none}
+  .ls-purpose-link{font-size:13px;margin-top:4px}
+  .ls-wrap{padding-top:12px}
+  .ls-filters{padding:14px}
+  .ls-field{min-width:0;flex:1 1 calc(50% - 6px)}
+  .ls-field.ls-grow{flex:1 1 100%}
+  .ls-actions .post-btn,.ls-actions .outline-btn{flex:1 1 auto;text-align:center}
+  /* แถวค้นหาจอแคบ: ปุ่มค้นหาเป็นแค่ทางเลือก (พิมพ์แล้วกรองทันที · Enter ส่งฟอร์มได้เอง)
+     ปุ่มแจ้งเตือนใช้คำสั้น — ข้อความเต็มยังอยู่ให้เครื่องอ่านหน้าจอ */
+  .ls-top{gap:8px}
+  .ls-q-go{display:none}
+  .ls-alert{padding:0 12px}
+  .ls-alert-l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ls-alert-s{display:inline}
+  .ls-sort span{display:none}
+  .ls-sort select{max-width:132px;padding:0 6px}
+  .ls-bar{flex-wrap:nowrap;gap:8px}
+  .ls-bar .ls-note{font-size:13px}
+  .ls-view{padding:0 12px}
+  .ls-v-pre{display:none}
+  .lm-view{height:calc(100svh - 340px);min-height:300px}
+  .lm-pop{left:8px;right:8px;width:auto}
 }

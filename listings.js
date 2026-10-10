@@ -140,6 +140,145 @@
     return { list: list, hiddenUnknown: hiddenUnknown };
   }
 
+  // ---------- ข้อความบนชิป · จำนวนตัวกรองที่ใช้อยู่ (10 ต.ค. 69 · แถบชิปแบบ DDproperty) ----------
+  // ⚠️ ชิปเป็นแค่ "ป้ายบอกค่า + ทางลัดเปิดแผง" ค่าจริงอยู่ในช่องของแผงตัวกรองที่เดียว
+  //    ห้ามเก็บค่าตัวกรองไว้ที่ชิปอีกชุด ไม่งั้นสองชุดจะหลุดจากกันโดยไม่มีอะไรเตือน
+  function moneyShort(v) {
+    return '฿' + (v >= 1000000 ? (Math.round(v / 10000) / 100).toLocaleString('th-TH') + ' ล้าน' : Number(v).toLocaleString('th-TH'));
+  }
+  function rangeText(lo, hi, fmt) {
+    if (lo && hi) return fmt(lo) + '–' + fmt(hi);
+    return lo ? '≥ ' + fmt(lo) : '≤ ' + fmt(hi);
+  }
+  function propLabel(k) {
+    if (k === 'any_building') return 'มีสิ่งปลูกสร้าง';
+    var PT = (window.NJVocab && window.NJVocab.PROPERTY_TH) || {};
+    return PT[k] || k;
+  }
+  function zoneLabel(k) { return k === 'checked' ? 'ตรวจผังสีแล้ว' : 'ผัง' + String(ZONE_TH[k] || k).split(' — ')[0]; }
+  var CHIP_FOCUS = { province: 'f-province', price: 'f-pmin', area: 'f-amin', zone: 'f-zone', prop: 'f-prop', type: 'f-type' };
+  function chipText(key, f) {
+    switch (key) {
+      case 'province': return f.province !== 'all' ? f.province : '';
+      case 'price': return (f.pmin || f.pmax) ? 'ราคา ' + rangeText(f.pmin, f.pmax, moneyShort) : '';
+      case 'area': return (f.amin || f.amax) ? rangeText(f.amin, f.amax, function (v) { return v.toLocaleString('th-TH'); }) + ' ไร่' : '';
+      case 'zone': return f.zone !== 'all' ? zoneLabel(f.zone) : '';
+      case 'prop': return f.prop !== 'all' ? propLabel(f.prop) : '';
+      case 'type': return f.type === 'sell' ? 'ขาย' : f.type === 'rent' ? 'ให้เช่า' : '';
+    }
+    return '';
+  }
+  function activeCount(f) {
+    return (f.type !== 'all') + (f.province !== 'all') + ((f.pmin || f.pmax) ? 1 : 0) + ((f.amin || f.amax) ? 1 : 0) +
+      (f.deed !== 'all') + (f.prop !== 'all') + (f.floors !== 'all') + (f.zone !== 'all') + f.feats.length + (f.saved ? 1 : 0);
+  }
+  function setText(el, txt) { if (el && el.textContent !== txt) el.textContent = txt; }   // เทียบก่อนเขียน (กับดัก MutationObserver)
+  function paintChips(f) {
+    var chips = document.querySelectorAll('#ls-chips [data-chip]');
+    for (var i = 0; i < chips.length; i++) {
+      var c = chips[i], key = c.getAttribute('data-chip');
+      if (!c.hasAttribute('data-label')) c.setAttribute('data-label', c.textContent);
+      var t = chipText(key, f);
+      setText(c, t || c.getAttribute('data-label'));
+      c.classList.toggle('is-on', !!t);
+    }
+    var n = activeCount(f);
+    setText($('ls-open-n'), n ? '(' + n + ')' : '');
+    var open = $('ls-open'); if (open) open.classList.toggle('is-on', n > 0);
+    var clr = $('ls-clear'); if (clr) clr.hidden = !(n || f.q);
+  }
+
+  // ---------- ปุ่มแจ้งเตือน → หน้าฝากหาที่ดิน พร้อมเงื่อนไขที่เลือกอยู่ ----------
+  // ช่องที่หน้าฝากหามีจริง (จังหวัด งบ เนื้อที่ เอกสารสิทธิ์ สิ่งที่ต้องมี) ส่งเป็นค่าให้ wanted.js เติมช่องนั้น
+  // ช่องที่หน้าฝากหาไม่มี (ผังสี ประเภททรัพย์ ชั้น เช่า คำค้น) ส่งเป็นคีย์ แล้ว wanted.js ประกอบข้อความหมายเหตุเอง
+  // จากคำศัพท์กลาง — ไม่ส่งข้อความอิสระทาง URL (ลิงก์ที่ใครก็ตั้งได้ ต้องไม่ยัดประโยคลงฟอร์มของลูกค้า)
+  // ⚠️ ไม่มีข้อมูลส่วนบุคคลใน URL นี้ — มีแค่เงื่อนไขการค้นหา (ชื่อ/เบอร์ผู้ใช้กรอกเองที่หน้าปลายทาง)
+  function alertHref(f) {
+    var p = new URLSearchParams();
+    p.set('from', 'listings');
+    if (f.province !== 'all') p.set('province', f.province);
+    if (f.pmin) p.set('budgetMin', String(f.pmin));
+    if (f.pmax) p.set('budgetMax', String(f.pmax));
+    if (f.amin) p.set('areaMin', String(f.amin));
+    if (f.amax) p.set('areaMax', String(f.amax));
+    // หน้าฝากหามีแค่ "โฉนดเท่านั้น / น.ส.3ก ขึ้นไป / ไม่เกี่ยง" — เอกสารแบบอื่นไปอยู่ในหมายเหตุแทน
+    if (f.deed === 'chanote' || f.deed === 'nor3gor') p.set('deedType', f.deed);
+    if (f.feats.length) p.set('features', f.feats.join(','));
+    if (f.type === 'rent') p.set('deal', 'rent');
+    if (f.prop !== 'all') p.set('prop', f.prop);
+    if (f.floors !== 'all') p.set('floors', f.floors);
+    if (f.zone !== 'all') p.set('zone', f.zone);
+    if (f.deed !== 'all' && f.deed !== 'chanote' && f.deed !== 'nor3gor') p.set('deedOther', f.deed);
+    var rawQ = ($('f-q').value || '').trim();
+    if (rawQ) p.set('q', rawQ.slice(0, 60));
+    return 'wanted.html?' + p.toString();
+  }
+
+  // ---------- ตัวกรองลงที่อยู่หน้า (แชร์ลิงก์ได้ · กดย้อนกลับจากหน้าแปลงแล้วตัวกรองยังอยู่) ----------
+  // ⚠️ ใช้ replaceState ไม่ใช่ pushState — กดกรองสิบครั้งต้องไม่กลายเป็นปุ่มย้อนกลับสิบชั้น
+  //    canonical ของหน้านี้คงที่อยู่แล้ว (seo.test.js) เสิร์ชเอนจินจึงไม่นับ ?… เป็นหน้าใหม่
+  var URL_KEYS = ['type', 'province', 'pmin', 'pmax', 'amin', 'amax', 'deed', 'prop', 'floors', 'zone'];
+  function syncUrl(f) {
+    if (!window.history || !history.replaceState) return;
+    var p = new URLSearchParams();
+    var rawQ = ($('f-q').value || '').trim();
+    if (rawQ) p.set('q', rawQ);
+    URL_KEYS.forEach(function (k) { var v = f[k]; if (v && v !== 'all') p.set(k, String(v)); });
+    if (f.feats.length) p.set('feat', f.feats.join(','));
+    if (f.sort && f.sort !== 'new') p.set('sort', f.sort);
+    if (view === 'map') p.set('view', 'map');
+    var qs = p.toString();
+    var url = location.pathname + (qs ? '?' + qs : '') + location.hash;
+    if (url !== location.pathname + location.search + location.hash) history.replaceState(null, '', url);
+  }
+  // ค่าจากที่อยู่หน้าใส่ได้เฉพาะตัวเลือกที่มีอยู่จริง — ค่าแปลกปลอมถูกเมิน (ไม่ใช่ทำให้กรองเพี้ยน)
+  function setSelect(id, v) {
+    var el = $(id);
+    if (!el || v == null) return;
+    for (var i = 0; i < el.options.length; i++) if (el.options[i].value === v) { el.value = v; return; }
+  }
+  function applyUrl() {
+    var p;
+    try { p = new URLSearchParams(location.search); } catch (e) { return; }
+    if (p.get('q')) $('f-q').value = p.get('q').slice(0, 120);
+    ['type', 'province', 'deed', 'prop', 'floors', 'zone', 'sort'].forEach(function (k) { setSelect('f-' + k, p.get(k)); });
+    ['pmin', 'pmax', 'amin', 'amax'].forEach(function (k) {
+      var v = Number(p.get(k));
+      if (isFinite(v) && v > 0) $('f-' + k).value = String(v);
+    });
+    (p.get('feat') || '').split(',').forEach(function (k) {
+      if (FEATURES.indexOf(k) >= 0) $('f-feat-' + k).checked = true;
+    });
+    if (p.get('view') === 'map') view = 'map';
+  }
+
+  // ---------- มุมมองแผนที่ ----------
+  // ใช้หมุดที่ทีมงานกดเลือกเองรายแปลง (land.pinLat/pinLng) ตัวเดียวกับหน้าแปลง — ตัวแสดงอยู่ใน listmap.js
+  // ⚠️ ปุ่มสลับขึ้นเฉพาะเมื่อมีแปลงปักหมุดอย่างน้อย 1 แปลง — แผนที่ว่างเปล่าอ่านเหมือนเว็บพัง
+  var view = 'list';
+  var mapView = null;
+  function paintView(list) {
+    var btn = $('ls-view'), grid = $('listing-grid'), box = $('ls-map');
+    var LM = window.NJListMap;
+    var canMap = !!(LM && state.loaded && state.listings.some(LM.hasPin));
+    if (btn) btn.hidden = !canMap;
+    var isMap = canMap && view === 'map';
+    if (btn) {
+      btn.setAttribute('aria-pressed', isMap ? 'true' : 'false');
+      // คำนำ "ดูบน/ดูแบบ" ซ่อนบนจอแคบ (listings.css) ให้แถวผลลัพธ์อยู่บรรทัดเดียว · ข้อความคงที่ ไม่มีค่าจากผู้ใช้
+      var vt = $('ls-view-t'), vh = isMap ? '<span class="ls-v-pre">ดูแบบ</span>รายการ' : '<span class="ls-v-pre">ดูบน</span>แผนที่';
+      if (vt && vt.innerHTML !== vh) vt.innerHTML = vh;
+    }
+    if (box) box.hidden = !isMap;
+    if (grid) grid.hidden = isMap;
+    if (!isMap) return;
+    if (!mapView) {
+      mapView = LM.mount(box, { onList: function () { view = 'list'; render(); } });
+      NJL.bindGrid(box, 'listings_map');
+    }
+    mapView.update(list);
+  }
+
   function render() {
     var f = readFilters();
     var r = apply(f);
@@ -151,6 +290,12 @@
     $('result-note').textContent = state.loaded
       ? ('พบ ' + r.list.length + ' แปลง' + (anyFilter ? ' จากทั้งหมด ' + state.listings.length + ' แปลง' : ''))
       : '';
+    paintChips(f);
+    var al = $('ls-alert'); if (al) { var h = alertHref(f); if (al.getAttribute('href') !== h) al.setAttribute('href', h); }
+    // ปุ่มท้ายแผงตัวกรองบอกจำนวนที่จะได้ก่อนปิดแผง — ไม่ต้องปิดไปดูแล้วเปิดใหม่
+    if (state.loaded) setText($('f-apply'), 'แสดง ' + r.list.length + ' แปลง');
+    if (state.loaded) syncUrl(f);
+    paintView(r.list);
 
     var un = $('unknown-note');
     if (r.hiddenUnknown > 0) {
@@ -208,6 +353,8 @@
         state.listings = list;
         state.loaded = true;
         fillProvinces();
+        // ตัวกรองจากที่อยู่หน้า (?q= จากหน้าแปลง · ลิงก์ที่แชร์มา) — ต้องหลัง fillProvinces เพราะรายชื่อจังหวัดมาจากข้อมูล
+        applyUrl();
         render();
       })
       .catch(function () {
@@ -221,11 +368,22 @@
 
   buildControls();
 
-  $('ls-form').addEventListener('submit', function (e) {
+  function submitSearch(e) {
     e.preventDefault();
     render();
     var f = readFilters();
     if (window.njTrack) window.njTrack('Search', { search_string: f.q, content_category: f.province });
+  }
+  $('ls-form').addEventListener('submit', submitSearch);
+  // ช่องคำค้นย้ายมาอยู่แถวบนสุด (ฟอร์มของตัวเอง) — กด Enter/ปุ่มค้นหา = ค้นเหมือนเดิม
+  if ($('ls-qform')) $('ls-qform').addEventListener('submit', submitSearch);
+  // พิมพ์แล้วกรองตามทันที (หน่วงไว้นิดหนึ่ง) · ไม่ยิงสถิติ Search ทุกตัวอักษร — ยิงตอนกดค้นหาเท่านั้น
+  var qTimer = 0;
+  $('f-q').addEventListener('input', function () { clearTimeout(qTimer); qTimer = setTimeout(render, 250); });
+  // ช่องตัวเลขในแผง (ราคา/เนื้อที่) อัปเดตจำนวนบนปุ่ม "แสดง n แปลง" ระหว่างพิมพ์ — ผู้ใช้รู้ผลก่อนปิดแผง
+  var numTimer = 0;
+  ['f-pmin', 'f-pmax', 'f-amin', 'f-amax'].forEach(function (id) {
+    $(id).addEventListener('input', function () { clearTimeout(numTimer); numTimer = setTimeout(render, 300); });
   });
   // ช่องเลือก (ไม่ใช่ช่องพิมพ์) กรองทันทีที่เปลี่ยน — ไม่ต้องกดค้นหาซ้ำ
   // ⚠️ นับ "มีคนใช้ตัวกรอง" ครั้งเดียวต่อการเปลี่ยนหนึ่งครั้ง และหน่วงไว้ก่อน
@@ -240,12 +398,25 @@
     $(id).addEventListener('change', function () { render(); trackFilter(); });
   });
   $('f-features').addEventListener('change', function () { render(); trackFilter(); });
-  $('f-reset').addEventListener('click', function () {
+  // ⚠️ คำค้นกับการเรียงอยู่นอกฟอร์มแล้ว form.reset() ไม่ถึง — ล้างเองให้ได้ผลเหมือนปุ่มเดิมทุกอย่าง
+  function resetAll() {
     $('ls-form').reset();
+    $('f-q').value = '';
+    $('f-sort').value = 'new';
     if (savedBoxRef()) savedBoxRef().checked = false;
     buildControls();
     fillProvinces();
     render();
+  }
+  $('f-reset').addEventListener('click', resetAll);
+  if ($('ls-clear')) $('ls-clear').addEventListener('click', resetAll);
+
+  // ---------- สวิตช์รายการ/แผนที่ ----------
+  if ($('ls-view')) $('ls-view').addEventListener('click', function () {
+    view = view === 'map' ? 'list' : 'map';
+    render();
+    var box = $('ls-map');
+    if (view === 'map' && box && box.scrollIntoView) box.scrollIntoView({ block: 'nearest' });
   });
 
   // ---------- ตัวกรอง "เฉพาะที่บันทึกไว้" ----------
@@ -267,27 +438,55 @@
     });
   }
 
-  // ---------- แผงตัวกรองแบบ Bottom Sheet บนจอเล็ก (งานที่ 4) ----------
+  // ---------- แผงตัวกรองแบบหน้าต่าง: มือถือ = Bottom Sheet (งานที่ 4) · จอคอม = แผงข้างขวา (10 ต.ค. 69) ----------
   //
   // ⚠️ **ซ่อนแผงด้วยคลาสที่ JS เป็นคนใส่ (`ls-js`) ไม่ใช่ซ่อนไว้ใน CSS ตั้งแต่แรก**
   //    ไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ ต้องเหลือแผงตัวกรองที่กางอยู่ใช้งานได้ตามปกติ
   //    ไม่ใช่แผงที่ถูกซ่อนแล้วไม่มีปุ่มไหนเปิดได้เลย (กติกาเดียวกับ njintro.js)
+  //    แถบชิปก็ซ่อนไว้ใน HTML (`hidden`) แล้ว JS เป็นคนเปิด — ชิปที่กดแล้วไม่มีอะไรเกิดขึ้นแย่กว่าไม่มีชิป
   (function () {
-    var form = $('ls-form'), openBtn = $('ls-open'), closeBtn = $('ls-close');
+    var form = $('ls-form'), openBtn = $('ls-open'), closeBtn = $('ls-close'), back = $('ls-backdrop');
+    var chips = $('ls-chips');
     if (!form || !openBtn) return;
     document.body.classList.add('ls-js');
-    function set(on) {
+    if (chips) chips.hidden = false;
+    // เป็นหน้าต่างเฉพาะตอน JS ทำงาน — ตอนไม่มี JS มันคือฟอร์มธรรมดาในหน้า ห้ามประกาศเป็น dialog
+    form.setAttribute('role', 'dialog');
+    form.setAttribute('aria-modal', 'true');
+    var opener = openBtn;
+    function isOpen() { return document.documentElement.classList.contains('ls-sheet-open'); }
+    function set(on, focusId, from) {
       document.documentElement.classList.toggle('ls-sheet-open', on);
       openBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
-      if (on) { var f = form.querySelector('input,select,button'); if (f) f.focus(); }
-      else openBtn.focus();
+      if (back) back.hidden = !on;
+      if (on) {
+        opener = from || openBtn;
+        var f = (focusId && $(focusId)) || form.querySelector('input,select,button');
+        if (f) f.focus();
+      } else if (opener && opener.focus) opener.focus();
     }
-    openBtn.addEventListener('click', function () { set(true); });
+    openBtn.addEventListener('click', function () { set(true, null, openBtn); });
+    // ชิป = เปิดแผงชุดเดิมแล้วพาไปที่ช่องนั้นเลย (ไม่ต้องเลื่อนหา)
+    if (chips) chips.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-chip]');
+      if (c) set(true, CHIP_FOCUS[c.getAttribute('data-chip')], c);
+    });
     if (closeBtn) closeBtn.addEventListener('click', function () { set(false); });
-    // กดค้นหาบนมือถือ = ปิดแผงแล้วดูผลทันที — ไม่งั้นแผงบังผลที่เพิ่งกรอง
+    if (back) back.addEventListener('click', function () { set(false); });
+    // กดค้นหา/แสดงผล = ปิดแผงแล้วดูผลทันที — ไม่งั้นแผงบังผลที่เพิ่งกรอง
     form.addEventListener('submit', function () { set(false); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && document.documentElement.classList.contains('ls-sheet-open')) set(false);
+      if (!isOpen()) return;
+      if (e.key === 'Escape') { set(false); return; }
+      // ขังโฟกัสไว้ในแผง — ประกาศ aria-modal เฉยๆ เบราว์เซอร์ไม่กันให้ (กติกาเดียวกับลิ้นชักเมนู)
+      if (e.key !== 'Tab') return;
+      var els = [].filter.call(form.querySelectorAll('button,input,select,a[href]'), function (el) {
+        return !el.disabled && el.offsetParent !== null;
+      });
+      if (!els.length) return;
+      var first = els[0], last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
   })();
 
