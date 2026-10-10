@@ -446,6 +446,7 @@
         '<tbody>'+rows+'</tbody></table></div>'+
       (Number(pc.more)>0 ? '<p class="ld-cmp-more">และอีก '+Number(pc.more)+' รายการที่ไกลกว่า (นับรวมในช่วงราคาแล้ว)</p>' : '')+
       (pc.undated>0 ? '<p class="ld-cmp-more">'+Number(pc.undated)+' รายการไม่ระบุวันที่ของข้อมูล</p>' : '')+
+      (pc.typeNote ? '<p class="ld-cmp-pos is-type">'+esc(pc.typeNote)+'</p>' : '')+
       (pc.mixedNote ? '<p class="ld-cmp-note">'+esc(pc.mixedNote)+'</p>' : '')+
       '<p class="ld-cmp-note">'+esc(pc.disclaim||'ไม่ใช่การประเมินราคา เป็นข้อมูลที่ทีมรวบรวม ณ วันที่ระบุ')+
         (pc.asOf ? ' (สรุป ณ '+esc(thaiDate(pc.asOf))+')' : '')+'</p>';

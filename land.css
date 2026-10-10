@@ -719,6 +719,7 @@ html.ld-lb-lock{overflow:hidden}
 .ld-cmp-scale b{font-size:14px;color:#0B2549;font-weight:700}
 .ld-cmp-pos{margin:12px 0 0;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5;background:#F4F7FA;color:#0B2549}
 .ld-cmp-pos::before{content:"●";color:#C0841A;margin-right:6px}
+.ld-cmp-pos.is-type::before{content:"ⓘ";color:#1B4B7A}
 .ld-cmp-wrap{margin:16px 0 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .ld-cmp-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:0}
 .ld-cmp-tbl caption{text-align:left;font-size:12px;font-weight:600;color:var(--nj-gray-600,#5B6B7C);padding:0 0 6px}

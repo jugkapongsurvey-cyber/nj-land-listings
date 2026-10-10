@@ -978,6 +978,10 @@ console.log('\nแหล่งความจริงเดียวต่อ�
   check('⛔ หน้าแปลงไม่มีชื่อ/ลิงก์/บันทึกของรายการเทียบเคียง', ['นายหน้าลับ', 'example.com', 'บันทึกลับ', 'MC-9'].every(t => html.indexOf(t) < 0));
   check('⭐ ไม่ถึง 3 รายการ (null) / API รุ่นเก่า (undefined) = ไม่วาดอะไร', compsHtml(null) === '' && compsHtml(undefined) === '' &&
     compsHtml(LC.publicSummary(S, [c(1, 4000000), c(2, 4400000)], { today: '2026-10-10' }, {}, {})) === '');
+  check('ทรัพย์ต่างประเภทกับที่เทียบ (typeNote) ขึ้นข้อความอธิบายแทนตำแหน่ง', (function () {
+    const h = compsHtml(Object.assign({}, pc, { position: null, typeNote: 'ทรัพย์นี้เป็นบ้านเดี่ยว แต่รายการที่นำมาเทียบเป็นที่ดินเปล่า' }));
+    return h.indexOf('ทรัพย์นี้เป็นบ้านเดี่ยว') >= 0 && h.indexOf('ld-cmp-dot') < 0;
+  })());
   check('ประกาศเช่า (position null) วาดได้ ไม่มีจุดแปลงนี้', (function () {
     const h = compsHtml(Object.assign({}, pc, { position: null })); return h.indexOf('ld-cmp-dot') < 0 && h.indexOf('<table') >= 0;
   })());
