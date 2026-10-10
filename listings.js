@@ -347,6 +347,64 @@
     fillSelect($('f-province'), names.map(function (n) { return [n, n]; }), 'ทุกจังหวัด');
   }
 
+  // ---------- บล็อกลิงก์ค้นหาท้ายหน้า: ตามจังหวัด · อำเภอ/เขต · ประเภททรัพย์ · ผังสี (10 ต.ค. 69 · แบบ DDproperty) ----------
+  // ⚠️ สร้างจาก "แปลงที่ประกาศอยู่จริง" พร้อมจำนวนเสมอ — ไม่มีรายชื่อพิมพ์ไว้ในไฟล์ (กติกาเดียวกับ fillProvinces)
+  //    ช่องว่าง = ยังไม่ได้กรอก → ไม่นับ ไม่เดา · ไม่มีกลุ่มไหนมีของเลย = ซ่อนทั้งบล็อก
+  // ⚠️ ลิงก์เป็น listings.html?… (canonical คงที่) ไม่ใช่หน้าจังหวัดใหม่ — หน้าพื้นที่เกิดจากแอดมินกดเผยแพร่เท่านั้น
+  // อำเภอ/เขตใช้ชื่อตามที่กรอกไว้ ไม่เติม "อำเภอ"/"เขต" เอง (กทม.กับต่างจังหวัดใช้คำต่างกัน · กติกาเดียวกับ build/locations.js)
+  var SEO_AMPHOE_MAX = 12;
+  function seoGroups() {
+    var by = function () { return {}; };
+    var prov = by(), amp = by(), prop = by(), zone = by(), types = by();
+    state.listings.forEach(function (x) {
+      var L = landOf(x);
+      types[x.type] = (types[x.type] || 0) + 1;
+      if (L.province) {
+        var p = prov[L.province] || (prov[L.province] = { n: 0, rent: 0 });
+        p.n++; if (x.type === 'rent') p.rent++;
+        if (L.amphoe) { var ka = L.amphoe + '\u0000' + L.province; amp[ka] = (amp[ka] || 0) + 1; }
+      }
+      if (L.propertyType) prop[L.propertyType] = (prop[L.propertyType] || 0) + 1;
+      if (L.zoneColor && ZONE_TH[L.zoneColor]) zone[L.zoneColor] = (zone[L.zoneColor] || 0) + 1;
+    });
+    var PT = (window.NJVocab && window.NJVocab.PROPERTY_TH) || {};
+    var byCount = function (o) { return Object.keys(o).sort(function (a, b) { return (o[b].n || o[b]) - (o[a].n || o[a]) || a.localeCompare(b, 'th'); }); };
+    var link = function (params, text, n) { return { href: 'listings.html?' + new URLSearchParams(params).toString(), text: text, n: n }; };
+    var groups = [];
+    var g = byCount(prov).map(function (k) {
+      var p = prov[k];
+      return link({ province: k }, (p.rent === 0 ? 'ประกาศขาย ' : p.rent === p.n ? 'ประกาศให้เช่า ' : 'ประกาศ ') + k, p.n);
+    });
+    if (g.length) groups.push({ h: 'ตามจังหวัด', items: g });
+    g = byCount(amp).slice(0, SEO_AMPHOE_MAX).map(function (k) {
+      var a = k.split('\u0000');
+      return link({ q: a[0] }, a[0] + ' · ' + a[1], amp[k]);
+    });
+    if (g.length) groups.push({ h: 'ตามอำเภอ/เขต', items: g });
+    g = byCount(prop).filter(function (k) { return PT[k]; }).map(function (k) { return link({ prop: k }, PT[k], prop[k]); });
+    if (g.length) groups.push({ h: 'ตามประเภททรัพย์', items: g });
+    g = byCount(zone).map(function (k) { return link({ zone: k }, zoneLabel(k), zone[k]); });
+    if (g.length) groups.push({ h: 'ตามผังสี (ที่ทีมตรวจผังแล้ว)', items: g });
+    // ขาย/เช่า — ขึ้นเมื่อมีประกาศให้เช่าจริงเท่านั้น (ตอนนี้มีแต่ขาย ลิงก์ "ให้เช่า" จะพาไปผลว่าง)
+    if (types.rent) {
+      g = [link({ type: 'sell' }, 'ประกาศขาย', types.sell || 0), link({ type: 'rent' }, 'ประกาศให้เช่า', types.rent)].filter(function (x) { return x.n > 0; });
+      groups.push({ h: 'ขายหรือให้เช่า', items: g });
+    }
+    return groups;
+  }
+  function paintSeo() {
+    var box = $('ls-seo-live');
+    if (!box) return;
+    var groups = state.loaded ? seoGroups() : [];
+    box.hidden = !groups.length;
+    var html = groups.map(function (gr) {
+      return '<div class="ls-seo-col"><h3>' + NJL.esc(gr.h) + '</h3><ul>' + gr.items.map(function (it) {
+        return '<li><a href="' + NJL.esc(it.href) + '" data-ls-seo>' + NJL.esc(it.text) + ' <span class="ls-seo-n">(' + it.n + ')</span></a></li>';
+      }).join('') + '</ul></div>';
+    }).join('');
+    if (box.innerHTML !== html) box.innerHTML = html;
+  }
+
   function load() {
     NJL.fetchListings()
       .then(function (list) {
@@ -356,6 +414,7 @@
         // ตัวกรองจากที่อยู่หน้า (?q= จากหน้าแปลง · ลิงก์ที่แชร์มา) — ต้องหลัง fillProvinces เพราะรายชื่อจังหวัดมาจากข้อมูล
         applyUrl();
         render();
+        paintSeo();
       })
       .catch(function () {
         // โหลดไม่ได้ ≠ ไม่มีแปลง — สองกรณีนี้ห้ามแสดงเหมือนกัน
@@ -410,6 +469,22 @@
   }
   $('f-reset').addEventListener('click', resetAll);
   if ($('ls-clear')) $('ls-clear').addEventListener('click', resetAll);
+
+  // ลิงก์ในบล็อกท้ายหน้า = ค้นใหม่ด้วยเงื่อนไขนั้นตัวเดียว · กรองในหน้าทันทีไม่โหลดหน้าใหม่
+  // (href ยังเป็นที่อยู่จริง — เปิดแท็บใหม่/บอต/JS พังก็ยังได้ผลเดียวกันผ่าน applyUrl)
+  if ($('ls-seo-live')) $('ls-seo-live').addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-ls-seo]');
+    if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button > 0 || !window.history || !history.replaceState) return;
+    e.preventDefault();
+    resetAll();
+    history.replaceState(null, '', location.pathname + a.search);
+    applyUrl();
+    render();
+    trackFilter();
+    // เลื่อนกลับไปแถวค้นหา — เว้นที่ให้หัวเว็บแบบติดหนึบ (scrollIntoView จะพาไปซ่อนใต้หัวเว็บ)
+    var top = $('ls-qform') || $('listing-grid');
+    if (top) window.scrollTo({ top: Math.max(0, top.getBoundingClientRect().top + window.pageYOffset - 88) });
+  });
 
   // ---------- สวิตช์รายการ/แผนที่ ----------
   if ($('ls-view')) $('ls-view').addEventListener('click', function () {

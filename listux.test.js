@@ -188,5 +188,31 @@ ok('ไม่ได้มาจากหน้ารวมประกาศ = �
 r = runWanted('?from=listings&zone=yellow', { value: 'ข้อความที่ผู้ใช้พิมพ์เอง' });
 ok('ไม่ทับหมายเหตุที่ผู้ใช้พิมพ์ไว้แล้ว', val(r, 'note') === 'ข้อความที่ผู้ใช้พิมพ์เอง');
 
+console.log('\n6) บล็อกลิงก์ค้นหาท้ายหน้า (SEO)');
+const seoHtml = (html.match(/<section class="ls-seo"[\s\S]*?<\/section>/) || [''])[0];
+ok('มีบล็อกท้ายหน้า + หัวข้อ h2', /<h2 id="ls-seo-h">/.test(seoHtml));
+ok('⭐ ส่วนข้อมูลสดซ่อนไว้จนกว่าจะมีแปลงจริง', /<div class="ls-seo-live" id="ls-seo-live" hidden><\/div>/.test(seoHtml));
+const hubLinks = (seoHtml.match(/href="([^"]+)"/g) || []).map(h => h.slice(6, -1));
+ok('ลิงก์หน้าหลักเขียนใน HTML (บอตอ่านได้ไม่ต้องรัน JS) ≥ 10 ลิงก์', hubLinks.length >= 10, hubLinks.length);
+hubLinks.forEach(h => {
+  const file = h.split('#')[0];
+  const src = fs.existsSync(path.join(__dirname, file)) ? read(file) : '';
+  ok('ลิงก์ ' + h + ' ชี้หน้าที่มีจริงและไม่ noindex', !!src && !/name="robots"[^>]*noindex/.test(src));
+  const anchor = h.split('#')[1];
+  if (anchor) ok('  จุดยึด #' + anchor + ' มีจริง', src.indexOf('id="' + anchor + '"') >= 0);
+});
+ok('⭐ ไม่พิมพ์รายชื่อจังหวัดลง HTML', !/(นนทบุรี|กรุงเทพมหานคร|สมุทรปราการ|ชลบุรี)/.test(seoHtml));
+const seoSrc = code.slice(code.indexOf('function seoGroups'), code.indexOf('function load()'));
+ok('⭐ ไม่ลิงก์หน้าพื้นที่ (locations/) จากรายชื่อนี้ — หน้าพื้นที่เกิดจากแอดมินเผยแพร่', !/locations\//.test(seoHtml) && !/locations\//.test(seoSrc));
+ok('สร้างกลุ่มจากแปลงจริง (state.listings) พร้อมจำนวน', /state\.listings\.forEach/.test(seoSrc) && /ls-seo-n/.test(seoSrc));
+ok('ช่องว่างไม่นับ (จังหวัด/อำเภอ/ประเภท/ผังสี)', /if \(L\.province\)/.test(seoSrc) && /if \(L\.amphoe\)/.test(seoSrc) &&
+  /if \(L\.propertyType\)/.test(seoSrc) && /if \(L\.zoneColor && ZONE_TH\[L\.zoneColor\]\)/.test(seoSrc));
+ok('ไม่มีกลุ่ม = ซ่อนทั้งส่วน', /box\.hidden = !groups\.length/.test(seoSrc));
+ok('ลิงก์ "ให้เช่า" ขึ้นเฉพาะเมื่อมีประกาศเช่าจริง', /if \(types\.rent\)/.test(seoSrc));
+ok('ข้อความ/ลิงก์ผ่าน esc', /NJL\.esc\(it\.text\)/.test(seoSrc) && /NJL\.esc\(it\.href\)/.test(seoSrc));
+ok('เทียบ HTML เดิมก่อนเขียน', /if \(box\.innerHTML !== html\)/.test(seoSrc));
+ok('คลิก = กรองในหน้า แต่ href ยังเป็นที่อยู่จริง (เปิดแท็บใหม่ได้)', /a\[data-ls-seo\]/.test(code) && /e\.ctrlKey \|\| e\.metaKey/.test(code));
+ok('สไตล์มีกฎ [hidden] ของส่วนสด', /\.ls-seo-live\[hidden\] \{ display: none !important; \}/.test(css));
+
 console.log('\n' + (fail ? '❌' : '✅') + ' listux: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
