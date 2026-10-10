@@ -165,5 +165,25 @@ console.log('\n8) ⭐ คอนโด (2026-10-10): ที่อยู่หน�
      /pricePerSqm\) > 0\) add\('ราคาต่อตารางเมตร \(คิดจากขนาดห้องที่เจ้าของแจ้ง\)'/.test(gen2));
 }
 
+console.log('\n9) ⭐ รีสอร์ท/โรงแรม (2026-10-10): ที่อยู่หน้าแปลงใช้ชื่อสั้นของตัวเอง ไม่ปนกับคอนโด/ทรัพย์');
+{
+  const VOCAB = (function () {
+    const sb = { window: {} };
+    require('vm').createContext(sb);
+    require('vm').runInContext(read('landvocab.js'), sb, { filename: 'landvocab.js' });
+    return sb.window.NJVocab;
+  })();
+  const resort = { id: 'OP-910', land: { propertyType: 'resort', province: 'ชลบุรี', amphoe: 'บางละมุง' } };
+  const hotel = { id: 'OP-911', type: 'rent', land: { propertyType: 'hotel', province: 'ชลบุรี', amphoe: 'บางละมุง' } };
+  ok('รีสอร์ทเข้าที่อยู่เป็น /properties/รีสอร์ท/…', META.pagePath(resort, VOCAB) === 'properties/รีสอร์ท/ชลบุรี/บางละมุง/OP-910/', META.pagePath(resort, VOCAB));
+  ok('โรงแรมเข้าที่อยู่เป็น /properties/โรงแรม/…', META.pagePath(hotel, VOCAB) === 'properties/โรงแรม/ชลบุรี/บางละมุง/OP-911/', META.pagePath(hotel, VOCAB));
+  ok('ชื่อหน้าบอกประเภท (ขายรีสอร์ท / ให้เช่าโรงแรม) ไม่ขึ้นเป็นที่ดินเปล่า',
+     /ขายรีสอร์ท/.test(META.titleOf(resort, VOCAB)) && /ให้เช่าโรงแรม/.test(META.titleOf(hotel, VOCAB)) && !/ที่ดินเปล่า/.test(META.titleOf(resort, VOCAB)),
+     META.titleOf(resort, VOCAB) + ' | ' + META.titleOf(hotel, VOCAB));
+  ok('ไม่ตั้งประเภทยังเป็น /properties/ทรัพย์/… (ไม่เดาเป็นรีสอร์ท)', META.pagePath({ id: 'OP-912', land: { province: 'ชลบุรี', amphoe: 'บางละมุง' } }, VOCAB) === 'properties/ทรัพย์/ชลบุรี/บางละมุง/OP-912/');
+  ok('ชื่อประเภททั้งหมดไม่ซ้ำกัน (กันที่อยู่หน้าแปลงชนกัน)',
+     (function () { const v = Object.keys(VOCAB.PROPERTY_TH).map(function (k) { return VOCAB.PROPERTY_TH[k]; }); return v.length === new Set(v).size; })());
+}
+
 console.log('\n' + (fail ? '❌' : '✅') + ' propurl: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
