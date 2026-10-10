@@ -224,5 +224,25 @@ ok('เรียกเครือข่ายที่เดียวคือ�
 ok('ประเภทห้องชุดไม่ปนในรายการประมาณสิ่งปลูกสร้างของ valuecalc (build:false)', global.window.NJFeeCalc.TYPES.condounit.build === false);
 ok('คงประเภท condo เดิม (อาคารอยู่อาศัยรวม) ไว้ ไม่เปลี่ยนความหมาย', global.window.NJFeeCalc.TYPES.condo.build === true && global.window.NJFeeCalc.TYPES.condo.code === '520/1');
 
+console.log('เคส 24 — ⭐ ราคาประเมินที่ทีมงานตรวจ (แปลงที่ทีมบันทึกค่า · ทาง ก · 10 ต.ค. 2569)');
+let tA = calc({ propertyType:'land', salePrice:8000000, landAppraisal:'5,000,000', landFromTeam:'5000000', sellerType:'person', years:6 });
+ok('ใช้ราคาประเมินจากทีม = ไม่ติดธง assumed', tA.assumed === false);
+ok('ติดธง teamAppraisal เมื่อช่องยังเป็นตัวเลขของทีม', tA.teamAppraisal === true);
+eq('ค่าธรรมเนียมโอน 2% ของราคาประเมิน 5,000,000 (ไม่ใช่ของราคาขาย)', row(tA,'transfer').v, 100000);
+tA = calc({ propertyType:'land', salePrice:8000000, landAppraisal:'4,000,000', landFromTeam:'5000000', sellerType:'person', years:6 });
+ok('แก้ตัวเลขเองแล้ว ธง teamAppraisal ต้องหาย', tA.teamAppraisal === false);
+eq('คิดจากตัวเลขที่ผู้ใช้แก้', row(tA,'transfer').v, 80000);
+tA = calc({ propertyType:'land', salePrice:8000000, landAppraisal:'', landFromTeam:'5000000', sellerType:'person', years:6 });
+ok('ลบช่องทิ้ง = กลับเป็น assumed ตามเดิม ไม่มีธงทีม', tA.assumed === true && !tA.teamAppraisal);
+const tNo = calc({ propertyType:'land', salePrice:8000000, sellerType:'person', years:6 });
+ok('ไม่มีราคาจากทีม = assumed และไม่มีธงทีม', tNo.assumed === true && !tNo.teamAppraisal);
+ok('ส่ง landFromTeam ว่าง = แถวผลลัพธ์เท่าแบบไม่มีช่องนี้',
+  JSON.stringify(calc({ propertyType:'land', salePrice:10000000, landAppraisal:4000000, sellerType:'person', years:6 }).rows) ===
+  JSON.stringify(calc({ propertyType:'land', salePrice:10000000, landAppraisal:4000000, landFromTeam:'', sellerType:'person', years:6 }).rows));
+tA = calc({ propertyType:'condounit', salePrice:3200000, landAppraisal:5000000, landFromTeam:5000000, sellerType:'person', years:6 });
+ok('ห้องชุดไม่ใช้ราคาประเมินที่ดินจากทีม', !tA.teamAppraisal);
+ok('mount เติมช่องราคาประเมินจาก opts.teamAppraisal เท่านั้น', /o\.teamAppraisal/.test(fcSrc));
+ok('ข้อความแหล่งที่มา/รอบบัญชีจาก API ถูก escape ก่อนลง HTML', /esc\(team\.source/.test(fcSrc) && /esc\(team\.cycle\)/.test(fcSrc));
+
 console.log('\n' + (fail ? '✗ ไม่ผ่าน ' + fail + ' ข้อ · ผ่าน ' + pass : '✓ ผ่านทั้งหมด ' + pass + ' ข้อ'));
 process.exit(fail ? 1 : 0);

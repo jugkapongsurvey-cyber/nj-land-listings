@@ -898,5 +898,42 @@ console.log('\nแหล่งความจริงเดียวต่อ�
   check('⭐ รูปแบบ "เนื้อที่วัดจริงต้องเป็นตัวเลขเนื้อที่" ตรงกันทั้งสองฝั่ง', diff.length === 0, diff.join(' · '));
 })();
 
+// ---------- ราคาประเมินราชการต่อแปลง (ทาง ก · ทุกแปลงที่ทีมบันทึกค่า · 10 ต.ค. 2569) ----------
+(function () {
+  console.log('\nราคาประเมินราชการ (ช่อง appraisal ของประกาศ)');
+  const libP = path.join(SRV, 'lib', 'appraisal.js');
+  if (!fs.existsSync(libP)) { console.log('  ข้าม — ระบบสาขานี้ยังไม่มี lib/appraisal.js'); return; }
+  const lib = read(libP);
+  const land = read(path.join(WEB, 'land.js'));
+  const fc = read(path.join(WEB, 'feecalc.js'));
+  // คีย์ที่ publicView ส่งออก (whitelist ฝั่งระบบ)
+  const pv = lib.slice(lib.indexOf('function publicView'));
+  const ret = pv.slice(pv.indexOf('return {'), pv.indexOf('};'));
+  const keys = (ret.match(/^\s*([a-zA-Z]+)\s*:/gm) || []).map(x => x.trim().replace(':', ''));
+  // คีย์ที่หน้าแปลงอ่านจากก้อน appraisal (a.xxx ในตัวช่วย + aprFee.xxx ตอนส่งให้เครื่องคิดค่าโอน)
+  const helpers = land.slice(land.indexOf('function apprOf'), land.indexOf('function featuresHtml'));
+  const used = new Set();
+  (helpers.match(/\ba\.([a-zA-Z]+)/g) || []).forEach(x => used.add(x.slice(2)));
+  (land.match(/\baprFee\.([a-zA-Z]+)/g) || []).forEach(x => used.add(x.split('.')[1]));
+  const missing = [...used].filter(k => keys.indexOf(k) < 0);
+  check('⭐ ทุกคีย์ที่ land.js อ่าน มีอยู่ใน publicView ของระบบ (' + [...used].join(',') + ')', used.size > 0 && missing.length === 0, missing.join(','));
+  check('publicView ส่งครบ 8 คีย์ (perWa total totalWa cycle source checkedAt lookupUrl disclaim)',
+    ['perWa', 'total', 'totalWa', 'cycle', 'source', 'checkedAt', 'lookupUrl', 'disclaim'].every(k => keys.indexOf(k) >= 0), keys.join(','));
+  check('publicView ไม่ส่งชื่อผู้บันทึก/ที่มา/หมายเหตุภายใน', !/\b(by|note|web|at|basis)\s*:/.test(ret));
+  check('ระบบไม่มีสวิตช์ยินยอมเหลือใน publicView (ทาง ก)', !/web\.on/.test(pv.slice(0, pv.indexOf('return {'))));
+  const lu = (lib.match(/LOOKUP_URL\s*=\s*'([^']+)'/) || [])[1] || '';
+  check('LOOKUP_URL ของระบบเป็น https', /^https:\/\//.test(lu), lu);
+  // หน้าแปลงอ่านช่องนี้ผ่าน apprOf ที่เดียว (ตัดคอมเมนต์ก่อนนับ)
+  const code = land.replace(/\/\/[^\n]*/g, '');
+  check('⭐ land.js อ่าน l.appraisal ผ่าน apprOf เท่านั้น', (code.match(/\.appraisal\b/g) || []).length === 1);
+  check('land.js กรองลิงก์ค้นซ้ำให้เป็น https ก่อนใส่ href', helpers.indexOf('^https:') >= 0 && helpers.indexOf('noopener noreferrer') >= 0);
+  check('land.js ไม่คูณยอดทั้งแปลงเอง (ใช้ total จากเซิร์ฟเวอร์)', !/perWa\)?\s*\*/.test(helpers));
+  // เครื่องคิดค่าโอน: เติมช่องราคาประเมินได้ทางเดียวคือ opts.teamAppraisal
+  const fcCode = fc.replace(/\/\/[^\n]*/g, '');
+  check('⭐ feecalc เติมราคาประเมินจาก o.teamAppraisal เท่านั้น', /o\.teamAppraisal/.test(fcCode) && !/landAppraisal[^\n]*o\.salePrice/.test(fcCode));
+  // ห้ามฝังตัวเลขราคาประเมิน/ที่อยู่ระบบของหน่วยงานไว้ในเว็บ (มาจาก API ที่เดียว)
+  check('หน้าแปลงไม่ฝังที่อยู่ระบบค้นราคาประเมิน (ใช้ lookupUrl ของ API)', !/assessprice/.test(land));
+})();
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
