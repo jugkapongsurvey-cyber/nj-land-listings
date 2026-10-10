@@ -29,6 +29,7 @@ function factsOf(html) {
   if (!m) return [];
   return (m[1].match(/<li class="card-ck[^"]*"[^>]*>[\s\S]*?<\/li>/g) || []).map(li => ({
     cls: (li.match(/class="([^"]*)"/) || [])[1] || '',
+    html: li,
     text: li.replace(/<[^>]+>/g, '').trim()
   }));
 }
@@ -145,7 +146,14 @@ ok('listingcard.css มี .card-checked + .card-ck สามสถานะ',
   /\.card-checked\{/.test(lc) && /\.card-ck\.is-ok\{/.test(lc) && /\.card-ck\.is-warn\{/.test(lc) && /\.card-ck\.is-bad\{/.test(lc));
 const mob = (lc.match(/@media \(max-width:767px\)\{[\s\S]*$/) || [''])[0];
 ok('⭐ มือถือไม่ซ่อนแถว card-checked ทั้งแถว', !/card-checked\s*\{[^}]*display:none/.test(mob));
-ok('⭐ มือถือ: แถวเดียว ซ่อนเฉพาะชิปที่ 3 ขึ้นไป (2 ชิปแรกสำคัญที่สุดยังเห็น)', /card-checked\{[^}]*flex-wrap:nowrap/.test(mob) && /card-checked > li:nth-child\(n\+3\)\{display:none\}/.test(mob) && !/nth-child\((1|2)\)[^{]*\{[^}]*display:none/.test(mob));
+ok('⭐ มือถือ: ชิปขึ้นได้ 2 บรรทัด (wrap + max-height) ไม่ใช่แถวเดียวที่ตัดกลางคำ', /\.is-compact \.card-checked\{[^}]*flex-wrap:wrap/.test(mob) && /\.is-compact \.card-checked\{[^}]*max-height:44px/.test(mob) && !/\.is-compact \.card-checked\{[^}]*nowrap/.test(mob));
+ok('⭐ มือถือ: ชิปไม่ถูกบีบ (flex-shrink 0) และซ่อนเฉพาะค่า .ck-v ไม่ซ่อนชิปทั้งใบตามลำดับ', /\.is-compact \.card-ck\{[^}]*flex:0 0 auto/.test(mob) && /\.is-compact \.card-ck \.ck-v\{display:none\}/.test(mob) && !/card-checked > li:nth-child/.test(mob));
+{
+  const h = (() => { const f = factsOf(cardOf({ health: { markerFound: 1, markerTotal: 10, access: 'servitude' } }, 2)); return f; })();
+  const acc = chip(h, 'ทางเข้าออก');
+  ok('ชิปสถานะแยกชื่อหัวข้อ (.ck-l) กับค่า (.ck-v) — มือถือเหลือ "✓ ทางเข้าออก"', !!acc && /class="ck-l">ทางเข้าออก</.test(acc.html || '') && /class="ck-v">/.test(acc.html || ''), acc && acc.html);
+}
+ok('ข้อความชิปอยู่ใน span ให้ … ทำงาน (inline-flex ตัดข้อความตรงไม่ได้)', /\.card-ck > span\{[^}]*text-overflow:ellipsis/.test(lc));
 ok('มือถือย่อชิปให้เล็กลง', /\.land-card\.is-compact \.card-ck/.test(lc));
 ok('njchat.css มีสไตล์ชิปของการ์ดในแชท', /\.njchat-cards \.card-checked\{/.test(read('njchat.css')));
 ok('ไม่ใช้ชื่อคลาส card-facts (ชนกับ marketplace.css รุ่นเก่า)', !/card-facts/.test(read('listingcard.js')));
