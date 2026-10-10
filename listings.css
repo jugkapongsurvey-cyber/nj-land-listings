@@ -283,6 +283,30 @@ html.ls-sheet-open #nj-consent { display: none; }
 }
 .lm-foot { margin: 8px 0 0; font-size: var(--nj-fs-xs); color: var(--nj-text-muted); line-height: 1.6; }
 
+/* ===== บล็อกลิงก์ค้นหาท้ายหน้า (10 ต.ค. 69 · แบบ DDproperty) ===== */
+.ls-seo { margin: 40px 0 0; padding: 24px 0 0; border-top: 1px solid var(--nj-border); }
+.ls-seo h2 { margin: 0 0 16px; font-size: var(--nj-fs-h4); font-weight: var(--nj-fw-bold); color: var(--nj-text-strong); line-height: 1.4; }
+.ls-seo-live, .ls-seo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 24px; }
+.ls-seo-live { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px dashed var(--nj-border); }
+.ls-seo-live[hidden] { display: none !important; }
+.ls-seo-col h3 { margin: 0 0 8px; font-size: var(--nj-fs-sm); font-weight: var(--nj-fw-semi); color: var(--nj-text-strong); }
+.ls-seo-col ul { list-style: none; margin: 0; padding: 0; }
+.ls-seo-col li { margin: 0; }
+.ls-seo-col a {
+  display: inline-block; padding: 5px 0; min-height: 32px; font-size: var(--nj-fs-sm); line-height: 1.55;
+  color: var(--nj-link); text-decoration: none;
+}
+.ls-seo-col a:hover { text-decoration: underline; }
+.ls-seo-col a:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+.ls-seo-n { color: var(--nj-text-muted); }
+@media (max-width: 1023px) { .ls-seo-live, .ls-seo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .ls-seo-live, .ls-seo-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .ls-seo { margin-top: 28px; }
+  /* ลิงก์ทำเล/ประเภทสั้น — เรียงต่อกันเป็นแถวแทนบรรทัดละลิงก์ ไม่ให้บล็อกยาวหลายจอบนมือถือ */
+  .ls-seo-live ul { display: flex; flex-wrap: wrap; gap: 0 16px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   body.ls-js .ls-filters, html.ls-sheet-open body.ls-js .ls-filters { transition: none; }
 }

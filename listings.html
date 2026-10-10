@@ -296,6 +296,55 @@
       <p class="ls-note ls-featured-note" id="featured-note" hidden></p>
       <div class="ls-map" id="ls-map" hidden></div>
       <div class="land-grid" id="listing-grid" aria-live="polite"><p class="ls-loading">กำลังโหลดประกาศ…</p></div>
+
+      <!-- ===== บล็อกลิงก์ค้นหาท้ายหน้า (10 ต.ค. 69 · แบบ DDproperty) =====
+           ⚠️ สองชั้น ห้ามรวมกัน:
+           1. "ค้นตามทำเล/ประเภท/ผังสี" (#ls-seo-live) — listings.js สร้างจากแปลงที่ประกาศอยู่จริงพร้อมจำนวน
+              ไม่มีแปลง/โหลดไม่สำเร็จ = ซ่อนทั้งกลุ่ม · ห้ามพิมพ์รายชื่อจังหวัดลง HTML (ลิงก์ไปผลว่าง = ดูเหมือนเว็บพัง)
+              ⛔ ห้ามสร้างหน้าจังหวัด/อำเภอจากรายชื่อนี้ — หน้าพื้นที่เกิดจากแอดมินกดเผยแพร่เท่านั้น (build/locations.js)
+           2. ลิงก์ไปหน้าที่มีอยู่จริงและเก็บดัชนีได้ — เขียนไว้ใน HTML ให้บอตอ่านได้โดยไม่ต้องรัน JS
+              เพิ่มลิงก์ใหม่ต้องเป็นหน้าที่ไม่ noindex · linkcheck ตรวจให้ว่าไฟล์/จุดยึดมีจริง -->
+      <section class="ls-seo" aria-labelledby="ls-seo-h">
+        <h2 id="ls-seo-h">ค้นหาที่ดินและทรัพย์ที่เกี่ยวข้อง</h2>
+        <div class="ls-seo-live" id="ls-seo-live" hidden></div>
+        <div class="ls-seo-grid">
+          <div class="ls-seo-col">
+            <h3>ค้นหาแบบอื่น</h3>
+            <ul>
+              <li><a href="purpose.html">ค้นที่ดินตามวัตถุประสงค์ — สร้างบ้าน โกดัง โรงงาน เกษตร</a></li>
+              <li><a href="agency.html">ทรัพย์บังคับคดี ธนาคาร BAM SAM — ส่งลิงก์ให้ทีมตรวจ</a></li>
+              <li><a href="wanted.html">ฝากหาที่ดิน — บอกโจทย์ให้ทีมช่างรังวัดหาให้</a></li>
+            </ul>
+          </div>
+          <div class="ls-seo-col">
+            <h3>ตรวจก่อนซื้อ</h3>
+            <ul>
+              <li><a href="checklist.html">เช็กลิสต์ตรวจที่ดินก่อนซื้อ 16 ข้อ</a></li>
+              <li><a href="checklist-condo.html">เช็กลิสต์ตรวจห้องชุดก่อนซื้อ 14 ข้อ</a></li>
+              <li><a href="verify.html">ส่งทรัพย์ให้ตรวจเอกสารและแนวเขตก่อนซื้อ</a></li>
+              <li><a href="inspect.html">นัดช่างรังวัดไปดูแปลงก่อนตัดสินใจ</a></li>
+            </ul>
+          </div>
+          <div class="ls-seo-col">
+            <h3>คำนวณและความรู้</h3>
+            <ul>
+              <li><a href="tools.html#fee">คำนวณค่าโอนและภาษีวันโอนที่ดิน</a></li>
+              <li><a href="tools.html#loan">คำนวณค่างวดสินเชื่อบ้านและที่ดิน</a></li>
+              <li><a href="tools.html#zoning">ผังสีผังเมืองรวม แต่ละสีสร้างอะไรได้</a></li>
+              <li><a href="guides.html#deed">โฉนด น.ส.3ก น.ส.3 ต่างกันอย่างไร</a></li>
+              <li><a href="knowledge.html">บทความความรู้ที่ดินจากทีมช่างรังวัด</a></li>
+            </ul>
+          </div>
+          <div class="ls-seo-col">
+            <h3>มีที่ดินจะขาย</h3>
+            <ul>
+              <li><a href="consign.html">ฝากขายที่ดิน ลงประกาศฟรี</a></li>
+              <li><a href="packages.html">แพ็กเกจตรวจสอบและเตรียมขายที่ดิน</a></li>
+              <li><a href="journal.html">วารสารที่ดินชัวร์ — ข่าวที่ดินและกฎหมายรายสัปดาห์</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </section>
 </main>
 <footer id="contact"><div class="shell footer-grid"><div><a class="logo footer-logo" href="index.html"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a><p>แพลตฟอร์มซื้อขายที่ดินโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</p></div><div><b>ค้นหาที่ดิน</b><a href="listings.html">ประกาศทั้งหมด</a><a href="purpose.html">ค้นตามวัตถุประสงค์</a><a href="index.html#ทีมเรา">ทีมเรา</a></div><div><b>บริการ</b><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ฝากขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a><a href="videos.html">วิดีโอให้ความรู้</a></div><div><b>ติดต่อทีมงาน</b><a href="tel:021620405">02-162-0405</a><a href="tel:0849158601">084-915-8601</a><a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener">LINE @716lffzt</a><a href="https://m.me/NJTeeDinSure" target="_blank" rel="noopener" data-contact="messenger">Messenger</a><span>จ.–ส. 08:30–17:30 น.</span></div></div><div class="shell footer-bottom"><span>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด</span><span>สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</span></div>  <nav class="nj-legal" aria-label="นโยบายและข้อกำหนด">
