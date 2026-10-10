@@ -120,6 +120,7 @@
 .card-ck{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:3px 8px;border-radius:6px;
   background:#f2f6fb;color:#4a5568;font-size:12px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-ck i{font-style:normal;font-weight:700}
+.card-ck > span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .card-ck.is-ok{background:#e8f7ee;color:#166534}
 .card-ck.is-warn{background:#fff4e5;color:#92400e}
 .card-ck.is-bad{background:#fdecec;color:#991b1b}
@@ -214,10 +215,13 @@
      ชื่อระดับ 2 ยาว จึงย่อตัวอักษรและให้ขึ้นบรรทัดใหม่ในช่องข้อความ ⚠️ ห้ามกลับไปซ่อน .card-marks */
   .land-card.is-compact .card-marks{margin-top:2px}
   /* แถวข้อมูลที่ตรวจแล้วบนการ์ดแนวนอน — ตัวเล็กลง · ช่องไฟแคบลง ให้การ์ดไม่สูงขึ้นมาก */
-  /* การ์ดแนวนอนบนมือถือ: แถวเดียว 2 ชิปแรก (เรียงตามความสำคัญแล้ว) — กันการ์ดสูงขึ้น · ชิปที่เหลือดูได้ในหน้าแปลง */
-  .land-card.is-compact .card-checked{gap:4px;margin-top:1px;flex-wrap:nowrap;overflow:hidden}
-  .land-card.is-compact .card-checked > li:nth-child(n+3){display:none}
-  .land-card.is-compact .card-ck{flex:0 1 auto;min-width:0}
+  /* การ์ดแนวนอนบนมือถือ (แก้ 10 ต.ค. 69 · เดิมแถวเดียวแล้วชิปถูกตัดกลางคำ):
+     · ซ่อนค่า (.ck-v) เหลือ "✓ ทางเข้าออก" / "✕ หมุดหลักเขต" — สถานะยังบอกด้วยไอคอน · รายละเอียดอยู่ใน title และหน้าแปลง
+     · ชิปขึ้นได้ไม่เกิน 2 บรรทัด (max-height) · ชิปที่ล้นบรรทัดที่ 3 ถูกซ่อนทั้งใบ ไม่ตัดกลางคำ
+     · ลำดับความสำคัญเดิม (สูงสุด 4 ชิป) · ⚠️ ห้ามกลับไปใช้ flex-wrap:nowrap + overflow ที่ตัดชิปครึ่งใบ */
+  .land-card.is-compact .card-checked{gap:4px;margin-top:1px;flex-wrap:wrap;overflow:hidden;max-height:44px}
+  .land-card.is-compact .card-ck{flex:0 0 auto;max-width:100%;line-height:16px;height:20px}
+  .land-card.is-compact .card-ck .ck-v{display:none}
   .land-card.is-compact .card-ck.card-ck-zone{padding:0}
   .land-card.is-compact .card-ck,
   .land-card.is-compact .card-checked .card-zone{font-size:10.5px;padding:2px 6px}

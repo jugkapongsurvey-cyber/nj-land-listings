@@ -154,7 +154,10 @@
   }
   function ckState(state, label, value) {
     // ไอคอนกำกับทุกสถานะ — ห้ามบอกด้วยสีอย่างเดียว
-    return ckLi('is-' + state, '<i aria-hidden="true">' + CK_ICON[state] + '</i>' + esc(label + (value ? ' ' + value : '')),
+    // ค่า (.ck-v) แยกจากชื่อหัวข้อ — การ์ดแนวนอนบนมือถือซ่อนค่า เหลือ "✓ ทางเข้าออก" ไม่ให้ชิปถูกตัดกลางคำ
+    // รายละเอียดเต็มอยู่ใน title และหน้าแปลง
+    return ckLi('is-' + state, '<i aria-hidden="true">' + CK_ICON[state] + '</i><span class="ck-l">' + esc(label) + '</span>' +
+      (value ? '<span class="ck-v"> ' + esc(value) + '</span>' : ''),
       label + (value ? ' ' + value : '') + ' (ข้อมูลจากทีมงาน)');
   }
   var CK_WORD = { ok: 'ตรวจแล้ว', warn: 'ต้องตรวจเพิ่ม', bad: 'ต้องตรวจเพิ่ม' };
@@ -180,12 +183,12 @@
     var zone = zoneChip(L.zoneColor);
     if (zone) out.push(ckLi('card-ck-zone', zone));
     var fm = H && H.frontageM ? H.frontageM(L) : null;
-    if (fm) out.push(ckLi('', esc('หน้ากว้าง ≈ ' + num(fm) + ' ม.'), 'หน้ากว้างโดยประมาณจากทีมงาน ไม่ใช่ค่ารังวัด'));
+    if (fm) out.push(ckLi('', '<span>' + esc('หน้ากว้าง ≈ ' + num(fm) + ' ม.') + '</span>', 'หน้ากว้างโดยประมาณจากทีมงาน ไม่ใช่ค่ารังวัด'));
     if (L.roadSurface && V.ROAD_TH && V.ROAD_TH[L.roadSurface]) {
       if (L.roadSurface === 'none') out.push(ckState('bad', V.ROAD_TH.none, ''));
-      else out.push(ckLi('', esc('ถนน' + V.ROAD_TH[L.roadSurface] + (Number(L.roadLanes) > 0 ? ' ' + Number(L.roadLanes) + ' เลน' : ''))));
+      else out.push(ckLi('', '<span>' + esc('ถนน' + V.ROAD_TH[L.roadSurface] + (Number(L.roadLanes) > 0 ? ' ' + Number(L.roadLanes) + ' เลน' : '')) + '</span>'));
     }
-    if (L.deedType && V.DEED_TH && V.DEED_TH[L.deedType]) out.push(ckLi('', esc(V.DEED_TH[L.deedType])));
+    if (L.deedType && V.DEED_TH && V.DEED_TH[L.deedType]) out.push(ckLi('', '<span>' + esc(V.DEED_TH[L.deedType]) + '</span>'));
     if (!out.length) return '';
     return '<ul class="card-checked" aria-label="ข้อมูลที่ทีมงานตรวจหรือบันทึกแล้ว">' + out.slice(0, CK_MAX).join('') + '</ul>';
   }

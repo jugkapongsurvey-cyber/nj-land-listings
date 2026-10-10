@@ -238,6 +238,7 @@
 .njchat-cards .card-checked{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 0;padding:0;list-style:none}
 .njchat-cards .card-ck{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:2px 7px;border-radius:6px;background:#f2f6fb;color:#4a5568;font-size:11.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .njchat-cards .card-ck i{font-style:normal;font-weight:700}
+.njchat-cards .card-ck > span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .njchat-cards .card-ck.is-ok{background:#e8f7ee;color:#166534}
 .njchat-cards .card-ck.is-warn{background:#fff4e5;color:#92400e}
 .njchat-cards .card-ck.is-bad{background:#fdecec;color:#991b1b}
