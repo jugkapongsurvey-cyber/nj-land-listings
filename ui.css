@@ -766,7 +766,7 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
    · ล็อกเฉพาะ .page-consign — หน้าฝากหา (.page-wanted) พึ่ง align-items:center ดันข้อความ
      ให้พ้นภาพแบนเนอร์ absolute ด้านบน ห้ามเอากฎนี้ไปใช้รวม
    · min-height:720px — จอเตี้ยกว่านี้ข้อความทั้งก้อนสูงเกินจอ ตรึงไว้จะมองไม่เห็นท้ายก้อน
-     (ตัวเลข 12+ ปี ฯลฯ) จึงปล่อยให้เลื่อนตามปกติ แต่ยังชิดบนเหมือนกัน */
+     (ตัวเลข 10 ปี ฯลฯ) จึงปล่อยให้เลื่อนตามปกติ แต่ยังชิดบนเหมือนกัน */
 @media (min-width:900px){
   .page-consign .cs-hero-copy{align-self:start}
 }
