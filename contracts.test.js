@@ -867,5 +867,36 @@ console.log('\nรูปแบบบริการ A/B/C รอบ 3ค — ป
   check('⭐ ป้ายไม่ใช้ถ้อยคำรับรอง/การันตี', insSrc.length > 100 && !/รับรอง|การันตี|รับประกัน/.test(insSrc));
 })();
 
+// ---------------------------------------------------------------------------
+console.log('\nแหล่งความจริงเดียวต่อหัวข้อ — ตัวนับ "ตรวจแล้ว N จาก 7" ของระบบ = หัวข้อที่หน้าแปลงแสดงว่าตรวจแล้ว (10 ต.ค. 2569)');
+// เจอจริงบน OP-102: แผงผลตรวจกับรายงานสุขภาพขัดกันเอง · หน้าแปลงแก้ด้วย NJHealth.topic()
+// การ์ดอ่านจำนวนจาก inspectedOf() ของระบบ → ต้องนับด้วยกติกาเดียวกัน ไม่งั้นการ์ดกับหน้าแปลงบอกคนละเลข
+(function () {
+  const lvPath = path.join(SRV, 'lib', 'landverify.js');
+  const LV = fs.existsSync(lvPath) ? require(lvPath) : null;
+  if (!LV || typeof LV.checksDoneOf !== 'function') { console.log('  ข้าม — ฝั่งระบบยังไม่มี landverify.checksDoneOf (deploy ระบบก่อนเว็บ)'); return; }
+  const vm = require('vm');
+  const sb = { window: {}, document: { querySelector: () => null, querySelectorAll: () => [] } };
+  sb.window.document = sb.document;
+  vm.createContext(sb);
+  ['landvocab.js', 'verified.js', 'health.js'].forEach(f => vm.runInContext(read(path.join(WEB, f)), sb, { filename: f }));
+  const H = sb.window.NJHealth;
+  const { FIX } = require(path.join(WEB, 'landconsist.fixtures.js'));
+  const KEYS = ['area', 'markers', 'access', 'servitude', 'seizure', 'tax', 'mortgage'];
+  Object.keys(FIX).forEach(id => {
+    const L = FIX[id];
+    const web = KEYS.filter(k => H.topic(L, k).state !== 'none').length;
+    const srvN = LV.checksDoneOf(L);
+    check('⭐ ' + id + ' นับตรงกัน (เว็บ ' + web + ' · ระบบ ' + srvN + ')', web === srvN);
+  });
+  const HL = { health: { markerFound: 0, markerTotal: 3, access: 'none' } };
+  check('ช่องโครงสร้างของรายงานสุขภาพนับเหมือนกัน (หมุด/ทางเข้าออก)',
+    KEYS.filter(k => H.topic(HL, k).state !== 'none').length === LV.checksDoneOf(HL));
+  const samples = ['6-1-20', '0-2-50 ไร่', '250 ตร.ว.', '250ตร.ว', '33.9 ตารางวา', '2 ไร่', '1,600 ตร.ม.', '400 ตารางเมตร',
+    '250', 'รังวัดก่อนซื้อ-ขาย', 'ผ่านการตรวจสอบเเล้ว', '6/6', '', 'ประมาณ 2 ไร่'];
+  const diff = samples.filter(v => H.isAreaValue(v) !== LV.isAreaValue(v));
+  check('⭐ รูปแบบ "เนื้อที่วัดจริงต้องเป็นตัวเลขเนื้อที่" ตรงกันทั้งสองฝั่ง', diff.length === 0, diff.join(' · '));
+})();
+
 console.log('\n' + (fail ? 'FAIL ' + fail + ' ข้อ · ' : '') + '✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

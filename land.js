@@ -280,6 +280,11 @@
     return p.join(' ');
   }
 
+  // เนื้อที่วัดจริงที่แสดงเป็นตัวเลขได้ — ต้องผ่าน NJHealth.measuredArea ที่เดียว (health.js · แหล่งความจริงเดียวต่อหัวข้อ)
+  // ⚠️ ห้ามกลับไปอ่าน L.checks.area.value ตรงๆ — ทีมเคยพิมพ์ชื่อบริการ "รังวัดก่อนซื้อ-ขาย" ลงช่องนี้ (OP-102 · OP-024)
+  //    แล้วมันขึ้นใต้ราคาเป็น "เนื้อที่วัดจริง" · ไม่มี health.js = ไม่แสดงเนื้อที่วัดจริงเลย (ไม่เดา)
+  function measuredArea(L){ return window.NJHealth&&NJHealth.measuredArea ? NJHealth.measuredArea(L) : ''; }
+
   // ---------- รายละเอียดทรัพย์จากเจ้าของ (`l.specs` · 2026-09-27) ----------
   // ⚠️ **ข้อมูลที่เจ้าของกรอกตอนฝากขาย ทีมยังไม่ได้ตรวจ** — ต้องติดป้ายบอกทุกที่ที่แสดง
   //    ห้ามแสดงปนกับผลตรวจของช่าง และห้ามใช้ตัดสินป้ายเหลือง/เขียว (กติกาข้อ 10)
@@ -313,8 +318,8 @@
   // ⚠️ แสดงเฉพาะช่องที่มีค่าจริง · มีค่าจากเจ้าของปนอยู่ = ต้องมีบรรทัดบอกที่มาใต้แถบเสมอ
   function statsHtml(l, L, tier){
     var out=[], owner=false;
-    var measured=tier===2 && L.checks && L.checks.area && L.checks.area.value;
-    if(measured) out.push(['area', areaTh(L.checks.area.value), 'เนื้อที่วัดจริง']);
+    var measured=tier===2 && measuredArea(L);
+    if(measured) out.push(['area', areaTh(measured), 'เนื้อที่วัดจริง']);
     else if(L.deedArea) out.push(['area', areaTh(L.deedArea), 'เนื้อที่ตามโฉนด']);
     var size=specOf(l,'usableSqm')||specOf(l,'roomSqm')||specOf(l,'buildingSqm');
     if(size){ out.push(['usable', size.text, size.th]); owner=true; }
@@ -339,8 +344,8 @@
     var V=vocab(), team=[];
     var PT=V.PROPERTY_TH||{};
     if(L.propertyType&&PT[L.propertyType]) team.push(['ประเภททรัพย์', PT[L.propertyType]+(Number(L.floors)>0?' · '+L.floors+' ชั้น':'')]);
-    var measured=tier===2 && L.checks && L.checks.area && L.checks.area.value;
-    if(measured) team.push(['เนื้อที่วัดจริง', areaTh(L.checks.area.value)]);
+    var measured=tier===2 && measuredArea(L);
+    if(measured) team.push(['เนื้อที่วัดจริง', areaTh(measured)]);
     if(L.deedArea) team.push(['เนื้อที่ตามโฉนด', areaTh(L.deedArea)]);
     if(Number(l.totalWa)>0) team.push(['เนื้อที่รวม', Number(l.totalWa).toLocaleString('th-TH')+' ตร.ว.']);
     if(L.frontage) team.push(['หน้ากว้างโดยประมาณ', L.frontage]);
@@ -400,22 +405,28 @@
     '</details>';
   }
 
+  // ⚠️ ทุกแถวผ่าน NJHealth.topic() — ตัวเดียวกับรายงานสุขภาพแปลง (health.js) สองแผงจึงไม่ขัดกันเอง
+  //    (เคยขัดจริงบน OP-102: แผงนี้ "ยังไม่ได้ตรวจหมุด" แต่รายงานสุขภาพ "พบ 1 จาก 10 หมุด")
+  //    · สถานะว่าง = ยังไม่ได้ตรวจ → ขีด "—" ไม่มีค่า ไม่มีหมายเหตุ แม้ทีมพิมพ์อะไรไว้ (กติกาข้อ 2 ด้านบน)
+  //    · ข้อความอธิบายมาตรฐาน (hint) ขึ้นเฉพาะแถวที่มาจากรายงานสุขภาพหรือสองแหล่งขัดกัน — แปลงที่มีแค่ checks หน้าตาเดิม
   function tier2Html(L){
+    if(!window.NJHealth||!NJHealth.topic) return '';
+    var done=0;
     var rows=CHECKS.map(function(c){
-      var x=(L.checks||{})[c.k]||{};
-      var st=x.status||'';
+      var t=NJHealth.topic(L,c.k), st=t.state;
+      if(st!=='none') done++;
       var ico = st==='ok'   ? '<span class="ld-ico ok">✓</span>'
-              : st==='warn' ? '<span class="ld-ico warn">!</span>'
-              :               '<span class="ld-ico none">—</span>';
-      var note = x.note ? '<span>'+esc(x.note)+'</span>'
-               : (!st ? '<span>ยังไม่ได้ตรวจหัวข้อนี้</span>' : '');
-      var val = x.value ? '<span class="ld-val">'+esc(x.value)+'</span>' : '';
-      return '<div class="ld-crow'+(st?'':' dim')+'">'+ico+'<div><b>'+esc(c.t)+'</b>'+note+'</div>'+val+'</div>';
+              : st==='none' ? '<span class="ld-ico none">—</span>'
+              :               '<span class="ld-ico warn">!</span>';
+      var txt = st==='none' ? 'ยังไม่ได้ตรวจหัวข้อนี้'
+              : (t.note || ((t.src==='health'||t.conflict) ? t.hint : ''));
+      var note = txt ? '<span>'+esc(txt)+'</span>' : '';
+      var val = t.value ? '<span class="ld-val">'+esc(t.value)+'</span>' : '';
+      return '<div class="ld-crow'+(st==='none'?' dim':'')+'">'+ico+'<div><b>'+esc(c.t)+'</b>'+note+'</div>'+val+'</div>';
     }).join('');
     var when=thaiDate(L.verifiedAt);
     var by=L.verifiedBy?(' โดย '+esc(L.verifiedBy)):'';
     // สรุปตรวจแล้ว/ยังไม่ตรวจ — บอกตรงๆ ว่ายังเหลือหัวข้อไหน (ยังไม่ตรวจ ≠ ไม่มีปัญหา)
-    var chk=L.checks||{}, done=CHECKS.filter(function(c){ return (chk[c.k]||{}).status; }).length;
     var sum='<p class="ld-tier-sum">ตรวจแล้ว <b>'+done+'</b> จาก '+CHECKS.length+' หัวข้อ'+
       (done<CHECKS.length?' · ยังไม่ตรวจ '+(CHECKS.length-done)+' หัวข้อ (ยังไม่ตรวจ ไม่ได้แปลว่าไม่มีประเด็น)':'')+'</p>';
     return '<section class="ld-tier t2">'+

@@ -31,12 +31,118 @@
     return { label: label, state: state, value: value || '', note: note || '' };
   }
   var GREY_NOTE = 'ยังไม่มีข้อมูลในระบบ — ไม่ได้แปลว่าไม่มี ทักไลน์ขอให้ทีมงานตรวจเพิ่มได้';
+  var AREA_NONE = 'ยังไม่มีผลรังวัดในระบบ — เนื้อที่จริงอาจต่างจากหน้าเอกสาร ตรวจได้ด้วยการรังวัดสอบเขต';
+
+  /* ---------- แหล่งความจริงเดียวต่อหัวข้อ (10 ต.ค. 2569) ----------
+     หน้าแปลงมีสองแผงที่พูดเรื่องเดียวกัน 3 หัวข้อ — แผงผลตรวจ 7 หัวข้อ (land.js tier2Html อ่าน `checks`)
+     กับตารางนี้ (อ่าน `health` ก่อน) · เดิมต่างคนต่างอ่าน จึงขัดกันเองบนหน้าเดียว (เจอจริง OP-102:
+     ผลตรวจ "ยังไม่ได้ตรวจหมุด" แต่ตารางนี้ "พบ 1 จาก 10 หมุด" · ผลตรวจ "ทางเป็นที่สาธารณะ ✓"
+     แต่ตารางนี้ "ทางเข้าออกแบบอื่น · ต้องตรวจเพิ่ม")
+     ⚠️ **ทุกที่ที่แสดง เนื้อที่วัดจริง / หมุดหลักเขต / ทางเข้า–ออก ต้องผ่าน `topic()` เท่านั้น**
+        ห้ามกลับไปอ่าน L.checks.area/markers/access หรือ L.health ตรงๆ (verified.test.js ล็อกไว้)
+     กติกา
+       1. ช่องโครงสร้างของรายงานสุขภาพ (markerFound/markerTotal · access แบบเลือก) มาก่อนข้อความอิสระใน checks
+       2. checks ที่สถานะว่าง = "ยังไม่ได้ตรวจ" — **ไม่มีผล ไม่มีค่า ไม่มีหมายเหตุ** แม้ทีมพิมพ์อะไรไว้
+          (ค่าบนแถวที่ยังไม่ตรวจอ่านแล้วเหมือนผลตรวจ — OP-102/OP-024 มีชื่อบริการ "รังวัดก่อนซื้อ-ขาย" อยู่ในช่องค่า)
+       3. สองแหล่งขัดกัน = ใช้สถานะที่ระวังกว่า และไม่แสดงหมายเหตุของแหล่งที่ขัด · ห้ามเลือกข้างที่ดูดีกว่า
+       4. เนื้อที่วัดจริงต้องเป็นตัวเลขเนื้อที่ (ไร่-งาน-ตร.ว. หรือเลขพร้อมหน่วย) ไม่งั้นไม่แสดงเป็นค่าที่วัดได้
+          เลขเปล่าไม่มีหน่วยก็ไม่นับ — ห้ามเดาหน่วยแทนทีม
+     ผลลัพธ์ { state, value, note, hint, src, conflict }
+       note = ข้อความที่ทีมพิมพ์จริง (ผ่านกติกา 2–3 แล้ว) · hint = คำอธิบายมาตรฐานของสถานะนั้น
+       src  = 'health' | 'checks' | '' — แผงผลตรวจใช้ hint เฉพาะเมื่อ src='health' หรือขัดกัน
+              แปลงที่มีแค่ checks จึงหน้าตาเหมือนเดิม (ไม่เติมข้อความใหม่ให้แปลงที่ไม่มีข้อมูลใหม่) */
+  var AREA_RNW = /^\s*\d+\s*-\s*\d+\s*-\s*\d+(?:\.\d+)?\s*(?:ไร่)?\s*$/;
+  var AREA_UNIT = /^\s*\d+(?:[.,]\d+)?\s*(?:ตร\.?\s*ว\.?|ตารางวา|ไร่|ตร\.?\s*ม\.?|ตารางเมตร)\s*$/;
+  function isAreaValue(s) {
+    var t = String(s == null ? '' : s);
+    return AREA_RNW.test(t) || AREA_UNIT.test(t);
+  }
+  var RANK = { none: 0, ok: 1, warn: 2, bad: 3 };
+  function chkState(x, warnAs) {
+    var st = (x && x.status) || '';
+    return st === 'ok' ? 'ok' : st === 'warn' ? warnAs : 'none';
+  }
+  function res(state, value, note, hint, src, conflict) {
+    return { state: state, value: value || '', note: note || '', hint: hint || '', src: src || '', conflict: !!conflict };
+  }
+  // หัวข้อที่ไม่มีช่องคู่ในรายงานสุขภาพ (ภาระจำยอม · อายัด · ภาษี · จำนอง) — กติกา 2 อย่างเดียว
+  function plainCheck(x) {
+    var s = chkState(x, 'warn');
+    if (s === 'none') return res('none', '', '', '', '');
+    return res(s, x.value, x.note, '', 'checks');
+  }
+  function areaTopic(L) {
+    var ca = (L.checks || {}).area || {};
+    var s = chkState(ca, 'bad');
+    if (s === 'none') return res('none', '', '', AREA_NONE, '');
+    var val = isAreaValue(ca.value) ? String(ca.value).trim() : '';
+    return res(s, val, ca.note,
+      s === 'bad' ? 'ผลรังวัดต่างจากเนื้อที่ตามเอกสาร — ควรอ่านรายละเอียดก่อนตัดสินใจ' : 'วัดจริงในสนามแล้ว ตรงกับที่ประกาศ',
+      'checks');
+  }
+  // รวมผลสองแหล่ง: base = จากรายงานสุขภาพ · c = สถานะจาก checks · cx = ก้อน checks
+  function merge(base, c, cx) {
+    if (c === 'none') return base;                       // checks ยังไม่ตรวจ = ไม่มีอะไรมาขัด
+    if (c === base.state) { base.note = cx.note || ''; return base; }
+    var useC = RANK[c] > RANK[base.state];
+    base.conflict = true;
+    if (useC) { base.state = c; base.note = cx.note || ''; base.hint = 'ผลตรวจบางส่วนพบข้อควรรู้ — สอบถามรายละเอียดกับทีมงานก่อนตัดสินใจ'; }
+    else base.note = '';
+    return base;
+  }
+  function markersTopic(L) {
+    var H = L.health || {}, cm = (L.checks || {}).markers || {};
+    var c = chkState(cm, 'bad');
+    if (H.markerTotal > 0) {
+      var f = H.markerFound == null ? null : H.markerFound, b;
+      if (f === null) b = res('warn', 'ทั้งหมด ' + H.markerTotal + ' หมุด', '', 'ยังไม่ได้บันทึกว่าพบหมุดครบหรือไม่', 'health');
+      else if (f >= H.markerTotal) b = res('ok', 'พบครบ ' + f + ' จาก ' + H.markerTotal + ' หมุด', '',
+        'ทีมช่างรังวัดพบหมุดหลักเขตครบทุกจุดในวันที่ลงพื้นที่', 'health');
+      else b = res('bad', 'พบ ' + f + ' จาก ' + H.markerTotal + ' หมุด', '',
+        'หมุดหลักเขตไม่ครบ — แนวเขตบางด้านยังยืนยันในสนามไม่ได้ ควรรังวัดสอบเขตก่อนโอน', 'health');
+      return merge(b, c, cm);
+    }
+    if (c === 'none') return res('none', '', '', GREY_NOTE, '');
+    return res(c, cm.value, cm.note, 'ผลตรวจหมุดหลักเขตจากงานรังวัด', 'checks');
+  }
+  function accessTopic(L) {
+    var H = L.health || {}, ac = (L.checks || {}).access || {}, v = V();
+    var c = chkState(ac, 'warn');
+    var AT = v.ACCESS_TH || {};
+    if (H.access) {
+      var b = H.access === 'none'
+        ? res('bad', AT.none, '', 'แปลงนี้ยังไม่มีทางเข้าออกตามกฎหมาย ผู้ซื้อควรตรวจสอบเรื่องทางเข้าออกก่อนตัดสินใจ', 'health')
+        : H.access === 'shared'
+        ? res('warn', AT.shared, '', 'ใช้ทางร่วมกับแปลงข้างเคียงแต่ยังไม่ได้จดทะเบียน — ควรตรวจสอบสิทธิ์การใช้ทางเพิ่มเติม', 'health')
+        : H.access === 'other'
+        ? res('warn', AT.other, '', 'ทางเข้าออกไม่ใช่แบบมาตรฐาน — สอบถามรายละเอียดกับทีมงาน และตรวจสอบสิทธิ์การใช้ทางก่อนตัดสินใจ', 'health')
+        : res('ok', AT[H.access] || H.access, '',
+            (c === 'ok' && ac.value) ? ('หน้ากว้างทางเข้า ' + ac.value) : 'ทีมงานตรวจทางเข้าออกในสนามแล้ว', 'health');
+      return merge(b, c, ac);
+    }
+    if (c === 'none') return res('none', '', '', GREY_NOTE, '');
+    return res(c, ac.value, ac.note, 'มีผลตรวจทางเข้าออก แต่ยังไม่ได้ระบุประเภททางเข้าออก', 'checks');
+  }
+  function topic(L, k) {
+    L = L || {};
+    if (k === 'area') return areaTopic(L);
+    if (k === 'markers') return markersTopic(L);
+    if (k === 'access') return accessTopic(L);
+    return plainCheck((L.checks || {})[k] || {});
+  }
+  // เนื้อที่วัดจริงที่แสดงเป็นตัวเลขได้ ('' = ไม่มี) — แถบตัวเลขใต้ราคาและตารางขนาดพื้นที่ใช้ตัวนี้
+  function measuredArea(L) {
+    var t = areaTopic(L || {});
+    return t.state === 'none' ? '' : t.value;
+  }
 
   /* ---------- คำนวณ 14 หัวข้อจากข้อมูลที่ API ส่งมาจริง ----------
      L = ก้อน land ที่มาจาก /api/public/listings/:id */
+  function topicRow(label, t) {
+    return row(label, t.state, t.value, t.note || t.hint || GREY_NOTE);
+  }
   function rowsOf(L) {
     var H = L.health || {};
-    var C = L.checks || {};
     var v = V();
     var out = [];
 
@@ -51,18 +157,8 @@
       ? row('เนื้อที่ตามเอกสารสิทธิ์', 'ok', L.deedArea + ' ไร่-งาน-ตร.ว.', 'ตัวเลขที่ปรากฏบนหน้าเอกสารสิทธิ์')
       : row('เนื้อที่ตามเอกสารสิทธิ์', 'none', '', GREY_NOTE));
 
-    // 3 เนื้อที่จากผลรังวัดล่าสุด — ต่างจากเอกสาร = ประเด็นที่ผู้ซื้อต้องรู้
-    var ca = C.area || {};
-    if (!ca.status && !ca.value) {
-      out.push(row('เนื้อที่จากผลรังวัดล่าสุด', 'none', '',
-        'ยังไม่มีผลรังวัดในระบบ — เนื้อที่จริงอาจต่างจากหน้าเอกสาร ตรวจได้ด้วยการรังวัดสอบเขต'));
-    } else if (ca.status === 'warn') {
-      out.push(row('เนื้อที่จากผลรังวัดล่าสุด', 'bad', ca.value,
-        ca.note || 'ผลรังวัดต่างจากเนื้อที่ตามเอกสาร — ควรอ่านรายละเอียดก่อนตัดสินใจ'));
-    } else {
-      out.push(row('เนื้อที่จากผลรังวัดล่าสุด', ca.status === 'ok' ? 'ok' : 'warn', ca.value,
-        ca.note || (ca.status === 'ok' ? 'วัดจริงในสนามแล้ว ตรงกับที่ประกาศ' : 'มีข้อมูลบางส่วน ยังต้องตรวจเพิ่ม')));
-    }
+    // 3 เนื้อที่จากผลรังวัดล่าสุด — ต่างจากเอกสาร = ประเด็นที่ผู้ซื้อต้องรู้ · ผ่าน topic() ที่เดียว
+    out.push(topicRow('เนื้อที่จากผลรังวัดล่าสุด', topic(L, 'area')));
 
     // 4 ความกว้างและความยาวโดยประมาณ
     if (H.widthM || H.depthM) {
@@ -84,26 +180,8 @@
             'ทีมงานสรุปจากรูปแปลงและการลงพื้นที่')
       : row('รูปร่างแปลง', 'none', '', GREY_NOTE));
 
-    // 6 ทางเข้า–ออก · ⚠️ ที่ตาบอดต้องขึ้นแดงเสมอ เป็นข้อมูลที่ผู้ซื้อต้องรู้ที่สุด
-    var ac = C.access || {};
-    if (H.access === 'none') {
-      out.push(row('ทางเข้า–ออก', 'bad', v.ACCESS_TH.none,
-        (ac.note || '') || 'แปลงนี้ยังไม่มีทางเข้าออกตามกฎหมาย ผู้ซื้อควรตรวจสอบเรื่องทางเข้าออกก่อนตัดสินใจ'));
-    } else if (H.access === 'shared') {
-      out.push(row('ทางเข้า–ออก', 'warn', v.ACCESS_TH.shared,
-        (ac.note || '') || 'ใช้ทางร่วมกับแปลงข้างเคียงแต่ยังไม่ได้จดทะเบียน — ควรตรวจสอบสิทธิ์การใช้ทางเพิ่มเติม'));
-    } else if (H.access === 'other') {
-      out.push(row('ทางเข้า–ออก', 'warn', v.ACCESS_TH.other,
-        (ac.note || '') || 'ทางเข้าออกไม่ใช่แบบมาตรฐาน — สอบถามรายละเอียดกับทีมงาน และตรวจสอบสิทธิ์การใช้ทางก่อนตัดสินใจ'));
-    } else if (H.access) {
-      out.push(row('ทางเข้า–ออก', ac.status === 'warn' ? 'warn' : 'ok', v.ACCESS_TH[H.access] || H.access,
-        ac.note || (ac.value ? ('หน้ากว้างทางเข้า ' + ac.value) : 'ทีมงานตรวจทางเข้าออกในสนามแล้ว')));
-    } else if (ac.status || ac.value) {
-      out.push(row('ทางเข้า–ออก', ac.status === 'warn' ? 'warn' : (ac.status === 'ok' ? 'ok' : 'warn'),
-        ac.value, ac.note || 'มีผลตรวจทางเข้าออก แต่ยังไม่ได้ระบุประเภททางเข้าออก'));
-    } else {
-      out.push(row('ทางเข้า–ออก', 'none', '', GREY_NOTE));
-    }
+    // 6 ทางเข้า–ออก · ⚠️ ที่ตาบอดต้องขึ้นแดงเสมอ เป็นข้อมูลที่ผู้ซื้อต้องรู้ที่สุด · ผ่าน topic() ที่เดียว
+    out.push(topicRow('ทางเข้า–ออก', topic(L, 'access')));
 
     // 7 ประเภทถนนหน้าแปลง
     if (L.roadSurface === 'none') {
@@ -152,26 +230,8 @@
       out.push(row('สาธารณูปโภค', 'none', '', GREY_NOTE));
     }
 
-    // 11 หมุดหลักเขต · พบไม่ครบ = ประเด็นที่ต้องตรวจเพิ่ม
-    var cm = C.markers || {};
-    if (H.markerTotal > 0) {
-      var found = (H.markerFound == null) ? null : H.markerFound;
-      if (found === null) {
-        out.push(row('หมุดหลักเขต', 'warn', 'ทั้งหมด ' + H.markerTotal + ' หมุด',
-          'ยังไม่ได้บันทึกว่าพบหมุดครบหรือไม่'));
-      } else if (found >= H.markerTotal) {
-        out.push(row('หมุดหลักเขต', 'ok', 'พบครบ ' + found + ' จาก ' + H.markerTotal + ' หมุด',
-          cm.note || 'ทีมช่างรังวัดพบหมุดหลักเขตครบทุกจุดในวันที่ลงพื้นที่'));
-      } else {
-        out.push(row('หมุดหลักเขต', 'bad', 'พบ ' + found + ' จาก ' + H.markerTotal + ' หมุด',
-          cm.note || 'หมุดหลักเขตไม่ครบ — แนวเขตบางด้านยังยืนยันในสนามไม่ได้ ควรรังวัดสอบเขตก่อนโอน'));
-      }
-    } else if (cm.status || cm.value) {
-      out.push(row('หมุดหลักเขต', cm.status === 'warn' ? 'bad' : (cm.status === 'ok' ? 'ok' : 'warn'),
-        cm.value, cm.note || 'ผลตรวจหมุดหลักเขตจากงานรังวัด'));
-    } else {
-      out.push(row('หมุดหลักเขต', 'none', '', GREY_NOTE));
-    }
+    // 11 หมุดหลักเขต · พบไม่ครบ = ประเด็นที่ต้องตรวจเพิ่ม · ผ่าน topic() ที่เดียว
+    out.push(topicRow('หมุดหลักเขต', topic(L, 'markers')));
 
     // 12 สิ่งปลูกสร้างหรือแนวรุกล้ำ
     if (H.structures === 'encroach') {
@@ -244,6 +304,8 @@
           ซึ่งขัดกับที่ตกลงกันไว้ว่าประกาศเดิมต้องไม่เปลี่ยนจนกว่าทีมจะกรอกข้อมูลใหม่
        2. หัวข้อ เนื้อที่ / ทางเข้าออก / หมุดหลักเขต ซ้ำกับแผงผลตรวจ 7 หัวข้อเดิมที่อยู่ล่างลงไป
           ขึ้นทั้งสองอันโดยที่ไม่มีข้อมูลใหม่มาเพิ่ม = อ่านซ้ำสองรอบโดยไม่ได้อะไรเพิ่ม
+          · เมื่อขึ้นทั้งคู่ สามหัวข้อนี้ต้องผ่าน topic() ตัวเดียวกันเสมอ (10 ต.ค. 2569 · landconsist.test.js)
+            ไม่งั้นสองแผงขัดกันเองบนหน้าเดียว (เจอจริง OP-102)
 
      กรอกช่องไหนก็ได้แค่ช่องเดียวในฟอร์มฝั่งพนักงาน ตารางก็ขึ้นทั้งใบพร้อมข้อมูลเดิมที่มีอยู่แล้ว */
   function tableHtml(L) {
@@ -277,5 +339,6 @@
     '</section>';
   }
 
-  w.NJHealth = { tableHtml: tableHtml, rowsOf: rowsOf, STATE_TH: STATE_TH };
+  w.NJHealth = { tableHtml: tableHtml, rowsOf: rowsOf, STATE_TH: STATE_TH,
+    topic: topic, measuredArea: measuredArea, isAreaValue: isAreaValue };
 })(window, document);

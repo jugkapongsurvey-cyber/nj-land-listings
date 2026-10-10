@@ -181,8 +181,6 @@
 <!-- NJ:HEADER จบ -->
 
 <main id="main">
-
-<main>
     <section class="ls-head">
       <!-- พื้นหลังแถบหัว — ไฟล์ครอปมาเป็นแถบยาวให้พอดีแถบนี้แล้ว (ดูเหตุผลใน listings.css)
            ไม่มีไฟล์แนวตั้งคู่เหมือนหน้าแรก เพราะแถบนี้เตี้ยทุกขนาดจอ ภาพแถบเดียวพอ -->
@@ -190,32 +188,56 @@
       <div class="ls-head-veil"></div>
       <div class="shell">
       <h1>ประกาศขายที่ดินทั้งหมด</h1>
-      <p>ทุกแปลงขึ้นประกาศเมื่อเจ้าของยินยอมแล้ว — ดูป้ายระดับข้อมูลและผลตรวจของแต่ละแปลง แปลงที่ยังไม่รังวัดจะแสดงว่า “ข้อมูลเบื้องต้น”</p>
+      <p class="ls-lede">ทุกแปลงขึ้นประกาศเมื่อเจ้าของยินยอมแล้ว — ดูป้ายระดับข้อมูลและผลตรวจของแต่ละแปลง แปลงที่ยังไม่รังวัดจะแสดงว่า “ข้อมูลเบื้องต้น”</p>
       <p class="ls-purpose-link">ยังไม่รู้ว่าจะกรองอะไร? <a href="purpose.html">เริ่มจาก "จะเอาที่ดินไปทำอะไร" แทน →</a></p>
     </div></section>
 
     <section class="shell ls-wrap">
+      <!-- ===== แถวค้นหา + ปุ่มแจ้งเตือน (ยืมจาก DDproperty 10 ต.ค. 69) =====
+           ⚠️ ช่องคำค้นอยู่นอกแผงตัวกรองโดยตั้งใจ — คำค้นคือสิ่งที่คนใช้บ่อยสุด ต้องอยู่จอแรกเสมอ
+           listings.js อ่านทุกช่องด้วย id จึงย้ายช่องออกจากฟอร์มได้โดยตัวกรองไม่เปลี่ยน -->
+      <div class="ls-top">
+        <form class="ls-search" id="ls-qform" role="search" aria-label="ค้นหาประกาศ">
+          <label class="ls-q">
+            <span class="nj-sr-only">คำค้น</span>
+            <input type="search" id="f-q" placeholder="ค้นทำเล เช่น บางบ่อ · ติดถนน · ผังเหลือง" autocomplete="off" enterkeyhint="search">
+          </label>
+          <button type="submit" class="ls-q-go">ค้นหา</button>
+        </form>
+        <!-- ปุ่มแจ้งเตือน → หน้าฝากหาที่ดิน พร้อมเงื่อนไขที่เลือกอยู่ (listings.js เขียน href ใหม่ทุกครั้งที่กรอง)
+             ⚠️ ไม่ใช่ notify.html — หน้านั้นเปิดได้ด้วยโทเคนจากข้อความที่ทีมส่งให้เท่านั้น ไม่ใช่หน้าสมัคร -->
+        <a class="ls-alert" id="ls-alert" href="wanted.html?from=listings"><span aria-hidden="true">🔔</span> <span class="ls-alert-l">แจ้งเตือนเมื่อมีแปลงตรงเงื่อนไข</span><span class="ls-alert-s" aria-hidden="true">แจ้งเตือน</span></a>
+      </div>
+
+      <!-- ===== แถบชิปแถวเดียว — เลื่อนแนวนอนได้ =====
+           ชิปแต่ละอันเปิดแผงตัวกรองชุดเดิมแล้วพาไปที่ช่องนั้น (ตัวกรองมีชุดเดียว ไม่ทำสองชุดให้ค่าหลุดจากกัน)
+           ⚠️ ซ่อนไว้จนกว่า JS จะทำงาน — JS พัง = ชิปกดไม่ได้ แต่แผงตัวกรองกางอยู่ใช้ได้ตามปกติ
+           ⚠️ ปุ่ม "ตัวกรอง" ยังเป็น id="ls-open" ตัวเดิม (aria-expanded ตั้งไว้ใน HTML · listings.js สลับค่า) -->
+      <div class="ls-chips" id="ls-chips" role="toolbar" aria-label="ตัวกรองด่วน" hidden>
+        <button type="button" class="ls-chip ls-chip-all" id="ls-open" aria-expanded="false" aria-controls="ls-form" aria-haspopup="dialog">
+          <span aria-hidden="true">⚙</span> ตัวกรอง <b id="ls-open-n"></b>
+        </button>
+        <button type="button" class="ls-chip" data-chip="province" aria-haspopup="dialog">จังหวัด</button>
+        <button type="button" class="ls-chip" data-chip="price" aria-haspopup="dialog">ราคา</button>
+        <button type="button" class="ls-chip" data-chip="area" aria-haspopup="dialog">เนื้อที่</button>
+        <button type="button" class="ls-chip" data-chip="zone" aria-haspopup="dialog">ผังสี</button>
+        <button type="button" class="ls-chip" data-chip="prop" aria-haspopup="dialog">ประเภททรัพย์</button>
+        <button type="button" class="ls-chip" data-chip="type" aria-haspopup="dialog">ขาย/เช่า</button>
+        <button type="button" class="ls-chip ls-chip-clear" id="ls-clear" hidden>ล้างทั้งหมด ✕</button>
+      </div>
+
       <!-- ตัวกรอง — ทุกช่องเริ่มที่ "ทั้งหมด" เสมอ ไม่ตั้งค่าเริ่มต้นที่กรองอะไรไว้ก่อน
-           เพราะผู้ซื้อที่เพิ่งเข้ามาต้องเห็นของทั้งหมดที่มีจริงก่อน แล้วค่อยแคบลงเอง -->
-      <!-- ⚠️ ปุ่มนี้แสดงเฉพาะจอเล็ก (CSS) — บนเดสก์ท็อปแผงตัวกรองกางอยู่แล้ว ไม่ต้องมีปุ่ม
-           ⚠️ ตั้ง aria-expanded ไว้ตั้งแต่ใน HTML · `listings.js` เป็นคนสลับค่า
-              ไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ แผงตัวกรองต้องกางอยู่ตามปกติ ไม่ใช่ถูกซ่อนแล้วเปิดไม่ได้
-              (CSS จึงซ่อนแผงเฉพาะตอนที่ <body> มีคลาส `ls-js` ซึ่ง JS เป็นคนใส่) -->
-      <button type="button" class="ls-open" id="ls-open" aria-expanded="false" aria-controls="ls-form">
-        <span aria-hidden="true">⚙</span> ตัวกรองและการเรียงลำดับ
-      </button>
+           เพราะผู้ซื้อที่เพิ่งเข้ามาต้องเห็นของทั้งหมดที่มีจริงก่อน แล้วค่อยแคบลงเอง
+           ⚠️ เมื่อ JS ทำงาน (body.ls-js) แผงนี้กลายเป็นหน้าต่าง: มือถือ = bottom sheet · จอคอม = แผงข้างขวา
+              JS โหลดไม่สำเร็จ = แผงกางอยู่ในหน้าตามปกติ ไม่ใช่ถูกซ่อนแล้วเปิดไม่ได้ -->
       <form class="ls-filters" id="ls-form" aria-label="ตัวกรองประกาศ">
         <div class="ls-sheet-head">
           <b>ตัวกรอง</b>
           <button type="button" class="ls-sheet-x" id="ls-close" aria-label="ปิดตัวกรอง">✕</button>
         </div>
         <div class="ls-row">
-          <label class="ls-field ls-grow">
-            <span>คำค้น</span>
-            <input type="search" id="f-q" placeholder="เช่น บางบ่อ · ติดถนน · ผังเหลือง" autocomplete="off">
-          </label>
           <label class="ls-field">
-            <span>ประเภท</span>
+            <span>ขาย/เช่า</span>
             <select id="f-type"><option value="all">ทั้งหมด</option><option value="sell">ขาย</option><option value="rent">ให้เช่า</option></select>
           </label>
           <label class="ls-field">
@@ -236,15 +258,6 @@
           <label class="ls-field"><span>จำนวนชั้น</span><select id="f-floors"><option value="all">ไม่เกี่ยง</option><option value="1">ชั้นเดียว</option><option value="2">2 ชั้น</option><option value="3+">3 ชั้นขึ้นไป</option></select></label>
           <label class="ls-field"><span>เอกสารสิทธิ์</span><select id="f-deed"><option value="all">ไม่เกี่ยง</option></select></label>
           <label class="ls-field ls-grow"><span>ผังสี (ผังเมืองรวม)</span><select id="f-zone"><option value="all">ไม่เกี่ยง</option></select></label>
-          <label class="ls-field"><span>เรียงลำดับ</span>
-            <select id="f-sort">
-              <option value="new">อัปเดตล่าสุด</option>
-              <option value="price_asc">ราคารวม ต่ำ → สูง</option>
-              <option value="price_desc">ราคารวม สูง → ต่ำ</option>
-              <option value="wa_asc">ราคาต่อ ตร.ว. ต่ำ → สูง</option>
-              <option value="area_desc">เนื้อที่ มาก → น้อย</option>
-            </select>
-          </label>
         </div>
 
         <fieldset class="ls-feats">
@@ -256,19 +269,34 @@
           <!-- ⚠️ ตัวกรอง "เฉพาะที่บันทึกไว้" อ่านจาก `NJSave` ที่เดียว ห้ามเก็บรายการซ้ำในไฟล์นี้
                ไม่มีอะไรบันทึกไว้เลย = กรองแล้วได้ผลว่าง ซึ่งถูกต้องและมีข้อความอธิบายอยู่แล้ว -->
           <label class="ls-saved"><input type="checkbox" id="f-saved"> เฉพาะที่บันทึกไว้ <b id="f-saved-n"></b></label>
-          <button type="submit" class="post-btn">ค้นหา</button>
+          <button type="submit" class="post-btn" id="f-apply">ค้นหา</button>
           <button type="button" class="outline-btn" id="f-reset">ล้างตัวกรอง</button>
         </div>
       </form>
+      <div class="ls-backdrop" id="ls-backdrop" hidden></div>
 
-      <p class="ls-note" id="result-note" role="status" aria-live="polite"></p>
+      <!-- ===== แถวผลลัพธ์กระชับ: พบ n แปลง · เรียงลำดับ · สลับรายการ/แผนที่ ===== -->
+      <div class="ls-bar">
+        <p class="ls-note" id="result-note" role="status" aria-live="polite"></p>
+        <label class="ls-sort"><span>เรียง</span>
+          <select id="f-sort">
+            <option value="new">อัปเดตล่าสุด</option>
+            <option value="price_asc">ราคารวม ต่ำ → สูง</option>
+            <option value="price_desc">ราคารวม สูง → ต่ำ</option>
+            <option value="wa_asc">ราคาต่อ ตร.ว. ต่ำ → สูง</option>
+            <option value="area_desc">เนื้อที่ มาก → น้อย</option>
+          </select>
+        </label>
+        <!-- สวิตช์แผนที่ — ซ่อนไว้จนกว่าจะรู้ว่ามีแปลงที่ทีมงานปักหมุดไว้อย่างน้อย 1 แปลง -->
+        <button type="button" class="ls-view" id="ls-view" aria-pressed="false" hidden><span aria-hidden="true">🗺</span> <span id="ls-view-t"><span class="ls-v-pre">ดูบน</span>แผนที่</span></button>
+      </div>
       <!-- แปลงที่ถูกซ่อนเพราะ "ยังไม่ได้ระบุข้อมูลช่องนั้น" ต้องบอกให้รู้ ไม่ใช่หายเงียบ
            ผู้ซื้อจะได้รู้ว่ายังมีของอยู่ และทีมงานจะได้รู้ว่าต้องไปกรอกอะไรเพิ่ม -->
       <p class="ls-unknown" id="unknown-note" hidden></p>
       <p class="ls-note ls-featured-note" id="featured-note" hidden></p>
+      <div class="ls-map" id="ls-map" hidden></div>
       <div class="land-grid" id="listing-grid" aria-live="polite"><p class="ls-loading">กำลังโหลดประกาศ…</p></div>
     </section>
-  </main>
 </main>
 <footer id="contact"><div class="shell footer-grid"><div><a class="logo footer-logo" href="index.html"><img src="brand/logo-mark.svg" alt=""><span><b>ที่ดินชัวร์</b><small>TEEDIN SURE</small></span></a><p>แพลตฟอร์มซื้อขายที่ดินโดยทีมสำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</p></div><div><b>ค้นหาที่ดิน</b><a href="listings.html">ประกาศทั้งหมด</a><a href="purpose.html">ค้นตามวัตถุประสงค์</a><a href="index.html#ทีมเรา">ทีมเรา</a></div><div><b>บริการ</b><a href="wanted.html">ฝากหาที่ดิน</a><a href="consign.html">ฝากขายที่ดิน</a><a href="guides.html">คู่มือที่ดิน</a><a href="videos.html">วิดีโอให้ความรู้</a></div><div><b>ติดต่อทีมงาน</b><a href="tel:021620405">02-162-0405</a><a href="tel:0849158601">084-915-8601</a><a href="https://line.me/R/ti/p/@716lffzt" target="_blank" rel="noopener">LINE @716lffzt</a><a href="https://m.me/NJTeeDinSure" target="_blank" rel="noopener" data-contact="messenger">Messenger</a><span>จ.–ส. 08:30–17:30 น.</span></div></div><div class="shell footer-bottom"><span>© <span id="year"></span> บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด</span><span>สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</span></div>  <nav class="nj-legal" aria-label="นโยบายและข้อกำหนด">
     <a href="privacy.html">นโยบายความเป็นส่วนตัว</a><span class="nj-legal-sep" aria-hidden="true">·</span>
@@ -291,6 +319,8 @@
 <script src="landmeta.js" defer></script>
 <script src="listingcard.js" defer></script>
   <script src="save.js" defer></script>
+  <!-- มุมมองแผนที่ — ต้องมาก่อน listings.js (listings.js เรียก NJListMap ตอนวาดผลลัพธ์) -->
+  <script src="listmap.js" defer></script>
   <script src="listings.js" defer></script>
   <!-- ปุ่ม "เทียบ" บนการ์ด — ต้องมาหลัง listingcard.js/listings.js เพราะไปแปะบนการ์ดที่สองไฟล์นั้นวาด
        (compare.js เฝ้า #listing-grid ด้วย MutationObserver อยู่แล้ว การ์ดที่วาดใหม่ตอนกรองจึงได้ปุ่มด้วย) -->
