@@ -80,9 +80,15 @@ ok('⭐ ไม่มีลิงก์ในเมนูที่ชี้ไป
 ok('⭐ เมนู "ขาย/ฝากทรัพย์" มีทางเข้าบัญชีเจ้าของทรัพย์',
    /<a href="https:\/\/app\.njteedinsure\.com\/seller\.html"><b>เข้าสู่ระบบเจ้าของทรัพย์<\/b>/.test(home));
 ok('⭐ หัวเว็บมีปุ่ม "เข้าสู่ระบบ" ไปหน้า seller.html ของระบบ',
-   /<a class="njh-login" href="https:\/\/app\.njteedinsure\.com\/seller\.html"[^>]*>เข้าสู่ระบบ<\/a>/.test(home));
-ok('ปุ่มเข้าสู่ระบบซ่อนต่ำกว่า 1280px (ไม่งั้นเมนูตัดบรรทัด · เมนูย่อยมีรายการเดียวกันแล้ว)',
-   /max-width: 1279px\)\s*\{\s*\.njh-login \{ display: none; \}/.test(fs.readFileSync(path.join(__dirname, 'header.css'), 'utf8')));
+   /<a class="njh-login" href="https:\/\/app\.njteedinsure\.com\/seller\.html"[^>]*aria-label="เข้าสู่ระบบเจ้าของทรัพย์"[^>]*>[\s\S]*?<span class="njh-login-t">เข้าสู่ระบบ<\/span><\/a>/.test(home));
+{
+  // เจ้าของสั่ง 10 ต.ค. 2569 — ปุ่มเคยถูกซ่อนทั้งปุ่มที่จอต่ำกว่า 1280 จนดูเหมือนหน้าเข้าสู่ระบบหายไป
+  const hcss = fs.readFileSync(path.join(__dirname, 'header.css'), 'utf8');
+  ok('⭐ ปุ่มเข้าสู่ระบบไม่ถูกซ่อนทั้งปุ่มที่ขนาดจอใดเลย',
+     !/\.njh-login\s*\{[^}]*display:\s*none/.test(hcss));
+  ok('ต่ำกว่า 1280px เหลือไอคอน 44px (ซ่อนเฉพาะข้อความ · เมนูไม่ตัดบรรทัด)',
+     /max-width: 1279px\)\s*\{\s*\.njh-login \{[^}]*width: 44px/.test(hcss) && /\.njh-login-t \{[^}]*clip-path: inset\(50%\)/.test(hcss));
+}
 ok('จุดยึด terms.html#levels มีอยู่จริง', /id="levels"/.test(html['terms.html']));
 
 console.log('\n4) บอกหน้าที่กำลังเปิดอยู่ (Active State)');

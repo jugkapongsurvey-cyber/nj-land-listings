@@ -221,6 +221,8 @@
   text-decoration: none;
   white-space: nowrap;
 }
+.njh-login { gap: 6px; }
+.njh-login-ic { flex: 0 0 auto; }
 .njh-login:hover { border-color: var(--nj-gold-500); color: var(--nj-gold-500); }
 .njh-login:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
 .njh-cta:hover { background: var(--nj-white); }
@@ -235,12 +237,17 @@
   .njh-top { padding: 0 10px; }
 }
 
-/* ปุ่มเข้าสู่ระบบบนแถวหัวเว็บแสดงเฉพาะจอ 1280 ขึ้นไป
- * ⚠️ วัดจริงแล้ว: แถวเมนู 6 กลุ่ม + ปุ่มนี้ + "ฝากขายฟรี" ต้องการราว 1,150–1,220px
- *    ที่ 1024 ปุ่มเบียดจน "ติดตามงาน" ตัดสองบรรทัดซ้อนกัน · ต่ำกว่า 1280 ยังเข้าได้จาก
- *    เมนูย่อย "ขาย/ฝากทรัพย์" → "เข้าสู่ระบบเจ้าของทรัพย์" (และลิ้นชักจอเล็ก) */
+/* ปุ่มเข้าสู่ระบบแบบมีข้อความแสดงเฉพาะจอ 1280 ขึ้นไป — ต่ำกว่านั้นเหลือไอคอนรูปคน 44×44px
+ * ⚠️ วัดจริงแล้ว: แถวเมนู 6 กลุ่ม + ปุ่มข้อความ + "ฝากขายฟรี" ต้องการราว 1,150–1,220px
+ *    ที่ 1024 ปุ่มข้อความเบียดจน "ติดตามงาน" ตัดสองบรรทัดซ้อนกัน
+ * ⚠️ ห้ามกลับไปซ่อนทั้งปุ่ม (display:none) — เคยทำแล้วเจ้าของหาทางเข้าไม่เจอ คิดว่าหน้าเข้าสู่ระบบหายไป
+ *    (10 ต.ค. 2569 · ลงประกาศฟรีต้องสมัครก่อน ทางเข้านี้จึงต้องเห็นทุกจอ) */
 @media (max-width: 1279px) {
-  .njh-login { display: none; }
+  .njh-login { justify-content: center; width: 44px; padding: 0; }
+  .njh-login-t {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
 }
 
 /* ---------- จอเล็ก ----------

@@ -163,8 +163,13 @@ function headerHtml(file, NL) {
   }
   L.push('      </ul>');
   L.push('    </nav>');
-  // ปุ่มเข้าสู่ระบบบนแถวหัวเว็บ — จอเล็กซ่อน (header.css) เพราะลิ้นชักมีรายการเดียวกันจากเมนูย่อยอยู่แล้ว
-  L.push('    <a class="njh-login" href="' + esc(SELLER_LOGIN) + '" title="เข้าสู่ระบบเจ้าของทรัพย์ — ดูแปลงที่ฝากและใบเสนอราคา">เข้าสู่ระบบ</a>');
+  // ปุ่มเข้าสู่ระบบบนแถวหัวเว็บ — ต้องเห็นทุกขนาดจอ (เจ้าของสั่ง 10 ต.ค. 2569: "หน้าเข้าสู่ระบบหายไป")
+  // ⚠️ ของเดิมซ่อนทั้งปุ่มที่จอต่ำกว่า 1280 → โน้ตบุ๊ก/แท็บเล็ต/มือถือหาทางเข้าไม่เจอ
+  //    ตอนนี้ต่ำกว่า 1280 เหลือไอคอนรูปคน 44px (header.css ซ่อนข้อความ) เมนูจึงไม่ตัดบรรทัดเหมือนเดิม
+  //    aria-label คงคำว่า "เข้าสู่ระบบ" ไว้ — โปรแกรมอ่านหน้าจออ่านได้แม้ข้อความถูกซ่อน
+  L.push('    <a class="njh-login" href="' + esc(SELLER_LOGIN) + '" aria-label="เข้าสู่ระบบเจ้าของทรัพย์" title="เข้าสู่ระบบเจ้าของทรัพย์ — ลงประกาศฟรี ดูแปลงที่ฝากและใบเสนอราคา">' +
+    '<svg class="njh-login-ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+    '<span class="njh-login-t">เข้าสู่ระบบ</span></a>');
   L.push('    <a class="njh-cta" href="' + esc(CTA.href) + '">' + esc(CTA.label) + '</a>');
   L.push('  </div>');
   L.push('</header>');
