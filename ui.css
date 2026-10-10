@@ -974,3 +974,23 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
   .cta-band-btn{width:100%;text-align:center}
   .hero-btns .hero-btn{width:100%;text-align:center}
 }
+
+/* ---------- ลงประกาศฟรีต้องสมัคร/เข้าสู่ระบบก่อน (consign.html · 10 ต.ค. 2569) ----------
+ * เลือกบริการที่ลงประกาศ → ซ่อนช่องกรอกที่เหลือทั้งหมด เหลือ "ต้องการ" · เลือกบริการ · กล่องนี้ · ช่องทางติดต่อ
+ * ⚠️ ซ่อนด้วยคลาสบนฟอร์ม ไม่ลบช่อง — เปลี่ยนกลับเป็น "ตรวจชัวร์" แล้วข้อความที่พิมพ์ไว้ยังอยู่ */
+#consign-form.cs-gated > :not(.cs-gate-keep):not(.cs-svc):not(.cs-gate):not(.cs-alt) { display: none !important; }
+/* บทบาทผู้ส่งถามซ้ำในฟอร์มของบัญชีอยู่แล้ว — หลังด่านไม่ต้องให้เลือกที่นี่ */
+#consign-form.cs-gated .cs-svc-role { display: none !important; }
+.cs-gate { margin: 4px 0 18px; padding: 18px 18px 16px; background: #FFF9EC; border: 1.5px solid #F1D48A; border-radius: 14px; }
+.cs-gate-title { font-size: 18px; font-weight: 700; color: #0B1F3A; }
+.cs-gate-lead { margin: 6px 0 10px; color: #3D5470; }
+.cs-gate-steps { margin: 0 0 14px; padding-left: 20px; color: #0B1F3A; }
+.cs-gate-steps li { margin-top: 6px; }
+.cs-gate-btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cs-gate-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 12px;
+  background: #0B1F3A; color: #fff; font-weight: 700; text-decoration: none; }
+.cs-gate-btn:hover { background: #1B4B7A; }
+.cs-gate-alt { display: inline-flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px;
+  border: 1.5px solid #0B1F3A; color: #0B1F3A; font-weight: 600; text-decoration: none; background: #fff; }
+.cs-gate-btn:focus-visible, .cs-gate-alt:focus-visible { outline: 2px solid #1B4B7A; outline-offset: 2px; }
+.cs-gate-note { margin-top: 12px; font-size: 13px; color: #3D5470; }

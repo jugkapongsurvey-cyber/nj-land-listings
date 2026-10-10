@@ -305,7 +305,7 @@
           <input type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder="08x-xxx-xxxx" required>
         </label>
 
-        <div class="cs-field">
+        <div class="cs-field cs-gate-keep">
           <span class="cs-label">ต้องการ</span>
           <div class="cs-seg" role="radiogroup" aria-label="ประเภทที่ต้องการ">
             <label><input type="radio" name="type" value="sell" checked><span>ฝากขาย</span></label>
@@ -327,6 +327,27 @@
             <select id="cs-role" name="submitterRole"></select>
           </label>
           <div class="cs-svc-fee" id="cs-svc-fee"></div>
+        </div>
+
+        <!-- ---------- ลงประกาศฟรีต้องสมัคร/เข้าสู่ระบบก่อน (เจ้าของสั่ง 10 ต.ค. 2569) ----------
+             เลือกบริการที่ลงประกาศ (needsAccount ใน spec) = ซ่อนช่องกรอกที่เหลือ แล้วพาไปสมัคร/เข้าสู่ระบบ
+             ที่หน้าบัญชีเจ้าของทรัพย์บนโดเมนระบบ ซึ่งเปิดฟอร์มฝากทรัพย์ในบัญชีให้ทันทีหลังล็อกอิน
+             ⚠️ ห้ามทำช่องรหัสผ่านไว้บนเว็บนี้ (เว็บสแตติก · กรอกรหัสข้ามโดเมน = หน้าตาเหมือนหน้าหลอก)
+             ⚠️ ลิงก์ส่งแค่ key บริการ — ห้ามส่งชื่อ/เบอร์/ข้อมูลทรัพย์ทาง URL
+             consign.js เติม href และเปิด/ปิดกล่องนี้ (renderGate) -->
+        <div class="cs-gate" id="cs-gate" hidden>
+          <div class="cs-gate-title">🔐 ลงประกาศฟรี — สมัครบัญชีเจ้าของทรัพย์ก่อน</div>
+          <p class="cs-gate-lead">สมัครฟรีด้วยอีเมล แล้วกรอกข้อมูลทรัพย์ในบัญชีของคุณ — ติดตามสถานะ แก้ไข และแนบรูปได้เองตลอด</p>
+          <ol class="cs-gate-steps">
+            <li>ทีมงานตรวจข้อมูล แล้วส่ง<b>ใบเสนอราคาแพ็กเกจ</b>รังวัด/ตรวจกรรมสิทธิ์ที่เหมาะกับทรัพย์ของคุณ</li>
+            <li>เลือกได้ว่าจะแสดงผลการรังวัดตรวจสอบบนประกาศ — ผู้ซื้อเห็นว่าทรัพย์ผ่านการตรวจแล้ว มั่นใจก่อนซื้อขาย</li>
+            <li><b>คุณกดอนุมัติเอง</b>ก่อนประกาศขึ้นเว็บ — ไม่มีอะไรขึ้นประกาศโดยที่คุณไม่ได้ยืนยัน</li>
+          </ol>
+          <div class="cs-gate-btns">
+            <a class="cs-gate-btn" id="cs-gate-reg" href="https://app.njteedinsure.com/seller.html">สมัครฟรี แล้วลงประกาศ →</a>
+            <a class="cs-gate-alt" id="cs-gate-login" href="https://app.njteedinsure.com/seller.html">มีบัญชีแล้ว — เข้าสู่ระบบ</a>
+          </div>
+          <div class="cs-gate-note">ต้องการให้ทีมตรวจทรัพย์อย่างเดียว (ตรวจชัวร์ · ไม่ลงประกาศ) เลือกบริการนั้นแล้วส่งฟอร์มได้โดยไม่ต้องสมัคร</div>
         </div>
 
         <!-- ---------- ประเภททรัพย์ (เพิ่ม 2026-09-25) ----------

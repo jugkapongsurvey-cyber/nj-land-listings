@@ -652,7 +652,34 @@ function enterSavedMode() {
 var SELLER_ON = false;
 // ⚠️ บริการที่ลงประกาศ (ขายเองชัวร์/ฝากขายชัวร์) ขึ้นเว็บได้เมื่อผูกบัญชีแล้วเท่านั้น (ด่านอยู่ที่เซิร์ฟเวอร์)
 //    กล่องนี้จึงเปลี่ยนจาก "ทางเลือก" เป็น "ขั้นต่อไปที่จำเป็น" · สวิตช์บัญชีปิด = บอกว่าทีมงานจะตั้งบัญชีให้ (ไม่มีลิงก์)
+// ---------- ลงประกาศฟรีต้องสมัคร/เข้าสู่ระบบก่อน (เจ้าของสั่ง 10 ต.ค. 2569) ----------
+// บริการที่ลงประกาศ (spec: needsAccount) ส่งใบจากหน้านี้แบบไม่มีบัญชีไม่ได้แล้ว — ไปสมัคร/เข้าสู่ระบบที่ seller.html
+// ซึ่งเปิดฟอร์มฝากทรัพย์ในบัญชี (POST /api/public/seller/consign ผูกบัญชีทันที) พร้อมบริการที่เลือกไว้
+// ⚠️ ใบที่บันทึกไว้แล้วจากเครื่องนี้ (LEAD.id) แก้ต่อได้ตามเดิม — ผูกบัญชีด้วยลิงก์ตั๋วในกล่อง cs-claim
+// ⚠️ สวิตช์ seller_accounts ปิด (SELLER_ON false) = ไม่มีที่ให้สมัคร → ฟอร์มเดิมทุกอย่าง (ทีมตั้งบัญชีให้ตอนโทรกลับ)
+function gateOn() {
+  if (LEAD.id || !SELLER_ON || !SVC) return false;
+  var s = SVC.serviceOf(SVC.current());
+  return !!(s && s.needsAccount);
+}
+function gateUrl(tab) {
+  var key = SVC ? SVC.current() : '';
+  return NJ_API_BASE + '/seller.html#start=consign&svc=' + encodeURIComponent(key) + (tab ? '&tab=' + tab : '');
+}
+function renderGate() {
+  var form = $('consign-form'), gate = $('cs-gate');
+  if (!form || !gate) return;
+  var on = gateOn();
+  form.classList.toggle('cs-gated', on);
+  gate.hidden = !on;
+  if (!on) return;
+  var reg = $('cs-gate-reg'), login = $('cs-gate-login');
+  if (reg) reg.href = gateUrl('');
+  if (login) login.href = gateUrl('login');
+}
+
 function renderClaim() {
+  renderGate();                                      // ถูกเรียกทุกครั้งที่บริการ/สวิตช์บัญชี/ใบเปลี่ยน — ด่านสมัครต้องตามทัน
   var box = $('cs-claim'), a = $('cs-claim-link'), need = $('cs-claim-need'), noacc = $('cs-claim-noacc');
   if (!box || !a) return;
   var key = (LEAD.data && LEAD.data.service) || (SVC ? SVC.current() : '');
@@ -1103,7 +1130,8 @@ function setupService(getProvince, getTotalWa, onChange, getPropType) {
         ? '<div class="cs-svc-line">ไม่ผูกขาด — คุณยังขายเองหรือขายผ่านนายหน้าอื่นได้</div>'
         : '') +
       (s.needsAccount
-        ? '<div class="cs-svc-line must">ต้องมี<b>บัญชีเจ้าของทรัพย์</b>ก่อนประกาศขึ้นเว็บ — สมัครด้วยอีเมลได้หลังบันทึกฟอร์ม</div>' : '') +
+        ? '<div class="cs-svc-line must">ต้องมี<b>บัญชีเจ้าของทรัพย์</b> — ' +
+          (SELLER_ON ? 'สมัครฟรีด้วยอีเมลก่อนลงประกาศ (ปุ่มด้านล่าง)' : 'ทีมงานช่วยตั้งบัญชีให้ตอนโทรกลับ') + '</div>' : '') +
     '</div>';
   }
 
@@ -1512,6 +1540,8 @@ function setupForm() {
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (sending) return;
+    // กันกด Enter ในช่องที่ยังมองเห็น (บริการ/บทบาท) ตอนอยู่หลังด่านสมัคร — พาไปสมัครแทนการส่งใบไม่มีบัญชี
+    if (gateOn()) { location.href = gateUrl(''); return; }
 
     var fd = new FormData(form);
     var a = addr ? addr.value() : { province: '', amphoe: '', tambon: '', zip: '' };
