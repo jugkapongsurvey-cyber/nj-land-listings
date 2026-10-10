@@ -105,7 +105,10 @@
       // ตรวจอะไรแล้ว (เฉพาะประกาศที่มีรูปแบบบริการ) — null = ไม่มีป้าย
       inspected: inspectedOf(item.inspected),
       // ประกาศเด่น — ระบบคิดวันหมด/สิทธิ์ให้แล้ว ส่งมาแค่ true/false · ไม่ส่ง/ค่าอื่น = ไม่ใช่ประกาศเด่น (ห้ามเดา)
-      featured: item.featured === true
+      featured: item.featured === true,
+      // รายละเอียดจากเจ้าของ (specs) + วันที่ประกาศ — ใช้จับคู่ "ประกาศอื่นในโครงการนี้" ของห้องชุดและบรรทัด "ประกาศเมื่อ" · ไม่มี = null/ว่าง
+      specs: item.specs && typeof item.specs === 'object' ? item.specs : null,
+      listedAt: typeof item.listedAt === 'string' ? item.listedAt : ''
     };
   }
 

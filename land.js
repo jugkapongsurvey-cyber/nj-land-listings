@@ -216,6 +216,40 @@
     return n>0 ? '≈ '+n.toLocaleString('th-TH')+' บาท/ตร.ม.' : '';
   }
 
+  // ---------- ห้องชุด (รอบคอนโด 3) ----------
+  function isCondo(l){
+    return !!(l && ((l.land&&l.land.propertyType==='condo') || (l.specs&&l.specs.type==='condo')));
+  }
+  // วันที่ประกาศขึ้นเว็บ — ⚠️ ใช้ `listedAt` ที่ระบบคำนวณให้เท่านั้น (วันที่เริ่มประกาศจริง ไม่ใช่ updatedAt ที่เปลี่ยนทุกครั้งที่ทีมแก้)
+  // ว่าง = ไม่มีประวัติให้อ้าง → ไม่ขึ้นบรรทัด (ห้ามเดา)
+  function listedLine(l){
+    var d=l&&l.listedAt ? thaiDate(l.listedAt) : '';
+    return d ? '<div class="ld-listed">ประกาศเมื่อ '+esc(d)+'</div>' : '';
+  }
+
+  // ค่างวดสินเชื่อบนหน้าประกาศ — เฉพาะห้องชุดที่ขายและมีราคา (ราคาเช่ารายเดือนไม่ใช่ราคาซื้อ จึงไม่คิดค่างวด)
+  function loanWanted(l){
+    return isCondo(l) && l.type!=='rent' && Number(l.estValue)>0;
+  }
+
+  // ส่วน "ให้ NJ ตรวจสอบห้องชุดนี้" (อ.ช.2) — ผู้ซื้อ/ผู้ขายติ๊กสิ่งที่อยากให้ตรวจ แล้วขอใบเสนอราคา
+  // ⛔ ไม่มีตัวเลขราคา/ ฿ ในส่วนนี้ — ค่าบริการเสนอเป็นรายกรณี (คำสั่งเจ้าของ 10 ต.ค. 69 · เทสต์ล็อก)
+  // ⛔ ติ๊ก = ขอให้ตรวจ ยังไม่ใช่การว่าจ้าง และยังไม่ใช่ผลตรวจ — ผลตรวจจริงขึ้นในหัวข้อ "ผลตรวจเฉพาะห้องชุด" เมื่อทีมตรวจแล้วเท่านั้น
+  // ⛔ ไม่ใช่การยืนยันกรรมสิทธิ์ และไม่แทนการรังวัดของสำนักงานที่ดิน · เข้าวัดห้องต้องได้รับความยินยอมจากเจ้าของห้องก่อน
+  function condoAskHtml(l){
+    if(!isCondo(l) || l.type==='rent') return '';
+    return '<div class="ld-cc">'+
+      '<p class="ld-cc-lede">อยากให้ทีมที่ดินชัวร์ช่วยตรวจห้องนี้ก่อนตัดสินใจ? ติ๊กสิ่งที่ต้องการด้านล่าง แล้วขอใบเสนอราคา — '+
+        '<b>ค่าบริการติดต่อเพื่อขอใบเสนอราคา</b> ทีมงานแจ้งราคาให้ก่อนเริ่มงานทุกครั้ง</p>'+
+      '<ul class="ld-cc-notes">'+
+        '<li>การติ๊กคือการ<b>ขอให้ตรวจ</b> ยังไม่ใช่การว่าจ้าง และยังไม่ใช่ผลตรวจ — ผลที่ทีมตรวจแล้วจะขึ้นในหัวข้อ “ผลตรวจเฉพาะห้องชุด” ของหน้านี้</li>'+
+        '<li>การเข้าไปวัดพื้นที่ห้องต้องได้รับความยินยอมจากเจ้าของห้องก่อน ทีมงานจะประสานให้</li>'+
+        '<li>ผลวัดใช้เทียบกับเอกสารเท่านั้น ไม่ใช่การยืนยันกรรมสิทธิ์ และไม่แทนการรังวัดของสำนักงานที่ดิน</li>'+
+      '</ul>'+
+      '<div id="ld-cc-form"></div>'+
+    '</div>';
+  }
+
   // "0-0-33.9" → "33.9 ตร.ว." · "2-1-50 ไร่" → "2 ไร่ 1 งาน 50 ตร.ว." — อ่านง่ายกว่ารูปแบบย่อ
   // อ่านไม่ออก = คืนข้อความเดิมทั้งก้อน ห้ามเดา (เนื้อที่ผิดทำให้ราคาต่อหน่วยผิดตาม)
   function areaTh(s){
@@ -446,9 +480,13 @@
   function nearbyHtml(L){
     var n=L.nearby;
     if(!n || !n.groups || !n.groups.length) return '';
+    var hasWalk=n.groups.some(function(g){ return (g.items||[]).some(function(it){ return Number(it.walkMin)>0; }); });
     var groups=n.groups.map(function(g){
       var items=(g.items||[]).map(function(it){
-        return '<li><span>'+esc(it.name)+'</span><b>'+Number(it.km||0).toFixed(1)+' กม.</b></li>';
+        // เวลาเดิน — ⚠️ มาจาก `walkMin` ที่เซิร์ฟเวอร์คำนวณให้ (80 ม./นาที · ไม่เกิน 1.5 กม.) ห้ามหารเอง · ไม่มี = ไม่ขึ้น
+        var wm=Number(it.walkMin)||0;
+        return '<li><span>'+esc(it.name)+'</span><b>'+Number(it.km||0).toFixed(1)+' กม.'+
+          (wm>0?'<small class="ld-nb-walk"> · เดินประมาณ '+wm+' นาที</small>':'')+'</b></li>';
       }).join('');
       if(!items) return '';
       return '<div class="ld-nb-g"><h3>'+esc(g.icon||'')+' '+esc(g.label)+'</h3><ul>'+items+'</ul></div>';
@@ -458,7 +496,9 @@
       '<div class="ld-nb-h">สถานที่ใกล้เคียง<small>ในรัศมีประมาณ 5 กม. จากตำแหน่งแปลง</small></div>'+
       groups+
       '<p class="ld-nb-foot">ข้อมูลสถานที่จาก Google Places · สำรวจเมื่อ '+esc(thaiDate(n.at))+' · '+
-        'ระยะทางเป็นเส้นตรงจากตำแหน่งแปลง ไม่ใช่ระยะทางขับรถ — สถานที่อาจเปลี่ยนแปลงได้ ควรตรวจสอบอีกครั้งก่อนตัดสินใจ</p>'+
+        'ระยะทางเป็นเส้นตรงจากตำแหน่งแปลง ไม่ใช่ระยะทางขับรถ — สถานที่อาจเปลี่ยนแปลงได้ ควรตรวจสอบอีกครั้งก่อนตัดสินใจ'+
+        // นาทีเดินคิดจากระยะเส้นตรงด้วยความเร็วเดินคงที่ — ไม่ใช่เวลาเดินจริงตามทางเท้า/ทางข้าม
+        (hasWalk?' · เวลาเดินเป็นค่าประมาณจากระยะเส้นตรง เดินจริงอาจนานกว่านี้':'')+'</p>'+
     '</section>';
   }
 
@@ -863,6 +903,13 @@
     NJListing.fetchListings().then(function(list){
       var all=list.filter(function(x){ return x.id!==current.id; });
       var prov=(current.land||{}).province||'';
+      // ประกาศอื่นในโครงการเดียวกัน — จับคู่ด้วยชื่อโครงการที่ "ตรงกันเป๊ะ" (ตัดช่องว่างซ้ำ ไม่สนตัวพิมพ์) ไม่เดา/ไม่จับคู่ใกล้เคียง
+      // ⚠️ เฉพาะห้องชุดที่ขึ้นเว็บอยู่ (รายการมาจาก API สาธารณะอยู่แล้ว) · ไม่มีชื่อโครงการ/ไม่มีใบอื่น = ไม่ขึ้นหัวข้อ · ไม่ทำหน้ารวมต่อโครงการ
+      var projKey=function(x){ var n=isCondo(x)&&window.NJLandMeta ? NJLandMeta.projectNameOf(x) : ''; return n ? n.replace(/\s+/g,' ').toLowerCase() : ''; };
+      var curKey=projKey(current);
+      var sameProject=curKey ? all.filter(function(x){ return projKey(x)===curKey; }).slice(0,3) : [];
+      // ใบที่ขึ้นในกลุ่ม "โครงการเดียวกัน" แล้ว ไม่ซ้ำในกลุ่ม "ใกล้เคียง"
+      all=all.filter(function(x){ return sameProject.indexOf(x)<0; });
       var near=all.filter(function(x){ return prov && (x.land||{}).province===prov; });
       var similar=near.concat(all.filter(function(x){ return near.indexOf(x)<0; })).slice(0,3);
       var seen=seenList().filter(function(id){ return id!==current.id; });
@@ -871,6 +918,13 @@
       }).filter(Boolean).slice(0,3);
 
       var html='';
+      if(sameProject.length){
+        html+='<section class="ld-rel" aria-labelledby="ld-proj-h">'+
+          '<h2 id="ld-proj-h">ประกาศอื่นๆ ในโครงการนี้</h2>'+
+          '<p class="ld-rel-sub">'+esc(NJLandMeta.projectNameOf(current))+'</p>'+
+          '<div class="ld-rel-grid">'+sameProject.map(NJListing.card).join('')+'</div>'+
+        '</section>';
+      }
       if(similar.length){
         html+='<section class="ld-rel" aria-labelledby="ld-rel-h">'+
           '<h2 id="ld-rel-h">'+esc(relatedTitle(prov,similar))+'</h2>'+
@@ -930,6 +984,7 @@
           // ข้อความเต็มไม่ได้หายไปไหน — ย้ายลงไปเป็นหัวข้อ "รายละเอียดทรัพย์" แทน
           '<h1 class="ld-title">'+esc(shortLabel(l))+'</h1>'+
           (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
+          listedLine(l)+
           statsHtml(l,L,tier)+
           codeHtml(l)+
         '</div>'+
@@ -939,6 +994,8 @@
         '</div></aside>'+
         '<div class="ld-content">'+
           secHtml('ld-s-fee','ประมาณการค่าใช้จ่ายวันโอน','<div id="ld-fee"></div>')+
+          // ค่างวดสินเชื่อ — เฉพาะห้องชุดที่ขายและมีราคา · ⚠️ ไม่ฝังดอกเบี้ย/วงเงินธนาคารใด (ค่าตั้งต้นแก้ได้ · คำเตือนค่าประมาณห้ามถอด)
+          (loanWanted(l) ? secHtml('ld-s-loan','ประมาณการค่างวดสินเชื่อ','<div id="ld-loan"></div>') : '')+
           secHtml('ld-s-spec','โครงสร้างและขนาดพื้นที่', specGridHtml(l,L,tier))+
           // รายละเอียดเต็ม — ย้ายมาจาก H1 (งานที่ 8) · ขึ้นเฉพาะเมื่อมีข้อความที่ต่างจากชื่อสั้น
           secHtml('ld-s-desc','รายละเอียดทรัพย์',
@@ -964,6 +1021,8 @@
               return '<button type="button" class="ld-pgrid-i" data-open="'+i+'" aria-label="เปิดรูปที่ '+(i+1)+' แบบเต็มจอ">'+
                 '<img src="'+esc(thumbs[i]||src)+'"'+fullAttr(thumbs[i],src)+' alt="" loading="lazy" decoding="async"></button>';
             }).join('')+'</div>') : '')+
+          // ให้ NJ ตรวจสอบห้องชุด (อ.ช.2) — ด้านท้ายหน้า ต่อจากรูป ก่อนทางเข้าอื่น (รอบคอนโด 3)
+          secHtml('ld-s-condoask','ให้ NJ ตรวจสอบห้องชุดนี้', condoAskHtml(l))+
           // ทางเข้าหน้านัดตรวจแปลง (Phase 2) — วางแยกจากปุ่มติดต่อโดยตั้งใจ
           // ⚠️ ไม่ใส่ data-contact และไม่ยิงสถิติติดต่อ — คนกดยังไม่ได้ติดต่อใคร เขาไปกรอกฟอร์มต่อ
           //    ซึ่งเซิร์ฟเวอร์นับเป็น inspect_submit ให้เองตอนสร้างใบ (นับที่เดียว · กติกาข้อ 6)
@@ -1012,6 +1071,19 @@
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
     // ⚠️ ห้ามเติมราคาประเมินราชการให้ (ดูเหตุผลใน feecalc.js) — ผู้ซื้อต้องกรอกเอง
     if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue,propertyType:(l.land&&l.land.propertyType==='condo')?'condounit':''});
+
+    // ค่างวดสินเชื่อของห้องชุด — ราคาตั้งต้น = ราคาประกาศ (ตัวเลขที่ประกาศอยู่แล้ว) · ไม่มี loancalc.js (หน้าสแตติกรุ่นก่อนสร้างใหม่) = ถอดส่วนนี้ ไม่ทิ้งหัวข้อเปล่า
+    var loanHost=document.getElementById('ld-loan');
+    if(loanHost){
+      if(window.NJLoanCalc) NJLoanCalc.mount(loanHost,{price:l.estValue});
+      else { var loanSec=document.getElementById('ld-s-loan'); if(loanSec) loanSec.remove(); }
+    }
+    // แผงขอให้ NJ ตรวจห้องชุด — ใช้ท่อ POST /api/public/inquiry เดียวกับฟอร์มอื่น (ลีดไปที่ทีมงาน ไม่ส่งถึงเจ้าของ)
+    var ccHost=document.getElementById('ld-cc-form');
+    if(ccHost){
+      if(window.NJServices) NJServices.mount(ccHost,{ condo:true, listingId:l.id, ref:'land_condo_check', province:(l.land||{}).province||'' });
+      else { var ccSec=document.getElementById('ld-s-condoask'); if(ccSec) ccSec.remove(); }
+    }
 
     var root=document.getElementById('ld-root');
     if(window.NJListing && NJListing.imgFallback) NJListing.imgFallback(root);

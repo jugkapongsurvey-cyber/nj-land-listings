@@ -439,7 +439,7 @@ console.log('\n10) ระลอก Phase 3 — ค้นหาตามวัต
     // บริการที่แนะนำต่อ ต้องใช้คีย์ชุดเดียวกับ NJ_SERVICES ไม่งั้นผู้ซื้อกดแล้วบริการหายเงียบๆ
     const njSvcKeys = (server.match(/key: '[a-z]+', +by: '(?:nj|partner)'/g) || [])
       .map(s => s.match(/key: '([a-z]+)'/)[1]);
-    check('เซิร์ฟเวอร์ยังประกาศ NJ_SERVICES ครบ 8 บริการ', njSvcKeys.length === 8, njSvcKeys.join(','));
+    check('เซิร์ฟเวอร์ยังประกาศ NJ_SERVICES ครบ 10 บริการ (รวมตรวจห้องชุด 2 ตัว)', njSvcKeys.length === 10, njSvcKeys.join(','));
     njSvcKeys.forEach(function (k) {
       check('lib วัตถุประสงค์รู้จักบริการ ' + k, new RegExp('\\b' + k + ':').test(srvP));
     });
