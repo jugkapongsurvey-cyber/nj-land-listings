@@ -187,8 +187,81 @@ function setupForm() {
   });
 }
 
+// ---------- เติมโจทย์จากปุ่ม "แจ้งเตือนเมื่อมีแปลงตรงเงื่อนไข" ของหน้ารวมประกาศ (10 ต.ค. 69) ----------
+// listings.html ส่งเงื่อนไขที่ผู้ซื้อกรองอยู่มาทาง query string (?from=listings&province=…)
+// ⚠️ ค่าใน query string ใครก็ตั้งได้ (กติกาเดียวกับ prefillFromQuery ของ verify.js):
+//    · รับเฉพาะคีย์/ตัวเลือกที่มีอยู่จริงในฟอร์มหรือในคำศัพท์กลาง (NJVocab) · ตัวเลขต้องเป็นตัวเลขจริง
+//    · ใส่ลงช่องด้วย .value / .checked เท่านั้น ไม่ประกอบเป็น HTML
+//    · ⛔ ไม่เติมช่องข้อมูลส่วนบุคคล (ชื่อ · เบอร์ · ยินยอม) เด็ดขาด — ผู้ใช้กรอกเองทุกครั้ง
+//    · ไม่ทับสิ่งที่ผู้ใช้พิมพ์ไว้แล้ว (เบราว์เซอร์เติมค่าเดิมคืนตอนกดย้อนกลับ)
+// ช่องที่หน้านี้ไม่มี (ผังสี · ประเภททรัพย์ · ชั้น · เช่า · คำค้น) ประกอบเป็นข้อความในช่องหมายเหตุ จากคำศัพท์กลาง
+// ⚠️ เรียกตอน DOMContentLoaded — landvocab.js โหลด *หลัง* ไฟล์นี้ (ลำดับเดิมของหน้า ห้ามสลับเพื่อเรื่องนี้)
+var WT_FLOORS = { '1': 'ชั้นเดียว', '2': '2 ชั้น', '3+': '3 ชั้นขึ้นไป' };
+function prefillFromListings() {
+  var form = $('wanted-form');
+  if (!form || typeof URLSearchParams === 'undefined') return;
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  if (q.get('from') !== 'listings') return;
+  var V = window.NJVocab || {};
+  var did = false;
+  function setText(name, v) {
+    var el = form.elements[name];
+    if (el && !el.value && v) { el.value = v; did = true; }
+  }
+  function num(k) { var v = Number(q.get(k)); return isFinite(v) && v > 0 && v < 1e12 ? String(v) : ''; }
+
+  var prov = String(q.get('province') || '').trim();
+  var pEl = $('wt-province1');
+  if (pEl && !pEl.value && /^[฀-๿ ]{2,40}$/.test(prov)) {
+    pEl.value = prov;
+    // ยิงเหมือนผู้ใช้พิมพ์เอง — NJLandForm.initAddress สร้างรายชื่ออำเภอจากจังหวัดผ่านตัวฟังเดิม
+    pEl.dispatchEvent(new Event('input', { bubbles: true }));
+    pEl.dispatchEvent(new Event('change', { bubbles: true }));
+    did = true;
+  }
+  setText('budgetMin', num('budgetMin'));
+  setText('budgetMax', num('budgetMax'));
+  // หน้ารวมประกาศกรองเนื้อที่เป็นไร่ — ตั้งหน่วยเป็นไร่ด้วย (เซิร์ฟเวอร์แปลงหน่วยเอง ไม่แปลงที่นี่)
+  if (num('areaMin') || num('areaMax')) {
+    var rai = form.querySelector('input[name="areaUnit"][value="rai"]');
+    if (rai) rai.checked = true;
+    setText('areaMin', num('areaMin'));
+    setText('areaMax', num('areaMax'));
+  }
+  var deed = q.get('deedType');
+  var dEl = (deed === 'chanote' || deed === 'nor3gor') && form.querySelector('input[name="deedType"][value="' + deed + '"]');
+  if (dEl) { dEl.checked = true; did = true; }
+  String(q.get('features') || '').split(',').forEach(function (k) {
+    if (!/^[a-z]{2,16}$/.test(k)) return;
+    var el = form.querySelector('input[name="features"][value="' + k + '"]');
+    if (el) { el.checked = true; did = true; }
+  });
+
+  var extra = [];
+  if (q.get('deal') === 'rent') extra.push('สนใจเช่า');
+  var prop = q.get('prop');
+  if (prop === 'any_building') extra.push('ประเภททรัพย์: มีสิ่งปลูกสร้าง');
+  else if (prop && V.PROPERTY_TH && Object.prototype.hasOwnProperty.call(V.PROPERTY_TH, prop)) extra.push('ประเภททรัพย์: ' + V.PROPERTY_TH[prop]);
+  var fl = q.get('floors');
+  if (fl && Object.prototype.hasOwnProperty.call(WT_FLOORS, fl)) extra.push('จำนวนชั้น: ' + WT_FLOORS[fl]);
+  var zone = q.get('zone');
+  if (zone === 'checked') extra.push('ตรวจผังสีแล้ว');
+  else if (zone && V.ZONE_TH && Object.prototype.hasOwnProperty.call(V.ZONE_TH, zone)) extra.push('ผังสี: ' + V.ZONE_TH[zone]);
+  var dOther = q.get('deedOther');
+  if (dOther && V.DEED_TH && Object.prototype.hasOwnProperty.call(V.DEED_TH, dOther)) extra.push('เอกสารสิทธิ์: ' + V.DEED_TH[dOther]);
+  // คำค้นของผู้ใช้เอง — รับเฉพาะตัวอักษรไทย/อังกฤษ/ตัวเลข/เว้นวรรค ไม่เกิน 60 ตัว (ไม่รับลิงก์หรือสัญลักษณ์แปลกๆ)
+  var kw = String(q.get('q') || '').trim();
+  if (/^[฀-๿a-zA-Z0-9 .\-]{1,60}$/.test(kw)) extra.push('คำค้น: ' + kw);
+  if (extra.length) setText('note', 'เงื่อนไขจากหน้าประกาศ — ' + extra.join(' · '));
+
+  var hint = $('wt-prefill');
+  if (hint && did) hint.hidden = false;
+}
+
 document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
 setupContactLinks();
 setupForm();
+document.addEventListener('DOMContentLoaded', prefillFromListings);
 njTrackInternal('buyer_request_view');
 njTrack('ViewContent', { content_name: 'wanted_page' });
