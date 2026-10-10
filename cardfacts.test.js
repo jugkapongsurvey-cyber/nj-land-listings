@@ -144,7 +144,8 @@ const lc = read('listingcard.css');
 ok('listingcard.css มี .card-checked + .card-ck สามสถานะ',
   /\.card-checked\{/.test(lc) && /\.card-ck\.is-ok\{/.test(lc) && /\.card-ck\.is-warn\{/.test(lc) && /\.card-ck\.is-bad\{/.test(lc));
 const mob = (lc.match(/@media \(max-width:767px\)\{[\s\S]*$/) || [''])[0];
-ok('⭐ มือถือไม่ซ่อนแถว card-checked', !/card-checked[^{]*\{[^}]*display:none/.test(mob) && !/\.card-ck[^{]*\{[^}]*display:none/.test(mob));
+ok('⭐ มือถือไม่ซ่อนแถว card-checked ทั้งแถว', !/card-checked\s*\{[^}]*display:none/.test(mob));
+ok('⭐ มือถือ: แถวเดียว ซ่อนเฉพาะชิปที่ 3 ขึ้นไป (2 ชิปแรกสำคัญที่สุดยังเห็น)', /card-checked\{[^}]*flex-wrap:nowrap/.test(mob) && /card-checked > li:nth-child\(n\+3\)\{display:none\}/.test(mob) && !/nth-child\((1|2)\)[^{]*\{[^}]*display:none/.test(mob));
 ok('มือถือย่อชิปให้เล็กลง', /\.land-card\.is-compact \.card-ck/.test(lc));
 ok('njchat.css มีสไตล์ชิปของการ์ดในแชท', /\.njchat-cards \.card-checked\{/.test(read('njchat.css')));
 ok('ไม่ใช้ชื่อคลาส card-facts (ชนกับ marketplace.css รุ่นเก่า)', !/card-facts/.test(read('listingcard.js')));

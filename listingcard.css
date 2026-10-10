@@ -214,7 +214,11 @@
      ชื่อระดับ 2 ยาว จึงย่อตัวอักษรและให้ขึ้นบรรทัดใหม่ในช่องข้อความ ⚠️ ห้ามกลับไปซ่อน .card-marks */
   .land-card.is-compact .card-marks{margin-top:2px}
   /* แถวข้อมูลที่ตรวจแล้วบนการ์ดแนวนอน — ตัวเล็กลง · ช่องไฟแคบลง ให้การ์ดไม่สูงขึ้นมาก */
-  .land-card.is-compact .card-checked{gap:4px;margin-top:1px}
+  /* การ์ดแนวนอนบนมือถือ: แถวเดียว 2 ชิปแรก (เรียงตามความสำคัญแล้ว) — กันการ์ดสูงขึ้น · ชิปที่เหลือดูได้ในหน้าแปลง */
+  .land-card.is-compact .card-checked{gap:4px;margin-top:1px;flex-wrap:nowrap;overflow:hidden}
+  .land-card.is-compact .card-checked > li:nth-child(n+3){display:none}
+  .land-card.is-compact .card-ck{flex:0 1 auto;min-width:0}
+  .land-card.is-compact .card-ck.card-ck-zone{padding:0}
   .land-card.is-compact .card-ck,
   .land-card.is-compact .card-checked .card-zone{font-size:10.5px;padding:2px 6px}
   .land-card.is-compact .njv-badge{font-size:10px;padding:2px 7px;line-height:1.5}
