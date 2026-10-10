@@ -485,6 +485,40 @@
 }
 .cs-up-count{font-size:11.5px;font-weight:700;color:var(--muted)}
 
+/* ---------- การ์ดผู้ลงประกาศ (agentcard.js) ----------
+   ไม่บังคับ · ข้อความยินยอมมาจากระบบหลังบ้าน · ซ่อนจนกว่าสวิตช์ฝั่งระบบจะเปิด */
+.cs-ac{text-align:left;margin:0 0 22px;display:grid;gap:10px;border:1px solid var(--border);border-radius:14px;padding:15px 16px;background:#fff}
+.cs-ac[hidden]{display:none}
+.cs-ac-status{font-size:12px;line-height:1.6;border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--muted)}
+.cs-ac-status.s-pending{background:#FFF7E6;color:var(--amber)}
+.cs-ac-status.s-rejected{background:#FEF2F2;color:#B91C1C}
+.cs-ac-status.s-approved{background:var(--green-light);color:#15803D}
+.cs-ac-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cs-ac-f{display:grid;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+.cs-ac-f input{font:inherit;font-size:16px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;min-width:0;width:100%;box-sizing:border-box;color:var(--ink);background:#fff}
+.cs-ac-photo{display:flex;gap:12px;align-items:center}
+.cs-ac-photo img{width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border);flex:none;background:var(--bg)}
+.cs-ac-photo img[hidden]{display:none}
+.cs-ac-photo-ctl{display:grid;gap:5px;justify-items:start;min-width:0}
+.cs-ac-photo-ctl small{font-size:11px;color:var(--muted);line-height:1.5}
+.cs-ac-pick{display:inline-block;cursor:pointer;font-size:13px;font-weight:700;color:var(--teal);border:1.5px dashed var(--border);border-radius:10px;padding:9px 14px;background:#fff}
+.cs-ac-pick:hover,.cs-ac-pick:focus-within{border-color:var(--green);background:var(--green-light)}
+.cs-ac-consent{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.65;color:var(--ink);cursor:pointer}
+.cs-ac-consent input{margin-top:4px;flex:none;width:18px;height:18px}
+.cs-ac-note{font-size:11.5px;color:var(--muted);line-height:1.7;background:var(--bg);border-radius:10px;padding:10px 12px}
+.cs-ac-note:empty{display:none}
+.cs-ac-msg{font-size:12.5px;line-height:1.6;border-radius:8px;padding:8px 11px}
+.cs-ac-msg[hidden]{display:none}
+.cs-ac-msg.ok{background:var(--green-light);color:#15803D}
+.cs-ac-msg.err{background:#FEF2F2;color:#B91C1C}
+.cs-ac-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cs-ac-save{font:inherit;font-size:14px;font-weight:700;color:#fff;background:var(--teal);border:0;border-radius:11px;padding:12px 20px;cursor:pointer;min-height:44px}
+.cs-ac-save:disabled{opacity:.5;cursor:not-allowed}
+.cs-ac-link{font:inherit;font-size:12.5px;color:var(--teal);background:none;border:0;padding:6px 2px;cursor:pointer;text-decoration:underline;min-height:44px}
+.cs-ac-del{color:#B91C1C}
+.cs-ac-link[hidden]{display:none}
+@media (max-width:520px){.cs-ac-grid{grid-template-columns:1fr}}
+
 /* ---------- รูป/เอกสารที่แนบไว้แล้ว (ลบเองได้ตราบใดที่ทีมงานยังไม่ตรวจ) ----------
    ใช้ grid ที่ยืดตามความกว้าง — บนมือถือ 375px ได้ 3 ช่อง บนเดสก์ท็อปได้ 5-6 ช่อง
    ปุ่มลบต้องแตะโดนง่ายบนมือถือ จึงตั้ง 26px ไม่ใช่ไอคอนจิ๋ว */

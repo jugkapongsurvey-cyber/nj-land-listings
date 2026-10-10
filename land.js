@@ -798,6 +798,24 @@
     var t=(window.NJListing&&NJListing.inspectedText)?NJListing.inspectedText(l.inspected):'';
     return t?'<small class="ld-agent-ins">✓ ตรวจโดยที่ดินชัวร์ · '+esc(t)+'</small>':'';
   }
+  // การ์ดผู้ลงประกาศ (เจ้าของ/ผู้รับมอบอำนาจ/นายหน้า) — มาจาก l.agent ที่ระบบหลังบ้านส่งมาเมื่อทีมรับรองแล้วเท่านั้น
+  // ⚠️ ไม่มี l.agent = ไม่วาดอะไรเลย (กติกาข้อแรกของ Phase 1) · ไม่มีเบอร์/อีเมล · ไม่มีป้ายยืนยันตัวตน
+  // ข้อความกำกับ (disclaim) อ่านจาก API ที่เดียว ห้ามเขียนซ้ำที่นี่ · ชื่อ/บริษัท/ตำแหน่งผ่าน esc() ทุกตัว
+  function posterHtml(l){
+    var a=l&&l.agent;
+    if(!a||!a.name) return '';
+    var url=typeof a.photo==='string'&&/^(https?:\/\/|\/)/.test(a.photo)?a.photo:'';
+    var ini=String(a.name).replace(/^คุณ\s*/,'').trim().charAt(0)||'•';
+    return '<div class="ld-poster">'+
+      (url?'<img src="'+esc(url)+'" alt="" width="56" height="56" loading="lazy" decoding="async">':'<span class="ld-poster-ini" aria-hidden="true">'+esc(ini)+'</span>')+
+      '<div class="ld-poster-t">'+
+        '<b>'+esc(a.name)+'</b>'+
+        (a.company?'<span>'+esc(a.company)+'</span>':'')+
+        '<small>'+(a.roleTh?esc(a.roleTh)+' · ':'')+'ระบุโดยผู้ลงประกาศ</small>'+
+      '</div>'+
+    '</div>'+
+    (a.disclaim?'<p class="ld-poster-note">'+esc(a.disclaim)+'</p>':'');
+  }
   function agentHtml(l){
     return '<div class="ld-agent">'+
       '<div class="ld-agent-h">'+
@@ -808,6 +826,7 @@
           : '<div><b>ทีมขาย ที่ดินชัวร์</b><small>'+(l.saleBy==='nj'?'ฝากขายชัวร์ — ทีมที่ดินชัวร์ดูแลการขาย · ':'')+'บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</small>'+(l.saleBy?inspectedLine(l):'')+'</div>')+
       '</div>'+
       '<div class="ld-agent-b">'+
+        posterHtml(l)+
         '<div class="ld-agent-price"><span>'+(l.type==='rent'?'ค่าเช่า':'ราคาขาย')+'</span><b>'+money(l.estValue)+'</b></div>'+
         '<p class="ld-agent-code">รหัสทรัพย์ <b>'+esc(l.id)+'</b> · แจ้งรหัสนี้ทุกครั้งที่ติดต่อ</p>'+
         '<div class="ld-cta">'+
