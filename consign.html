@@ -237,7 +237,7 @@
         </li>
       </ul>
     </nav>
-    <a class="njh-login" href="https://app.njteedinsure.com/seller.html" title="เข้าสู่ระบบเจ้าของทรัพย์ — ดูแปลงที่ฝากและใบเสนอราคา">เข้าสู่ระบบ</a>
+    <a class="njh-login" href="https://app.njteedinsure.com/seller.html" aria-label="เข้าสู่ระบบเจ้าของทรัพย์" title="เข้าสู่ระบบเจ้าของทรัพย์ — ลงประกาศฟรี ดูแปลงที่ฝากและใบเสนอราคา"><svg class="njh-login-ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="njh-login-t">เข้าสู่ระบบ</span></a>
     <a class="njh-cta" href="consign.html">ฝากขายที่ดิน</a>
   </div>
 </header>
@@ -305,7 +305,7 @@
           <input type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder="08x-xxx-xxxx" required>
         </label>
 
-        <div class="cs-field">
+        <div class="cs-field cs-gate-keep">
           <span class="cs-label">ต้องการ</span>
           <div class="cs-seg" role="radiogroup" aria-label="ประเภทที่ต้องการ">
             <label><input type="radio" name="type" value="sell" checked><span>ฝากขาย</span></label>
@@ -327,6 +327,27 @@
             <select id="cs-role" name="submitterRole"></select>
           </label>
           <div class="cs-svc-fee" id="cs-svc-fee"></div>
+        </div>
+
+        <!-- ---------- ฝากทรัพย์ทุกบริการต้องสมัคร/เข้าสู่ระบบก่อน (เจ้าของสั่ง 10 ต.ค. 2569 · รวมตรวจชัวร์) ----------
+             ระบบส่งรูปแบบบริการมา = ซ่อนช่องกรอกที่เหลือ แล้วพาไปสมัคร/เข้าสู่ระบบ
+             ที่หน้าบัญชีเจ้าของทรัพย์บนโดเมนระบบ ซึ่งเปิดฟอร์มฝากทรัพย์ในบัญชีให้ทันทีหลังล็อกอิน
+             ⚠️ ห้ามทำช่องรหัสผ่านไว้บนเว็บนี้ (เว็บสแตติก · กรอกรหัสข้ามโดเมน = หน้าตาเหมือนหน้าหลอก)
+             ⚠️ ลิงก์ส่งแค่ key บริการ — ห้ามส่งชื่อ/เบอร์/ข้อมูลทรัพย์ทาง URL
+             consign.js เติม href และเปิด/ปิดกล่องนี้ (renderGate) -->
+        <div class="cs-gate" id="cs-gate" hidden>
+          <div class="cs-gate-title">🔐 ลงฝากฟรี — สมัครบัญชีเจ้าของทรัพย์ก่อน</div>
+          <p class="cs-gate-lead">สมัครฟรีด้วยอีเมล แล้วกรอกข้อมูลทรัพย์ในบัญชีของคุณ — ติดตามสถานะ แก้ไข และแนบรูปได้เองตลอด</p>
+          <ol class="cs-gate-steps">
+            <li>ทีมงานตรวจข้อมูล แล้วส่ง<b>ใบเสนอราคาแพ็กเกจ</b>รังวัด/ตรวจกรรมสิทธิ์ที่เหมาะกับทรัพย์ของคุณ</li>
+            <li>เลือกได้ว่าจะแสดงผลการรังวัดตรวจสอบบนประกาศ — ผู้ซื้อเห็นว่าทรัพย์ผ่านการตรวจแล้ว มั่นใจก่อนซื้อขาย</li>
+            <li><b>คุณกดอนุมัติเอง</b>ก่อนประกาศขึ้นเว็บ — ไม่มีอะไรขึ้นประกาศโดยที่คุณไม่ได้ยืนยัน</li>
+          </ol>
+          <div class="cs-gate-btns">
+            <a class="cs-gate-btn" id="cs-gate-reg" href="https://app.njteedinsure.com/seller.html">สมัครฟรี แล้วฝากทรัพย์ →</a>
+            <a class="cs-gate-alt" id="cs-gate-login" href="https://app.njteedinsure.com/seller.html">มีบัญชีแล้ว — เข้าสู่ระบบ</a>
+          </div>
+          <div class="cs-gate-note">ทุกบริการ (ตรวจชัวร์ · ขายเองชัวร์ · ฝากขายชัวร์) ฝากผ่านบัญชีเจ้าของทรัพย์ — เลือกบริการด้านบนไว้ก่อนได้ ระบบจะเลือกให้ในฟอร์มของบัญชี</div>
         </div>
 
         <!-- ---------- ประเภททรัพย์ (เพิ่ม 2026-09-25) ----------
