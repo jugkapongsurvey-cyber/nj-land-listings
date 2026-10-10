@@ -78,7 +78,7 @@
   var PROPERTY_TH = {
     land: 'ที่ดินเปล่า', house: 'บ้านเดี่ยว', townhouse: 'ทาวน์เฮาส์/ทาวน์โฮม', condo: 'คอนโด',
     shophouse: 'อาคารพาณิชย์/ตึกแถว', warehouse: 'โกดัง/โรงงาน',
-    apartment: 'อพาร์ตเมนต์/หอพัก', other_building: 'สิ่งปลูกสร้างอื่น'
+    apartment: 'อพาร์ตเมนต์/หอพัก', resort: 'รีสอร์ท', hotel: 'โรงแรม', other_building: 'สิ่งปลูกสร้างอื่น'
   };
 
   var STRUCTURE_TH = {

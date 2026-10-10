@@ -44,6 +44,9 @@ check('ไม่มีเนื้อที่ = 0', C.parseAreaWa('หาที
 console.log('\n2) ตัวอ่านโจทย์ค้นแปลง');
 let f = C.parseSearch('ต้องการบ้านที่มีสิ่งปลูกสร้าง 1 ชั้น ในกรุงเทพฯปริมณฑล ส่งมาให้ฉันดูเปรียบเทียบ มีกี่หลัง');
 check('ปริมณฑล → 6 จังหวัดโซน A · "บ้าน...1 ชั้น" = ตัวกรองจริง (prop/floors) ไม่ใช่แค่ธง', f.provinces.length === 6 && f.provinces.indexOf('กรุงเทพมหานคร') >= 0 && f.prop === 'house' && f.floors === 1 && f.building === true && f.deed === 'all', JSON.stringify(f));
+f = C.parseSearch('อยากได้รีสอร์ทในชลบุรี');
+check('รีสอร์ท/รีสอร์ต = ตัวกรองประเภท resort', f.prop === 'resort' && C.parseSearch('หารีสอร์ตริมทะเล').prop === 'resort', JSON.stringify(f));
+check('โรงแรม = ตัวกรองประเภท hotel (ไม่ชนกับ โรงงาน → warehouse)', C.parseSearch('มีโรงแรมขายไหม').prop === 'hotel' && C.parseSearch('หาโรงงาน').prop === 'warehouse');
 f = C.parseSearch('หาที่ดินในปทุมธานี ไม่เกิน 5 ล้าน 2 ไร่ โฉนด ผังเหลือง ติดถนน');
 check('จังหวัด + งบ + เนื้อที่ ±20% + โฉนด + ผังเหลือง + ติดถนน', f.provinces[0] === 'ปทุมธานี' && f.pmax === 5000000 && f.amin === 1.6 && f.amax === 2.5 && f.deed === 'chanote' && f.zone === 'yellow' && f.feats[0] === 'road', JSON.stringify(f));
 f = C.parseSearch('ที่ดินเช่า ไม่เกิน 2 ไร่ ผังเขียวลายขาว ถูกสุด');

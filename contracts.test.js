@@ -216,6 +216,16 @@ console.log('\n7) ระลอก Teedin Sure Verified — บันได 2 ร
     check('ทั้งสองฝั่งไม่มีคีย์สำหรับ "ยังไม่ระบุ" (ค่าว่างคือยังไม่ได้กรอก ไม่ใช่ตัวเลือก)',
       propSrv.indexOf('') < 0 && propWeb.indexOf('unknown') < 0);
 
+    // รีสอร์ท/โรงแรม (2026-10-10): ทุกประเภทในฟอร์มฝากขายของระบบหลังบ้านที่จับคู่กับประเภทแปลงได้ ต้องมีชื่อไทยฝั่งเว็บ
+    // ไม่งั้นแปลงของประเภทนั้นไปอยู่ที่อยู่ /properties/ทรัพย์/… และการ์ดไม่มีป้ายประเภท โดยไม่มีอะไรเตือน
+    var csSrc = read(path.join(SRV, 'lib', 'consignspec.js'));
+    var csMapped = (csSrc.match(/landPropertyType:\s*'([a-z_]+)'/g) || []).map(function (s) { return s.replace(/.*'([a-z_]+)'/, '$1'); });
+    check('ประเภทฝากขายที่ผูกกับประเภทแปลงทุกตัว มีชื่อไทยใน PROPERTY_TH (อ่านจาก consignspec.js)',
+      csMapped.length >= 9 && csMapped.every(function (k) { return propWeb.indexOf(k) >= 0; }),
+      JSON.stringify(csMapped.filter(function (k) { return propWeb.indexOf(k) < 0; })));
+    check('มีรีสอร์ทและโรงแรมเป็นประเภทของตัวเองทั้งสองฝั่ง (ไม่จัดใน "อื่นๆ")',
+      /resort:\s*'รีสอร์ท'/.test(vocab) && /hotel:\s*'โรงแรม'/.test(vocab) && csMapped.indexOf('resort') >= 0 && csMapped.indexOf('hotel') >= 0);
+
     // ⚠️ ที่ตาบอดและแนวรุกล้ำ = ข้อมูลที่ผู้ซื้อต้องรู้ที่สุดในรายงานสุขภาพแปลง
     // ถอดออกจากฝั่งใดฝั่งหนึ่งเมื่อไหร่ = ปิดบังสิ่งที่กระทบการตัดสินใจซื้อโดยตรง
     check('ทั้งสองฝั่งยังมีตัวเลือก "ที่ตาบอด"',
