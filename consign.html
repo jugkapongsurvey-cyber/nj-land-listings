@@ -609,6 +609,47 @@
           </div>
         </div>
 
+        <!-- ---------- การ์ดผู้ลงประกาศ (เจ้าของ / ผู้รับมอบอำนาจ / นายหน้า) — agentcard.js ----------
+             ⚠️ ซ่อนไว้ใน HTML แล้วให้ agentcard.js เปิด — จะเปิดต่อเมื่อ spec ของระบบหลังบ้านมีก้อน agentCard
+             (สวิตช์ agent_card เปิดอยู่) · ข้อความยินยอมมาจาก spec ที่เดียว ห้ามพิมพ์ซ้ำที่นี่
+             ไม่บังคับ: ไม่ทำการ์ดก็ขึ้นประกาศได้ตามปกติ · การ์ดไม่ขึ้นหน้าประกาศจนกว่าทีมงานจะรับรอง -->
+        <div class="cs-ac" id="cs-ac" hidden>
+          <div class="cs-up-head">
+            <b>การ์ดผู้ลงประกาศ (ไม่บังคับ)</b>
+            <span>ชื่อและรูปหน้าของคนที่ลงประกาศ จะขึ้นบนหน้าประกาศหลังทีมงานตรวจแล้วเท่านั้น · ไม่แสดงเบอร์โทรหรืออีเมล — ผู้สนใจติดต่อผ่านปุ่มของที่ดินชัวร์</span>
+          </div>
+          <form id="cs-ac-form" novalidate>
+            <div class="cs-ac-status" id="cs-ac-status" role="status"></div>
+            <div class="cs-ac-grid">
+              <label class="cs-ac-f">ชื่อที่ให้แสดง
+                <input type="text" id="cs-ac-name" autocomplete="off" maxlength="60" placeholder="เช่น คุณสมชาย">
+              </label>
+              <label class="cs-ac-f">บริษัท (ถ้ามี)
+                <input type="text" id="cs-ac-co" autocomplete="off" maxlength="80" placeholder="ไม่ต้องกรอกก็ได้">
+              </label>
+            </div>
+            <div class="cs-ac-photo">
+              <img id="cs-ac-prev" alt="ตัวอย่างรูปหน้า" width="84" height="84" hidden>
+              <div class="cs-ac-photo-ctl">
+                <label class="cs-ac-pick" for="cs-ac-photo">📷 เลือกรูปหน้า</label>
+                <input type="file" id="cs-ac-photo" accept="image/*" hidden>
+                <button type="button" class="cs-ac-link" id="cs-ac-rmphoto" hidden>ไม่ใช้รูป</button>
+                <small>ระบบครอบเป็นสี่เหลี่ยมจัตุรัสและตัดข้อมูลตำแหน่งในรูปออก</small>
+              </div>
+            </div>
+            <label class="cs-ac-consent">
+              <input type="checkbox" id="cs-ac-consent">
+              <span id="cs-ac-consent-text"></span>
+            </label>
+            <div class="cs-ac-note" id="cs-ac-disclaim"></div>
+            <div class="cs-ac-msg" id="cs-ac-msg" role="status" hidden></div>
+            <div class="cs-ac-actions">
+              <button type="submit" class="cs-ac-save" id="cs-ac-save" disabled>ส่งการ์ดให้ทีมงานตรวจ</button>
+              <button type="button" class="cs-ac-link cs-ac-del" id="cs-ac-del" hidden>ลบการ์ดและรูปของฉัน</button>
+            </div>
+          </form>
+        </div>
+
         <button type="button" class="cs-submit cs-send" id="cs-send">📨 ส่งให้ทีมงานตรวจสอบ</button>
         <div class="cs-send-note" id="cs-send-note">
           กดแล้วทีมงานจะได้รับแจ้งเตือนทันที และโทรกลับภายใน 1 วันทำการ
@@ -820,6 +861,8 @@
      (ด่าน 5 ของ build/lint.js ล็อกลำดับนี้ไว้แล้ว) -->
 <script src="consignpreview.js" defer></script>
 <script src="consign.js" defer></script>
+<!-- การ์ดผู้ลงประกาศ — ต้องมาหลัง consign.js (อ่าน LEAD) · ไม่มีสวิตช์ฝั่งระบบ = ไม่แสดงกล่อง -->
+<script src="agentcard.js" defer></script>
 <!-- น้องเอ็นเจชัวร์ (แชท AI) — ต้องมาหลัง analytics.js · listingcard.js · landvocab.js · compare.js และก่อน menu.js -->
 <script src="verified.js" defer></script>
 <script src="listingcard.js" defer></script>
