@@ -71,7 +71,8 @@
     var compact = !!opt.compact;
     var name = opt.name || 'njsv';
     // only — แผงเฉพาะประเภททรัพย์ (เช่น 'condo') เห็นเฉพาะบริการของประเภทนั้น · ฟอร์มทั่วไป (ไม่ส่ง only) ไม่เห็นบริการที่ติด only
-    var svcs = LIST.filter(function (s) { return opt.only ? s.only === opt.only : !s.only; });
+    var svcs = LIST.filter(function (s) { return opt.keys ? opt.keys.indexOf(s.key) >= 0 : (opt.only ? s.only === opt.only : !s.only); });
+    // opt.keys — แผงขอให้ตรวจทรัพย์ที่ไม่ใช่ห้องชุด เลือกเฉพาะคีย์ที่ระบบรู้จักอยู่แล้ว (ลำดับตาม LIST ไม่ใช่ตามที่ส่งมา)
     return '<div class="njsv-list' + (compact ? ' njsv-compact' : '') + '">' +
       svcs.map(function (s) {
         var pv = providerOf(s);
@@ -115,6 +116,7 @@
     // ⚠️ **ใช้ท่อส่งเดียวกับแบบเต็มทุกอย่าง** (submit · honeypot · ยินยอม · พันธมิตร) — ต่างกันแค่ลำดับบนจอ
     //    ห้ามแยกเป็นฟอร์มใหม่ที่ยิงไปอีกเส้นทาง ไม่งั้นลีดจากหน้าแปลงจะนับคนละที่กับหน้าแรก
     if (opt.condo) return condoFormHtml(opt, id);
+    if (opt.inspect) return inspectFormHtml(opt, id);
     if (opt.brief) return briefHtml(opt, id);
     // opt.wide — วางเต็มความกว้าง (หน้าแรก): รายการบริการกาง 3 คอลัมน์ ส่วนช่องกรอกยุบเป็นการ์ดกลางหน้า
     // ไม่ทำแบบนี้แล้วช่อง "ชื่อ/เบอร์" จะยืดเป็น 1,280px ซึ่งกรอกยากและดูเหมือนหน้าเว็บพัง
@@ -140,6 +142,35 @@
         '<div class="njsv-msg" data-njsv-msg role="alert" hidden></div>' +
         '<button type="submit" class="njsv-submit">ส่งเรื่องให้ทีมงานติดต่อกลับ</button>' +
         '<p class="njsv-pdpa">กดส่ง = ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด ใช้ข้อมูลนี้ติดต่อกลับเรื่องที่ดินและบริการที่เลือกเท่านั้น</p>' +
+      '</div>' +
+    '</form>';
+  }
+
+  // ---------- แผง "ให้ NJ ตรวจสอบทรัพย์นี้" ของทรัพย์ทุกประเภทที่ไม่ใช่ห้องชุด (นโยบายลงฟรี ขั้น ③ ข · 10 ต.ค. 69) ----------
+  // ใช้คีย์บริการเดิมที่ระบบรู้จักแล้ว (title · survey) ไม่เพิ่มคีย์ใหม่ — ท่อส่งเดียวกับแผงห้องชุดทุกอย่าง
+  // ⚠️ รังวัดเป็นทางเลือกล้วน (ติ๊กเฉพาะที่ต้องการ) · ไม่บังคับ ไม่ติ๊กไว้ให้
+  // ⛔ ไม่มีตัวเลขราคา/ ฿ ในแผงนี้เด็ดขาด — ค่าบริการติดต่อเพื่อขอใบเสนอราคา · เทสต์ล็อก
+  // ⛔ ติ๊ก = ขอให้ตรวจ ยังไม่ใช่การว่าจ้างและยังไม่ใช่ผลตรวจ
+  var INSPECT_KEYS = ['title', 'survey'];
+  function inspectFormHtml(opt, id) {
+    return '<form class="njsv-form ld-cc-form" novalidate data-njform>' +
+      (id ? '<input type="hidden" data-njsv="listingId" value="' + esc(id) + '">' : '') +
+      '<div class="njsv-fieldset">' +
+        '<span class="njsv-legend">เลือกสิ่งที่อยากให้ทีมงานตรวจ <i>(ติ๊กเฉพาะที่ต้องการ · การรังวัดไม่บังคับ)</i></span>' +
+        checklistHtml({ keys: INSPECT_KEYS, name: 'njsv-inspect' }) +
+      '</div>' +
+      '<p class="ld-cc-price"><b>ค่าบริการ:</b> ติดต่อเพื่อขอใบเสนอราคา — ทีมงานแจ้งราคาให้ก่อนเริ่มงานทุกครั้ง</p>' +
+      '<div class="njsv-contact">' +
+        '<label class="njsv-field"><span>ชื่อผู้ติดต่อ</span>' +
+          '<input type="text" data-njsv="name" autocomplete="name" enterkeyhint="next" placeholder="ระบุชื่อ"></label>' +
+        '<label class="njsv-field"><span>เบอร์โทร</span>' +
+          '<input type="tel" data-njsv="phone" autocomplete="tel" inputmode="tel" enterkeyhint="done" placeholder="ระบุเบอร์โทร"></label>' +
+        '<label class="njsv-field"><span>ข้อความถึงทีมงาน <i>(ไม่บังคับ)</i></span>' +
+          '<textarea data-njsv="note" rows="2" placeholder="เช่น อยากให้ตรวจก่อนวางมัดจำ"></textarea></label>' +
+        '<input type="text" data-njsv="website" class="njsv-hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<div class="njsv-msg" data-njsv-msg role="alert" hidden></div>' +
+        '<button type="submit" class="njsv-submit">ขอใบเสนอราคาการตรวจทรัพย์นี้</button>' +
+        '<p class="njsv-pdpa">กดส่ง = ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด ใช้ข้อมูลนี้ติดต่อกลับเรื่องที่ขอเท่านั้น</p>' +
       '</div>' +
     '</form>';
   }
@@ -373,7 +404,7 @@
       if (!body.name) { bad('[data-njsv="name"]', 'กรุณากรอกชื่อผู้ติดต่อ'); return; }
       if (body.phone.replace(/\D/g, '').length < 9) { bad('[data-njsv="phone"]', 'กรุณากรอกเบอร์โทรให้ครบ'); return; }
       if (errs) errs.clear();
-      if (opt.condo && !services.length) {
+      if ((opt.condo || opt.inspect) && !services.length) {
         say('bad', 'ติ๊กสิ่งที่อยากให้ตรวจอย่างน้อย 1 รายการ');
         return;
       }
