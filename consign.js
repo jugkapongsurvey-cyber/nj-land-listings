@@ -1049,11 +1049,17 @@ function setupSurvey(getProvince, getTotalWa) {
 //    เซิร์ฟเวอร์ไม่เติมบริการให้ใบเดิมอยู่แล้ว (ห้ามเปลี่ยนเงื่อนไขย้อนหลัง)
 // ⚠️ ผู้ซื้อเลือกได้แค่บริการที่ไม่ลงประกาศ — ตัวเลือกบทบาทถูกกรองตามบริการ และเซิร์ฟเวอร์ตรวจซ้ำ (400)
 var SVC = null;
-function setupService(getProvince, getTotalWa, onChange) {
+function setupService(getProvince, getTotalWa, onChange, getPropType) {
   var box = $('cs-svc'), grid = $('cs-svc-grid'), detail = $('cs-svc-detail'), roleSel = $('cs-role'), fee = $('cs-svc-fee');
   if (!box || !grid || !roleSel) return null;
   var survey = $('cs-survey');
   var model = null, cur = '', role = '', legacy = false, lastKey = null;
+
+  // ห้องชุด (คอนโด): ลงฟรี ไม่บังคับค่าตรวจ (เจ้าของตัดสิน 10 ต.ค. 69) — ถ้อยคำมาจาก spec.serviceModel.condoFree ที่เดียว
+  // ไม่มี condoFree (ระบบรุ่นเก่า) = ไม่เปลี่ยนอะไร · ค่านายหน้าเมื่อขายสำเร็จไม่แตะ
+  function condoFree() {
+    return model && model.condoFree && getPropType && getPropType() === 'condo' ? model.condoFree : null;
+  }
 
   function serviceOf(k) {
     if (!model || !k) return null;
@@ -1088,7 +1094,7 @@ function setupService(getProvince, getTotalWa, onChange) {
       '<ul class="cs-svc-list inc">' + (s.includes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
       ((s.excludes || []).length ? '<div class="cs-svc-sub">ไม่รวม</div><ul class="cs-svc-list exc">' +
         s.excludes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
-      '<div class="cs-svc-line"><b>ค่าใช้จ่าย:</b> ' + esc(s.fee) + '</div>' +
+      '<div class="cs-svc-line"><b>ค่าใช้จ่าย:</b> ' + esc(condoFree() ? condoFree().feeLine : s.fee) + '</div>' +
       (s.listing && t.listingDays
         ? '<div class="cs-svc-line">ประกาศพื้นฐานอยู่บนเว็บ ' + esc(t.listingDays) + ' วัน และต่ออายุได้</div>' : '') +
       (s.broker
@@ -1105,6 +1111,8 @@ function setupService(getProvince, getTotalWa, onChange) {
   function drawFee() {
     var s = serviceOf(cur);
     if (!s) { fee.innerHTML = ''; return; }
+    // ห้องชุด: ไม่คิดค่าตรวจประมาณการ ไม่ขอให้กรอกเนื้อที่ — บอกว่าลงฟรี + ทางขอใบเสนอราคาตรวจห้อง
+    if (condoFree()) { fee.innerHTML = feeBox('<div class="cs-sv-sub">' + esc(condoFree().note) + '</div>'); return; }
     var wa = getTotalWa();
     if (!(wa > 0)) {
       fee.innerHTML = feeBox('<div class="cs-sv-sub">กรอก<b>เนื้อที่</b>ด้านล่าง แล้วระบบจะคำนวณค่าตรวจประมาณการให้ทันที · ' +
@@ -1158,9 +1166,11 @@ function setupService(getProvince, getTotalWa, onChange) {
   }
   function sync() {
     if (!on()) return;
-    var key = [cur, getTotalWa(), getProvince()].join('|');
+    var key = [cur, getTotalWa(), getProvince(), condoFree() ? 'condo' : ''].join('|');
     if (key === lastKey) return;               // ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว — วาดใหม่เฉพาะตอนค่าเปลี่ยนจริง
+    var wasCondo = lastKey != null && /\|condo$/.test(lastKey);
     lastKey = key;
+    if (wasCondo !== !!condoFree()) drawDetail();   // สลับประเภททรัพย์ = บรรทัด "ค่าใช้จ่าย" เปลี่ยนตาม
     drawFee();
   }
 
@@ -1476,7 +1486,8 @@ function setupForm() {
   SVC = setupService(
     function () { return addr ? addr.value().province : ''; },
     function () { return areaPrice ? areaPrice.value().totalWa : 0; },
-    function () { renderClaim(); }
+    function () { renderClaim(); },
+    function () { return PT ? PT.value().propertyType : ''; }
   );
   // กล่องตัวอย่างประกาศ — ต้องมาหลัง SV เพราะอ่านตัวเลือกรังวัดที่ SV ตัดสิน
   // (เขตบังคับ SV.value() คืน 'yes' เสมอ ตัวอย่างจึงพูดตรงกับสิ่งที่จะถูกบันทึกจริง)

@@ -92,5 +92,17 @@ console.log('\n8) สไตล์');
   ok('land.css มี .' + c, new RegExp('\\.' + c + '\\b').test(css));
 });
 
+console.log('\n9) คอนโด: ลงฟรี ไม่บังคับค่าตรวจ (ฟอร์มฝากขาย · consign.js)');
+const cs = read('consign.js');
+const svcFn = between(cs, 'function setupService', 'var PT = null');
+ok('ถ้อยคำ "ลงฟรี/ไม่บังคับค่าตรวจ" มาจาก spec.serviceModel.condoFree ไม่ได้พิมพ์ในเว็บ',
+  /model\.condoFree/.test(svcFn) && !/ลงประกาศฟรี|ไม่บังคับค่าตรวจ/.test(svcFn.replace(/\/\/[^\n]*/g, '')));
+ok('ห้องชุด = ไม่คิดค่าตรวจประมาณการ (drawFee ออกก่อนเรียก NJSurveyQuote)',
+  svcFn.indexOf('if (condoFree())') > 0 && svcFn.indexOf('if (condoFree())') < svcFn.indexOf('NJSurveyQuote.load()'));
+ok('เปลี่ยนประเภททรัพย์ = วาดบรรทัด "ค่าใช้จ่าย" ใหม่ (sync เช็กธงคอนโดในคีย์)', /condoFree\(\) \? 'condo' : ''/.test(svcFn) && /wasCondo/.test(svcFn));
+ok('ไม่มี condoFree ใน spec (ระบบรุ่นเก่า) = ไม่เปลี่ยนอะไร', /model && model\.condoFree && getPropType/.test(svcFn));
+ok('ตัวอ่านประเภททรัพย์ส่งเข้า setupService จาก PT', /return PT \? PT\.value\(\)\.propertyType : ''/.test(cs));
+ok('ไม่แตะข้อความค่านายหน้า (ยังขั้นบันไดเดิม) — ไม่มีอัตราใหม่ในบล็อกคอนโด', !/%/.test(between(svcFn, 'function condoFree', 'function serviceOf')));
+
 console.log('\n✅ ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
