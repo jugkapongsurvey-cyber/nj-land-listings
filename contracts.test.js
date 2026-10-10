@@ -679,25 +679,37 @@ console.log('\nแพ็กเกจบริการ (รอบ 4) — package
     check('⭐ หน้าแพ็กเกจไม่มีชื่อแพ็กเกจฝังใน HTML', !/Sale Readiness|Verified Property|sale_readiness/.test(pkgHtml));
     check('โหลดราคาไม่ได้ = ให้ทักไลน์/โทร ไม่ใช่โชว์ตัวเลขสำรอง', /ทักไลน์|02-162-0405/.test(pkgJs));
 
-    // ---------- ค่านายหน้าขั้นบันได — ข้อความบนเว็บต้องตรงกับกฎราคาของระบบ ----------
+    // ---------- นโยบายลงประกาศฟรี (เจ้าของกิจการสั่ง 10 ต.ค. 2569) ----------
+    // ⚠️ กติกาเดิมของบล็อกนี้คือ "ข้อความค่านายหน้าขั้นบันไดบนเว็บต้องตรงกับ pricing_rules" — ยกเลิกแล้ว
+    //    ใหม่: เว็บสาธารณะต้องไม่ประกาศอัตราค่านายหน้า/ค่าบริการหลังการขายเลย (ตัวเลขหลังบ้านยังอยู่ครบ ใช้กับสัญญาเดิม/ข้อเสนอรายใบ)
+    //    ถ้อยคำกลางต้องตรงกันทุกหน้า ห้ามมีตัวเลขราคาค่าตรวจ ห้ามมีคำรับประกัน
     const rates = (pricing.match(/ratePct: ([0-9.]+)/g) || []).map(function (s) { return s.replace('ratePct: ', ''); });
-    check('อ่านอัตราขั้นค่านายหน้าจากฝั่งเซิร์ฟเวอร์ได้', rates.length >= 3, rates.join(','));
-    ['3', '2.5', '2'].forEach(function (r) {
-      check('ระบบหลังบ้านมีอัตราขั้น ' + r + '%', rates.indexOf(r) >= 0);
+    check('ระบบหลังบ้านยังเก็บขั้นค่านายหน้าไว้ครบ (ไม่ลบข้อมูล/การคำนวณเดิม)', rates.length >= 3 && rates.indexOf('3') >= 0 && rates.indexOf('2.5') >= 0 && rates.indexOf('2') >= 0, rates.join(','));
+    function visibleText(src) {
+      return src.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^[ \t]*\/\/.*$/gm, '');
+    }
+    const FEE_WORDS = /ค่านายหน้า|ค่าคอม|คอมมิชชั่น|ขั้นตามราคาที่ขายได้|50,000 บาท|ไม่บวก VAT เพิ่ม/;
+    const pubSources = {
+      'consign.html': consignHtml, 'index.html': indexHtml, 'services.html': read(path.join(WEB, 'services.html')),
+      'njchat.js': njchat, 'packages.html': pkgHtml, 'packages.js': pkgJs, 'consign.js': read(path.join(WEB, 'consign.js')),
+      'terms.html': read(path.join(WEB, 'terms.html'))
+    };
+    Object.keys(pubSources).forEach(function (f) {
+      const v = visibleText(pubSources[f]);
+      check('⭐⭐ ' + f + ' ไม่มีข้อความค่านายหน้า/อัตรา/ขั้นต่ำ 50,000 บนหน้าเว็บสาธารณะ', !FEE_WORDS.test(v), (v.match(FEE_WORDS) || [])[0]);
+      check('⭐⭐ ' + f + ' ไม่มีอัตราร้อยละคู่กับคำว่านายหน้า', !/นายหน้า[^<\n]{0,40}\d+(\.\d+)?\s*%|\d+(\.\d+)?\s*%[^<\n]{0,40}นายหน้า/.test(v));
     });
-    // ⚠️ อัตราเดิมคือ 3% ทุกช่วงราคา · เจ้าของกิจการสั่งแก้ข้อความบนเว็บให้ตรงกับขั้นบันได 18 ก.ย. 2569
-    check('⭐⭐ หน้าฝากขายไม่เหลือข้อความ "ค่านายหน้า 3%" แบบอัตราเดียว',
-      !/ค่านายหน้า 3%/.test(consignHtml) && !/ค่านายหน้าคิด 3%/.test(consignHtml));
-    check('⭐⭐ หน้าแรกไม่เหลือข้อความ "ค่านายหน้า 3%" แบบอัตราเดียว', !/ค่านายหน้า 3%/.test(indexHtml));
-    check('⭐⭐ ฐานความรู้ของแชทไม่เหลืออัตราเดียว', !/ค่านายหน้า 3%/.test(njchat));
-    check('⭐⭐ หน้าบริการไม่เหลือข้อความ "ค่านายหน้า 3%" แบบอัตราเดียว',
-      !/ค่านายหน้า 3%/.test(read(path.join(WEB, 'services.html'))));
-    check('หน้าฝากขายบอกว่าเป็นอัตราขั้นบันได', /ขั้นตามราคาที่ขายได้/.test(consignHtml));
-    check('คำถามที่พบบ่อยของหน้าฝากขายมีอัตราครบทุกขั้น',
-      /2\.5%/.test(consignHtml) && /50,000 บาท/.test(consignHtml));
-    check('ฐานความรู้ของแชทมีอัตราครบทุกขั้น', /2\.5%/.test(njchat) && /50,000 บาท/.test(njchat));
-    check('ค่าบริการขั้นต่ำตรงกับกฎราคาของระบบ',
-      /commission_min[\s\S]{0,200}value: 50000/.test(pricing) && /50,000 บาท/.test(consignHtml));
+    check('⭐⭐ ไม่เหลือ id บล็อกค่านายหน้าและฟังก์ชันวาดค่านายหน้าในหน้าแพ็กเกจ', !/pk-commission/.test(pkgHtml + pkgJs) && !/drawCommission/.test(pkgJs));
+    // ถ้อยคำกลางเดียวกันทั้งเว็บ
+    const CENTRAL = 'ทีมงานเสนอราคาค่าตรวจสอบ/รังวัดให้ก่อนขึ้นประกาศ ผู้ฝากเลือกได้ว่าจะตรวจสอบหรือไม่';
+    ['consign.html', 'index.html', 'services.html', 'njchat.js'].forEach(function (f) {
+      check('⭐ ' + f + ' ใช้ถ้อยคำกลางของนโยบายลงประกาศฟรี', visibleText(pubSources[f]).indexOf(CENTRAL) >= 0 && /ลงประกาศฟรี/.test(visibleText(pubSources[f])));
+    });
+    check('⭐ meta description + FAQ JSON-LD ของหน้าฝากขายใช้ถ้อยคำกลาง (ไม่มีอัตรา)',
+      (consignHtml.match(/ลงประกาศฟรี ทีมงานเสนอราคาค่าตรวจสอบ\/รังวัดให้ก่อนขึ้นประกาศ ผู้ฝากเลือกได้ว่าจะตรวจสอบหรือไม่/g) || []).length >= 2 &&
+      !/\d%/.test((consignHtml.match(/<meta name="description"[^>]*>/) || [''])[0]) && !/\d%/.test((consignHtml.match(/"@type": "Question"[\s\S]*?"text": "[^"]*"/g) || []).join(' ')));
+    check('⭐ ไม่มีตัวเลขราคาค่าตรวจ/รังวัดในถ้อยคำกลาง (ติดต่อเพื่อขอใบเสนอราคา)', !/ค่าตรวจ[^<\n]{0,20}\d[\d,]{3,}\s*บาท/.test(visibleText(consignHtml + indexHtml)));
+    check('⭐ เมนู/หัวเว็บไม่มีรายการเมนูใหม่เกี่ยวกับค่าบริการ', !/<a[^>]*>[^<]*ค่านายหน้า[^<]*<\/a>/.test(indexHtml));
 
     // ---------- ห้ามใช้ถ้อยคำรับประกัน (ข้อกำหนดข้อ 9) ----------
     const banned = ['รับประกันกรรมสิทธิ์', 'การันตี', 'ขายได้แน่นอน', 'ขายออกแน่นอน', 'รับประกันราคาขาย', 'รับประกันผลการขาย'];

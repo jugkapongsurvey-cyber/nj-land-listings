@@ -415,23 +415,7 @@
     });
   }
 
-  /* ---------- ค่านายหน้า และข้อความกำกับ ---------- */
-  function drawCommission() {
-    var c = (S.data.config && S.data.config.commission) || null;
-    if (!c || !(c.tiers || []).length) return;
-    el('pk-commission-block').hidden = false;
-    el('pk-commission').innerHTML =
-      '<ul class="pk-tiers">' + c.tiers.map(function (t) {
-        var rate = t.quoteRequired
-          ? 'เจ้าหน้าที่เสนออัตรา' + (t.ratePct != null && t.rateToPct != null ? ' (' + t.ratePct + '–' + t.rateToPct + '%)' : '')
-          : (t.ratePct != null ? t.ratePct + '%' : '—');
-        return '<li><span>' + esc(t.label || '') + '</span><b>' + esc(rate) + '</b></li>';
-      }).join('') + '</ul>' +
-      (c.minFee != null ? '<p class="pk-hint">ค่าบริการขั้นต่ำ <b>' + baht(c.minFee) + '</b> ต่อการขายหนึ่งรายการ</p>' : '') +
-      '<p class="pk-hint">' + esc(c.note || '') + '</p>' +
-      '<p class="pk-hint">อัตราที่ใช้จริงระบุไว้ในสัญญาฝากขายให้อ่านก่อนเซ็นเสมอ · สัญญาที่ลงนามไปแล้วใช้อัตราตามสัญญาฉบับนั้น</p>';
-  }
-
+  /* ---------- ข้อความกำกับ ---------- */
   function drawDisclaimer() {
     var cfg = S.data.config || {};
     el('pk-disclaimer').innerHTML =
@@ -466,7 +450,6 @@
       drawCatalog();
       drawCalc();
       drawQuiz();
-      drawCommission();
       drawDisclaimer();
     }).catch(fail);
   }

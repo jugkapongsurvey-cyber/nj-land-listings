@@ -1098,8 +1098,7 @@ function setupService(getProvince, getTotalWa, onChange, getPropType) {
       (s.listing && t.listingDays
         ? '<div class="cs-svc-line">ประกาศพื้นฐานอยู่บนเว็บ ' + esc(t.listingDays) + ' วัน และต่ออายุได้</div>' : '') +
       (s.broker
-        ? '<div class="cs-svc-line">ไม่ผูกขาด — คุณยังขายเองหรือขายผ่านนายหน้าอื่นได้' +
-          (t.buyerProtectMonths ? ' · ถ้าขายให้ผู้ซื้อที่เราแนะนำภายใน ' + esc(t.buyerProtectMonths) + ' เดือน คิดค่านายหน้าตามสัญญา' : '') + '</div>'
+        ? '<div class="cs-svc-line">ไม่ผูกขาด — คุณยังขายเองหรือขายผ่านนายหน้าอื่นได้</div>'
         : '') +
       (s.needsAccount
         ? '<div class="cs-svc-line must">ต้องมี<b>บัญชีเจ้าของทรัพย์</b>ก่อนประกาศขึ้นเว็บ — สมัครด้วยอีเมลได้หลังบันทึกฟอร์ม</div>' : '') +
