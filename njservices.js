@@ -32,7 +32,13 @@
     { key: 'build',       by: 'partner', icon: '🧱', th: 'บริษัทรับเหมาก่อสร้าง',
       desc: 'ผู้รับเหมาที่รับงานต่อจากแบบ พร้อมสัญญาและงวดงานที่ตรวจสอบได้' },
     { key: 'fill',        by: 'partner', icon: '🚜', th: 'ถมดิน / ปรับระดับที่ดิน',
-      desc: 'ถมดินและปรับระดับแปลงให้พร้อมก่อสร้าง พร้อมใบเสนอราคาที่แจกแจงปริมาณดิน' }
+      desc: 'ถมดินและปรับระดับแปลงให้พร้อมก่อสร้าง พร้อมใบเสนอราคาที่แจกแจงปริมาณดิน' },
+    // ---- ห้องชุด (รอบคอนโด 3) — แสดงเฉพาะแผง "ให้ NJ ตรวจห้องชุดนี้" ในหน้าประกาศคอนโด (only: 'condo') ----
+    // ⚠️ ฟอร์มหน้าแรก/ฟอร์มสนใจแปลงไม่ขึ้นสองรายการนี้ (checklistHtml กรองด้วย opt.only) · ไม่มีราคา — ขอใบเสนอราคาเป็นรายกรณี
+    { key: 'condotitle',  by: 'nj',      icon: '🏢', only: 'condo', th: 'ตรวจเอกสารห้องชุด (อ.ช.2)',
+      desc: 'ตรวจเอกสารห้องชุดเทียบกับทะเบียน — ภาระผูกพัน หนี้ค่าส่วนกลาง และความตรงกันของข้อมูลในเอกสาร' },
+    { key: 'condoarea',   by: 'nj',      icon: '📏', only: 'condo', th: 'ตรวจสอบและวัดพื้นที่ห้องชุดเทียบ อ.ช.2',
+      desc: 'ทีมงานไปวัดพื้นที่ห้องจริงแล้วเทียบกับพื้นที่ที่ระบุใน อ.ช.2' }
   ];
 
   // ทะเบียนบริษัทพันธมิตรรายบริการ — **ตั้งใจปล่อยว่างไว้จนกว่าจะมีสัญญาจริง**
@@ -64,8 +70,10 @@
     opt = opt || {};
     var compact = !!opt.compact;
     var name = opt.name || 'njsv';
+    // only — แผงเฉพาะประเภททรัพย์ (เช่น 'condo') เห็นเฉพาะบริการของประเภทนั้น · ฟอร์มทั่วไป (ไม่ส่ง only) ไม่เห็นบริการที่ติด only
+    var svcs = LIST.filter(function (s) { return opt.only ? s.only === opt.only : !s.only; });
     return '<div class="njsv-list' + (compact ? ' njsv-compact' : '') + '">' +
-      LIST.map(function (s) {
+      svcs.map(function (s) {
         var pv = providerOf(s);
         return '<label class="njsv-item">' +
           '<input type="checkbox" name="' + esc(name) + '" value="' + esc(s.key) + '">' +
@@ -106,6 +114,7 @@
     //   ชื่อ/เบอร์ขึ้นก่อน · ปุ่มเหตุผลแตะเดียว · รายการบริการพับไว้ใน <details> (ไม่บังคับอยู่แล้ว)
     // ⚠️ **ใช้ท่อส่งเดียวกับแบบเต็มทุกอย่าง** (submit · honeypot · ยินยอม · พันธมิตร) — ต่างกันแค่ลำดับบนจอ
     //    ห้ามแยกเป็นฟอร์มใหม่ที่ยิงไปอีกเส้นทาง ไม่งั้นลีดจากหน้าแปลงจะนับคนละที่กับหน้าแรก
+    if (opt.condo) return condoFormHtml(opt, id);
     if (opt.brief) return briefHtml(opt, id);
     // opt.wide — วางเต็มความกว้าง (หน้าแรก): รายการบริการกาง 3 คอลัมน์ ส่วนช่องกรอกยุบเป็นการ์ดกลางหน้า
     // ไม่ทำแบบนี้แล้วช่อง "ชื่อ/เบอร์" จะยืดเป็น 1,280px ซึ่งกรอกยากและดูเหมือนหน้าเว็บพัง
@@ -131,6 +140,34 @@
         '<div class="njsv-msg" data-njsv-msg role="alert" hidden></div>' +
         '<button type="submit" class="njsv-submit">ส่งเรื่องให้ทีมงานติดต่อกลับ</button>' +
         '<p class="njsv-pdpa">กดส่ง = ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด ใช้ข้อมูลนี้ติดต่อกลับเรื่องที่ดินและบริการที่เลือกเท่านั้น</p>' +
+      '</div>' +
+    '</form>';
+  }
+
+  // ---------- แผง "ให้ NJ ตรวจสอบห้องชุดนี้" (รอบคอนโด 3) ----------
+  // ⚠️ ใช้ท่อส่งเดียวกับฟอร์มอื่น (mount → POST /api/public/inquiry) · ลีดไปที่ทีมงานเสมอ — ไม่ส่ง shareWithOwner
+  //    (ผู้ซื้อขอให้ทีมเราตรวจ ไม่ใช่ขอติดต่อเจ้าของ)
+  // ⛔ ไม่มีตัวเลขราคา/ ฿ ในแผงนี้เด็ดขาด — ราคาเสนอรายกรณี (คำสั่งเจ้าของ 10 ต.ค. 69) · เทสต์ล็อก
+  // ⛔ ติ๊ก = ขอให้ตรวจ ยังไม่ใช่การว่าจ้าง และยังไม่ใช่ผลตรวจ — ผลตรวจจริงขึ้นในหัวข้อ "ผลตรวจเฉพาะห้องชุด" ของหน้านี้เมื่อทีมตรวจแล้วเท่านั้น
+  function condoFormHtml(opt, id) {
+    return '<form class="njsv-form ld-cc-form" novalidate data-njform>' +
+      (id ? '<input type="hidden" data-njsv="listingId" value="' + esc(id) + '">' : '') +
+      '<div class="njsv-fieldset">' +
+        '<span class="njsv-legend">เลือกสิ่งที่อยากให้ทีมงานตรวจ <i>(ติ๊กได้ทั้งสองอย่าง)</i></span>' +
+        checklistHtml({ only: 'condo', name: 'njsv-condo' }) +
+      '</div>' +
+      '<p class="ld-cc-price"><b>ค่าบริการ:</b> ติดต่อเพื่อขอใบเสนอราคา — ทีมงานแจ้งราคาให้ก่อนเริ่มงานทุกครั้ง</p>' +
+      '<div class="njsv-contact">' +
+        '<label class="njsv-field"><span>ชื่อผู้ติดต่อ</span>' +
+          '<input type="text" data-njsv="name" autocomplete="name" enterkeyhint="next" placeholder="ระบุชื่อ"></label>' +
+        '<label class="njsv-field"><span>เบอร์โทร</span>' +
+          '<input type="tel" data-njsv="phone" autocomplete="tel" inputmode="tel" enterkeyhint="done" placeholder="ระบุเบอร์โทร"></label>' +
+        '<label class="njsv-field"><span>ข้อความถึงทีมงาน <i>(ไม่บังคับ)</i></span>' +
+          '<textarea data-njsv="note" rows="2" placeholder="เช่น อยากให้ตรวจก่อนวางมัดจำ"></textarea></label>' +
+        '<input type="text" data-njsv="website" class="njsv-hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<div class="njsv-msg" data-njsv-msg role="alert" hidden></div>' +
+        '<button type="submit" class="njsv-submit">ขอใบเสนอราคาการตรวจห้องชุดนี้</button>' +
+        '<p class="njsv-pdpa">กดส่ง = ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด ใช้ข้อมูลนี้ติดต่อกลับเรื่องห้องชุดและบริการที่เลือกเท่านั้น</p>' +
       '</div>' +
     '</form>';
   }
@@ -336,6 +373,10 @@
       if (!body.name) { bad('[data-njsv="name"]', 'กรุณากรอกชื่อผู้ติดต่อ'); return; }
       if (body.phone.replace(/\D/g, '').length < 9) { bad('[data-njsv="phone"]', 'กรุณากรอกเบอร์โทรให้ครบ'); return; }
       if (errs) errs.clear();
+      if (opt.condo && !services.length) {
+        say('bad', 'ติ๊กสิ่งที่อยากให้ตรวจอย่างน้อย 1 รายการ');
+        return;
+      }
       if (!body.listingId && !services.length) {
         say('bad', 'เลือกบริการที่ต้องการอย่างน้อย 1 รายการ หรือใส่รหัสทรัพย์ที่สนใจ');
         return;

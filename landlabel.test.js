@@ -101,5 +101,18 @@ ok('Structured Data ใช้ชื่อชุดเดียวกับ <titl
 ok('businessFunction ยังแยกขาย/เช่าตาม l.type', /businessFunction/.test(code) && /LeaseOut/.test(code) && /#Sell/.test(code));
 ok('⭐ land.js ไม่ประกอบชื่อเองอีกแล้ว อ่านจาก landmeta.js', /NJLandMeta\.shortLabel\(/.test(code));
 
+console.log('\n7) ห้องชุด: ชื่อโครงการในชื่อหน้า (รอบคอนโด 3)');
+const CONDO = { id: 'OP-901', type: 'sell', estValue: 3200000, land: { propertyType: 'condo', province: 'กรุงเทพมหานคร', amphoe: 'บางนา', tambon: 'บางนา' },
+  specs: { type: 'condo', source: 'owner', items: [{ k: 'projectName', th: 'ชื่อโครงการ/หมู่บ้าน', v: 'ไนท์บริดจ์ ไพร์ม  สาทร', text: 'ไนท์บริดจ์ ไพร์ม  สาทร' }] } };
+ok('⭐ projectNameOf อ่านจาก specs และยุบช่องว่างซ้ำ', META.projectNameOf(CONDO, VOCAB) === 'ไนท์บริดจ์ ไพร์ม สาทร', META.projectNameOf(CONDO, VOCAB));
+ok('⭐ ชื่อหน้าห้องชุด = "ขายคอนโด <ชื่อโครงการ> …"', META.shortLabel(CONDO, VOCAB).indexOf('ขายคอนโด ไนท์บริดจ์ ไพร์ม สาทร') === 0, META.shortLabel(CONDO, VOCAB));
+ok('ไม่มีชื่อโครงการ = ชื่อหน้าเดิมไม่เปลี่ยน (ไม่เดา)',
+   META.projectNameOf(Object.assign({}, CONDO, { specs: { type: 'condo', items: [] } }), VOCAB) === '' &&
+   META.shortLabel(Object.assign({}, CONDO, { specs: null }), VOCAB).indexOf('ขายคอนโด ') === 0);
+ok('⭐ ประเภทอื่นที่มี projectName (บ้านจัดสรร) ไม่ถูกเอาชื่อโครงการไปใส่ในชื่อหน้า',
+   META.projectNameOf({ id: 'X', land: { propertyType: 'house' }, specs: { type: 'house', items: [{ k: 'projectName', text: 'หมู่บ้านสุข' }] } }, VOCAB) === '');
+ok('ชื่อโครงการยาวเกิน 60 ตัวอักษรถูกตัดพร้อม …',
+   META.projectNameOf({ id: 'X', land: { propertyType: 'condo' }, specs: { items: [{ k: 'projectName', text: 'ก'.repeat(80) }] } }, VOCAB).length === 61);
+
 console.log('\n' + (fail ? '❌' : '✅') + ' landlabel: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
