@@ -607,6 +607,10 @@ html.ld-lb-lock{overflow:hidden}
 .ld-src.team::before{content:"✓";font-weight:800}
 .ld-src.owner::before{content:"ⓘ"}
 .ld-spec + .ld-src,.ld-feat + .ld-src{margin-top:18px}
+/* ราคาประเมินราชการ (เฉพาะแปลงที่เจ้าของยินยอม) — ข้อความกำกับ + ลิงก์ค้นซ้ำที่กรมธนารักษ์ */
+.ld-appr-note{margin:8px 0 0;font-size:12px;line-height:1.6;color:var(--nj-gray-600,#5B6B7C)}
+.ld-appr-note a{color:#1B4B7A;font-weight:600;overflow-wrap:break-word}
+.ld-appr-note + .ld-src{margin-top:18px}
 
 /* ---------- ตารางโครงสร้างและขนาดพื้นที่ (3 คอลัมน์แบบเว็บตัวอย่าง) ---------- */
 .ld-spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin:0}

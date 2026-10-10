@@ -355,6 +355,8 @@
     if(L.roadSurface&&V.ROAD_TH&&V.ROAD_TH[L.roadSurface]) team.push(['ถนนหน้าแปลง', V.ROAD_TH[L.roadSurface]+(Number(L.roadLanes)>0?' · '+L.roadLanes+' เลน':'')]);
     if(L.facing&&V.FACING_TH&&V.FACING_TH[L.facing]) team.push(['หันหน้าทิศ', V.FACING_TH[L.facing]]);
     if(Number(l.pricePerRai)>0) team.push(['ราคาต่อไร่', '≈ '+Number(l.pricePerRai).toLocaleString('th-TH')+' บาท']);
+    var apr=apprText(l);
+    if(apr) team.push(['ราคาประเมินราชการ', apr]);
 
     var dup={ frontageM:!!L.frontage, roadAccess:!!L.roadSurface, floors:Number(L.floors)>0 };
     var own=((l.specs&&l.specs.items)||[]).filter(function(s){ return !dup[s.k] && s.k!=='utilities'; })
@@ -370,9 +372,33 @@
       }).join('')+'</dl>';
     }
     var html='';
-    if(team.length) html+='<p class="ld-src team">ทีมงานบันทึก</p>'+grid(team);
+    if(team.length) html+='<p class="ld-src team">ทีมงานบันทึก</p>'+grid(team)+apprNote(l);
     if(own.length) html+='<p class="ld-src owner">'+esc(specNote(l))+'</p>'+grid(own);
     return html;
+  }
+
+  // ---------- ราคาประเมินราชการ (เฉพาะแปลงที่เจ้าของทรัพย์ยินยอมให้แสดง · เจ้าของกิจการเลือกทาง "ข" 10 ต.ค. 2569) ----------
+  // ⚠️ อ่านจาก l.appraisal ที่เซิร์ฟเวอร์ส่งมาเท่านั้น (null = ยังไม่ยินยอม/ไม่มีค่า/รอบบัญชีสิ้นสุด → ไม่วาดอะไรเลย หน้าตาเดิมทุกไบต์)
+  //    ยอดทั้งแปลงคิดที่เซิร์ฟเวอร์ ห้ามคูณเองในเบราว์เซอร์ (กติกาเดียวกับ pricePerWa) · ไม่มียอดทั้งแปลง = ไม่ขึ้นท่อนนั้น
+  function apprOf(l){
+    var a=l&&l.appraisal;
+    return a && Number(a.perWa)>0 ? a : null;
+  }
+  function apprText(l){
+    var a=apprOf(l); if(!a) return '';
+    var meta=[];
+    if(a.cycle) meta.push('รอบบัญชี '+a.cycle);
+    if(a.checkedAt) meta.push('ตรวจเมื่อ '+thaiDate(a.checkedAt));
+    return '≈ '+Number(a.perWa).toLocaleString('th-TH')+' บาท/ตร.ว.'+
+      (Number(a.total)>0 ? ' · รวมทั้งแปลง ≈ '+Number(a.total).toLocaleString('th-TH')+' บาท' : '')+
+      (meta.length ? ' ('+meta.join(' · ')+')' : '');
+  }
+  // ข้อความกำกับ + ลิงก์ออกไปค้นซ้ำที่หน่วยงาน (ลิงก์จากข้อมูลต้องผ่านตัวกรองโปรโตคอลก่อนใส่ href)
+  function apprNote(l){
+    var a=apprOf(l); if(!a) return '';
+    var url=/^https:\/\//.test(String(a.lookupUrl||'')) ? a.lookupUrl : '';
+    return '<p class="ld-appr-note">'+esc(a.disclaim||'ราคาประเมินราชการใช้คำนวณค่าธรรมเนียมและภาษีวันโอน ไม่ใช่ราคาตลาด')+
+      (url ? ' · <a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">ค้นราคาประเมินเองที่ระบบของกรมธนารักษ์ →</a>' : '')+'</p>';
   }
 
   // ---------- สาธารณูปโภคและจุดเด่นของแปลง ----------
@@ -1119,7 +1145,11 @@
 
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
     // ⚠️ ห้ามเติมราคาประเมินราชการให้ (ดูเหตุผลใน feecalc.js) — ผู้ซื้อต้องกรอกเอง
-    if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue,propertyType:(l.land&&l.land.propertyType==='condo')?'condounit':''});
+    //    ยกเว้นแปลงที่เจ้าของยินยอมให้แสดง (l.appraisal ไม่ว่าง และมียอดทั้งแปลงจากเซิร์ฟเวอร์) — เติมช่องราคาประเมินที่ดินให้ แก้ได้
+    var isCondo=!!(l.land&&l.land.propertyType==='condo');
+    var aprFee=apprOf(l);
+    if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue,propertyType:isCondo?'condounit':'',
+      teamAppraisal:(!isCondo && aprFee && Number(aprFee.total)>0) ? {total:aprFee.total, cycle:aprFee.cycle, source:aprFee.source} : null});
 
     // ค่างวดสินเชื่อของห้องชุด — ราคาตั้งต้น = ราคาประกาศ (ตัวเลขที่ประกาศอยู่แล้ว) · ไม่มี loancalc.js (หน้าสแตติกรุ่นก่อนสร้างใหม่) = ถอดส่วนนี้ ไม่ทิ้งหัวข้อเปล่า
     var loanHost=document.getElementById('ld-loan');

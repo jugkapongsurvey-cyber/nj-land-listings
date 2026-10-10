@@ -6,6 +6,10 @@
   // ⚠️ กติกาที่ห้ามผ่อน (ยกมาจากของเดิม ยังใช้ทั้งหมด)
   //   1. ห้ามเติมราคาประเมินราชการให้อัตโนมัติ ผู้ใช้ต้องกรอกเอง
   //      ค่าธรรมเนียมโอนคือ % ของราคาประเมิน ใครเห็นตัวเลขค่าโอนก็หารกลับได้ราคาประเมินทันที
+  //      ⭐ ข้อยกเว้นเดียว (เจ้าของกิจการเลือกทาง "ข" 10 ต.ค. 2569): แปลงที่เจ้าของทรัพย์ยินยอมให้แสดงราคาประเมิน
+  //      API ส่ง listing.appraisal มา → หน้าแปลงส่ง opts.teamAppraisal ให้ mount() เติมช่อง "ราคาประเมินที่ดิน"
+  //      (ผู้ใช้ยังแก้/ลบได้) และคำเตือนเปลี่ยนเป็น "ใช้ตัวเลขที่ทีมงานตรวจ" · ไม่มีก้อนนี้ = เหมือนเดิมทุกไบต์
+  //      ห้ามเติมจากแหล่งอื่น (ราคาซื้อขาย · ตารางที่ฝังไว้ · การเดา)
   //   2. ไม่กรอกราคาประเมิน = ใช้ราคาซื้อขายแทน ได้ตัวเลข "สูงกว่าความจริง" ต้องบอกผู้ใช้ทุกครั้ง
   //   3. ที่ดินเปล่าไม่ได้สิทธิลดค่าธรรมเนียมตามมาตรการรัฐ — มาตรการนั้นใช้เฉพาะ "ที่อยู่อาศัย"
   //      จึงล็อกไว้ว่าเลือกลดค่าธรรมเนียมได้เฉพาะเมื่อเลือกประเภทที่มีสิ่งปลูกสร้างเท่านั้น
@@ -29,6 +33,8 @@
 
   var EXPENSE = [0, .92, .84, .77, .71, .65, .60, .55, .50];
   var BRACKETS = [[300000,.05],[200000,.10],[250000,.15],[250000,.20],[1000000,.25],[3000000,.30],[Infinity,.35]];
+  // ข้อความจาก API (แหล่งที่มา · รอบบัญชี) ต้อง escape ก่อนต่อเข้า HTML
+  function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
   // ---------------------------------------------------------------------------
   // ประเภททรัพย์
@@ -133,6 +139,8 @@
     }
 
     var apprGiven = landGiven || buildGiven || !!est || !!unit;
+    // ราคาประเมินที่ดินยังเป็นตัวเลขที่ทีมงานตรวจ (เติมจาก opts.teamAppraisal) และผู้ใช้ไม่ได้แก้
+    var teamAppraisal = landGiven && num(b.landFromTeam) > 0 && num(b.landAppraisal) === num(b.landFromTeam);
     // ไม่รู้ราคาประเมินเลย → ใช้ราคาซื้อขายแทน (ได้ตัวเลขสูงกว่าจริง ต้องเตือน)
     var appraisal = apprGiven ? (land + building + (unit ? unit.value : 0)) : sale;
     if (apprGiven && appraisal <= 0) appraisal = sale;
@@ -192,7 +200,7 @@
     return { rows:rows, total:total, buyer:buyer, seller:total - buyer,
              appraisal:appraisal, land:land, building:building,
              estimated:!!est && !buildGiven, est:est,
-             assumed:!apprGiven, years:years, company:company,
+             assumed:!apprGiven, teamAppraisal:teamAppraisal, years:years, company:company,
              type:typeKey, typeLabel:type.label, hasBuilding:type.build, isUnit:!!type.unit, unit:unit,
              registered:registered, discountOn:discountOn, feeRate:feeRate };
   }
@@ -202,7 +210,7 @@
   // ---------------------------------------------------------------------------
   var LINE = 'https://line.me/R/ti/p/@716lffzt';
 
-  function resultHtml(r){
+  function resultHtml(r, team){
     if (!r) return '<p class="fc-hint">กรอกราคาซื้อขายเพื่อดูประมาณการค่าใช้จ่ายวันโอน</p>';
     var rows = r.rows.map(function(x){
       return '<div class="fc-row"><div><b>' + x.t + '</b><span>' + x.sub + '</span></div><em>' + baht(x.v) + '</em></div>';
@@ -230,6 +238,11 @@
         'ราคาประเมินจริงมักต่ำกว่าราคาซื้อขายมาก <b>ค่าใช้จ่ายจริงจึงมักถูกกว่านี้</b> ' +
         '<a href="' + LINE + '" target="_blank" rel="noopener" data-contact="line">ทักไลน์ให้ทีมเราตรวจราคาประเมินให้ฟรี →</a></p>';
     }
+    if (r.teamAppraisal && team){
+      warns += '<p class="fc-warn">ราคาประเมินที่ดินใช้<b>ตัวเลขที่ทีมงานตรวจจาก' + esc(team.source || 'กรมธนารักษ์') + '</b>' +
+        (team.cycle ? ' (รอบบัญชี ' + esc(team.cycle) + ')' : '') +
+        ' — ผู้ซื้อควรตรวจซ้ำที่สำนักงานที่ดินก่อนวันโอน · แก้ตัวเลขในช่องได้ถ้าทราบราคาที่ต่างออกไป</p>';
+    }
     if (r.estimated){
       warns += '<p class="fc-warn">ราคาต่อ ตร.ม. เป็น<b>ตัวเลขจริงจากบัญชีกรมธนารักษ์</b> แต่ <b>ค่าเสื่อมตามอายุยังเป็นค่าประมาณ</b> ' +
         'เพราะกรมธนารักษ์ไม่ได้เปิดตารางหักค่าเสื่อมเป็นข้อมูลเปิด ยอดจริงเจ้าหน้าที่คำนวณให้ในวันโอน</p>';
@@ -252,6 +265,9 @@
     if (!el) return;
     var o = opts || {};
     var sale = Number(o.salePrice) || 0;
+    // ราคาประเมินที่ดินที่ทีมงานตรวจ (เฉพาะแปลงที่เจ้าของยินยอม · ดูกติกาข้อ 1) — ตัวเลขทั้งแปลงจากเซิร์ฟเวอร์ ห้ามคูณเอง
+    var team = o.teamAppraisal && Number(o.teamAppraisal.total) > 0 ? o.teamAppraisal : null;
+    var teamTotal = team ? Math.round(Number(team.total)) : 0;
     var typeOpts = Object.keys(TYPES).map(function(k){
       return '<option value="' + k + '">' + TYPES[k].label + '</option>';
     }).join('');
@@ -262,7 +278,9 @@
       '<div class="fc-grid">' +
         '<label>ประเภททรัพย์<select data-fc="propertyType">' + typeOpts + '</select></label>' +
         '<label>ราคาซื้อขาย (บาท)<input type="text" inputmode="numeric" data-fc="salePrice" value="' + (sale ? baht(sale) : '') + '" placeholder="เช่น 5,000,000"></label>' +
-        '<label data-fc-landrow>ราคาประเมินที่ดิน (บาท)<input type="text" inputmode="numeric" data-fc="landAppraisal" placeholder="ถ้าไม่ทราบ เว้นว่างไว้ได้"></label>' +
+        '<label data-fc-landrow>ราคาประเมินที่ดิน (บาท)<input type="text" inputmode="numeric" data-fc="landAppraisal"' +
+          (team ? ' value="' + baht(teamTotal) + '"' : '') + ' placeholder="ถ้าไม่ทราบ เว้นว่างไว้ได้"></label>' +
+        (team ? '<input type="hidden" data-fc="landFromTeam" value="' + teamTotal + '">' : '') +
         '<label>ผู้ขายเป็น<select data-fc="sellerType"><option value="person">บุคคลธรรมดา</option><option value="company">นิติบุคคล / บริษัท</option></select></label>' +
         '<label>ถือครองมาแล้ว (ปี)<input type="number" min="1" max="10" step="1" data-fc="years" value="5"></label>' +
       '</div>' +
@@ -349,7 +367,7 @@
           : !v.province ? 'เลือกจังหวัดก่อน'
           : rt > 0 ? baht(rt) + ' บาท/ตร.ม.' : 'จังหวัดนี้ไม่มีข้อมูลประเภทนี้';
       }
-      out.innerHTML = resultHtml(calc(v));
+      out.innerHTML = resultHtml(calc(v), team);
     }
     el.addEventListener('input', function(e){
       var f = e.target;
