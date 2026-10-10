@@ -727,9 +727,15 @@ html.ld-lb-lock{overflow:hidden}
 .ld-cmp-tbl td.num{font-weight:700;color:#0B2549}
 .ld-cmp-more{margin:8px 0 0;font-size:12px;color:var(--nj-gray-600,#5B6B7C)}
 .ld-cmp-note{margin:10px 0 0;font-size:12px;line-height:1.6;color:var(--nj-gray-600,#5B6B7C)}
-@media (max-width:480px){
-  .ld-cmp-tbl{font-size:12px}
-  .ld-cmp-tbl th,.ld-cmp-tbl td{padding:6px 5px}
+/* มือถือ: ตาราง 5 คอลัมน์กว้างกว่าจอ 375px → แต่ละแถวตัดบรรทัดเอง (ราคานำ เดือนชิดขวา) ไม่ต้องเลื่อนแนวนอน
+   · หัวตารางซ่อนแบบที่โปรแกรมอ่านหน้าจอยังอ่านได้ */
+@media (max-width:560px){
+  .ld-cmp-tbl thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .ld-cmp-tbl,.ld-cmp-tbl tbody,.ld-cmp-tbl caption{display:block}
+  .ld-cmp-tbl tr{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:8px 2px;border-bottom:1px solid #E4E9F2}
+  .ld-cmp-tbl td{display:block;padding:0;border:0;font-size:12px;color:var(--nj-gray-600,#5B6B7C)}
+  .ld-cmp-tbl td.num{font-size:14px;flex:0 0 auto}
+  .ld-cmp-tbl td:last-child{margin-left:auto}
   .ld-cmp-scale b{font-size:13px}
 }
 @media print{.ld-cmp-wrap{overflow:visible}}
