@@ -46,8 +46,25 @@
   // เนื้อที่" ต่อกันเป็นก้อนเดียว และเจ้าของหลายรายพิมพ์ข้อความโฆษณาทั้งชุดลงในช่องรายละเอียด
   // (เจอจริง: OP-025 ยาว 200+ ตัวอักษร) · Google ตัดชื่อที่ยาวเกินราว 60 ตัวอักษรทิ้ง
   // คนที่ค้นเจอจะเห็นชื่อขาดกลางประโยค อ่านไม่รู้เรื่อง และไม่รู้ว่าแปลงอยู่ที่ไหน
+  // ชื่อโครงการของห้องชุด — อ่านจาก specs ที่ระบบส่งมา (ข้อมูลที่เจ้าของ/ทีมกรอก) ใช้เฉพาะประเภทคอนโด
+  // ⚠️ ไม่มี/ว่าง = คืน '' (ไม่เดาจากที่อื่น) · ตัดที่ 60 ตัวอักษรกันชื่อหน้ายาวเกิน (Google ตัดที่ราว 60)
+  function projectNameOf(l) {
+    if (!l || !((l.land && l.land.propertyType === 'condo') || (l.specs && l.specs.type === 'condo'))) return '';
+    var items = (l.specs && l.specs.items) || [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i] && items[i].k === 'projectName') {
+        var t = String(items[i].text || items[i].v || '').replace(/\s+/g, ' ').trim();
+        return t.length > 60 ? t.slice(0, 60).trim() + '…' : t;
+      }
+    }
+    return '';
+  }
+
   function shortLabel(l, vocab) {
     var head = ((l && l.type === 'rent') ? 'ให้เช่า' : 'ขาย') + kindOf(l, vocab);
+    // ห้องชุดที่มีชื่อโครงการ: "ขายคอนโด <ชื่อโครงการ> · ที่ตั้ง" (ผู้ซื้อค้นด้วยชื่อโครงการเป็นหลัก)
+    var pj = projectNameOf(l);
+    if (pj) head += ' ' + pj;
     var loc = localityOf(l);
     if (!loc) {
       // ไม่มีช่องแยก — ใช้ท่อนแรกของ parcelInfo (ท่อนที่ตั้ง) แล้วตัดความยาว
@@ -165,7 +182,7 @@
 
   return {
     FALLBACK_KIND: FALLBACK_KIND, SITE_URL: SITE_URL,
-    kindOf: kindOf, localityOf: localityOf, shortLabel: shortLabel,
+    kindOf: kindOf, localityOf: localityOf, shortLabel: shortLabel, projectNameOf: projectNameOf,
     titleOf: titleOf, metaDesc: metaDesc,
     slugSeg: slugSeg, slugPathWith: slugPathWith,
     pagePath: pagePath, pageUrl: pageUrl, encUrl: encUrl,

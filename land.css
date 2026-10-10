@@ -671,3 +671,20 @@ html.ld-lb-lock{overflow:hidden}
 .ld-own-ck input{margin-top:3px;flex:0 0 auto;width:16px;height:16px}
 .ld-own-note{font-size:12px;line-height:1.65;color:#5A7091;margin:12px 0 0}
 .ld-tier-sum{font-size:13px;color:#334155;margin:8px 0 10px;line-height:1.6}
+
+/* ---------- ห้องชุด (รอบคอนโด 3) ---------- */
+/* วันที่ประกาศใต้ที่ตั้ง · เวลาเดินท้ายระยะทาง · หัวข้อย่อยของกลุ่ม "ในโครงการนี้" */
+.ld-listed{font-size:12.5px;color:#5A7091;margin:-4px 0 12px}
+.ld-nb-walk{font-weight:400;color:#5A7091;font-size:11.5px;white-space:nowrap}
+.ld-rel-sub{margin:-6px 0 12px;font-size:13px;color:#5A7091;overflow-wrap:anywhere}
+/* ให้ NJ ตรวจสอบห้องชุดนี้ — ข้อความอธิบาย + ฟอร์มติ๊ก (ไม่มีราคา) */
+.ld-cc-lede{font-size:13.5px;line-height:1.75;color:#334155;margin:0 0 10px}
+.ld-cc-notes{margin:0 0 14px;padding:12px 14px 12px 30px;background:var(--mist);border:1px solid var(--line);
+  border-radius:10px;font-size:12.5px;line-height:1.75;color:#334155}
+.ld-cc-notes li + li{margin-top:4px}
+.ld-cc-form .njsv-legend{display:block;margin-bottom:8px}
+.ld-cc-price{margin:12px 0 14px;padding:10px 12px;border-left:4px solid var(--green);background:#F0FAF4;
+  border-radius:8px;font-size:13px;line-height:1.65;color:#14532D}
+@media(min-width:720px){
+  .ld-cc-form .njsv-contact{max-width:520px}
+}

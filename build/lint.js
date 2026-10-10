@@ -128,6 +128,7 @@ const ORDER = [
   ['save.js', 'marketplace.js'],
   ['compare.js', 'comparepage.js'],
   ['landmeta.js', 'land.js'],
+  ['loancalc.js', 'land.js'],
   ['consignpreview.js', 'consign.js'],
   ['landform.js', 'arealink.js'],
   ['arealink.js', 'tools.js'],
