@@ -104,6 +104,37 @@ function areaValues() {
   }).filter(function (a) { return a && a.province; });
 }
 
+// ---------- อีเมลแจ้งแปลงใหม่ (ไม่บังคับ · 11 ต.ค. 69) ----------
+// ⚠️ กติกา (ฝั่งระบบ lib/buyeralert.js เป็นตัวจริง หน้านี้แค่ช่วยกรอก)
+//    · โชว์ช่องเมื่อ /api/public/buyer-alert/config ตอบ 200 เท่านั้น (สวิตช์ปิด = 404 = ซ่อนทั้งกล่อง ฟอร์มเหมือนเดิมทุกอย่าง)
+//    · ช่องติ๊กยินยอมรับอีเมล **แยก** จากช่องยินยอมให้ติดต่อกลับ และเริ่มที่ไม่ติ๊กเสมอ — ห้ามติ๊กให้ล่วงหน้า
+//    · ไม่ติ๊ก = ไม่ส่งอีเมลไปเซิร์ฟเวอร์เลย · ติ๊กแล้วต้องมีอีเมลและจังหวัดอย่างน้อย 1 จังหวัด
+var alertOn = false;
+function setupAlert() {
+  var box = $('wt-alert'), tick = $('wt-alert-consent'), ebox = $('wt-alert-box');
+  if (!box || !tick || !ebox || typeof fetch !== 'function') return;
+  tick.addEventListener('change', function () { ebox.hidden = !tick.checked; if (tick.checked) $('wt-alert-email').focus(); });
+  fetch(NJ_API_BASE + '/api/public/buyer-alert/config').then(function (r) {
+    if (!r.ok) return;
+    alertOn = true;
+    box.hidden = false;
+  }).catch(function () { /* ระบบไม่ตอบ = ไม่โชว์ช่อง ฟอร์มยังส่งได้ตามเดิม */ });
+}
+var EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[A-Za-z]{2,}$/;
+function alertValues(v) {
+  if (!alertOn || !$('wt-alert-consent') || !$('wt-alert-consent').checked) return null;
+  var email = String($('wt-alert-email').value || '').trim();
+  if (!EMAIL_RE.test(email) || email.length > 200) return { err: { field: 'alertEmail', msg: 'กรุณากรอกอีเมลให้ถูกต้อง หรือเอาติ๊ก "ส่งอีเมลแจ้งฉัน" ออก' } };
+  if (!v.areas.length) return { err: { field: 'wt-province1', msg: 'อีเมลแจ้งแปลงใหม่ต้องระบุจังหวัดอย่างน้อย 1 จังหวัด' } };
+  return { email: email };
+}
+function alertDoneText(res) {
+  var a = res && res.alert;
+  if (a === 'on') return '📧 เราจะส่งอีเมลสรุปแปลงใหม่ที่ตรงโจทย์ให้วันละไม่เกิน 1 ฉบับ (เฉพาะวันที่มีแปลงใหม่) · ยกเลิกได้จากลิงก์ในอีเมล';
+  if (a === 'noArea') return 'ยังไม่ได้เปิดอีเมลแจ้งเตือน เพราะไม่ได้ระบุจังหวัด — ทักไลน์บอกทีมงานได้เลย';
+  return '';
+}
+
 function setupForm() {
   var form = $('wanted-form');
   if (!form) return;
@@ -111,6 +142,7 @@ function setupForm() {
   var sending = false;
 
   setupAreas();
+  setupAlert();
 
   // แตะช่องแรก = เริ่มสนใจจริง ใช้เป็นสัญญาณกลางทางให้ Meta เรียนรู้กลุ่มเป้าหมายเร็วขึ้น
   var startedOnce = false;
@@ -148,6 +180,9 @@ function setupForm() {
 
     var err = validate(v);
     if (err) { showErr(err.msg, err.field); return; }
+    var al = alertValues(v);
+    if (al && al.err) { showErr(al.err.msg, al.err.field); return; }
+    if (al) { v.alertConsent = true; v.alertEmail = al.email; }
     showErr('');
 
     // ที่มาของลีด — ไม่มีข้อมูลส่วนบุคคลอยู่ในนี้ (ดูคำเตือนหัวไฟล์ attrib.js)
@@ -175,6 +210,8 @@ function setupForm() {
         form.hidden = true;
         $('wt-done').hidden = false;
         $('wt-ref').textContent = (res && res.id) || '—';
+        var at = alertDoneText(res), ad = $('wt-done-alert');
+        if (ad && at) { ad.textContent = at; ad.hidden = false; }
         $('wt-done').scrollIntoView({ behavior: 'smooth', block: 'center' });
       })
       .catch(function (e) {
