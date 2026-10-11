@@ -33,6 +33,20 @@
     filled: 'ถมแล้ว', community: 'ใกล้ชุมชน', buildable: 'สร้างบ้านได้'
   };
   var WA_PER_RAI = 400;
+  // ---------- คะแนนความพร้อมของข้อมูล (11 ต.ค. 69) ----------
+  // ⚠️ อ่าน score.total ที่เซิร์ฟเวอร์คิดมาเท่านั้น (lib/landscore.js ของระบบ) — ห้ามคิด/ปัดเองที่นี่
+  //    (บทเรียนเดียวกับ landscore.js ข้อ 4: สองที่ปัดไม่เหมือนกัน = ตัวเลขบนการ์ดกับผลกรองไม่ตรงกันเงียบๆ)
+  // ⚠️ ไม่มีคะแนน (score: null = ยังไม่มีใครกรอกผลตรวจ) ≠ คะแนน 0 → ไม่ผ่านเกณฑ์ แต่นับเป็น "ยังไม่ได้ระบุ" (hiddenUnknown)
+  //    และยังขึ้นตามปกติตอน "ไม่เกี่ยง"
+  // เกณฑ์ต้องตรงกับตัวเลือกใน listings.html (#f-score) — ค่าจาก URL ที่ไม่อยู่ในรายการถูกเมิน (setSelect)
+  var SCORE_MINS = ['50', '70', '80'];
+  // ถ้อยคำกำกับ = ข้อความเดียวกับ SCORE_DISCLAIM ที่หน้าแปลงพิมพ์ (score-filter.test.js เทียบกับระบบให้) — ห้ามเขียนให้อ่อนลง
+  var SCORE_NOTE = 'คะแนนข้อมูลพร้อมบอกว่าข้อมูลของแปลงถูกตรวจและบันทึกไว้ครบแค่ไหน ไม่ใช่การให้คะแนนคุณภาพที่ดิน';
+  var SCORE_EMPTY = 'แปลงที่ยังไม่มีใครไปตรวจจะได้คะแนนน้อยเป็นเรื่องปกติ ไม่ได้แปลว่าที่ดินไม่ดี';
+  function scoreOf(item) {
+    var t = item && item.score && item.score.total;
+    return typeof t === 'number' && isFinite(t) ? t : null;
+  }
 
   var state = { listings: [], loaded: false };
 
@@ -51,6 +65,7 @@
       floors: $('f-floors').value,
       zone: $('f-zone').value,
       feats: FEATURES.filter(function (k) { var el = $('f-feat-' + k); return el && el.checked; }),
+      score: ($('f-score') && SCORE_MINS.indexOf($('f-score').value) >= 0) ? $('f-score').value : 'all',
       saved: !!($('f-saved') && $('f-saved').checked),
       sort: $('f-sort').value
     };
@@ -123,6 +138,11 @@
         if (!have.length) { hiddenUnknown++; return false; }
         for (var i = 0; i < f.feats.length; i++) if (have.indexOf(f.feats[i]) < 0) return false;
       }
+      if (f.score !== 'all') {
+        var sc = scoreOf(item);
+        if (sc === null) { hiddenUnknown++; return false; }
+        if (sc < Number(f.score)) return false;
+      }
       return true;
     });
 
@@ -141,7 +161,13 @@
       // ไม่มีราคาต่อ ตร.ว. = ไปท้ายแถวเสมอ ไม่ใช่ขึ้นบนสุดเพราะค่าเป็น 0
       wa_asc: grouped(function (a, b) { return (waOf(a) || Infinity) - (waOf(b) || Infinity); }),
       area_desc: function (a, b) { return (b.totalWa || 0) - (a.totalWa || 0); },
-      new: function (a, b) { return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0); }
+      new: function (a, b) { return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0); },
+      // ไม่มีคะแนน = ท้ายแถวเสมอ (ไม่ใช่ถือเป็น 0) · คะแนนเท่ากัน = อัปเดตล่าสุดก่อน (ลำดับคงที่)
+      score_desc: function (a, b) {
+        var x = scoreOf(a), y = scoreOf(b);
+        if (x === null || y === null) return (x === null ? 1 : 0) - (y === null ? 1 : 0) || by.new(a, b);
+        return (y - x) || by.new(a, b);
+      }
     };
     list.sort(by[f.sort] || by.new);
     // ประกาศเด่นขึ้นก่อน (หมุนลำดับวันละครั้ง) — เฉพาะการเรียงตั้งต้น "อัปเดตล่าสุด"
@@ -192,7 +218,7 @@
     return PT[k] || k;
   }
   function zoneLabel(k) { return k === 'checked' ? 'ตรวจผังสีแล้ว' : 'ผัง' + String(ZONE_TH[k] || k).split(' — ')[0]; }
-  var CHIP_FOCUS = { province: 'f-province', price: 'f-pmin', area: 'f-amin', zone: 'f-zone', prop: 'f-prop', type: 'f-type' };
+  var CHIP_FOCUS = { province: 'f-province', price: 'f-pmin', area: 'f-amin', zone: 'f-zone', prop: 'f-prop', type: 'f-type', score: 'f-score' };
   function chipText(key, f) {
     switch (key) {
       case 'province': return f.province !== 'all' ? f.province : '';
@@ -202,12 +228,13 @@
       case 'zone': return f.zone !== 'all' ? zoneLabel(f.zone) : '';
       case 'prop': return f.prop !== 'all' ? propLabel(f.prop) : '';
       case 'type': return f.type === 'sell' ? 'ขาย' : f.type === 'rent' ? 'ให้เช่า' : '';
+      case 'score': return f.score !== 'all' ? 'ข้อมูลพร้อม ' + f.score + '+' : '';
     }
     return '';
   }
   function activeCount(f) {
     return (f.type !== 'all') + (f.province !== 'all') + ((f.pmin || f.pmax) ? 1 : 0) + ((f.amin || f.amax) ? 1 : 0) +
-      (f.deed !== 'all') + (f.prop !== 'all') + (f.floors !== 'all') + (f.zone !== 'all') + f.feats.length + (f.saved ? 1 : 0);
+      (f.deed !== 'all') + (f.prop !== 'all') + (f.floors !== 'all') + (f.zone !== 'all') + f.feats.length + (f.saved ? 1 : 0) + (f.score !== 'all');
   }
   function setText(el, txt) { if (el && el.textContent !== txt) el.textContent = txt; }   // เทียบก่อนเขียน (กับดัก MutationObserver)
   function paintChips(f) {
@@ -246,6 +273,7 @@
     if (f.floors !== 'all') p.set('floors', f.floors);
     if (f.zone !== 'all') p.set('zone', f.zone);
     if (f.deed !== 'all' && f.deed !== 'chanote' && f.deed !== 'nor3gor') p.set('deedOther', f.deed);
+    if (f.score !== 'all') p.set('score', f.score);
     var rawQ = ($('f-q').value || '').trim();
     if (rawQ) p.set('q', rawQ.slice(0, 60));
     return 'wanted.html?' + p.toString();
@@ -254,7 +282,7 @@
   // ---------- ตัวกรองลงที่อยู่หน้า (แชร์ลิงก์ได้ · กดย้อนกลับจากหน้าแปลงแล้วตัวกรองยังอยู่) ----------
   // ⚠️ ใช้ replaceState ไม่ใช่ pushState — กดกรองสิบครั้งต้องไม่กลายเป็นปุ่มย้อนกลับสิบชั้น
   //    canonical ของหน้านี้คงที่อยู่แล้ว (seo.test.js) เสิร์ชเอนจินจึงไม่นับ ?… เป็นหน้าใหม่
-  var URL_KEYS = ['type', 'province', 'pmin', 'pmax', 'amin', 'amax', 'deed', 'prop', 'floors', 'zone'];
+  var URL_KEYS = ['type', 'province', 'pmin', 'pmax', 'amin', 'amax', 'deed', 'prop', 'floors', 'zone', 'score'];
   function syncUrl(f) {
     if (!window.history || !history.replaceState) return;
     var p = new URLSearchParams();
@@ -278,7 +306,7 @@
     var p;
     try { p = new URLSearchParams(location.search); } catch (e) { return; }
     if (p.get('q')) $('f-q').value = p.get('q').slice(0, 120);
-    ['type', 'province', 'deed', 'prop', 'floors', 'zone', 'sort'].forEach(function (k) { setSelect('f-' + k, p.get(k)); });
+    ['type', 'province', 'deed', 'prop', 'floors', 'zone', 'score', 'sort'].forEach(function (k) { setSelect('f-' + k, p.get(k)); });
     ['pmin', 'pmax', 'amin', 'amax'].forEach(function (k) {
       var v = Number(p.get(k));
       if (isFinite(v) && v > 0) $('f-' + k).value = String(v);
@@ -316,6 +344,21 @@
     mapView.update(list);
   }
 
+  // ข้อความกำกับคะแนน — ขึ้นเมื่อกรองหรือเรียงด้วยคะแนน · ผลว่าง (ตอนกรอง) = บอกว่าคะแนนต่ำเป็นเรื่องปกติ + ปุ่มล้างเฉพาะตัวกรองนี้
+  // ⚠️ อยู่นอก #listing-grid (compare.js เฝ้าตะแกรง) และเทียบค่าเดิมก่อนเขียนเสมอ (กับดัก MutationObserver)
+  function paintScoreNote(f, n) {
+    var box = $('score-note'), t = $('score-note-t'), btn = $('score-clear');
+    if (!box || !t) return;
+    var on = state.loaded && (f.score !== 'all' || f.sort === 'score_desc');
+    var empty = on && f.score !== 'all' && n === 0;
+    box.hidden = !on;
+    box.classList.toggle('is-empty', empty);
+    setText(t, !on ? '' : empty
+      ? 'ยังไม่มีแปลงที่ข้อมูลพร้อมตั้งแต่ ' + f.score + ' คะแนนขึ้นไปตามเงื่อนไขนี้ — ' + SCORE_EMPTY + ' · ' + SCORE_NOTE
+      : 'ℹ️ ' + SCORE_NOTE);
+    if (btn) btn.hidden = !empty;
+  }
+
   function render() {
     var f = readFilters();
     syncPriceLabels(f.type);
@@ -323,7 +366,7 @@
     var grid = $('listing-grid');
     var anyFilter = !!(f.q || f.type !== 'all' || f.province !== 'all' || f.pmin || f.pmax ||
       f.amin || f.amax || f.deed !== 'all' || f.zone !== 'all' || f.feats.length ||
-      f.prop !== 'all' || f.floors !== 'all');
+      f.prop !== 'all' || f.floors !== 'all' || f.score !== 'all');
 
     $('result-note').textContent = state.loaded
       ? ('พบ ' + r.list.length + ' แปลง' + (anyFilter ? ' จากทั้งหมด ' + state.listings.length + ' แปลง' : ''))
@@ -341,6 +384,8 @@
       un.textContent = 'อีก ' + r.hiddenUnknown + ' แปลงไม่ได้แสดง เพราะยังไม่ได้ระบุข้อมูลในช่องที่คุณกรอง — ' +
         'ไม่ได้แปลว่าแปลงนั้นไม่ตรงเงื่อนไข ทักไลน์ถามทีมงานได้เลย';
     } else { un.hidden = true; un.textContent = ''; }
+
+    paintScoreNote(f, r.list.length);
 
     // ข้อความกำกับป้ายประกาศเด่น — ขึ้นเฉพาะเมื่อมีประกาศเด่นอยู่ในผลลัพธ์
     var fn = $('featured-note');
@@ -497,7 +542,7 @@
     clearTimeout(filterTimer);
     filterTimer = setTimeout(function () { njTrackInternal('filter_property'); }, 900);
   }
-  ['f-type', 'f-province', 'f-deed', 'f-zone', 'f-sort', 'f-prop', 'f-floors'].forEach(function (id) {
+  ['f-type', 'f-province', 'f-deed', 'f-zone', 'f-sort', 'f-prop', 'f-floors', 'f-score'].forEach(function (id) {
     $(id).addEventListener('change', function () { render(); trackFilter(); });
   });
   $('f-features').addEventListener('change', function () { render(); trackFilter(); });
@@ -512,6 +557,12 @@
     render();
   }
   $('f-reset').addEventListener('click', resetAll);
+  // ผลว่างจากตัวกรองคะแนน — ล้างเฉพาะตัวกรองนี้ ตัวกรองอื่นที่ผู้ใช้ตั้งไว้ยังอยู่
+  if ($('score-clear')) $('score-clear').addEventListener('click', function () {
+    $('f-score').value = 'all';
+    render();
+    trackFilter();
+  });
   if ($('ls-clear')) $('ls-clear').addEventListener('click', resetAll);
 
   // ลิงก์ในบล็อกท้ายหน้า = ค้นใหม่ด้วยเงื่อนไขนั้นตัวเดียว · กรองในหน้าทันทีไม่โหลดหน้าใหม่

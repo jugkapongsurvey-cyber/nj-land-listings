@@ -116,6 +116,16 @@
 .ls-unknown{margin:0 0 12px;font-size:13.5px;line-height:1.7;color:#8A5A00;background:#FFF8E6;
   border:1px solid #F5E4BE;border-radius:12px;padding:10px 13px}
 .ls-loading{color:var(--muted);font-size:14px;padding:20px 2px}
+/* ตัวกรอง/เรียงด้วยคะแนนข้อมูลพร้อม (11 ต.ค. 69) — ข้อความกำกับใต้ช่องในแผง + กล่องใต้แถวผลลัพธ์
+   ⚠️ ข้อความ "ไม่ใช่คุณภาพที่ดิน" ห้ามถอด/ซ่อน · ผลว่าง (.is-empty) โทนเดียวกับ .ls-unknown (ไม่ใช่สีแดง = ไม่ใช่ความผิดพลาด) */
+.ls-hint{font-size:12px;line-height:1.55;color:var(--sub);font-weight:400}
+.ls-score-note{margin:0 0 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:13px;line-height:1.65;
+  color:var(--sub);background:#F4F7F8;border:1px solid var(--line);border-radius:12px;padding:8px 13px}
+.ls-score-note[hidden],.ls-score-note [hidden]{display:none}   /* .outline-btn มี display ของตัวเอง ชนะ [hidden] (กับดักเดิม) */
+.ls-score-note p{margin:0;flex:1 1 260px;min-width:0}
+.ls-score-note.is-empty{color:#8A5A00;background:#FFF8E6;border-color:#F5E4BE;font-size:13.5px}
+.ls-score-note .outline-btn{cursor:pointer;font-family:inherit;font-size:14px;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:8px 14px;color:var(--ink);min-height:44px}
 
 /* =====================================================================
  * Sprint 3 — ตัวกรอง "เฉพาะที่บันทึกไว้" + แผงตัวกรองแบบหน้าต่าง

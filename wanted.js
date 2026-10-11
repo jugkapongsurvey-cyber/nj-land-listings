@@ -250,6 +250,9 @@ function prefillFromListings() {
   else if (zone && V.ZONE_TH && Object.prototype.hasOwnProperty.call(V.ZONE_TH, zone)) extra.push('ผังสี: ' + V.ZONE_TH[zone]);
   var dOther = q.get('deedOther');
   if (dOther && V.DEED_TH && Object.prototype.hasOwnProperty.call(V.DEED_TH, dOther)) extra.push('เอกสารสิทธิ์: ' + V.DEED_TH[dOther]);
+  // ตัวกรองคะแนนข้อมูลพร้อม — รับเฉพาะเกณฑ์ที่หน้ารวมประกาศมี (ตรงกับ SCORE_MINS ใน listings.js)
+  var sc = q.get('score');
+  if (sc === '50' || sc === '70' || sc === '80') extra.push('ข้อมูลพร้อมตั้งแต่ ' + sc + '/100 ขึ้นไป');
   // คำค้นของผู้ใช้เอง — รับเฉพาะตัวอักษรไทย/อังกฤษ/ตัวเลข/เว้นวรรค ไม่เกิน 60 ตัว (ไม่รับลิงก์หรือสัญลักษณ์แปลกๆ)
   var kw = String(q.get('q') || '').trim();
   if (/^[฀-๿a-zA-Z0-9 .\-]{1,60}$/.test(kw)) extra.push('คำค้น: ' + kw);
