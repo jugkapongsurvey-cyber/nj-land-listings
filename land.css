@@ -129,6 +129,14 @@ html.ld-lb-lock{overflow:hidden}
 .ld-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
 .ld-badge{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:6px;color:#fff;white-space:nowrap}
 .ld-badge.type{background:#0B2549}
+.ld-badge.type.rent{background:#6d28d9}  /* ประกาศให้เช่า — สีเดียวกับป้ายบนการ์ด (listingcard.css) */
+.ld-price .ld-pm{font-size:.5em;font-weight:600;color:#5A6B7D;margin-left:4px;white-space:nowrap}
+.ld-agent-price .ld-pm{font-size:13px;font-weight:600;color:#5A6B7D;margin-left:3px;white-space:nowrap}
+.ld-rent-terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:8px 0 10px}
+.ld-rent-terms div{background:#F5F3FF;border:1px solid #E4DCFB;border-radius:10px;padding:10px 12px;min-width:0}
+.ld-rent-terms dt{font-size:12px;color:#5A6B7D}
+.ld-rent-terms dd{margin:2px 0 0;font-weight:700;color:#0B2549;word-break:break-word}
+.ld-rent-note{font-size:12.5px;color:#5A6B7D;margin:6px 0 0;line-height:1.55}
 .ld-badge.kind{background:#E7EEF5;color:#0B2549}
 .ld-badge.ok{background:#127A47}
 .ld-badge.basic{background:#8A6008}

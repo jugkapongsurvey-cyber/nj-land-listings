@@ -161,6 +161,8 @@
 .njchat-cards .photo-count{ position:absolute; right:8px; top:8px; font-size:11px; background:rgba(11,37,73,.75); color:#fff; padding:2px 7px; border-radius:6px; }
 .njchat-cards .card-body{ padding:10px 12px 12px; display:flex; flex-direction:column; gap:4px; }
 .njchat-cards .card-price{ font:800 17px/1.2 var(--nj-font),'IBM Plex Sans Thai',sans-serif; color:#0B2549; }
+.njchat-cards .card-price .card-pm{ font-size:12px; font-weight:600; color:#646f84; margin-left:2px; white-space:nowrap; }  /* ค่าเช่า /เดือน */
+.njchat-cards .badge-rent{ background:#6d28d9; color:#fff; }
 .njchat-cards .card-title{ margin:0; font-size:14px; line-height:1.4; }
 .njchat-cards .card-title a{ color:#0B2549; text-decoration:none; }
 .njchat-cards .card-meta{ font-size:12.5px; color:#1B4B7A; font-weight:600; }

@@ -32,6 +32,41 @@
     return '฿' + Number(value).toLocaleString('th-TH');
   }
   function num(value) { return Number(value || 0).toLocaleString('th-TH'); }
+  // ค่าเช่าต่อหน่วยเป็นทศนิยมได้ (฿4.69/ตร.ม.) — ปัด 2 ตำแหน่งที่เซิร์ฟเวอร์แล้ว ที่นี่แค่จัดรูปแบบ
+  function num2(value) { return Number(value || 0).toLocaleString('th-TH', { maximumFractionDigits: 2 }); }
+
+  // ---------- ค่าเช่ารายเดือน (ประกาศ "ให้เช่า" · 11 ต.ค. 69) ----------
+  // ⚠️ ทุกตัวเลขมาจากก้อน rent ของ API (lib/rentview.js ฝั่งระบบ) — ห้ามหารเนื้อที่เองในเบราว์เซอร์
+  //    API รุ่นเก่าที่ไม่ส่ง rent มา = ใช้ estValue เป็นค่าเช่ารายเดือน และไม่มีบรรทัดต่อหน่วย (ซ่อน ไม่เดา)
+  function rentOf(item) {
+    if (!item || item.type !== 'rent') return null;
+    var r = item.rent && typeof item.rent === 'object' ? item.rent : {};
+    var pos = function (v) { var n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
+    return {
+      monthly: pos(r.monthly != null ? r.monthly : item.estValue),
+      perWa: pos(r.perWa),
+      perSqm: pos(r.perSqm),
+      perSqmBasis: r.perSqmBasis === 'room' ? 'room' : (r.perSqmBasis === 'land' ? 'land' : ''),
+      terms: Array.isArray(r.terms) ? r.terms.filter(function (t) { return t && t.th && t.text; }) : [],
+      termsSource: r.termsSource === 'team' ? 'team' : (r.termsSource === 'owner' ? 'owner' : ''),
+      depositBaht: pos(r.depositBaht),
+      advanceBaht: pos(r.advanceBaht),
+      regNote: typeof r.regNote === 'string' ? r.regNote : ''
+    };
+  }
+  // ราคาหลักของประกาศเช่า: "฿30,000" + ป้าย "/เดือน" · ไม่มีค่าเช่า = ติดต่อสอบถาม
+  function rentMoney(r) {
+    if (!r || !r.monthly) return 'ค่าเช่าติดต่อสอบถาม';
+    return '฿' + Number(r.monthly).toLocaleString('th-TH');
+  }
+  // บรรทัดต่อหน่วย [{t:'฿18.75/ตร.ว.'}, …] — ไม่มีค่า = ไม่มีบรรทัด
+  function rentPerList(r) {
+    var out = [];
+    if (!r) return out;
+    if (r.perWa > 0) out.push('฿' + num2(r.perWa) + '/ตร.ว.');
+    if (r.perSqm > 0) out.push('฿' + num2(r.perSqm) + '/ตร.ม.');
+    return out;
+  }
   function ago(iso) {
     var d = new Date(iso), days = Math.floor((Date.now() - d.getTime()) / 86400000);
     if (!iso || isNaN(d)) return '';
@@ -86,6 +121,8 @@
       pricePerRai: Number(item.pricePerRai || 0),
       // ราคาต่อ ตร.ม. ของห้องชุด — เซิร์ฟเวอร์คิดจากขนาดห้องที่เจ้าของแจ้ง · 0 = ไม่มีข้อมูล/ประกาศเช่า → ซ่อน (ห้ามหารเอง)
       pricePerSqm: Number(item.pricePerSqm || 0),
+      // ค่าเช่ารายเดือน (ประกาศเช่าเท่านั้น · ขาย = null) — ดู rentOf()
+      rent: rentOf(item),
       land: item.land || null,
       // ชื่อทำเลสั้นบรรทัดเดียวสำหรับหัวการ์ด — คนละช่องกับ parcelInfo ซึ่งเป็นก้อนยาว
       // (ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่) ที่เจ้าของบางรายใส่โฆษณาทั้งชุดลงไป
@@ -236,6 +273,12 @@
     var perWa = item.pricePerWa > 0 ? '<span>฿' + num(item.pricePerWa) + '/ตร.ว.</span>' : '';
     // ห้องชุดไม่มีเนื้อที่ดิน (perWa = 0) จึงใช้ราคาต่อ ตร.ม. แทน · ถ้ามีทั้งคู่ก็แสดงทั้งคู่ (ไม่เกิดกับข้อมูลจริง)
     if (item.pricePerSqm > 0) perWa += '<span>฿' + num(item.pricePerSqm) + '/ตร.ม.</span>';
+    // ประกาศเช่า: "฿30,000 /เดือน" ตัวใหญ่ + ค่าเช่าต่อ ตร.ว./ตร.ม. ตัวเล็ก (ประกาศขายไม่เข้าทางนี้ — หน้าตาเดิมทุกไบต์)
+    var rent = item.type === 'rent' ? (item.rent || rentOf(item)) : null;
+    var priceHtml = rent
+      ? '<b>' + rentMoney(rent) + (rent.monthly ? '<small class="card-pm">/เดือน</small>' : '') + '</b>' +
+        rentPerList(rent).map(function (t) { return '<span>' + t + '</span>'; }).join('')
+      : '<b>' + money(item.estValue) + '</b>' + perWa;
 
     // ---------- แถวป้ายใต้คำโปรย ----------
     // แสดงเฉพาะช่องที่มีค่าจริง · ช่องว่าง = "ยังไม่ได้กรอก" ไม่ใช่ "ไม่มี" จึงต้องไม่ขึ้นป้ายอะไรเลย
@@ -277,7 +320,7 @@
     return '<article class="land-card is-compact" data-href="' + esc(href) + '" data-id="' + esc(item.id) + '">' +
       '<div class="card-media">' + media +
         '<div class="card-badges">' +
-          '<span class="badge">' + (item.type === 'rent' ? 'ให้เช่า' : 'ขาย') + '</span>' +
+          (item.type === 'rent' ? '<span class="badge badge-rent">ให้เช่า</span>' : '<span class="badge">ขาย</span>') +
           // ⚠️ ป้ายประกาศเด่นต้องมีข้อความว่าเป็นพื้นที่ที่เจ้าของจ่ายเอง ไม่ใช่การรับรองแปลง (title + aria-label)
           (item.featured ? '<span class="badge badge-featured" title="' + esc(featuredNote()) + '" aria-label="ประกาศเด่น — ' + esc(featuredNote()) + '">★ ประกาศเด่น</span>' : '') +
           (item.tier === 2
@@ -286,7 +329,7 @@
         '</div>' + count +
       '</div>' +
       '<div class="card-body">' +
-        '<div class="card-price"><b>' + money(item.estValue) + '</b>' + perWa + '</div>' +
+        '<div class="card-price">' + priceHtml + '</div>' +
         '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(shortTitleOf(item)) + '</a></h3>' +
         factsHtml(item) +
         (item.blurb ? '<div class="card-desc">' + esc(item.blurb) + '</div>' : '') +
@@ -407,7 +450,8 @@
 
   window.NJListing = {
     LINE: LINE, FB: FB, TEL: TEL, TEL2: TEL2,
-    esc: esc, money: money, num: num, ago: ago, areaTh: areaTh,
+    esc: esc, money: money, num: num, num2: num2, ago: ago, areaTh: areaTh,
+    rentOf: rentOf, rentMoney: rentMoney, rentPerList: rentPerList,
     normalize: normalize, card: card, shortTitleOf: shortTitleOf,
     inspectedOf: inspectedOf, inspectedText: inspectedText,
     emptyHtml: emptyHtml, loadFailedHtml: loadFailedHtml,

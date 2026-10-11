@@ -158,6 +158,8 @@
           // 'sell' = ขายขาด · 'rent' = ให้เช่า — บอกให้ตรงกับที่หน้าจอแสดง
           businessFunction: l.type==='rent' ? 'http://purl.org/goodrelations/v1#LeaseOut'
                                             : 'http://purl.org/goodrelations/v1#Sell',
+          // ประกาศเช่า: ราคาคือค่าเช่าต่อเดือน (UN/CEFACT MON) — ตรงกับ "/เดือน" ที่หน้าจอแสดง
+          priceSpecification: l.type==='rent' ? {'@type':'UnitPriceSpecification', price:Number(l.estValue), priceCurrency:'THB', unitCode:'MON', unitText:'เดือน'} : undefined,
           url:url,
           seller:{'@id':SITE_URL+'/#org'}
         };
@@ -214,6 +216,56 @@
   function perSqmText(l){
     var n=Number(l.pricePerSqm)||0;
     return n>0 ? '≈ '+n.toLocaleString('th-TH')+' บาท/ตร.ม.' : '';
+  }
+
+  // ---------- ค่าเช่ารายเดือน (ประกาศ "ให้เช่า" · 11 ต.ค. 2569) ----------
+  // ⚠️ ทุกตัวเลขมาจากก้อน `rent` ที่เซิร์ฟเวอร์คิดให้ (lib/rentview.js) — ห้ามหารเนื้อที่เองในเบราว์เซอร์ (กติกาข้อ 5)
+  //    API รุ่นเก่าที่ไม่ส่ง rent = ใช้ estValue เป็นค่าเช่ารายเดือน · ไม่มีบรรทัดต่อหน่วย/เงื่อนไข (ซ่อน ไม่เดา)
+  //    รูปแบบเดียวกับ NJListing.rentOf ของการ์ด (listingcard.js โหลดหลังไฟล์นี้ จึงเขียนตัวอ่านไว้ที่นี่ด้วย)
+  function isRent(l){ return !!(l && l.type==='rent'); }
+  function rentOf(l){
+    if(!isRent(l)) return null;
+    var r=(l.rent&&typeof l.rent==='object')?l.rent:{};
+    var pos=function(v){ var n=Number(v); return isFinite(n)&&n>0?n:0; };
+    return {
+      monthly: pos(r.monthly!=null?r.monthly:l.estValue), perWa: pos(r.perWa), perSqm: pos(r.perSqm),
+      perSqmBasis: r.perSqmBasis==='room'?'room':(r.perSqmBasis==='land'?'land':''),
+      terms: Array.isArray(r.terms)?r.terms.filter(function(t){ return t&&t.th&&t.text; }):[],
+      termsSource: r.termsSource==='team'?'team':(r.termsSource==='owner'?'owner':''),
+      depositBaht: pos(r.depositBaht), advanceBaht: pos(r.advanceBaht),
+      regNote: typeof r.regNote==='string'?r.regNote:''
+    };
+  }
+  function num2(v){ return Number(v||0).toLocaleString('th-TH',{maximumFractionDigits:2}); }
+  // ราคาหลัก "฿30,000 /เดือน" — ตัวเลขล้วน ไม่มีข้อความจากผู้ใช้
+  function rentPriceHtml(l){
+    var r=rentOf(l);
+    if(!r||!r.monthly) return 'ค่าเช่าติดต่อสอบถาม';
+    return '฿'+Number(r.monthly).toLocaleString('th-TH')+'<span class="ld-pm">/เดือน</span>';
+  }
+  // บรรทัดเล็กใต้ราคา "฿18.75/ตร.ว. · ฿4.69/ตร.ม." — ไม่มีเนื้อที่ = ว่าง
+  function rentPerText(l){
+    var r=rentOf(l); if(!r) return '';
+    var a=[];
+    if(r.perWa>0) a.push('฿'+num2(r.perWa)+'/ตร.ว.');
+    if(r.perSqm>0) a.push('฿'+num2(r.perSqm)+'/ตร.ม.'+(r.perSqmBasis==='room'?' (ขนาดห้อง)':''));
+    return a.join(' · ');
+  }
+  // กล่อง "เงื่อนไขการเช่า" — ว่าง = ซ่อนทั้งหัวข้อ (secHtml คืน '' เมื่อไม่มีเนื้อหา)
+  // ⚠️ ทุกค่าเป็นข้อมูลที่เจ้าของแจ้ง/ทีมบันทึกจากที่เจ้าของแจ้ง ไม่ใช่สัญญา — ต้องติดป้ายที่มาเสมอ
+  function rentTermsHtml(l){
+    var r=rentOf(l); if(!r) return '';
+    var rows=r.terms.map(function(t){ return [t.th, t.text]; });
+    if(r.depositBaht>0) rows.push(['เงินประกันโดยประมาณ', '฿'+Number(r.depositBaht).toLocaleString('th-TH')+' (คิดจากค่าเช่ารายเดือน)']);
+    if(r.advanceBaht>0) rows.push(['ค่าเช่าล่วงหน้าโดยประมาณ', '฿'+Number(r.advanceBaht).toLocaleString('th-TH')+' (คิดจากค่าเช่ารายเดือน)']);
+    if(!rows.length && !r.regNote) return '';
+    var src=r.termsSource==='team'?'ทีมงานบันทึกจากข้อมูลที่เจ้าของแจ้ง':'ข้อมูลที่เจ้าของแจ้ง · ทีมงานยังไม่ได้ตรวจสอบ';
+    return (rows.length
+        ? '<p class="ld-src">'+esc(src)+'</p><dl class="ld-rent-terms">'+rows.map(function(x){
+            return '<div><dt>'+esc(x[0])+'</dt><dd>'+esc(x[1])+'</dd></div>'; }).join('')+'</dl>'
+        : '')+
+      (r.regNote?'<p class="ld-rent-note">'+esc(r.regNote)+'</p>':'')+
+      '<p class="ld-rent-note">เงื่อนไขจริงเป็นไปตามสัญญาเช่าที่ตกลงกับเจ้าของ · สอบถามรายละเอียดเพิ่มเติมกับทีมงานได้</p>';
   }
 
   // ---------- ห้องชุด (รอบคอนโด 3) ----------
@@ -381,6 +433,8 @@
   // ⚠️ อ่านจาก l.appraisal ที่เซิร์ฟเวอร์ส่งมาเท่านั้น (null = ทีมยังไม่บันทึกค่า/รอบบัญชีสิ้นสุด → ไม่วาดอะไรเลย หน้าตาเดิมทุกไบต์)
   //    ยอดทั้งแปลงคิดที่เซิร์ฟเวอร์ ห้ามคูณเองในเบราว์เซอร์ (กติกาเดียวกับ pricePerWa) · ไม่มียอดทั้งแปลง = ไม่ขึ้นท่อนนั้น
   function apprOf(l){
+    // ประกาศเช่าไม่แสดงราคาประเมินราชการ (ใช้คิดค่าโอน/ภาษีของการซื้อขาย ไม่เกี่ยวกับการเช่า · 11 ต.ค. 69)
+    if(isRent(l)) return null;
     var a=l&&l.appraisal;
     return a && Number(a.perWa)>0 ? a : null;
   }
@@ -933,7 +987,7 @@
       '</div>'+
       '<div class="ld-agent-b">'+
         posterHtml(l)+
-        '<div class="ld-agent-price"><span>'+(l.type==='rent'?'ค่าเช่า':'ราคาขาย')+'</span><b>'+money(l.estValue)+'</b></div>'+
+        '<div class="ld-agent-price"><span>'+(l.type==='rent'?'ค่าเช่า':'ราคาขาย')+'</span><b>'+(isRent(l)?rentPriceHtml(l):money(l.estValue))+'</b></div>'+
         '<p class="ld-agent-code">รหัสทรัพย์ <b>'+esc(l.id)+'</b> · แจ้งรหัสนี้ทุกครั้งที่ติดต่อ</p>'+
         '<div class="ld-cta">'+
           '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
@@ -1085,7 +1139,7 @@
     var badge = tier===2
       ? '<span class="ld-badge ok">✓ ตรวจสอบโดย NJ</span>'
       : '<span class="ld-badge basic">◐ ข้อมูลเบื้องต้น</span>';
-    var pw=perWaText(l)||perSqmText(l);
+    var pw=isRent(l) ? rentPerText(l) : (perWaText(l)||perSqmText(l));
 
     // ---------- โครงหน้า (แบบใหม่ 2026-09-27 · ตามเว็บอสังหาฯ ที่เจ้าของส่งมา แล้วปรับให้เข้ากติกาของเรา) ----------
     //   แกลเลอรีโมเสกเต็มความกว้าง
@@ -1101,10 +1155,10 @@
       galleryHtml(photos, thumbs, alt)+
       '<div class="ld-layout">'+
         '<div class="ld-head">'+
-          '<div class="ld-chips"><span class="ld-badge type">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+
+          '<div class="ld-chips"><span class="ld-badge type'+(isRent(l)?' rent':'')+'">'+(l.type==='rent'?'ให้เช่า':'ขาย')+'</span>'+
             (kind?'<span class="ld-badge kind">'+esc(kind)+'</span>':'')+badge+'</div>'+
-          '<div class="ld-price">'+money(l.estValue)+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
-          (l.estValue?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
+          '<div class="ld-price">'+(isRent(l)?rentPriceHtml(l):money(l.estValue))+(pw?'<small>'+esc(pw)+'</small>':'')+'</div>'+
+          (l.estValue&&!isRent(l)?'<a class="ld-vlink" href="guides.html#valuation">ราคานี้คำนวณอย่างไร →</a>':'')+
           // ⚠️ **H1 ต้องเป็นชื่อสั้น ไม่ใช่รายละเอียดทั้งย่อหน้า** (งานที่ 8)
           // ของเดิมใช้ `parcelInfo` ทั้งก้อน ซึ่งคือ "ที่ตั้ง · ข้อความที่เจ้าของพิมพ์ · เนื้อที่"
           // ต่อกัน · เจอจริงยาว 200+ ตัวอักษร อ่านบนผลค้นหาไม่รู้เรื่องและกินพื้นที่ครึ่งจอมือถือ
@@ -1120,7 +1174,9 @@
           inquiryHtml(l)+
         '</div></aside>'+
         '<div class="ld-content">'+
-          secHtml('ld-s-fee','ประมาณการค่าใช้จ่ายวันโอน','<div id="ld-fee"></div>')+
+          // ประกาศเช่า: กล่องเงื่อนไขการเช่าขึ้นแทนเครื่องคำนวณค่าโอน (ค่าโอน/ภาษีเป็นเรื่องของการซื้อขาย · 11 ต.ค. 69)
+          (isRent(l) ? secHtml('ld-s-rent','เงื่อนไขการเช่า', rentTermsHtml(l))
+                     : secHtml('ld-s-fee','ประมาณการค่าใช้จ่ายวันโอน','<div id="ld-fee"></div>'))+
           // ค่างวดสินเชื่อ — เฉพาะห้องชุดที่ขายและมีราคา · ⚠️ ไม่ฝังดอกเบี้ย/วงเงินธนาคารใด (ค่าตั้งต้นแก้ได้ · คำเตือนค่าประมาณห้ามถอด)
           (loanWanted(l) ? secHtml('ld-s-loan','ประมาณการค่างวดสินเชื่อ','<div id="ld-loan"></div>') : '')+
           secHtml('ld-s-spec','โครงสร้างและขนาดพื้นที่', specGridHtml(l,L,tier))+
@@ -1143,7 +1199,8 @@
             (window.NJParcelMap?NJParcelMap.mapHtml(L.plot):''))+
           secHtml('ld-s-condo','ผลตรวจเฉพาะห้องชุด', condoChecksHtml(l))+
           secHtml('ld-s-loc','ทำเลที่ตั้ง', mapHtml(L)+nearbyHtml(L))+
-          secHtml('ld-s-comps','ราคาเทียบเคียงในย่านนี้', compsHtml(priceComps))+
+          // ราคาเทียบเคียงเป็นราคาขายต่อ ตร.ว. — ไม่แสดงกับประกาศเช่า (คนละหน่วยกับค่าเช่ารายเดือน)
+          (isRent(l) ? '' : secHtml('ld-s-comps','ราคาเทียบเคียงในย่านนี้', compsHtml(priceComps)))+
           (photos.length>1 ? secHtml('ld-s-photos','รูปภาพทั้งหมด ('+photos.length+')',
             '<div class="ld-pgrid">'+photos.map(function(src,i){
               return '<button type="button" class="ld-pgrid-i" data-open="'+i+'" aria-label="เปิดรูปที่ '+(i+1)+' แบบเต็มจอ">'+
@@ -1202,7 +1259,8 @@
     //    ยกเว้นแปลงที่ทีมบันทึกราคาประเมินแล้ว (l.appraisal ไม่ว่าง และมียอดทั้งแปลงจากเซิร์ฟเวอร์) — เติมช่องราคาประเมินที่ดินให้ แก้ได้
     var isCondo=!!(l.land&&l.land.propertyType==='condo');
     var aprFee=apprOf(l);
-    if(window.NJFeeCalc) NJFeeCalc.mount(document.getElementById('ld-fee'),{salePrice:l.estValue,propertyType:isCondo?'condounit':'',
+    var feeHost=document.getElementById('ld-fee');
+    if(window.NJFeeCalc && feeHost) NJFeeCalc.mount(feeHost,{salePrice:l.estValue,propertyType:isCondo?'condounit':'',
       teamAppraisal:(!isCondo && aprFee && Number(aprFee.total)>0) ? {total:aprFee.total, cycle:aprFee.cycle, source:aprFee.source} : null});
 
     // ค่างวดสินเชื่อของห้องชุด — ราคาตั้งต้น = ราคาประกาศ (ตัวเลขที่ประกาศอยู่แล้ว) · ไม่มี loancalc.js (หน้าสแตติกรุ่นก่อนสร้างใหม่) = ถอดส่วนนี้ ไม่ทิ้งหัวข้อเปล่า

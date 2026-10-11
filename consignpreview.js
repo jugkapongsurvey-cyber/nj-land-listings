@@ -88,9 +88,11 @@
   function unitText(v) {
     var p = Number((v && v.unitPrice) || 0);
     if (!(p > 0)) return '';
-    if (v.priceUnit === 'rai') return '฿' + num(p) + '/ไร่';
+    // ฝากเช่า: ตัวเลขที่พิมพ์คือค่าเช่าต่อเดือน (11 ต.ค. 69)
+    var pm = v.type === 'rent' ? '/เดือน' : '';
+    if (v.priceUnit === 'rai') return '฿' + num(p) + '/ไร่' + pm;
     if (v.priceUnit === 'total') return '';
-    return '฿' + num(p) + '/ตร.ว.';
+    return '฿' + num(p) + '/ตร.ว.' + pm;
   }
 
   // ---------- ยังเติมอะไรได้อีก ----------
@@ -150,7 +152,8 @@
       typeLabel: typeLabel(v.type),
       badge: BADGE_BASIC,
       surveyLine: SURVEY_LINE[opt],
-      price: money(v.estValue),
+      // ฝากเช่า: ราคาพาดหัวคือค่าเช่ารวมต่อเดือน — ต่อท้าย "/เดือน" แบบเดียวกับการ์ดประกาศจริง
+      price: money(v.estValue) + (v.type === 'rent' && Number(v.estValue) > 0 ? ' /เดือน' : ''),
       // ยังไม่ได้กรอกที่ตั้งเลย = ไม่มีชื่อแปลงให้แสดง · บอกตรงๆ ว่ายังว่าง ไม่ใช่ตั้งชื่อให้เอง
       title: v.title || '',
       bits: bits,

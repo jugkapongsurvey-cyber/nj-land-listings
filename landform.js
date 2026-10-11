@@ -337,6 +337,18 @@
     }
     var UNIT_LABEL = { wa: 'ราคาต่อตารางวา (บาท)', rai: 'ราคาต่อไร่ (บาท)', total: 'ราคารวมทั้งแปลง (บาท)' };
     var UNIT_PH = { wa: 'เช่น 25000', rai: 'เช่น 4000000', total: 'เช่น 9500000' };
+    // ฝากเช่า (11 ต.ค. 69): ราคาในฟอร์มคือ "ค่าเช่าต่อเดือน" — ระบบหลังบ้านคิดค่าเช่ารวมรายเดือนด้วยสูตรเดียวกัน (consignDerive)
+    //   opt.dealName = ชื่อปุ่มเลือก ขาย/เช่า (ไม่ส่ง = ฟอร์มขายแบบเดิมทุกตัวอักษร) · opt.priceTitle = หัวข้อของกลุ่มราคา
+    var UNIT_LABEL_RENT = { wa: 'ค่าเช่าต่อตารางวา ต่อเดือน (บาท)', rai: 'ค่าเช่าต่อไร่ ต่อเดือน (บาท)', total: 'ค่าเช่าทั้งแปลง ต่อเดือน (บาท)' };
+    var UNIT_PH_RENT = { wa: 'เช่น 20', rai: 'เช่น 8000', total: 'เช่น 30000' };
+    var priceTitle = opt.priceTitle ? document.getElementById(opt.priceTitle) : null;
+    var titleSale = priceTitle ? priceTitle.textContent : '';
+    function isRent() {
+      if (!opt.dealName) return false;
+      var r = document.querySelector('input[name="' + opt.dealName + '"]:checked');
+      return !!(r && r.value === 'rent');
+    }
+    function setText(el, t) { if (el && el.textContent !== t) el.textContent = t; }
 
     function totalWa() { return toWa(raiEl.value, nganEl && nganEl.value, waEl && waEl.value); }
 
@@ -353,8 +365,10 @@
       var w = totalWa();
       var u = unit();
 
-      if (priceLabel) priceLabel.textContent = UNIT_LABEL[u] || UNIT_LABEL.wa;
-      priceEl.placeholder = UNIT_PH[u] || '';
+      var rent = isRent();
+      setText(priceLabel, (rent ? UNIT_LABEL_RENT : UNIT_LABEL)[u] || UNIT_LABEL.wa);
+      setText(priceTitle, rent ? 'ค่าเช่าที่ต้องการ (ต่อเดือน)' : titleSale);
+      priceEl.placeholder = (rent ? UNIT_PH_RENT : UNIT_PH)[u] || '';
 
       // สรุปเนื้อที่ — แปลงกลับเป็นรูปแบบ ไร่-งาน-วา ให้เจ้าของยืนยันว่าตรงกับที่เข้าใจ
       if (areaOut) {
@@ -375,14 +389,18 @@
       if (p > 0 && u !== 'total' && w <= 0) {
         // มีราคาต่อหน่วยแต่ยังไม่ใส่เนื้อที่ = คำนวณไม่ได้ ต้องบอกว่าขาดอะไร ไม่ใช่เงียบไป
         priceOut.className = 'cs-calc cs-calc-wait';
-        priceOut.textContent = 'ใส่เนื้อที่ด้านบนก่อน แล้วระบบจะคำนวณราคารวมให้อัตโนมัติ';
+        priceOut.textContent = rent ? 'ใส่เนื้อที่ด้านบนก่อน แล้วระบบจะคำนวณค่าเช่ารวมต่อเดือนให้อัตโนมัติ'
+                                    : 'ใส่เนื้อที่ด้านบนก่อน แล้วระบบจะคำนวณราคารวมให้อัตโนมัติ';
         priceOut.hidden = false;
         return;
       }
       if (total <= 0) { priceOut.hidden = true; priceOut.textContent = ''; return; }
 
       var txt;
-      if (u === 'total') {
+      if (rent) {
+        // ค่าเช่า: ไม่มีคำอ่านเป็นตัวหนังสือ (หลักหมื่น อ่านง่ายอยู่แล้ว) · ไม่คิดย้อนเป็นต่อหน่วย (หน้าประกาศคิดจากเซิร์ฟเวอร์ให้)
+        txt = 'ค่าเช่ารวมทั้งแปลง ≈ ' + fmt(total) + ' บาท/เดือน';
+      } else if (u === 'total') {
         // ใส่ราคารวมมา — คิดย้อนกลับเป็นราคาต่อตารางวา/ต่อไร่ ให้เทียบกับแปลงอื่นในย่านเดียวกันได้
         txt = w > 0
           ? 'ราคารวม ' + fmt(total) + ' บาท → ตกตารางวาละ ' + fmt(total / w) +
@@ -402,6 +420,10 @@
     });
     Array.prototype.forEach.call(
       document.querySelectorAll('input[name="' + opt.unitName + '"]'),
+      function (r) { r.addEventListener('change', render); }
+    );
+    if (opt.dealName) Array.prototype.forEach.call(
+      document.querySelectorAll('input[name="' + opt.dealName + '"]'),
       function (r) { r.addEventListener('change', render); }
     );
 

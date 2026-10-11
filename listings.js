@@ -74,6 +74,9 @@
       if (f.type !== 'all' && item.type !== f.type) return false;
 
       // ราคา — แปลงที่ยังไม่ระบุราคา (estValue 0 = "ติดต่อสอบถาม") ตกรอบเมื่อกรองช่วงราคา
+      // ⚠️ ประกาศเช่า: estValue = ค่าเช่ารายเดือน (11 ต.ค. 69) — ช่องราคาเปลี่ยนเป็น "ค่าเช่า/เดือน" เมื่อเลือกประเภท=ให้เช่า
+      //    ประเภท=ทั้งหมด + กรองช่วงราคา = ไม่เอาประกาศเช่ามาเทียบกับช่วงราคาขาย (คนละหน่วย · ไม่นับเป็น "ยังไม่ได้ระบุ")
+      if ((f.pmin || f.pmax) && f.type === 'all' && item.type === 'rent') return false;
       if (f.pmin || f.pmax) {
         if (!(item.estValue > 0)) { hiddenUnknown++; return false; }
         if (f.pmin && item.estValue < f.pmin) return false;
@@ -123,11 +126,20 @@
       return true;
     });
 
+    // ประกาศเช่าเรียงด้วยค่าเช่ารายเดือน / ค่าเช่าต่อ ตร.ว. (ก้อน rent จากเซิร์ฟเวอร์) · ประเภท=ทั้งหมด = ขายก่อน แล้วค่อยเช่า
+    //   (ค่าเช่ารายเดือนเทียบกับราคาขายไม่ได้ — ปนกันแล้ว "ราคาต่ำ → สูง" จะเอาประกาศเช่าทุกใบขึ้นหัว)
+    var waOf = function (x) { return x.type === 'rent' ? ((x.rent && x.rent.perWa) || 0) : (x.pricePerWa || 0); };
+    var grouped = function (cmp) {
+      return function (a, b) {
+        var d = f.type === 'all' ? ((a.type === 'rent' ? 1 : 0) - (b.type === 'rent' ? 1 : 0)) : 0;
+        return d || cmp(a, b);
+      };
+    };
     var by = {
-      price_asc: function (a, b) { return (a.estValue || Infinity) - (b.estValue || Infinity); },
-      price_desc: function (a, b) { return (b.estValue || 0) - (a.estValue || 0); },
+      price_asc: grouped(function (a, b) { return (a.estValue || Infinity) - (b.estValue || Infinity); }),
+      price_desc: grouped(function (a, b) { return (b.estValue || 0) - (a.estValue || 0); }),
       // ไม่มีราคาต่อ ตร.ว. = ไปท้ายแถวเสมอ ไม่ใช่ขึ้นบนสุดเพราะค่าเป็น 0
-      wa_asc: function (a, b) { return (a.pricePerWa || Infinity) - (b.pricePerWa || Infinity); },
+      wa_asc: grouped(function (a, b) { return (waOf(a) || Infinity) - (waOf(b) || Infinity); }),
       area_desc: function (a, b) { return (b.totalWa || 0) - (a.totalWa || 0); },
       new: function (a, b) { return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0); }
     };
@@ -146,6 +158,30 @@
   function moneyShort(v) {
     return '฿' + (v >= 1000000 ? (Math.round(v / 10000) / 100).toLocaleString('th-TH') + ' ล้าน' : Number(v).toLocaleString('th-TH'));
   }
+  // ช่วงค่าเช่าบนชิป — ตัวเลขเต็ม + "/ด." (ค่าเช่าหลักหมื่น ไม่ใช้ "ล้าน")
+  function rentShort(v) { return '฿' + Number(v).toLocaleString('th-TH') + '/ด.'; }
+  // ป้ายช่องราคา/ตัวเลือกการเรียง ตามประเภทประกาศ — เลือก "ให้เช่า" = ค่าเช่ารายเดือน (11 ต.ค. 69)
+  // ⚠️ เปลี่ยนเฉพาะข้อความ/ขั้นของช่อง ค่าเดิมในช่องไม่ถูกล้าง · เขียนเมื่อค่าเปลี่ยนเท่านั้น (กับดัก MutationObserver)
+  var PRICE_TEXT = {
+    sale: { pmin: 'ราคาต่ำสุด (บาท)', pmax: 'ราคาสูงสุด (บาท)', step: '100000',
+            price_asc: 'ราคารวม ต่ำ → สูง', price_desc: 'ราคารวม สูง → ต่ำ', wa_asc: 'ราคาต่อ ตร.ว. ต่ำ → สูง' },
+    rent: { pmin: 'ค่าเช่าต่ำสุด (บาท/เดือน)', pmax: 'ค่าเช่าสูงสุด (บาท/เดือน)', step: '1000',
+            price_asc: 'ค่าเช่า/เดือน ต่ำ → สูง', price_desc: 'ค่าเช่า/เดือน สูง → ต่ำ', wa_asc: 'ค่าเช่าต่อ ตร.ว. ต่ำ → สูง' }
+  };
+  function setText(el, t) { if (el && el.textContent !== t) el.textContent = t; }
+  function syncPriceLabels(type) {
+    var T = PRICE_TEXT[type === 'rent' ? 'rent' : 'sale'];
+    ['pmin', 'pmax'].forEach(function (k) {
+      var inp = $('f-' + k); if (!inp) return;
+      var lab = inp.parentNode && inp.parentNode.querySelector('span');
+      setText(lab, T[k]);
+      if (inp.getAttribute('step') !== T.step) inp.setAttribute('step', T.step);
+    });
+    var sel = $('f-sort');
+    if (sel) ['price_asc', 'price_desc', 'wa_asc'].forEach(function (v) {
+      setText(sel.querySelector('option[value="' + v + '"]'), T[v]);
+    });
+  }
   function rangeText(lo, hi, fmt) {
     if (lo && hi) return fmt(lo) + '–' + fmt(hi);
     return lo ? '≥ ' + fmt(lo) : '≤ ' + fmt(hi);
@@ -160,7 +196,8 @@
   function chipText(key, f) {
     switch (key) {
       case 'province': return f.province !== 'all' ? f.province : '';
-      case 'price': return (f.pmin || f.pmax) ? 'ราคา ' + rangeText(f.pmin, f.pmax, moneyShort) : '';
+      case 'price': return (f.pmin || f.pmax)
+        ? (f.type === 'rent' ? 'ค่าเช่า ' + rangeText(f.pmin, f.pmax, rentShort) : 'ราคา ' + rangeText(f.pmin, f.pmax, moneyShort)) : '';
       case 'area': return (f.amin || f.amax) ? rangeText(f.amin, f.amax, function (v) { return v.toLocaleString('th-TH'); }) + ' ไร่' : '';
       case 'zone': return f.zone !== 'all' ? zoneLabel(f.zone) : '';
       case 'prop': return f.prop !== 'all' ? propLabel(f.prop) : '';
@@ -281,6 +318,7 @@
 
   function render() {
     var f = readFilters();
+    syncPriceLabels(f.type);
     var r = apply(f);
     var grid = $('listing-grid');
     var anyFilter = !!(f.q || f.type !== 'all' || f.province !== 'all' || f.pmin || f.pmax ||
@@ -360,8 +398,8 @@
       var L = landOf(x);
       types[x.type] = (types[x.type] || 0) + 1;
       if (L.province) {
-        var p = prov[L.province] || (prov[L.province] = { n: 0, rent: 0 });
-        p.n++; if (x.type === 'rent') p.rent++;
+        var p = prov[L.province] || (prov[L.province] = { n: 0, rent: 0, rentLand: 0 });
+        p.n++; if (x.type === 'rent') { p.rent++; if (L.propertyType === 'land') p.rentLand++; }
         if (L.amphoe) { var ka = L.amphoe + '\u0000' + L.province; amp[ka] = (amp[ka] || 0) + 1; }
       }
       if (L.propertyType) prop[L.propertyType] = (prop[L.propertyType] || 0) + 1;
@@ -388,6 +426,12 @@
     // ขาย/เช่า — ขึ้นเมื่อมีประกาศให้เช่าจริงเท่านั้น (ตอนนี้มีแต่ขาย ลิงก์ "ให้เช่า" จะพาไปผลว่าง)
     if (types.rent) {
       g = [link({ type: 'sell' }, 'ประกาศขาย', types.sell || 0), link({ type: 'rent' }, 'ประกาศให้เช่า', types.rent)].filter(function (x) { return x.n > 0; });
+      // เช่าตามจังหวัด (11 ต.ค. 69) — เฉพาะจังหวัดที่มีประกาศเช่าจริง · "เช่าที่ดิน" เฉพาะเมื่อประกาศเช่าในจังหวัดนั้นเป็นที่ดินเปล่าทุกใบ
+      //   (ประเภทว่าง = ยังไม่ได้ระบุ ห้ามเรียกว่าที่ดิน) · ลิงก์ listings.html?type=rent&province=… ไม่สร้างหน้าใหม่
+      byCount(prov).filter(function (k) { return prov[k].rent > 0; }).forEach(function (k) {
+        var p = prov[k];
+        g.push(link({ type: 'rent', province: k }, (p.rentLand === p.rent ? 'เช่าที่ดิน ' : 'ประกาศให้เช่า ') + k, p.rent));
+      });
       groups.push({ h: 'ขายหรือให้เช่า', items: g });
     }
     return groups;

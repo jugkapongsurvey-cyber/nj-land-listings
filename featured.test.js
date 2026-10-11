@@ -64,7 +64,8 @@ const lsHtml = read('listings.html');
 ok('มีช่องข้อความกำกับ (ซ่อนไว้จนมีประกาศเด่นในผลลัพธ์)', /<p class="ls-note ls-featured-note" id="featured-note" hidden><\/p>/.test(lsHtml));
 ok('landmeta.js โหลดก่อน listings.js', lsHtml.indexOf('src="landmeta.js"') > 0 && lsHtml.indexOf('src="landmeta.js"') < lsHtml.indexOf('src="listings.js"'));
 const css = read('listingcard.css');
-ok('⭐ ป้ายไม่ถูกซ่อนบนการ์ดแนวนอนของมือถือ', /:not\(\.badge-verified\):not\(\.badge-basic\):not\(\.badge-featured\)\{display:none\}/.test(css));
+// ป้าย "ให้เช่า" (.badge-rent) ก็ต้องไม่ถูกซ่อนเหมือนกัน (ค่าเช่ารายเดือน 11 ต.ค. 69) — ต่อท้ายตัวเลือกได้
+ok('⭐ ป้ายไม่ถูกซ่อนบนการ์ดแนวนอนของมือถือ', /:not\(\.badge-verified\):not\(\.badge-basic\):not\(\.badge-featured\)(:not\(\.badge-rent\))?\{display:none\}/.test(css));
 ok('ป้ายไม่ใช้สีเขียวของ "ตรวจสอบโดย NJ"', /\.badge-featured\{[^}]*\}/.test(css) && !/\.badge-featured\{[^}]*#15803d/.test(css));
 ok('⭐ ไม่มีคำรับประกันในข้อความกำกับ', !/(รับรองว่า|การันตี|ขายได้แน่นอน)/.test(LM.FEATURED_NOTE) && /ไม่ใช่การรับรองแปลง/.test(LM.FEATURED_NOTE));
 

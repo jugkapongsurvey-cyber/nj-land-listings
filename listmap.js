@@ -54,9 +54,11 @@
     return { z: MIN_Z, cx: c.x, cy: c.y };
   }
 
-  function priceLabel(v) {
+  // rent = ประกาศให้เช่า → ค่าเช่ารายเดือนเต็มตัวเลข + "/ด." (11 ต.ค. 69 · ค่าเช่าไม่ใช้หน่วย "ล้าน")
+  function priceLabel(v, rent) {
     v = Number(v) || 0;
     if (!(v > 0)) return 'สอบถาม';
+    if (rent) return '฿' + v.toLocaleString('th-TH') + '/ด.';
     if (v >= 1000000) return '฿' + (Math.round(v / 10000) / 100).toLocaleString('th-TH') + ' ล้าน';
     return '฿' + v.toLocaleString('th-TH');
   }
@@ -118,7 +120,7 @@
         var title = (NJL && NJL.shortTitleOf) ? NJL.shortTitleOf(it) : it.id;
         return '<button type="button" class="lm-pin' + (it.id === st.active ? ' is-on' : '') + (it.featured ? ' is-featured' : '') +
           '" data-lm-i="' + i + '" style="left:' + Math.round(q.x - ox) + 'px;top:' + Math.round(q.y - oy) + 'px" ' +
-          'aria-label="' + esc(it.id + ' · ' + priceLabel(it.estValue) + ' · ' + title) + '">' + esc(priceLabel(it.estValue)) + '</button>';
+          'aria-label="' + esc(it.id + ' · ' + priceLabel(it.estValue, it.type === 'rent') + (it.type === 'rent' ? ' (ค่าเช่าต่อเดือน)' : '') + ' · ' + title) + '">' + esc(priceLabel(it.estValue, it.type === 'rent')) + '</button>';
       }).join('');
     }
 
