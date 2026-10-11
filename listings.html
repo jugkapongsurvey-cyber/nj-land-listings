@@ -223,6 +223,7 @@
         <button type="button" class="ls-chip" data-chip="zone" aria-haspopup="dialog">ผังสี</button>
         <button type="button" class="ls-chip" data-chip="prop" aria-haspopup="dialog">ประเภททรัพย์</button>
         <button type="button" class="ls-chip" data-chip="type" aria-haspopup="dialog">ขาย/เช่า</button>
+        <button type="button" class="ls-chip" data-chip="score" aria-haspopup="dialog">ข้อมูลพร้อม</button>
         <button type="button" class="ls-chip ls-chip-clear" id="ls-clear" hidden>ล้างทั้งหมด ✕</button>
       </div>
 
@@ -260,6 +261,14 @@
           <label class="ls-field ls-grow"><span>ผังสี (ผังเมืองรวม)</span><select id="f-zone"><option value="all">ไม่เกี่ยง</option></select></label>
         </div>
 
+        <!-- คะแนนความพร้อมของข้อมูล (ที่การ์ดแสดง "ข้อมูลพร้อม n/100") — เซิร์ฟเวอร์คิดมา (score.total) ห้ามคิดเองที่หน้าเว็บ
+             เกณฑ์ 50 / 80 = ขอบช่วงคะแนนของระบบ (SCORE_BANDS ใน lib/landscore.js) · 70 = ขั้นกลางที่เจ้าของสั่ง
+             ⚠️ คะแนนวัดความครบของข้อมูลที่ตรวจแล้ว ไม่ใช่คุณภาพที่ดิน — ข้อความกำกับใต้ช่องห้ามถอด -->
+        <div class="ls-row">
+          <label class="ls-field ls-grow"><span>ข้อมูลพร้อม (คะแนนเต็ม 100)</span><select id="f-score" aria-describedby="f-score-hint"><option value="all">ไม่เกี่ยง</option><option value="50">50 ขึ้นไป</option><option value="70">70 ขึ้นไป</option><option value="80">80 ขึ้นไป</option></select>
+            <small class="ls-hint" id="f-score-hint">คะแนนบอกว่าข้อมูลของแปลงถูกตรวจและบันทึกไว้ครบแค่ไหน ไม่ใช่คุณภาพที่ดิน</small></label>
+        </div>
+
         <fieldset class="ls-feats">
           <legend>ต้องมี</legend>
           <div id="f-features"></div>
@@ -285,6 +294,7 @@
             <option value="price_desc">ราคารวม สูง → ต่ำ</option>
             <option value="wa_asc">ราคาต่อ ตร.ว. ต่ำ → สูง</option>
             <option value="area_desc">เนื้อที่ มาก → น้อย</option>
+            <option value="score_desc">ข้อมูลพร้อม มาก → น้อย</option>
           </select>
         </label>
         <!-- สวิตช์แผนที่ — ซ่อนไว้จนกว่าจะรู้ว่ามีแปลงที่ทีมงานปักหมุดไว้อย่างน้อย 1 แปลง -->
@@ -293,6 +303,9 @@
       <!-- แปลงที่ถูกซ่อนเพราะ "ยังไม่ได้ระบุข้อมูลช่องนั้น" ต้องบอกให้รู้ ไม่ใช่หายเงียบ
            ผู้ซื้อจะได้รู้ว่ายังมีของอยู่ และทีมงานจะได้รู้ว่าต้องไปกรอกอะไรเพิ่ม -->
       <p class="ls-unknown" id="unknown-note" hidden></p>
+      <!-- ข้อความกำกับตอนกรอง/เรียงด้วยคะแนนข้อมูลพร้อม — อยู่นอก #listing-grid ให้เห็นทั้งมุมมองรายการและแผนที่
+           ผลว่าง = บอกว่าแปลงที่ยังไม่ได้ตรวจคะแนนต่ำเป็นเรื่องปกติ + ปุ่มล้างเฉพาะตัวกรองนี้ (listings.js paintScoreNote) -->
+      <div class="ls-score-note" id="score-note" hidden><p id="score-note-t"></p><button type="button" class="outline-btn" id="score-clear" hidden>ล้างตัวกรองข้อมูลพร้อม</button></div>
       <p class="ls-note ls-featured-note" id="featured-note" hidden></p>
       <div class="ls-map" id="ls-map" hidden></div>
       <div class="land-grid" id="listing-grid" aria-live="polite"><p class="ls-loading">กำลังโหลดประกาศ…</p></div>
