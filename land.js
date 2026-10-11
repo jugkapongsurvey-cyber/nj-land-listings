@@ -1323,7 +1323,7 @@
     if(l.saleBy==='owner') bindOwnerForm(l);
     var inqHost=document.getElementById('ld-inq-form');
     if(inqHost&&window.NJServices){
-      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail', province:(l.land||{}).province||'', brief:true });
+      NJServices.mount(inqHost,{ listingId:l.id, ref:'land_detail', province:(l.land||{}).province||'', brief:true, rent:l.type==='rent' });
       if(window.njTrackInternal) njTrackInternal('inquiry_view', l.id);
     }
     // ปุ่ม "เทียบกับแปลงอื่น" บนหน้านี้ไม่ได้อยู่บนการ์ด compare.js จึงยังไม่รู้จักสถานะของมัน
