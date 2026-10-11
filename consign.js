@@ -1259,7 +1259,8 @@ function setupPropertyType(onChange) {
     var L = (spec.layout || {})[cur] || (spec.layout || {}).other || { size: [], detail: [] };
     return [['ขนาด', L.size || []], ['รายละเอียด', L.detail || []],
             ['เอกสารสิทธิ์และภาระผูกพัน', spec.title || []],
-            ['ค่าเช่า', deal() === 'rent' ? (spec.rent || []) : []]];
+            // ฝากเช่า: "ค่าเช่าที่ต้องการ (rentMonth)" ไม่วาดซ้ำ — กรอกในกลุ่มราคา (เปลี่ยนป้ายเป็นค่าเช่าต่อเดือนแล้ว) ที่เดียว (11 ต.ค. 69)
+            ['ค่าเช่า', deal() === 'rent' ? (spec.rent || []).filter(function (k) { return k !== 'rentMonth'; }) : []]];
   }
   function inputHtml(k) {
     var f = field(k); if (!f) return '';
@@ -1504,6 +1505,8 @@ function setupForm() {
     rai: 'cs-rai', ngan: 'cs-ngan', wa: 'cs-wa',
     price: 'cs-price', unitName: 'priceUnit',
     areaOut: 'cs-area-out', priceOut: 'cs-price-out', priceLabel: 'cs-price-label',
+    // ฝากเช่า = ราคาในฟอร์มเป็นค่าเช่าต่อเดือน (ป้าย/ตัวอย่างเปลี่ยนตาม · 11 ต.ค. 69)
+    dealName: 'type', priceTitle: 'cs-price-title',
     // เปลี่ยนเนื้อที่ = ค่ารังวัดประมาณการ (และค่าตรวจของบริการ) เปลี่ยนตาม
     onChange: function () { if (SV) SV.sync(); if (SVC) SVC.sync(); }
   });

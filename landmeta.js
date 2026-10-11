@@ -83,7 +83,10 @@
   function metaDesc(l, vocab) {
     var L = (l && l.land) || {};
     var bits = [shortLabel(l, vocab)];
-    if (Number(l.estValue) > 0) bits.push('ราคา ' + Number(l.estValue).toLocaleString('th-TH') + ' บาท');
+    // ประกาศเช่า (11 ต.ค. 69): "ค่าเช่า x บาท/เดือน" — estValue ของใบเช่าคือค่าเช่ารายเดือน (pricePerWa ของใบเช่า = 0 จากเซิร์ฟเวอร์)
+    if (Number(l.estValue) > 0) bits.push(l.type === 'rent'
+      ? 'ค่าเช่า ' + Number(l.estValue).toLocaleString('th-TH') + ' บาท/เดือน'
+      : 'ราคา ' + Number(l.estValue).toLocaleString('th-TH') + ' บาท');
     if (Number(l.pricePerWa) > 0) bits.push(Number(l.pricePerWa).toLocaleString('th-TH') + ' บาท/ตร.ว.');
     if (Number(l.pricePerSqm) > 0) bits.push(Number(l.pricePerSqm).toLocaleString('th-TH') + ' บาท/ตร.ม.');
     var DEED = (vocab && vocab.DEED_TH) || {};

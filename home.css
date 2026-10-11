@@ -93,6 +93,8 @@ h1,h2,h3,p{margin:0}
  *    ขาวบน #15803d ได้ 5.02:1 · สีเขียวสดยังใช้อยู่ที่จุดที่ไม่ใช่ข้อความ (จุดติ๊ก · เม็ดใน hero-pill) */
 .badge-verified{background:var(--green-dark)}
 .badge-basic{background:var(--bronze)}
+.badge-rent{background:#6d28d9}  /* ประกาศให้เช่า — ตรงกับ listingcard.css */
+.card-price b .card-pm{font-size:13px;font-weight:600;color:#646f84;margin-left:2px;white-space:nowrap}
 
 /* ========== SECTION HEADERS ========== */
 /* ⚠️ ป้ายเหนือหัวข้อใช้ --bronze ไม่ใช่ --gold — ทอง #b8912e บนพื้นขาวได้ 2.95:1

@@ -169,7 +169,8 @@
         return '<b>' + t.length + ' รายการ</b><br><span class="njcmp-none">' +
           esc(t.map(function (i) { return i.label; }).join(' · ')) + '</span>';
       }],
-      ['ราคารวม', function (x) { return x.estValue > 0 ? '<b>' + esc(money(x.estValue)) + '</b>' : DASH; }],
+      // ประกาศเช่า: estValue = ค่าเช่ารายเดือน (11 ต.ค. 69) · ต่อหน่วยของใบเช่าเป็น 0 จากเซิร์ฟเวอร์ แถวข้างล่างจึงขึ้น "—" เอง
+      ['ราคารวม', function (x) { return x.estValue > 0 ? '<b>' + esc(money(x.estValue)) + '</b>' + (x.type === 'rent' ? ' /เดือน' : '') : DASH; }],
       ['ราคาต่อ ตร.ว.', function (x) { return x.pricePerWa > 0 ? '฿' + num(x.pricePerWa) : DASH; }],
       ['ราคาต่อไร่', function (x) { return x.pricePerRai > 0 ? '฿' + num(x.pricePerRai) : DASH; }],
       // ห้องชุด: เซิร์ฟเวอร์คิดจากขนาดห้องที่เจ้าของแจ้ง · ที่ดินไม่มีค่านี้ → "—" (ห้ามหารเอง)

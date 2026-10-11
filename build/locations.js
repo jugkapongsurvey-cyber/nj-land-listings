@@ -112,7 +112,8 @@ function sortItems(list) {
 function itemHtml(l, META, VOCAB) {
   const L = l.land || {};
   const bits = [];
-  if (Number(l.estValue) > 0) bits.push(baht(l.estValue) + ' บาท');
+  // ประกาศเช่า (11 ต.ค. 69): ค่าเช่ารายเดือน · ประกาศขายเหมือนเดิม (pricePerWa ของใบเช่าเป็น 0 จากเซิร์ฟเวอร์อยู่แล้ว)
+  if (Number(l.estValue) > 0) bits.push(baht(l.estValue) + (l.type === 'rent' ? ' บาท/เดือน (ให้เช่า)' : ' บาท'));
   if (Number(l.pricePerWa) > 0) bits.push(baht(l.pricePerWa) + ' บาท/ตร.ว.');
   if (L.deedType && VOCAB.DEED_TH && VOCAB.DEED_TH[L.deedType]) bits.push(VOCAB.DEED_TH[L.deedType]);
   bits.push('รหัส ' + l.id);
@@ -154,6 +155,15 @@ function bodyHtml(a, items, kids, META, VOCAB) {
       '<a href="/listings.html">ดูประกาศทั้งหมด</a></p>');
   } else {
     out.push('<ul class="loc-list">' + shown.map((l) => itemHtml(l, META, VOCAB)).join('') + '</ul>');
+    // เช่าที่ดินในพื้นที่นี้ (11 ต.ค. 69) — ขึ้นเฉพาะเมื่อมีประกาศเช่าจริงในพื้นที่ · ไม่สร้างหน้าใหม่ ลิงก์ไปหน้ารวมที่กรองแล้ว
+    //   "ที่ดิน" เฉพาะเมื่อประกาศเช่าทุกใบในพื้นที่เป็นที่ดินเปล่า (ประเภทว่าง = ยังไม่ได้ระบุ ห้ามเรียกว่าที่ดิน)
+    const rents = items.filter((x) => x.type === 'rent');
+    if (rents.length) {
+      const allLand = rents.every((x) => x.land && x.land.propertyType === 'land');
+      const q = new URLSearchParams({ type: 'rent', province: a.province }).toString();
+      out.push('<p class="loc-note">' + esc((allLand ? 'เช่าที่ดิน' : 'ประกาศให้เช่า') + 'ในพื้นที่นี้ ' + rents.length + ' รายการ') +
+        ' · <a href="/listings.html?' + esc(q) + '">ดูประกาศให้เช่าใน' + esc(a.province) + '</a></p>');
+    }
     if (items.length > shown.length) {
       out.push('<p class="loc-note">แสดง ' + shown.length + ' จาก ' + items.length + ' แปลง · ' +
         '<a href="/listings.html">ดูทั้งหมดที่หน้ารวมประกาศ</a></p>');

@@ -64,6 +64,8 @@ const esc = (s) => String(s == null ? '' : s)
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 const baht = (n) => Number(n).toLocaleString('th-TH');
+// ค่าเช่าต่อหน่วยมีทศนิยม 2 ตำแหน่ง (เซิร์ฟเวอร์ปัดให้แล้ว)
+const baht2 = (n) => Number(n).toLocaleString('th-TH', { maximumFractionDigits: 2 });
 
 // ---------- เนื้อหาที่ฝังลงใน HTML ต้นทาง ----------
 //
@@ -77,8 +79,16 @@ function bodyHtml(l) {
   const add = (k, v) => { if (v) rows.push('<div class="ldp-row"><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>'); };
 
   add('รหัสทรัพย์', l.id);
-  if (Number(l.estValue) > 0) add('ราคา', baht(l.estValue) + ' บาท');
-  if (Number(l.pricePerWa) > 0) add('ราคาต่อตารางวา', baht(l.pricePerWa) + ' บาท');
+  // ประกาศเช่า (11 ต.ค. 69): ค่าเช่ารายเดือน + ค่าเช่าต่อหน่วยจากก้อน rent — ตรงกับที่ land.js แสดง (ประกาศขายเหมือนเดิมทุกบรรทัด)
+  const rent = l.type === 'rent' ? (l.rent || {}) : null;
+  if (rent) {
+    const monthly = Number(rent.monthly != null ? rent.monthly : l.estValue);
+    if (monthly > 0) add('ค่าเช่า', baht(monthly) + ' บาท/เดือน');
+    if (Number(rent.perWa) > 0) add('ค่าเช่าต่อตารางวา', baht2(rent.perWa) + ' บาท/เดือน');
+    if (Number(rent.perSqm) > 0) add('ค่าเช่าต่อตารางเมตร' + (rent.perSqmBasis === 'room' ? ' (คิดจากขนาดห้องที่เจ้าของแจ้ง)' : ''), baht2(rent.perSqm) + ' บาท/เดือน');
+  }
+  if (!rent && Number(l.estValue) > 0) add('ราคา', baht(l.estValue) + ' บาท');
+  if (!rent && Number(l.pricePerWa) > 0) add('ราคาต่อตารางวา', baht(l.pricePerWa) + ' บาท');
   // ห้องชุด: เซิร์ฟเวอร์คิดจากขนาดห้องที่เจ้าของแจ้ง (ยังไม่ได้ตรวจวัด) — บอกที่มาในชื่อแถวเหมือนแถว specs ข้างล่าง
   if (Number(l.pricePerSqm) > 0) add('ราคาต่อตารางเมตร (คิดจากขนาดห้องที่เจ้าของแจ้ง)', baht(l.pricePerSqm) + ' บาท');
   add('เนื้อที่', L.deedArea);
@@ -102,7 +112,7 @@ function bodyHtml(l) {
     l.blurb ? '<p class="ldp-blurb">' + esc(String(l.blurb).replace(/\s+/g, ' ').trim()) + '</p>' : '',
     '<dl class="ldp-rows">' + rows.join('') + '</dl>',
     l.parcelInfo ? '<h2 class="ldp-h2">รายละเอียดแปลง</h2><p class="ldp-desc">' + esc(l.parcelInfo) + '</p>' : '',
-    '<p class="ldp-note">กำลังโหลดข้อมูลล่าสุด รูปทั้งหมด แผนที่ ผลการตรวจสอบ และเครื่องคำนวณค่าโอน…</p>',
+    '<p class="ldp-note">' + (l.type === 'rent' ? 'กำลังโหลดข้อมูลล่าสุด รูปทั้งหมด แผนที่ ผลการตรวจสอบ และเงื่อนไขการเช่า…' : 'กำลังโหลดข้อมูลล่าสุด รูปทั้งหมด แผนที่ ผลการตรวจสอบ และเครื่องคำนวณค่าโอน…') + '</p>',
     '<p class="ldp-alt"><a href="/listings.html">ดูประกาศทั้งหมด</a> · <a href="/land.html?id=' + esc(l.id) + '">เปิดหน้าแบบเต็ม</a></p>',
     '</article>'
   ].filter(Boolean).join('\n      ');
@@ -137,6 +147,8 @@ function schemaFor(l) {
   }
   if (Number(l.estValue) > 0) {
     out.offers = { '@type': 'Offer', price: Number(l.estValue), priceCurrency: 'THB', availability: 'https://schema.org/InStock' };
+    // ประกาศเช่า: ราคาคือค่าเช่าต่อเดือน (UN/CEFACT MON) — ตรงกับ JSON-LD ที่ land.js เขียนตอนหน้าโหลด
+    if (l.type === 'rent') out.offers.priceSpecification = { '@type': 'UnitPriceSpecification', price: Number(l.estValue), priceCurrency: 'THB', unitCode: 'MON', unitText: 'เดือน' };
   }
   if (Number(l.totalWa) > 0) {
     out.floorSize = { '@type': 'QuantitativeValue', value: Number(l.totalWa), unitText: 'ตารางวา' };
