@@ -164,6 +164,8 @@ const hj = read('journalhome.js');
 ok(!/innerHTML/.test(hj), 'journalhome.js ไม่ใช้ innerHTML (ข้อความจาก API ใส่ด้วย textContent)');
 ok(/\/api\/journal\?limit=3/.test(hj), 'หน้าแรกดึง ?limit=3');
 ok(/sec\.hidden = true/.test(hj), 'ไม่มีฉบับ = ซ่อนบล็อก');
+// การ์ดหน้าแรกแนวนอน ช่องปกแคบ 132/96px → รูปปก 16:9 ที่มีตัวหนังสือถูกครอปจนขาด (ฉบับที่ 3–4 · 11 ต.ค. 2569)
+ok(!/createElement\('img'\)|cover_url/.test(hj) && /jr-cover-blank/.test(hj), 'หน้าแรกใช้ปกพื้นสีวารสารทุกฉบับ ไม่วาดรูปปก');
 ok(!/#[0-9A-Fa-f]{3,8}\b/.test(read('journal.css').replace(/\/\*[\s\S]*?\*\//g, '')), 'journal.css ไม่มีรหัสสีดิบ (ใช้ token)');
 // หน้าอ่านฉบับเต็มชิดซ้าย + ป้ายหมวดเรียงเป็นแนวตั้ง (เว็บจริงฉบับที่ 2 · 29 ก.ย. 2569)
 const jcss = read('journal.css').replace(/\/\*[\s\S]*?\*\//g, '');

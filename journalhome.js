@@ -6,7 +6,9 @@
  * 1. **ข้อความจาก API ใส่ด้วย textContent เท่านั้น** ห้ามต่อสตริงเป็น HTML
  * 2. **ลิงก์ของฉบับประกอบจาก slug ที่ผ่านรูปแบบ a-z 0-9 ขีดกลางเท่านั้น** ไม่ใช้ `url` จาก API ตรงๆ
  *    (หน้าเว็บต้องทำงานได้ทั้งบนเว็บจริงและ localhost ตอนทดสอบ)
- * 3. **รูปปกใช้ได้เฉพาะ https** · ไม่มีปก = พื้นสีวารสาร (ห้ามใช้รูปสต็อกแทน — กติกาข้อ 9)
+ * 3. **บนหน้าแรกไม่แสดงรูปปก ใช้พื้นสีวารสารทุกฉบับ** — การ์ดหน้าแรกเป็นแนวนอน ช่องปกแคบ (132px / มือถือ 96px)
+ *    รูปปก 16:9 ที่มีตัวหนังสือถูกครอปจนตัวหนังสือขาดออกนอกกรอบ (ฉบับที่ 3–4 · 11 ต.ค. 2569)
+ *    หน้ารวมวารสาร (journal.html) ยังแสดงรูปปกตามเดิม · ห้ามใช้รูปสต็อกแทน — กติกาข้อ 9
  * 4. **ยังไม่มีฉบับเผยแพร่ = ซ่อนทั้งบล็อก** (ไม่ใช่กล่องว่าง "กำลังรวบรวม")
  *    **โหลดไม่สำเร็จ = บอกตรงๆ แล้วเหลือปุ่มไปหน้ารวม** (คนละกรณีกัน ห้ามสลับ — กติกาเดียวกับประกาศ)
  * 5. ต้องโหลดหลัง analytics.js (อ่าน NJ_API_BASE ที่รองรับ ?api= ตอนทดสอบบนเครื่อง)
@@ -35,16 +37,9 @@
     var href = 'journal/' + it.slug + '/';
     var li = el('li', 'jr-card');
     var cover = el('div', 'jr-cover');
-    if (/^https:\/\//.test(String(it.cover_url || ''))) {
-      var img = document.createElement('img');
-      img.src = it.cover_url; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
-      img.width = 640; img.height = 360;
-      cover.appendChild(img);
-    } else {
-      var blank = el('div', 'jr-cover-blank', 'วารสารที่ดินชัวร์');
-      blank.appendChild(el('small', null, 'ฉบับที่ ' + it.issue_no));
-      cover.appendChild(blank);
-    }
+    var blank = el('div', 'jr-cover-blank', 'วารสารที่ดินชัวร์');
+    blank.appendChild(el('small', null, 'ฉบับที่ ' + it.issue_no));
+    cover.appendChild(blank);
     li.appendChild(cover);
     var body = el('div', 'jr-body');
     body.appendChild(el('span', 'jr-issue', 'ฉบับที่ ' + it.issue_no));
