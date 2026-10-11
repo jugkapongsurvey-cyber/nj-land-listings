@@ -191,6 +191,10 @@
    * วิธี: ปลดตำแหน่งอ้างอิงออกจากช่องรูป ให้ปุ่มไปเกาะขอบล่างขวาของทั้งการ์ดแทน
    * (ช่องรูปเริ่มที่ขอบซ้ายของการ์ดพอดี ป้ายมุมซ้ายบนจึงยังอยู่ที่เดิมเป๊ะ) */
   .land-card.is-compact .card-media{position:static;overflow:visible}
+  /* ⚠️ ไม่มีรูป: พื้นลายเส้นเป็น absolute inset:0 — พอช่องรูปเป็น static มันไปยึดทั้งการ์ดแล้วทับราคา/ทำเล/ชิปจนหมด
+   *    (เจอจริง 11 ต.ค. 69 · การ์ดมีรูปไม่เป็นเพราะ <img> อยู่ใน flow) → ให้อยู่ในช่องรูปของตัวเอง
+   *    relative ไว้ให้ลายเส้น ::after ยึดกรอบนี้ ไม่ใช่การ์ด */
+  .land-card.is-compact .fallback-land{position:relative;inset:auto;width:100%;height:100%;min-height:112px;overflow:hidden}
   .land-card.is-compact .card-badges{left:6px;top:6px}
   .land-card.is-compact .njsave-btn,
   .land-card.is-compact .njcmp-btn{bottom:8px;font-size:11px;padding:5px 9px 5px 7px}

@@ -216,7 +216,8 @@
         '<label class="njsv-field"><span>เบอร์โทร</span>' +
           '<input type="tel" data-njsv="phone" autocomplete="tel" inputmode="tel" enterkeyhint="done" placeholder="ระบุเบอร์โทร"></label>' +
         '<div class="njsv-why" role="group" aria-label="เรื่องที่อยากสอบถาม (เลือกได้หลายข้อ)">' +
-          WHY.map(function (w) {
+          // ประกาศเช่า: ไม่มีชิป "ปรึกษาเรื่องสินเชื่อ" (สินเชื่อเป็นเรื่องของการซื้อ · 11 ต.ค. 69)
+          WHY.filter(function (w) { return !(opt && opt.rent && w === 'ปรึกษาเรื่องสินเชื่อ'); }).map(function (w) {
             return '<button type="button" class="njsv-why-b" data-njsv-why="' + esc(w) + '" aria-pressed="false">' + esc(w) + '</button>';
           }).join('') +
         '</div>' +

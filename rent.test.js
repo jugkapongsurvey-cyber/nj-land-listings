@@ -125,5 +125,20 @@ if (P && P.model) {
   ok('ตัวอย่างประกาศ: ค่าเช่า /เดือน', m && /\/เดือน/.test(m.price), m && m.price);
 }
 
+// ---------- 7) การ์ดไม่มีรูปบนมือถือ + ชิปสินเชื่อ (11 ต.ค. 69) ----------
+const mq = lcCss.slice(lcCss.indexOf('@media (max-width:767px)'));
+const iStatic = mq.indexOf('.land-card.is-compact .card-media{position:static;overflow:visible}');
+const iFb = mq.indexOf('.land-card.is-compact .fallback-land{position:relative;inset:auto');
+ok('⭐ การ์ดแนวนอน (≤767px) ไม่มีรูป: พื้นลายเส้นอยู่ในช่องรูป ไม่ทับราคา/ทำเล', iStatic > 0 && iFb > iStatic);
+const svc = read('njservices.js');
+const whySrc = svc.slice(svc.indexOf('  var WHY = '), svc.indexOf('  function briefHtml'));
+const briefFn = svc.slice(svc.indexOf('  function briefHtml'), svc.indexOf("'<input type=\"text\" data-njsv=\"website\"", svc.indexOf('  function briefHtml')));
+const sb = { esc: esc, checklistHtml: function () { return ''; } };
+vm.runInNewContext(whySrc + briefFn + "'';}\nthis.B=briefHtml;", sb);
+const bRent = sb.B({ rent: true }, 'OP-R'), bSell = sb.B({}, 'OP-S');
+ok('⭐ ฟอร์มติดต่อของประกาศเช่าไม่มีชิป "ปรึกษาเรื่องสินเชื่อ"', bRent.indexOf('ปรึกษาเรื่องสินเชื่อ') < 0 && bRent.indexOf('นัดดูสถานที่จริง') >= 0, bRent);
+ok('ฟอร์มติดต่อของประกาศขายยังมีชิปสินเชื่อ', bSell.indexOf('ปรึกษาเรื่องสินเชื่อ') >= 0);
+ok('หน้าแปลงส่ง rent ให้ฟอร์มติดต่อ', /brief:true, rent:l\.type==='rent'/.test(land));
+
 console.log('\nสรุป: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
