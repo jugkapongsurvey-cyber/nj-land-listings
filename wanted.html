@@ -457,6 +457,20 @@
           <span>ยินยอมให้ บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด เก็บและใช้ข้อมูลนี้เพื่อติดต่อกลับเรื่องการหาที่ดินตามโจทย์นี้เท่านั้น</span>
         </label>
 
+        <!-- อีเมลแจ้งแปลงใหม่ (ไม่บังคับ) — โชว์เมื่อระบบเปิดสวิตช์ buyer_alert เท่านั้น (wanted.js ถาม /api/public/buyer-alert/config)
+             ⚠️ ช่องติ๊กนี้ **แยก** จากความยินยอมให้ติดต่อกลับข้างบน และเริ่มที่ไม่ติ๊กเสมอ · อีเมลบังคับเฉพาะเมื่อติ๊ก -->
+        <div class="wt-alert" id="wt-alert" hidden>
+          <label class="cs-check">
+            <input type="checkbox" name="alertConsent" id="wt-alert-consent">
+            <span>ส่งอีเมลแจ้งฉันเมื่อมีแปลงใหม่ขึ้นเว็บที่ตรงกับโจทย์นี้ (ไม่บังคับ · สรุปวันละไม่เกิน 1 ฉบับ เฉพาะวันที่มีแปลงใหม่ · ยกเลิกได้ทุกเมื่อจากลิงก์ในอีเมล)</span>
+          </label>
+          <label class="cs-field" id="wt-alert-box" hidden>
+            <span class="cs-label">อีเมลสำหรับรับแจ้งเตือน</span>
+            <input type="email" name="alertEmail" id="wt-alert-email" autocomplete="email" inputmode="email" maxlength="200" placeholder="you@example.com">
+            <span class="cs-hint">แจ้งเฉพาะแปลงที่ตรงทุกเงื่อนไขที่คุณระบุ (ข้อมูลแปลงไม่ครบ = ไม่แจ้ง) · ต้องระบุจังหวัดอย่างน้อย 1 จังหวัด · ใช้อีเมลนี้ส่งแจ้งเตือนอย่างเดียว</span>
+          </label>
+        </div>
+
         <div class="cs-err" id="wt-err" role="alert" hidden></div>
 
         <button type="submit" class="cs-submit" id="wt-submit">ฝากหาที่ดิน — ให้ทีมงานติดต่อกลับ</button>
@@ -481,6 +495,7 @@
           รหัสของคุณคือ <b id="wt-ref">—</b><br>
           ทีมงานจะโทรกลับภายใน 1 วันทำการเพื่อคุยรายละเอียด แล้วเริ่มคัดแปลงที่ตรงโจทย์ให้
         </div>
+        <div class="cs-hint" id="wt-done-alert" hidden></div>
         <div class="cs-done-btns">
           <a href="#" id="wt-done-line" class="cs-done-btn line" target="_blank" rel="noopener">💬 ทักไลน์</a>
           <a href="#" id="wt-done-fb" class="cs-done-btn fb" target="_blank" rel="noopener">💬 เมสเซนเจอร์</a>
