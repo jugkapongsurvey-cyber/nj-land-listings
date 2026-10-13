@@ -194,6 +194,7 @@ function leadFetch(url, opt) {
       if (!r.ok) {
         var err = new Error(d.error || 'ทำรายการไม่สำเร็จ');
         err.status = r.status;   // ผู้เรียกต้องแยกได้ว่าตั๋วใช้ไม่ได้จริง หรือแค่เน็ต/เซิร์ฟเวอร์มีปัญหาชั่วคราว
+        err.code = d.code || '';  // เช่น ACCOUNT_REQUIRED = ฝากขายต้องมีบัญชีก่อน (13 ต.ค. 2569)
         throw err;
       }
       return d;
@@ -660,8 +661,14 @@ var SELLER_ON = false;
 // ⚠️ สวิตช์ seller_accounts ปิด (SELLER_ON false) = ไม่มีที่ให้สมัคร → ฟอร์มเดิมทุกอย่าง (ทีมตั้งบัญชีให้ตอนโทรกลับ)
 // ⚠️ ด่านขึ้นตั้งแต่ระบบส่งรูปแบบบริการมา (ยังไม่ต้องเลือกบริการ) — เลือกแล้วลิงก์แนบ key บริการไปด้วย
 //    ระบบไม่ส่ง serviceModel (สวิตช์ service_abc ปิด) = ฟอร์มเดิมทุกอย่าง ไม่มีด่าน
+// ⭐ 13 ต.ค. 2569 เจ้าของสั่งปิดฝากขาย/ฝากเช่าแบบไม่ลงทะเบียนทั้งหมด — ระบบส่ง spec.accountRequired มา
+//    (สวิตช์ seller_accounts เปิด + consign_anon ปิด) = ด่านขึ้นเสมอ ไม่ขึ้นกับรูปแบบบริการ
+//    และระบบปฏิเสธใบที่ไม่มีบัญชี (403 ACCOUNT_REQUIRED) อีกชั้น · ส่งลิงก์ให้ตรวจ (verify.html) ไม่กระทบ
+var ACCOUNT_REQ = false;
 function gateOn() {
-  if (LEAD.id || !SELLER_ON || !SVC) return false;
+  if (LEAD.id) return false;
+  if (ACCOUNT_REQ) return true;
+  if (!SELLER_ON || !SVC) return false;
   return SVC.active();
 }
 function gateUrl(tab) {
@@ -1402,7 +1409,7 @@ function setupPropertyType(onChange) {
 
   fetch(NJ_API_BASE + '/api/public/consign/spec').then(function (r) { return r.ok ? r.json() : null; })
     .then(function (sp) {
-      if (sp && sp.sellerAccounts === true) { SELLER_ON = true; renderClaim(); }
+      if (sp && sp.sellerAccounts === true) { SELLER_ON = true; ACCOUNT_REQ = sp.accountRequired === true; renderClaim(); }
       // รูปแบบบริการ 3 แบบ — มีก้อนนี้เฉพาะเมื่อสวิตช์ service_abc เปิด (ไม่มี = ฟอร์มแบบเดิม)
       if (sp && sp.serviceModel && SVC) { SVC.setModel(sp.serviceModel); renderClaim(); }
       if (!sp || !Array.isArray(sp.types) || !sp.types.length || !sp.layout || !sp.fields) return;
@@ -1672,6 +1679,8 @@ function setupForm() {
       sending = false;
       btn.disabled = false;
       btn.textContent = editing ? '💾 บันทึกการแก้ไข' : 'ส่งข้อมูล — ให้ทีมงานติดต่อกลับ';
+      // ระบบตอบว่าต้องมีบัญชีก่อน (หน้าเว็บรุ่นนี้โหลด spec ไม่ทัน/ไม่สำเร็จ) — พาไปสมัครเลย ไม่ทิ้งให้ค้างที่ข้อความ error
+      if (!editing && e.code === 'ACCOUNT_REQUIRED') { SELLER_ON = true; ACCOUNT_REQ = true; renderClaim(); location.href = gateUrl(''); return; }
       // ส่งไม่ผ่านไม่ควรจบแค่ข้อความ error — เสนอช่องทางที่ใช้ได้แน่นอนให้ทันที ไม่งั้นลีดหลุด
       showErr((e.message || 'ส่งข้อมูลไม่สำเร็จ') + ' หรือโทรหาเราได้เลยที่ ' + COMPANY_TEL + ' / ' + COMPANY_TEL_ALT);
     });

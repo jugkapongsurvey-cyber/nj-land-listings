@@ -563,33 +563,16 @@
         </div>
       </div>
 
-      <!-- ⚠️ ฟอร์มนี้ยิงไปที่ `POST {NJ_API_BASE}/api/public/consign` ซึ่งเป็นเส้นทางรับลีดเดิม
-           ของทั้งเว็บ (หน้า consign.html ใช้ตัวเดียวกัน) — ห้ามสร้างเส้นทางใหม่
-           ช่อง `website` คือกับดักบอท (honeypot) ซ่อนด้วย CSS คนจริงมองไม่เห็น
-           ฝั่งเซิร์ฟเวอร์มีเพดานกันยิงซ้ำราย IP อยู่แล้ว (5 ใบ/10 นาทีสำหรับคนแปลกหน้า) -->
-      <form class="form" id="sell-form" novalidate>
-        <h3>ฝากขาย · ตอบกลับภายใน 1 วันทำการ</h3>
-        <div class="form-row">
-          <div class="f"><label for="s-name">ชื่อ</label><input id="s-name" name="name" type="text" required autocomplete="name"></div>
-          <div class="f"><label for="s-tel">เบอร์โทร</label><input id="s-tel" name="phone" type="tel" required autocomplete="tel" inputmode="tel"></div>
-        </div>
-        <div class="f"><label for="s-loc">ทำเลที่ดิน</label><input id="s-loc" name="locDetail" type="text" placeholder="ตำบล อำเภอ จังหวัด" required></div>
-        <div class="form-row">
-          <div class="f"><label for="s-size">ขนาด (ไร่-งาน-วา)</label><input id="s-size" name="size" type="text" placeholder="เช่น 2-1-50" inputmode="numeric"></div>
-          <div class="f"><label for="s-doc">เอกสารสิทธิ์</label><select id="s-doc" name="doc"><option>โฉนด</option><option>น.ส.3 ก.</option><option>น.ส.3</option><option>อื่น ๆ</option></select></div>
-        </div>
-        <div class="f"><label for="s-note">รายละเอียดเพิ่มเติม (ถ้ามี)</label><textarea id="s-note" name="note" rows="3" placeholder="ราคาที่ตั้งใจขาย ทางเข้าออก ฯลฯ"></textarea></div>
-        <!-- ⚠️ ช่องยินยอม PDPA — ดีไซน์ไม่ได้วางไว้ แต่ฟอร์มฝากขายเดิม (consign.html) มีเสมอ
-             ตัดออกจากฟอร์มที่เก็บชื่อกับเบอร์โทรไม่ได้ · จัดให้เตี้ยที่สุดเท่าที่จะทำได้ -->
-        <label class="f" style="flex-direction:row;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink-2)">
-          <input id="s-pdpa" name="pdpa" type="checkbox" required style="width:auto;margin-top:3px;flex:none">
-          <span>ยินยอมให้ติดต่อกลับและเก็บข้อมูลตาม<a href="privacy.html" style="text-decoration:underline">นโยบายความเป็นส่วนตัว</a></span>
-        </label>
-        <!-- กับดักบอท — คนจริงไม่เห็นช่องนี้ ห้ามใส่ label หรือ placeholder ที่ชวนให้กรอก -->
-        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="visually-hidden">
-        <button class="btn btn-gold btn-block" type="submit">ส่งข้อมูลฝากขาย</button>
-        <p class="form-note" id="sell-msg" role="status" aria-live="polite">ข้อมูลของคุณใช้เพื่อติดต่อกลับเท่านั้น · ไม่เผยแพร่จนกว่าจะยินยอม</p>
-      </form>
+      <!-- ⭐ ฝากขาย/ฝากเช่าต้องสมัครหรือเข้าสู่ระบบบัญชีเจ้าของทรัพย์ก่อน (เจ้าของสั่ง 13 ต.ค. 2569)
+           ฟอร์มสั้นที่ส่งชื่อ+เบอร์เข้าระบบโดยไม่มีบัญชีถูกถอดออกแล้ว — ระบบหลังบ้านปฏิเสธใบแบบไม่มีบัญชี (403 ACCOUNT_REQUIRED)
+           · ส่งลิงก์ประกาศให้ตรวจก่อนซื้อ (verify.html) ยังไม่ต้องสมัคร -->
+      <div class="form" id="sell-gate">
+        <h3>ลงฝากขาย–ฝากเช่าฟรี · สมัครบัญชีก่อน</h3>
+        <p style="margin:0;font-size:14px;line-height:1.65;color:var(--ink-2)">สมัครบัญชีเจ้าของทรัพย์ด้วยอีเมล (ฟรี) แล้วกรอกข้อมูลทรัพย์ในบัญชีของคุณ — ทีมงานตรวจและเสนอราคาค่าตรวจสอบ/รังวัดให้ คุณกดยืนยันเองก่อนประกาศขึ้นเว็บ และติดตามสถานะได้ตลอด</p>
+        <a class="btn btn-gold btn-block" id="sell-gate-reg" href="https://app.njteedinsure.com/seller.html#start=consign&amp;tab=register">สมัครบัญชีและลงฝากฟรี</a>
+        <a class="btn btn-block" id="sell-gate-login" href="https://app.njteedinsure.com/seller.html#start=consign&amp;tab=login" style="border:1px solid var(--line,#D6DEE8)">มีบัญชีแล้ว · เข้าสู่ระบบ</a>
+        <p class="form-note" style="margin:0">อยากให้ทีมตรวจทรัพย์ก่อนซื้อ? <a href="verify.html" style="text-decoration:underline">ส่งลิงก์ประกาศให้ตรวจ</a> ได้เลยโดยไม่ต้องสมัคร</p>
+      </div>
     </div>
   </section>
 </main>
@@ -694,8 +677,6 @@
 <script src="landvocab.js" defer></script>
 <script src="njchatload.js" defer></script>
 <script src="menu.js" defer></script>
-<!-- ฟอร์มฝากขายบนหน้าแรก — ยิงเข้าเส้นทางรับลีดเดิม /api/public/consign -->
-<script src="sellform.js" defer></script>
 <!-- บล็อกวารสารฉบับล่าสุด — ต้องมาหลัง analytics.js (อ่าน NJ_API_BASE) -->
 <script src="journalhome.js" defer></script>
 <!-- คลิปแนะนำ 30 วินาที (#ดูคลิป) — ใช้ njTrack จาก analytics.js (ไม่บังคับ: ไม่มีก็แค่ไม่นับ) -->
