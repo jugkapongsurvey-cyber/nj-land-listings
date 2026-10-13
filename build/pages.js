@@ -43,6 +43,9 @@ const CHECK = process.argv.includes('--check');
 // หน้านั้นเข้าสู่ระบบด้วยอีเมลหรือ LINE → ดูทุกแปลงที่ฝาก · ใบเสนอราคาจากทีม · กดยืนยันก่อนประกาศ
 // เป็นลิงก์เดียวในเมนูที่ไม่ใช่ไฟล์ในเว็บนี้ — header.test.js ยกเว้นเฉพาะโดเมน app.njteedinsure.com
 const SELLER_LOGIN = 'https://app.njteedinsure.com/seller.html';
+// ปุ่มหลักบนหัวเว็บพาไปสมัครบัญชีเจ้าของทรัพย์ทันที (เจ้าของสั่ง 14 ต.ค. 2569 — ฝากขายต้องลงทะเบียนก่อน)
+// ⚠️ ส่งแค่ #start=consign&tab=register (fragment ไม่ไปกับคำขอ HTTP) · ห้ามส่งชื่อ/เบอร์ทาง URL
+const SELLER_REGISTER = SELLER_LOGIN + '#start=consign&tab=register';
 
 const NAV = [
   {
@@ -84,7 +87,7 @@ const NAV = [
   { label: 'ติดตามงาน', href: 'portal.html', portal: true }
 ];
 
-const CTA = { label: 'ฝากขายที่ดิน', href: 'consign.html' };
+const CTA = { label: 'สมัครเพื่อฝากขาย', href: SELLER_REGISTER };
 
 // สไตล์ชีตกลาง — ต้องมาก่อนไฟล์อื่นเสมอ (tokens ถูกทับได้ แต่ทับใครไม่ได้)
 // ⚠️ fonts.css ต้องมาก่อนเสมอ — เป็น @font-face ที่เสิร์ฟเอง (ดู build/fonts.js)
