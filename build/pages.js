@@ -57,7 +57,9 @@ const NAV = [
     ]
   },
   {
-    label: 'ขาย/ฝากทรัพย์', href: 'consign.html', items: [
+    // ตัวกลุ่มพาไปสมัครบัญชีเจ้าของทรัพย์ตรง (เจ้าของสั่ง 14 ต.ค. 2569 · ฝากขายต้องสมัครก่อน)
+    // `pages` = หน้าที่นับว่าอยู่ในกลุ่มนี้ทั้งที่ไม่มีรายการของตัวเอง → consign.html ยังได้ aria-current ที่ตัวกลุ่ม
+    label: 'ขาย/ฝากทรัพย์', href: SELLER_REGISTER, pages: ['consign.html'], items: [
       // เมนูย่อย "ฝากขายที่ดิน" ถูกซ่อน (เจ้าของสั่ง 14 ต.ค. 2569) — ฝากขายต้องสมัครก่อน ทางเข้าคือปุ่ม CTA "สมัครเพื่อฝากขาย"
       //   ตัวกลุ่มยังชี้ consign.html (หน้าอธิบายบริการ + ด่านสมัคร) · header.test.js ล็อก
       { label: 'แพ็กเกจบริการ', href: 'packages.html', note: 'ตรวจสอบ · เตรียมขาย · ฝากขาย' },
@@ -143,7 +145,7 @@ function headerHtml(file, NL) {
   L.push('    <nav class="njh-nav" aria-label="เมนูหลัก">');
   L.push('      <ul class="njh-list">');
   for (const g of NAV) {
-    const inGroup = pageOf(g.href) === cur ||
+    const inGroup = pageOf(g.href) === cur || (g.pages || []).indexOf(cur) >= 0 ||
       (g.items || []).some(it => pageOf(it.href) === cur);
     const cls = 'njh-item' + (g.items ? ' njh-has-menu' : '');
     L.push('        <li class="' + cls + '">');

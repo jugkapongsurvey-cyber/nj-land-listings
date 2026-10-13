@@ -67,6 +67,8 @@ ok('⭐ ปุ่มหลักบนหัวเว็บพาไปสมั
    /<a class="njh-cta" href="https:\/\/app\.njteedinsure\.com\/seller\.html#start=consign&amp;tab=register">สมัครเพื่อฝากขาย<\/a>/.test(home));
 ok('⭐ เมนูย่อย "ฝากขายที่ดิน" ถูกซ่อนแล้ว (เจ้าของสั่ง 14 ต.ค. 2569)',
    pages.every(f => !/<b>ฝากขายที่ดิน<\/b>/.test(html[f])));
+ok('⭐ หมวด "ขาย/ฝากทรัพย์" พาไปหน้าสมัครบัญชีเจ้าของทรัพย์ (เจ้าของสั่ง 14 ต.ค. 2569)',
+   /<a class="njh-top" href="https:\/\/app\.njteedinsure\.com\/seller\.html#start=consign&amp;tab=register"[^>]*>ขาย\/ฝากทรัพย์/.test(home));
 ok('⭐ ปุ่มแถบล่างมือถือพาไปสมัคร ไม่ใช่หน้าฝากขาย',
    pages.every(f => !/class="mobile-post" href="\/?consign\.html"/.test(html[f])));
 ok('⭐ หัวเว็บไม่มีคำว่า "ฝากขายฟรี" / "ไม่มีค่าใช้จ่ายล่วงหน้า" อีก',
