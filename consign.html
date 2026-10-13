@@ -445,7 +445,7 @@
 
           <label class="cs-field">
             <span class="cs-label" id="cs-price-label">ราคาต่อตารางวา (บาท)</span>
-            <input type="text" id="cs-price" name="unitPrice" inputmode="numeric" placeholder="เช่น 25000">
+            <input type="text" id="cs-price" name="unitPrice" inputmode="numeric" placeholder="เช่น 25,000">
           </label>
 
           <div class="cs-calc" id="cs-price-out" hidden aria-live="polite"></div>
@@ -515,6 +515,11 @@
             <label class="cs-sv-opt">
               <input type="radio" name="surveyMode" value="informal">
               <span><b>แบบไม่เป็นทางการ — ค่างานรังวัดลด 50%</b><i>ช่างรังวัดของเราตรวจแนวเขตและหมุดให้ ไม่ยื่นสำนักงานที่ดิน เร็วกว่าและถูกกว่า แต่ไม่ใช่หลักฐานทางราชการ</i></span>
+            </label>
+            <!-- ยังไม่ตัดสินใจ (13 ต.ค. 69 เจ้าของสั่ง) — ราคาแสดงคู่กันทั้งสองแบบ ทีมงานแนะนำตอนโทรกลับ -->
+            <label class="cs-sv-opt">
+              <input type="radio" name="surveyMode" value="undecided">
+              <span><b>ยังไม่ตัดสินใจ — ให้ทีมงานแนะนำ</b><i>ดูราคาทั้งสองแบบด้านล่างได้เลย ทีมช่างรังวัดช่วยแนะนำรูปแบบที่เหมาะกับแปลงตอนโทรกลับ</i></span>
             </label>
           </div>
 

@@ -25,6 +25,39 @@
   function fmt(n) {
     return Math.round(n).toLocaleString('en-US');
   }
+  // ใส่ลูกน้ำหลักพันให้ช่องจำนวนเงินขณะพิมพ์ (2000000 → 2,000,000 · 13 ต.ค. 69 เจ้าของสั่ง ให้ดูง่าย)
+  // ⚠️ ค่าที่ส่งเซิร์ฟเวอร์ยังอ่านผ่าน num() ซึ่งตัดลูกน้ำทิ้ง — ลูกน้ำเป็นแค่การแสดงผล
+  // ตัวอักษรอื่นนอกจากตัวเลข/จุด/ลบ ทิ้งไป · "-" คงไว้ให้ num() ตีเป็น 0 ตามเดิม (ไม่กลายเป็นเลขบวกเงียบๆ)
+  function groupMoney(s) {
+    s = String(s == null ? '' : s).replace(/[^0-9.\-]/g, '');
+    var neg = s.indexOf('-') >= 0 ? '-' : '';
+    s = s.replace(/-/g, '');
+    var dot = s.indexOf('.');
+    var int = dot >= 0 ? s.slice(0, dot) : s;
+    var dec = dot >= 0 ? '.' + s.slice(dot + 1).replace(/\./g, '').slice(0, 2) : '';
+    int = int.replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return neg + int + dec;
+  }
+  // ผูกช่องให้จัดรูปแบบเองทุกครั้งที่พิมพ์ — เคอร์เซอร์อยู่หลังตัวเลขตัวเดิม (นับเฉพาะตัวเลข/จุด ไม่นับลูกน้ำ)
+  // setVal() ของหน้าเว็บยิง input หลังใส่ค่า ค่าที่โหลดกลับมาแก้จึงมีลูกน้ำด้วย
+  function moneyInput(el) {
+    if (!el || el.__njMoney) return;
+    el.__njMoney = true;
+    function apply() {
+      var v = el.value, out = groupMoney(v);
+      if (out === v) return;
+      var focused = typeof document !== 'undefined' && document.activeElement === el;
+      var pos = focused && el.selectionStart != null ? el.selectionStart : v.length;
+      var keep = v.slice(0, pos).replace(/[^0-9.\-]/g, '').length;
+      el.value = out;
+      if (!focused) return;
+      var i = 0, seen = 0;
+      while (i < out.length && seen < keep) { if (out[i] !== ',') seen++; i++; }
+      try { el.setSelectionRange(i, i); } catch (e) { /* บางชนิดช่องตั้งเคอร์เซอร์ไม่ได้ */ }
+    }
+    el.addEventListener('input', apply);
+    apply();
+  }
   // อ่านง่ายกว่าเลขยาว ๆ เวลาเป็นหลักล้าน — ใช้ประกอบ ไม่ใช่แทนตัวเลขเต็ม
   function words(n) {
     if (n >= 1e6) {
@@ -336,11 +369,11 @@
       return r ? r.value : 'wa';
     }
     var UNIT_LABEL = { wa: 'ราคาต่อตารางวา (บาท)', rai: 'ราคาต่อไร่ (บาท)', total: 'ราคารวมทั้งแปลง (บาท)' };
-    var UNIT_PH = { wa: 'เช่น 25000', rai: 'เช่น 4000000', total: 'เช่น 9500000' };
+    var UNIT_PH = { wa: 'เช่น 25,000', rai: 'เช่น 4,000,000', total: 'เช่น 9,500,000' };
     // ฝากเช่า (11 ต.ค. 69): ราคาในฟอร์มคือ "ค่าเช่าต่อเดือน" — ระบบหลังบ้านคิดค่าเช่ารวมรายเดือนด้วยสูตรเดียวกัน (consignDerive)
     //   opt.dealName = ชื่อปุ่มเลือก ขาย/เช่า (ไม่ส่ง = ฟอร์มขายแบบเดิมทุกตัวอักษร) · opt.priceTitle = หัวข้อของกลุ่มราคา
     var UNIT_LABEL_RENT = { wa: 'ค่าเช่าต่อตารางวา ต่อเดือน (บาท)', rai: 'ค่าเช่าต่อไร่ ต่อเดือน (บาท)', total: 'ค่าเช่าทั้งแปลง ต่อเดือน (บาท)' };
-    var UNIT_PH_RENT = { wa: 'เช่น 20', rai: 'เช่น 8000', total: 'เช่น 30000' };
+    var UNIT_PH_RENT = { wa: 'เช่น 20', rai: 'เช่น 8,000', total: 'เช่น 30,000' };
     var priceTitle = opt.priceTitle ? document.getElementById(opt.priceTitle) : null;
     var titleSale = priceTitle ? priceTitle.textContent : '';
     function isRent() {
@@ -415,6 +448,8 @@
       priceOut.hidden = false;
     }
 
+    // ผูกก่อน render — ตัวจัดลูกน้ำทำงานก่อนตัวคำนวณในการพิมพ์แต่ละครั้ง
+    moneyInput(priceEl);
     [raiEl, nganEl, waEl, priceEl].forEach(function (el) {
       if (el) el.addEventListener('input', render);
     });
@@ -447,6 +482,8 @@
     calc: calc,
     initAddress: initAddress,
     initAreaPrice: initAreaPrice,
+    groupMoney: groupMoney,
+    moneyInput: moneyInput,
     picker: picker
   };
 })(typeof window !== 'undefined' ? window : globalThis);
