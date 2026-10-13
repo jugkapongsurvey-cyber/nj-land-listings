@@ -38,7 +38,14 @@ const gateFn = (js.match(/function gateOn\(\) \{[\s\S]*?\n\}/) || [''])[0];
 ok('⭐ ด่านขึ้นทุกบริการเมื่อระบบส่งรูปแบบบริการมา (ไม่ผูกกับ needsAccount · ไม่พิมพ์รายชื่อบริการในเว็บ)',
    /return SVC\.active\(\);/.test(gateFn) && !/needsAccount/.test(gateFn) && !/selfsell|broker|inspect/.test(gateFn) &&
    /active: function \(\) \{ return on\(\); \}/.test(js));
-ok('ใบที่บันทึกไว้แล้ว (LEAD.id) แก้ต่อได้ · สวิตช์บัญชีปิด = ไม่มีด่าน', /if \(LEAD\.id \|\| !SELLER_ON \|\| !SVC\) return false;/.test(gateFn));
+ok('ใบที่บันทึกไว้แล้ว (LEAD.id) แก้ต่อได้ · สวิตช์บัญชีปิด = ไม่มีด่าน',
+   /if \(LEAD\.id\) return false;/.test(gateFn) && /if \(!SELLER_ON \|\| !SVC\) return false;/.test(gateFn));
+// ⭐ 13 ต.ค. 2569 — ระบบบอกว่าต้องมีบัญชี (accountRequired) = ด่านขึ้นเสมอ ไม่ขึ้นกับรูปแบบบริการ
+ok('⭐ spec.accountRequired เปิดด่านทุกกรณี (ยกเว้นใบที่บันทึกไว้แล้ว)',
+   /if \(ACCOUNT_REQ\) return true;/.test(gateFn) && gateFn.indexOf('LEAD.id') < gateFn.indexOf('ACCOUNT_REQ') &&
+   /ACCOUNT_REQ = sp\.accountRequired === true/.test(js));
+ok('⭐ ระบบตอบ ACCOUNT_REQUIRED = พาไปหน้าสมัคร ไม่ค้างที่ข้อความ error',
+   /e\.code === 'ACCOUNT_REQUIRED'[^\n]*location\.href = gateUrl\(''\)/.test(js) && /err\.code = d\.code/.test(js));
 ok('⭐ ลิงก์ส่งแค่ key บริการผ่าน #fragment ไปหน้า seller.html (ไม่ส่งชื่อ/เบอร์)',
    /NJ_API_BASE \+ '\/seller\.html#start=consign&svc=' \+ encodeURIComponent\(key\)/.test(js) &&
    !/start=consign[^']*'\s*\+\s*[^;]*(name|phone)/.test(js));

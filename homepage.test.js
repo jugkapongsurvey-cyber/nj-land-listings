@@ -200,22 +200,16 @@ ok('⭐ หน้าแรกมีทางเข้าเครื่องค
 ok('จุดยึดปลายทางมีอยู่จริงใน tools.html',
    /id="loan"/.test(tools) && /id="fee"/.test(tools));
 
-console.log('\n9) ฟอร์มฝากขายบนหน้าแรก');
-const sell = read('sellform.js');
-// ⚠️ ต้องยิงเข้าเส้นทางรับลีดเดิมของทั้งเว็บ ห้ามสร้างเส้นทางใหม่ ไม่งั้นทีมขายต้องเฝ้าสองกล่อง
-ok('⭐ ต่อกับเส้นทางรับลีดเดิม /api/public/consign', /\/api\/public\/consign/.test(sell));
-ok('ไม่ได้ส่งไปที่เส้นทางที่ไม่มีอยู่จริง', !/api\/sell-request/.test(home) && !/api\/sell-request/.test(sell));
-ok('⭐ มีกับดักบอท (honeypot) ชื่อ website', /name="website"/.test(home) && /val\('website'\)/.test(sell));
-ok('กับดักบอทต้องมองไม่เห็นและไม่ถูกโฟกัส', /name="website" tabindex="-1"[^>]*class="visually-hidden"/.test(home));
-// ⚠️ ฟอร์มที่เก็บชื่อกับเบอร์ต้องมีช่องยินยอมเสมอ (กติกาเดียวกับฟอร์มอื่นทั้งเว็บ)
-ok('⭐ มีช่องยินยอม PDPA และบล็อกการส่งเมื่อยังไม่ติ๊ก',
-   /name="pdpa"/.test(home) && /pdpa && !pdpa\.checked/.test(sell));
-ok('มีลิงก์ไปนโยบายความเป็นส่วนตัว', /href="privacy\.html"/.test(home));
-ok('บังคับแค่ชื่อ เบอร์ ทำเล และการยินยอม', /!name\)/.test(sell) && /!phoneOk\(phone\)/.test(sell) && /!loc\)/.test(sell));
-// ⚠️ เซิร์ฟเวอร์นับ consign_submit ให้แล้วตอนสร้างใบ — ยิงซ้ำที่นี่ = ลีดหนึ่งใบถูกนับสองครั้ง
-ok('⭐ ไม่ยิงสถิติลีดซ้ำจากเบราว์เซอร์', !/consign_submit/.test(sell.replace(/\/\/[^\n]*/g, '')));
-ok('ส่งที่มาของลีดไปด้วย', /NJAttrib/.test(sell));
-ok('ส่งไม่สำเร็จต้องไม่เงียบ', /catch\(function \(err\)/.test(sell) && /โทร /.test(sell));
+console.log('\n9) ลงฝากขาย/ฝากเช่าบนหน้าแรก — ต้องสมัคร/เข้าสู่ระบบก่อน (เจ้าของสั่ง 13 ต.ค. 69)');
+// ⚠️ ฟอร์มฝากขายแบบไม่ลงทะเบียนถูกถอดออกแล้ว — ระบบปฏิเสธใบฝากขายที่ไม่มีบัญชีอยู่แล้ว (ACCOUNT_REQUIRED)
+ok('⭐ ไม่มีฟอร์มฝากขายแบบไม่ลงทะเบียนบนหน้าแรก', !/id="sell-form"/.test(home));
+ok('ไม่โหลด sellform.js แล้ว', !/sellform\.js/.test(home));
+ok('ไฟล์ sellform.js ถูกลบแล้ว', !fs.existsSync(path.join(__dirname, 'sellform.js')));
+ok('⭐ มีปุ่มสมัครบัญชีแล้วลงฝาก', /id="sell-gate-reg"[^>]*href="https:\/\/app\.njteedinsure\.com\/seller\.html#start=consign&amp;tab=register"/.test(home));
+ok('มีปุ่มเข้าสู่ระบบสำหรับคนที่มีบัญชีแล้ว', /id="sell-gate-login"[^>]*href="https:\/\/app\.njteedinsure\.com\/seller\.html#start=consign&amp;tab=login"/.test(home));
+const gate = (home.match(/<div class="form" id="sell-gate">[\s\S]*?<\/div>/) || [''])[0];
+ok('⭐ ส่งลิงก์ให้ตรวจยังทำได้โดยไม่ต้องสมัคร (ลิงก์ verify.html ในกล่อง)', /href="verify\.html"/.test(gate));
+ok('⛔ หน้าแรกไม่มีช่องรหัสผ่าน (ฟอร์มรหัสผ่านอยู่ที่ app.njteedinsure.com เท่านั้น)', !/type="password"/.test(home));
 
 console.log('\n10) ค่าติดต่อมาจากที่เดียว (ไม่มี [เบอร์โทร] ค้างอยู่)');
 const cfg = read('config.js');
