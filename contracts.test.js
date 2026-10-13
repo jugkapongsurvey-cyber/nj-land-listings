@@ -74,10 +74,11 @@ check('หน้าเว็บไม่มีรายชื่อจังห�
 check('เซิร์ฟเวอร์มีเส้นทางสเปกประเภททรัพย์', /app\.get\('\/api\/public\/consign\/spec'/.test(server));
 check('หน้าเว็บดึงประเภททรัพย์จากเส้นทางนั้น (ไม่พิมพ์รายการเอง)', /\/api\/public\/consign\/spec/.test(consign));
 const modes = listAfter(server, 'CONSIGN_SURVEY_MODES');
-check('รูปแบบการรังวัดมี formal/informal', same(modes || [], ['formal', 'informal']), (modes || []).join(','));
+check('รูปแบบการรังวัดมี formal/informal/undecided', same(modes || [], ['formal', 'informal', 'undecided']), (modes || []).join(','));
 const html = read(path.join(WEB, 'consign.html'));
-check('ฟอร์มมีตัวเลือกรูปแบบการรังวัดครบสองค่า',
-      /name="surveyMode" value="formal"/.test(html) && /name="surveyMode" value="informal"/.test(html));
+check('ฟอร์มมีตัวเลือกรูปแบบการรังวัดครบสามค่า (รวมยังไม่ตัดสินใจ)',
+      /name="surveyMode" value="formal"/.test(html) && /name="surveyMode" value="informal"/.test(html) &&
+      /name="surveyMode" value="undecided"/.test(html));
 check('หัวข้อใหม่ "รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย"', html.indexOf('รังวัดยืนยันเขตและกรรมสิทธิ์ก่อนประกาศขาย') >= 0);
 
 console.log('\n4) ตัวเลือกรังวัดที่เซิร์ฟเวอร์รับได้');

@@ -961,6 +961,8 @@ function setupSurvey(getProvince, getTotalWa) {
   box.hidden = false;                 // HTML ซ่อนไว้ ให้ไฟล์นี้เป็นคนเปิด (ดูคอมเมนต์ใน consign.html)
 
   var lastKey = null;
+  // ต้องตรงกับ CONSIGN_SURVEY_MODES ของระบบหลังบ้าน (contracts.test.js เทียบ) · undecided = ยังไม่ตัดสินใจ (13 ต.ค. 69)
+  var SURVEY_MODES = ['formal', 'informal', 'undecided'];
 
   function pick(list, v) {
     var r = list.filter(function (x) { return x.value === v; })[0];
@@ -972,7 +974,7 @@ function setupSurvey(getProvince, getTotalWa) {
   }
   function mode() {
     var r = modes.filter(function (x) { return x.checked; })[0];
-    return r && r.value === 'informal' ? 'informal' : 'formal';
+    return r && SURVEY_MODES.indexOf(r.value) >= 0 ? r.value : 'formal';
   }
 
   function drawFlag() {
@@ -1003,7 +1005,13 @@ function setupSurvey(getProvince, getTotalWa) {
       var r = informal && inf ? inf : f;
       var baht = function (x) { return Math.round(Number(x) || 0).toLocaleString('en-US'); };
       var tv = r.travel;
-      var head = informal
+      // ยังไม่ตัดสินใจ = แสดงสองแบบคู่กันโดยไม่เลือกให้ (ราคาหลักคือแบบเป็นทางการ ซึ่งเป็นค่าตั้งต้นของระบบ)
+      var head = mode() === 'undecided'
+        ? '<div class="cs-sv-price">≈ ฿' + baht(f.subtotal) + '<small>แบบเป็นทางการ (ยื่นสำนักงานที่ดิน)</small></div>' +
+          (inf ? '<div class="cs-sv-alt">แบบไม่เป็นทางการ ≈ ฿' + baht(inf.subtotal) + ' (ค่างานลด 50%)</div>'
+               : '<div class="cs-sv-cut">แบบไม่เป็นทางการลดค่างานรังวัด 50% (ไม่รวมค่าเดินทาง) — ทีมงานยืนยันราคาตอนโทรกลับ</div>') +
+          '<div class="cs-sv-sub">ยังไม่ต้องเลือกตอนนี้ — ทีมช่างรังวัดแนะนำรูปแบบที่เหมาะกับแปลงตอนโทรกลับ</div>'
+        : informal
         ? (inf
           ? '<div class="cs-sv-price">≈ ฿' + baht(inf.subtotal) + '<small>รังวัดแบบไม่เป็นทางการ (ค่างานลด 50%)</small></div>' +
             '<div class="cs-sv-alt">แบบเป็นทางการ (ยื่นสำนักงานที่ดิน) ≈ ฿' + baht(f.subtotal) + '</div>'
@@ -1044,7 +1052,7 @@ function setupSurvey(getProvince, getTotalWa) {
   }
   function applyFromLead(d) {
     if (d && d.surveyOpt) pick(radios, d.surveyOpt);
-    pick(modes, (d && d.surveyMode) === 'informal' ? 'informal' : 'formal');
+    pick(modes, d && SURVEY_MODES.indexOf(d.surveyMode) >= 0 ? d.surveyMode : 'formal');
     lastKey = null; sync();
   }
   function reset() {
@@ -1280,9 +1288,18 @@ function setupPropertyType(onChange) {
             (on.indexOf(o.k) >= 0 ? ' checked' : '') + '>' + esc(o.th) + '</label>';
         }).join('') + '</div></div>';
     }
+    // ข้อความยาว (spec ตั้ง max ≥ 200 เช่น "ใกล้รถไฟฟ้า/ขนส่ง") = กล่องหลายบรรทัดเต็มแถว (13 ต.ค. 69 เจ้าของสั่ง ให้ใส่รายละเอียดเพิ่มได้)
+    // เซิร์ฟเวอร์เก็บเป็นบรรทัดเดียว (ยุบการขึ้นบรรทัดเป็นช่องว่าง) — กล่องใหญ่มีไว้ให้เห็นสิ่งที่พิมพ์ครบ
+    if (f.kind === 'text' && f.max >= 200) {
+      return '<label class="cs-field cs-wide"><span class="cs-label">' + esc(f.th) + '</span>' +
+        '<textarea data-dt="' + esc(k) + '" rows="4" maxlength="' + f.max + '" placeholder="' + esc(f.hint || '') + '">' +
+        esc(v) + '</textarea></label>';
+    }
     var num = f.kind === 'num' || f.kind === 'int';
+    // ช่องจำนวนเงิน (หน่วยเป็นบาท) ใส่ลูกน้ำหลักพันขณะพิมพ์ — ผูกตัวจัดรูปแบบหลังวาด (render)
+    var money = num && /บาท/.test(f.unit || '');
     return '<label class="cs-field' + (f.kind === 'text' && f.max > 60 ? ' cs-wide' : '') + '"><span class="cs-label">' + esc(f.th) + '</span>' +
-      '<span class="cs-unit"><input type="text" data-dt="' + esc(k) + '"' + (num ? ' inputmode="decimal"' : '') +
+      '<span class="cs-unit"><input type="text" data-dt="' + esc(k) + '"' + (num ? ' inputmode="decimal"' : '') + (money ? ' data-dt-money' : '') +
       ' value="' + esc(v) + '" placeholder="' + esc(f.hint || '') + '"' + (f.max && !num ? ' maxlength="' + f.max + '"' : '') + '>' +
       (f.unit ? '<em>' + esc(f.unit) + '</em>' : '') + '</span></label>';
   }
@@ -1323,6 +1340,7 @@ function setupPropertyType(onChange) {
     var ttl = $('cs-dt-title');
     if (ttl) ttl.textContent = 'รายละเอียด' + (t ? t.th : 'ทรัพย์');
     det.hidden = false;
+    if (window.NJLandForm && NJLandForm.moneyInput) body.querySelectorAll('[data-dt-money]').forEach(NJLandForm.moneyInput);
     syncArea();
     syncStudio();
   }
@@ -1349,7 +1367,10 @@ function setupPropertyType(onChange) {
     allKeys().forEach(function (k) {
       var v = vals[k];
       if (Array.isArray(v)) { if (v.length) d[k] = v.slice(); return; }
-      if (v != null && String(v).trim() !== '') d[k] = String(v).trim();
+      if (v == null || String(v).trim() === '') return;
+      // ช่องตัวเลขส่งโดยไม่มีลูกน้ำ (ลูกน้ำเป็นแค่การแสดงผล · เซิร์ฟเวอร์ตัดซ้ำอีกชั้น)
+      var f = field(k);
+      d[k] = f && (f.kind === 'num' || f.kind === 'int') ? String(v).replace(/,/g, '').trim() : String(v).trim();
     });
     return { propertyType: cur, details: d };
   }
