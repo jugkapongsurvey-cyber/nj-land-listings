@@ -652,6 +652,14 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
 .cs-h2.light{color:#fff}
 
 /* ---------- ตารางเปรียบเทียบ ---------- */
+/* ---------- คลิปสอนวิธีฝากขาย (#คลิปวิธีฝากขาย · 15 ต.ค. 69) ----------
+ * หน้าตาการ์ด/จอคลิป/สารบัญอยู่ที่ portalclip.css (ใช้ร่วมกับ portal.html) · ที่นี่มีแค่ระยะของแถบบนหน้านี้
+ * พื้นสว่างคั่นระหว่าง hero (เข้ม) กับตารางเปรียบเทียบ (ขาว) */
+.cs-clip{padding:48px 0 44px;background:var(--bg)}
+@media (max-width:760px){
+  .cs-clip{padding:28px 0 30px}
+  .cs-clip .wrap{padding:0 16px}
+}
 .cs-compare{padding:52px 0 46px;background:#fff}
 .cs-table{
   max-width:800px;margin:0 auto;border:1px solid var(--border);
@@ -994,3 +1002,12 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
   border: 1.5px solid #0B1F3A; color: #0B1F3A; font-weight: 600; text-decoration: none; background: #fff; }
 .cs-gate-btn:focus-visible, .cs-gate-alt:focus-visible { outline: 2px solid #1B4B7A; outline-offset: 2px; }
 .cs-gate-note { margin-top: 12px; font-size: 13px; color: #3D5470; }
+/* ลิงก์ไปคลิปสอนวิธีฝากขาย (#คลิปวิธีฝากขาย · 15 ต.ค. 69) — ลิงก์ข้อความ + วงกลมทอง ไม่ใช่ปุ่มกรอบ
+ * (ปุ่มสมัครด้านบนคือทางหลัก ปุ่มที่สามหน้าตาเท่ากันจะดึงสายตาออกจากมัน · แนวเดียวกับ .pt-watch ของ portal.html)
+ * data-pc-play → portalclip.js สั่งเล่นในจังหวะคลิก · JS ไม่ทำงาน = ลิงก์ธรรมดาพาไปที่คลิป */
+.cs-gate-clip { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 8px;
+  color: #0B1F3A; font-weight: 600; text-decoration: none; }
+.cs-gate-clip-ring { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  padding-left: 2px; background: #D8B96B; color: #0B1F3A; }
+.cs-gate-clip:hover > span:last-child { text-decoration: underline; text-underline-offset: 3px; }
+.cs-gate-clip:focus-visible { outline: 2px solid #1B4B7A; outline-offset: 3px; border-radius: 8px; }
