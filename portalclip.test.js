@@ -18,7 +18,8 @@ function ok(label, cond, extra) {
 }
 
 const page = read('portal.html');
-const css = read('portal.css');
+// สไตล์แถบคลิปแยกไป portalclip.css แล้ว (15 ต.ค. 69 · ใช้ร่วมกับ consign.html) — ตรวจสองไฟล์ต่อกันตามลำดับที่หน้าโหลด
+const css = read('portal.css') + '\n' + read('portalclip.css');
 const js = read('portalclip.js');
 const code = js.replace(/\/\/.*$/gm, '');
 const sec = (page.match(/<section class="pt-clip"[\s\S]*?<\/section>/) || [''])[0];
@@ -83,7 +84,11 @@ ok('⭐ กดเล่นแถบหนึ่งต้องหยุดอี
 ok('ลิงก์ [data-pc-play] อ่านแถบปลายทางจาก href', /\[data-pc-play\]/.test(code) && /decodeURIComponent/.test(code));
 ok('ครอบ njTrack ด้วย try/catch (ไม่มีก็ไม่พัง)', /typeof njTrack === 'function'/.test(code) && /try \{ njTrack/.test(code));
 
-console.log('\n6) portal.css');
+console.log('\n6) portal.css + portalclip.css');
+ok('⭐ portal.html โหลด portalclip.css ต่อจาก portal.css (.pc-copy h2 ต้องชนะ .pt-sec h2 ด้วยลำดับไฟล์)',
+   page.indexOf('href="portal.css"') > 0 && page.indexOf('href="portal.css"') < page.indexOf('href="portalclip.css"'));
+ok('การ์ด #ดูคลิป ซ้อนทับ hero อยู่ใน portal.css (ของเฉพาะหน้า ไม่ใช่ไฟล์กลาง)',
+   /\.pt-clip \.pc-card\{margin-top:-62px\}/.test(read('portal.css')) && !/margin-top:-\d/.test(read('portalclip.css').replace(/\/\*[\s\S]*?\*\//g, '')));
 ok('⭐ ปุ่มเล่นของเราซ่อนไว้จนกว่า JS ใส่ .js-ready',
    /\.pc-play\{display:none\}/.test(css) && /\.pt-clip\.js-ready \.pc-play\{[^}]*display:flex/.test(css));
 ok('⭐ video ต้องมี height:auto (กัน height="1920" ชนะ aspect-ratio)', /\.pc-frame video\{[^}]*height:auto/.test(css));
