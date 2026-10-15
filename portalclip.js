@@ -3,7 +3,7 @@
   // คลิปบนหน้า portal.html และ consign.html — ปุ่มเล่นทับจอ + สารบัญบท + ลิงก์ [data-pc-play] · ตอนนี้มี 3 แถบ (แถบละคลิป)
   //   portal.html  #ดูคลิป  แนะนำระบบ 1:18 (video/nj-intro.mp4)   · data-track="portal_intro_clip"
   //   portal.html  #วิธีใช้  สอนใช้งานพอร์ทัล 1:29 (video/portal-tutorial.mp4) · data-track="portal_tutorial_clip"
-  //   consign.html #คลิปวิธีฝากขาย สอนวิธีฝากขาย 3:24 (video/consign-tutorial.mp4) · data-track="consign_tutorial_clip"
+  //   consign.html #คลิปวิธีฝากขาย สอนวิธีฝากขาย 3:00 (video/consign-tutorial.mp4) · data-track="consign_tutorial_clip"
   //     (ลิงก์ในกล่องสมัคร #cs-gate ใส่ data-pc-play ชี้แถบนี้)
   // สไตล์ .pt-clip / .pc-* อยู่ที่ portalclip.css (ใช้ร่วมกันสองหน้า) · data-t ของสารบัญเป็นทศนิยมได้ (parseFloat)
   //
