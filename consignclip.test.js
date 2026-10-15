@@ -1,4 +1,4 @@
-/* คลิปสอนวิธีฝากขาย 3:24 นาทีบนหน้า consign.html (#คลิปวิธีฝากขาย)
+/* คลิปสอนวิธีฝากขาย 3 นาทีบนหน้า consign.html (#คลิปวิธีฝากขาย)
  *   รันด้วย:  node consignclip.test.js
  *
  * ใช้โค้ดชุดเดียวกับคลิปบน portal.html (portalclip.js + portalclip.css) — เทสต์นี้ล็อกสิ่งที่พังได้เงียบๆ บนหน้านี้:
@@ -27,7 +27,7 @@ const pcss = read('portalclip.css');
 const js = read('portalclip.js').replace(/\/\/.*$/gm, '');
 const sec = (page.match(/<section class="pt-clip cs-clip"[\s\S]*?<\/section>/) || [''])[0];
 const secNC = noComments(sec);
-const DURATION = 204; // วินาที — video/consign-tutorial.mp4 ยาว 3:24
+const DURATION = 180; // วินาที — video/consign-tutorial.mp4 ยาว 3:00 (เสียงหญิง 15 ต.ค. 69)
 const ID = 'คลิปวิธีฝากขาย';
 
 console.log('\n1) โครงแถบคลิปและตำแหน่ง');
@@ -50,9 +50,9 @@ ok('⭐ ไม่เล่นเอง: preload="none" และไม่มี 
 ok('⭐ มี controls ตั้งแต่ HTML (JS ตายก็ยังกดเล่นได้) และมี playsinline',
    /<video[^>]*\scontrols[\s>]/.test(sec) && /<video[^>]*playsinline/.test(sec));
 ok('⭐ ใส่ width/height กัน layout shift', /width="1080"\s+height="1920"/.test(sec));
-ok('⭐ aria-label ของวิดีโอบอกความยาว 3 นาที 24 วินาที และว่าข้อมูลเป็นตัวอย่างสมมติ',
-   /<video[^>]*aria-label="[^"]*3 นาที 24 วินาที[^"]*สมมติ[^"]*"/.test(sec));
-ok('ปุ่มเล่นของเรามีชื่อให้เครื่องอ่านหน้าจอ', /<button[^>]*class="pc-play"[^>]*aria-label="[^"]*3 นาที 24 วินาที[^"]*"/.test(sec));
+ok('⭐ aria-label ของวิดีโอบอกความยาว 3 นาที และว่าข้อมูลเป็นตัวอย่างสมมติ',
+   /<video[^>]*aria-label="[^"]*3 นาที[^"]*สมมติ[^"]*"/.test(sec));
+ok('ปุ่มเล่นของเรามีชื่อให้เครื่องอ่านหน้าจอ', /<button[^>]*class="pc-play"[^>]*aria-label="[^"]*3 นาที[^"]*"/.test(sec));
 ['video/consign-tutorial.mp4', 'video/consign-tutorial-poster.jpg'].forEach(f => {
   const full = path.join(__dirname, f);
   if (!fs.existsSync(full)) console.log('  · หมายเหตุ: ยังไม่มีไฟล์ ' + f + ' (ใส่ก่อน commit — build/lint.js จะแดงจนกว่าจะมี)');
@@ -83,8 +83,8 @@ console.log('\n5) ข้อความเต็มของคลิป');
 const body = (secNC.match(/<div class="pc-script-body" id="pc-script-body-consign"(?![^>]*hidden)[^>]*>[\s\S]*?<\/div>/) || [''])[0];
 const paras = [...body.matchAll(/<p>([\s\S]*?)<\/p>/g)].map(m => m[1]);
 ok('⭐ ข้อความเต็มมี 15 ท่อน (ตรงกับเสียง 15 ท่อน) และไม่ถูกซ่อนด้วย hidden ตั้งแต่ HTML', paras.length === 15, paras.length);
-ok('ข้อความเต็มมีประโยคเปิดและปิดของคลิป',
-   /^สวัสดีครับ วันนี้ผมจะพาดูวิธีฝากขาย/.test(paras[0] || '') && /ทักไลน์ โทรหาทีมงานที่ดินชัวร์ได้เลยครับ$/.test(paras[14] || ''));
+ok('ข้อความเต็มมีประโยคเปิดและปิดของคลิป (เสียงผู้หญิง — ค่ะ)',
+   /^สวัสดีค่ะ วันนี้จะพาไปดูวิธีฝากขาย/.test(paras[0] || '') && /ทักไลน์ โทรหาทีมงานที่ดินชัวร์ได้เลยค่ะ$/.test(paras[14] || ''));
 const src = path.join(__dirname, '..', 'consign-tutorial-video', 'fulltext.txt');
 if (fs.existsSync(src)) {
   const lines = fs.readFileSync(src, 'utf8').split(/\r?\n/).filter(Boolean).map(l => l.replace(/^\d+: /, ''));
