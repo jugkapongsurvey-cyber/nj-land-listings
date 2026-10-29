@@ -196,11 +196,25 @@ document.addEventListener('click', function (e) {
 // listingId เป็นตัวเลือก — ใส่เฉพาะเหตุการณ์ที่ผูกกับแปลงใดแปลงหนึ่ง (listing_view · phone_reveal)
 // เซิร์ฟเวอร์เอาไปนับเป็นสถิติรายแปลง ตอบคำถามว่า "แปลงไหนมีคนดู แปลงไหนไม่มีใครแตะ"
 // เหตุการณ์อื่นส่งมาโดยไม่มี listingId เหมือนเดิมทุกประการ (ตัวแปรที่ 2 ไม่ใส่ก็ได้)
+// แหล่งที่มาของการเปิดดูแปลง (สถิติในบัญชีเจ้าของทรัพย์ · 29 ต.ค. 2569) — ส่งแค่ source ของสัมผัสสุดท้ายจาก attrib.js
+// · สัมผัสเก่ากว่า 30 นาที = รอบนี้เข้าตรง ('') ไม่ใช่ช่องทางเดิมเมื่อหลายสัปดาห์ก่อน
+// · หน้าไม่มี attrib.js = ไม่ส่งช่องนี้เลย (เซิร์ฟเวอร์นับเป็น "ไม่ทราบ" ไม่ใช่ "เข้าตรง")
+// · ไม่มีข้อมูลส่วนบุคคล — เซิร์ฟเวอร์จัดเป็นคีย์ตายตัว ไม่เก็บค่าดิบ (lib/viewsource.js ของระบบหลังบ้าน)
+var NJ_VIEW_SRC_WINDOW = 30 * 60 * 1000;
+function njViewSrc() {
+  if (!window.NJAttrib || typeof window.NJAttrib.value !== 'function') return null;
+  try {
+    var last = (window.NJAttrib.value() || {}).last;
+    if (!last || !last.at || Date.now() - last.at > NJ_VIEW_SRC_WINDOW) return '';
+    return String(last.source || '').slice(0, 60);
+  } catch (e) { return null; }
+}
 function njTrackInternal(type, listingId) {
   if (NJ_INTERNAL_EVENTS.indexOf(type) < 0) return;
   try {
     var payload = { type: type };
     if (listingId) payload.listingId = String(listingId).slice(0, 20);
+    if (type === 'listing_view') { var src = njViewSrc(); if (src !== null) payload.src = src; }
     var body = JSON.stringify(payload);
     if (navigator.sendBeacon) {
       navigator.sendBeacon(NJ_API_BASE + '/api/public/track', new Blob([body], { type: 'application/json' }));
