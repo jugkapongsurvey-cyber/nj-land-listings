@@ -86,7 +86,8 @@ const NAV = [
       { label: 'แชทกับน้องเอ็นเจชัวร์', href: 'chat.html', note: 'ผู้ช่วย AI ตอบเรื่องที่ดิน' }
     ]
   },
-  { label: 'เกี่ยวกับเรา', href: 'index.html#ทีมเรา' },
+  // หน้าแยก about.html (เจ้าของอนุมัติ 2 พ.ย. 2569) · หน้าแรกยังมีกล่องย่อ #ทีมเรา ที่ลิงก์มาหน้านี้
+  { label: 'เกี่ยวกับเรา', href: 'about.html' },
   { label: 'ติดตามงาน', href: 'portal.html', portal: true }
 ];
 
