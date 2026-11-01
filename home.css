@@ -324,13 +324,18 @@ h1,h2,h3,p{margin:0}
 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .stat b{display:block;font-size:22px}
 .stat span{font-size:12px;color:var(--ink-2)}
-/* กรอบใช้สัดส่วนเดียวกับไฟล์ภาพ (บน 1440×600 · ล่าง 900×500) ไม่ใช่ความสูงตายตัว —
-   ความสูงตายตัวทำให้จอที่กรอบกว้างกว่า 480px (แท็บเล็ต/มือถือ) ตัดภาพทิ้งจนเห็นไม่ครบ (29 ก.ย. 2569)
-   เปลี่ยนภาพเมื่อไหร่ ให้ครอปไฟล์ตามสัดส่วนนี้ หรือแก้ aspect-ratio ให้ตรงกับไฟล์ใหม่ */
-.team-media{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.team-media > *{aspect-ratio:9/5;border-radius:var(--r-lg);overflow:hidden;background:#c9d8c8}
-.team-media > *:first-child{grid-column:1/-1;aspect-ratio:12/5}
-.team-media img{display:block;width:100%;height:100%;object-fit:cover}
+/* กล่อง "เกี่ยวกับเรา" ย่อ (ร่าง B 2 พ.ย. 2569) — ภาพทีมงานย้ายไป about.html แล้ว */
+.team-em{font-style:normal;color:var(--bronze)}
+.team-more{align-self:flex-start;font-weight:600;color:var(--navy);border-bottom:2px solid var(--gold);padding:6px 0;min-height:44px;display:inline-flex;align-items:center}
+.team-more:hover{color:var(--bronze)}
+.team-points{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.team-points li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.team-points p{margin:0;min-width:0}
+.team-points b{display:block;font-size:16px;line-height:1.4}
+.team-points span{display:block;font-size:14px;line-height:1.5;color:var(--ink-2)}
+.team-ico{flex:none;width:40px;height:40px;border-radius:10px;background:#FBF6E8;display:grid;place-items:center}
+.team-ico svg{width:22px;height:22px;stroke:var(--bronze);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:520px){ .team-points{grid-template-columns:1fr} }
 @media (max-width:1023px){ .team .container{grid-template-columns:1fr;gap:20px;padding-top:40px;padding-bottom:40px} .stats{gap:8px} .stat{padding:12px} .stat b{font-size:22px} .stat span{font-size:11px} }
 
 /* ========== SELL ========== */

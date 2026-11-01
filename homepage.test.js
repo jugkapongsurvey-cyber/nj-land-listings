@@ -68,7 +68,7 @@ ok('⭐ มี 4 ข้อพอดี', (trust.match(/class="trust-item"/g) || 
 ['ใบอนุญาต 351', '10 ปี ตั้งแต่ พ.ศ. 2559', 'ยินยอม', 'ระดับ'].forEach(k => ok('พูดถึง "' + k + '"', trust.indexOf(k) >= 0));
 // ⚠️ เจ้าของสั่ง 10 ต.ค. 2569 — ประสบการณ์ต้องเป็น "10 ปี ตั้งแต่ พ.ศ. 2559" (ปีก่อตั้งบริษัท) ให้ตรงกับเอกสารโฆษณา
 //    เลิกใช้ "12+ ปี" / "มากกว่า 12 ปี" ทุกหน้า
-['index.html', 'consign.html', 'verify.html', 'wanted.html'].forEach(f => {
+['index.html', 'consign.html', 'verify.html', 'wanted.html', 'about.html'].forEach(f => {
   const h = read(f);
   ok('⭐ ' + f + ' ไม่มีตัวเลขประสบการณ์เก่า 12 ปี', !/12\+|กว่า 12 ปี|<b>12<\/b>/.test(h), (h.match(/.{0,40}(12\+|กว่า 12 ปี).{0,40}/) || [''])[0]);
   if (f !== 'index.html') ok('⭐ ' + f + ' บอก 10 ปี ตั้งแต่ พ.ศ. 2559', /<b>10<\/b><span>ปีในงานรังวัด ตั้งแต่ พ.ศ\. 2559<\/span>/.test(h));
@@ -279,6 +279,25 @@ ok('⭐ introclip.js ถอด controls แล้วเล่นในจัง�
 ok('⭐ ปุ่มของเราซ่อนไว้จนกว่า JS ใส่ .js-ready', /\.ic-play\{display:none\}/.test(css) && /\.introclip\.js-ready \.ic-play\{display:flex/.test(css));
 ok('⭐ video ต้องมี height:auto (กัน height="1920" ชนะ aspect-ratio)', /\.ic-frame video\{[^}]*height:auto/.test(css));
 ok('ไม่มี on*= ใน HTML ของแถบ (CSP)', !/\son[a-z]+=/.test(clip));
+
+console.log('\n14) หน้าเกี่ยวกับเรา (about.html · ร่าง A) + กล่องย่อบนหน้าแรก (ร่าง B) — เจ้าของอนุมัติ 2 พ.ย. 2569');
+const about = read('about.html');
+// ตัดคอมเมนต์ HTML ทิ้งก่อนตรวจ — คอมเมนต์กำกับเขียนคำต้องห้ามไว้เป็นคำเตือน ("ห้ามคำรับประกัน" · "ห้ามใส่ 155/6")
+const noCmt = h => h.replace(/<!--[\s\S]*?-->/g, '');
+const aboutMain = noCmt((about.match(/<main id="main">[\s\S]*<\/main>/) || [''])[0]);
+const team = noCmt((home.match(/<section class="team" id="ทีมเรา">[\s\S]*?<\/section>/) || [''])[0]);
+ok('⭐ เมนู "เกี่ยวกับเรา" ชี้ about.html', /\{ label: 'เกี่ยวกับเรา', href: 'about\.html' \}/.test(read('build/pages.js')));
+ok('⭐ about.html มี H1 เดียว และเป็นคำถาม "คืออะไร?"', (aboutMain.match(/<h1\b/g) || []).length === 1 && /<h1[^>]*>ที่ดินชัวร์ คืออะไร\?/.test(aboutMain));
+ok('⭐ กล่องหน้าแรกลิงก์ไปหน้าเต็ม', /href="about\.html"/.test(team));
+ok('กล่องหน้าแรกยังมีช่องตัวเลขที่ marketplace.js นับสด', /id="stat-count"/.test(team) && /id="stat-count-label"/.test(team));
+ok('⭐ จุดต่าง 4 ข้อทั้งสองที่', (team.match(/<li>/g) || []).length === 4 && (aboutMain.match(/<ul class="ab-feat">[\s\S]*?<\/ul>/)[0].match(/<li>/g) || []).length === 4);
+ok('⭐ ตัวเลขแปลงบนหน้าเกี่ยวกับเรานับสด ไม่พิมพ์ตัวเลขลงไปเอง', /<b id="ab-count">—<\/b>/.test(about) && /src="about\.js"/.test(about));
+ok('about.js อ่าน surveyedParcels และเทียบค่าก่อนเขียน', /surveyedParcels/.test(read('about.js')) && /textContent!==txt/.test(read('about.js')));
+ok('⭐ ภาพทีมงานทุกภาพในหน้าเกี่ยวกับเรา alt ขึ้นต้น "ภาพประกอบ:" (กติกาข้อ 9)',
+   (aboutMain.match(/<img\b[^>]*>/g) || []).every(t => /alt="ภาพประกอบ: /.test(t)) && (aboutMain.match(/<img\b/g) || []).length === 3);
+ok('⭐ ไม่มีคำรับประกัน/การันตี/เร็วขึ้น/ไม่กี่นาที ทั้งสองที่', !/รับประกัน|การันตี|เร็วขึ้น|ไม่กี่นาที/.test(aboutMain + team));
+ok('⭐ ไม่พูดถึงค่านายหน้า (นโยบายลงประกาศฟรี)', !/ค่านายหน้า|คอมมิชชั่น|ค่าคอม/.test(aboutMain + team));
+ok('ข้อมูลติดต่อมีสองเบอร์คู่กัน (กติกาข้อ 6) และที่อยู่สำนักงานใหญ่ 121/124', /tel:021620405/.test(aboutMain) && /tel:0849158601/.test(aboutMain) && /121\/124/.test(aboutMain) && !/155\/6/.test(aboutMain));
 
 console.log('\n' + (fail ? '❌' : '✅') + ' homepage: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);
