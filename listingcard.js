@@ -139,6 +139,8 @@
       // ใครดูแลการขาย (รูปแบบบริการ A/B/C ของระบบ) — 'owner' ขายเองชัวร์ · 'nj' ฝากขายชัวร์ · '' ใบตามเงื่อนไขเดิม
       // ⚠️ ค่าที่ไม่รู้จัก = '' (หน้าตาเหมือนประกาศเดิมทุกอย่าง) ห้ามเดา
       saleBy: item.saleBy === 'owner' || item.saleBy === 'nj' ? item.saleBy : '',
+      // ลงประกาศเอง (ระบบ 1 พ.ย. 69) — เจ้าของลงเองโดยทีมยังไม่ได้ตรวจ · ป้ายต้องบอกเสมอว่ายังไม่ผ่านการตรวจ (ไม่ใช่ true จริง = ไม่ใช่)
+      selfListed: item.selfListed === true,
       // ตรวจอะไรแล้ว (เฉพาะประกาศที่มีรูปแบบบริการ) — null = ไม่มีป้าย
       inspected: inspectedOf(item.inspected),
       // ประกาศเด่น — ระบบคิดวันหมด/สิทธิ์ให้แล้ว ส่งมาแค่ true/false · ไม่ส่ง/ค่าอื่น = ไม่ใช่ประกาศเด่น (ห้ามเดา)
@@ -323,7 +325,9 @@
           (item.type === 'rent' ? '<span class="badge badge-rent">ให้เช่า</span>' : '<span class="badge">ขาย</span>') +
           // ⚠️ ป้ายประกาศเด่นต้องมีข้อความว่าเป็นพื้นที่ที่เจ้าของจ่ายเอง ไม่ใช่การรับรองแปลง (title + aria-label)
           (item.featured ? '<span class="badge badge-featured" title="' + esc(featuredNote()) + '" aria-label="ประกาศเด่น — ' + esc(featuredNote()) + '">★ ประกาศเด่น</span>' : '') +
-          (item.tier === 2
+          (item.selfListed
+            ? '<span class="badge badge-self" title="ข้อมูลจากเจ้าของทรัพย์ ยังไม่ผ่านการตรวจโดยที่ดินชัวร์" aria-label="เจ้าของลงประกาศเอง — ข้อมูลจากเจ้าของทรัพย์ ยังไม่ผ่านการตรวจโดยที่ดินชัวร์">เจ้าของลงประกาศเอง</span>'
+            : item.tier === 2
             ? '<span class="badge badge-verified">✓ ตรวจสอบโดย NJ</span>'
             : '<span class="badge badge-basic">ข้อมูลเบื้องต้น</span>') +
         '</div>' + count +
@@ -344,7 +348,9 @@
         '<div class="card-agent">' +
           '<span class="agent-avatar" aria-hidden="true">NJ</span>' +
           // ป้ายใครดูแลการขาย — ประกาศขายเองชัวร์ผู้ซื้อติดต่อเจ้าของผ่านฟอร์มในหน้าประกาศ (ปุ่มด้านขวายังเป็นช่องทางของทีม)
-          (item.saleBy === 'owner'
+          (item.selfListed
+            ? '<div><b>เจ้าของลงประกาศเอง</b><small>ยังไม่ผ่านการตรวจโดยที่ดินชัวร์ · ติดต่อเจ้าของในหน้าประกาศ</small></div>'
+            : item.saleBy === 'owner'
             ? '<div><b>เจ้าของขายเอง</b><small>' + (inspectedText(item.inspected) ? 'ตรวจโดยที่ดินชัวร์ · ' + esc(inspectedText(item.inspected)) : 'ติดต่อเจ้าของในหน้าประกาศ') + '</small></div>'
             : '<div><b>ทีมที่ดินชัวร์</b>' + (item.saleBy === 'nj' ? '<small>ดูแลการขาย' + (when ? ' · ' + esc(when) : '') + '</small>' : (when ? '<small>' + esc(when) + '</small>' : '')) + '</div>') +
           '<span class="contact-mini">' +
