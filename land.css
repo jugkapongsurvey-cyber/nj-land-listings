@@ -476,6 +476,17 @@ html.ld-lb-lock{overflow:hidden}
 }
 .ld-tool:hover { border-color: var(--nj-navy-900); }
 .ld-tool:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+/* ฟอร์มแจ้งข้อมูลไม่ถูกต้อง (กดปุ่ม ⚑ แล้วกางใต้แถวเครื่องมือ) */
+.ld-report-box { margin: 0 0 var(--nj-space-4); padding: var(--nj-space-4); border: 1px solid var(--nj-gray-300); background: var(--nj-white); }
+.ld-report-box[hidden] { display: none; }
+.ld-rp-head { margin: 0 0 var(--nj-space-3); font-size: var(--nj-fs-sm); color: var(--nj-text-strong); }
+.ld-rp-lbl { display: block; margin: var(--nj-space-2) 0 4px; font-size: var(--nj-fs-sm); color: var(--nj-navy-900); }
+.ld-report-box select, .ld-report-box textarea { width: 100%; box-sizing: border-box; min-height: 44px; padding: 8px 10px; border: 1px solid var(--nj-gray-300); font: inherit; }
+.ld-rp-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nj-space-3); margin-top: var(--nj-space-3); }
+.ld-rp-line { color: var(--nj-navy-600); font-size: var(--nj-fs-sm); text-decoration: underline; text-underline-offset: 3px; }
+.ld-rp-msg { margin: var(--nj-space-2) 0 0; font-size: var(--nj-fs-sm); }
+.ld-rp-msg.bad { color: #b42318; }
+.ld-rp-done { display: flex; flex-direction: column; gap: 4px; font-size: var(--nj-fs-sm); color: var(--nj-text-strong); }
 
 /* ---------- แปลงใกล้เคียง + แปลงที่เพิ่งดู ---------- */
 .ld-rel { margin: var(--nj-space-7) 0 0; padding-top: var(--nj-space-6); border-top: 1px solid var(--nj-border); }
@@ -550,7 +561,7 @@ html.ld-lb-lock{overflow:hidden}
 
 /* ตอนสั่งพิมพ์ไม่ต้องมีแถบลอยและเครื่องมือบนหน้าจอ */
 @media print {
-  .ld-sticky, .ld-tools, .ld-rel { display: none !important; }
+  .ld-sticky, .ld-tools, .ld-report-box, .ld-rel { display: none !important; }
 }
 
 /* ---------------------------------------------------------------------------
