@@ -1054,6 +1054,53 @@
     return 'https://line.me/R/oaMessage/'+encodeURIComponent('@716lffzt')+'/?'+encodeURIComponent(msg);
   }
 
+  // ---------- ฟอร์มแจ้งข้อมูลไม่ถูกต้อง (คู่กับระบบ POST /api/public/listings/:id/report · ลงประกาศเอง รอบ 2 · 2 พ.ย. 69) ----------
+  // ⚠️ ไม่ใช่ช่องทางติดต่อ — ไม่มี data-contact · ไม่ยิงสถิติลีด · ไม่ถามชื่อ/เบอร์ (ระบบไม่เก็บตัวตนผู้แจ้ง)
+  // ⚠️ คีย์เหตุผลต้องตรงกับ REPORT_REASONS ใน lib/selfreview.js ของระบบ (contracts.test.js เทียบ) — คีย์อื่นระบบตอบ 400
+  // ทาง LINE (reportHref) ยังอยู่ในฟอร์ม สำหรับคนที่อยากคุยกับทีมงานต่อ
+  var REPORT_REASONS=[['wrong_info','ข้อมูล/รูปไม่ตรงกับทรัพย์จริง'],['sold','ขายไปแล้ว'],['not_owner','ผู้ลงประกาศไม่น่าใช่เจ้าของ'],
+    ['scam','น่าสงสัยว่าหลอกลวง'],['duplicate','ประกาศซ้ำ'],['other','อื่นๆ']];
+  function reportBoxHtml(l){
+    var opts=REPORT_REASONS.map(function(r){ return '<option value="'+r[0]+'">'+esc(r[1])+'</option>'; }).join('');
+    return '<div class="ld-report-box" id="ld-report-box" hidden>'+
+      '<form id="ld-report-form" novalidate>'+
+        '<p class="ld-rp-head">แจ้งทีมงานว่าประกาศรหัส <b>'+esc(l.id)+'</b> อาจไม่ถูกต้อง — ไม่ต้องใส่ชื่อหรือเบอร์โทร</p>'+
+        '<label class="ld-rp-lbl" for="ld-rp-reason">เรื่องที่พบ</label>'+
+        '<select id="ld-rp-reason" name="reason" required><option value="">— เลือก —</option>'+opts+'</select>'+
+        '<label class="ld-rp-lbl" for="ld-rp-note">รายละเอียดเพิ่มเติม (ไม่บังคับ · ไม่เกิน 300 ตัวอักษร)</label>'+
+        '<textarea id="ld-rp-note" name="note" maxlength="300" rows="3"></textarea>'+
+        '<input type="text" name="website" class="njsv-hp" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+        '<div class="ld-rp-row"><button type="submit" class="ld-btn" id="ld-rp-send">ส่งเรื่องให้ทีมงาน</button>'+
+          '<a class="ld-rp-line" href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">หรือแจ้งทาง LINE</a></div>'+
+        '<p class="ld-rp-msg" id="ld-rp-msg" role="status" aria-live="polite"></p>'+
+      '</form></div>';
+  }
+  function bindReport(l){
+    var btn=document.getElementById('ld-report'), box=document.getElementById('ld-report-box'), form=document.getElementById('ld-report-form');
+    if(!btn||!box||!form) return;
+    btn.addEventListener('click', function(){
+      var open=box.hidden; box.hidden=!open; btn.setAttribute('aria-expanded', open?'true':'false');
+      if(open){ var s=document.getElementById('ld-rp-reason'); if(s) s.focus(); }
+    });
+    var sending=false, msg=document.getElementById('ld-rp-msg'), send=document.getElementById('ld-rp-send');
+    function say(cls,t){ msg.className='ld-rp-msg '+cls; msg.textContent=t; }
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(sending) return;
+      var reason=form.elements.reason.value;
+      if(!reason){ say('bad','กรุณาเลือกเรื่องที่พบ'); return; }
+      var body={ reason:reason, note:String(form.elements.note.value||'').slice(0,300), website:form.elements.website.value };
+      sending=true; send.disabled=true; say('wait','กำลังส่ง...');
+      var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
+      fetch(base+'/api/public/listings/'+encodeURIComponent(l.id)+'/report',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if(!r.ok&&r.status!==204) throw new Error(d.error||'ส่งไม่สำเร็จ'); return d; }); })
+        .then(function(){
+          box.innerHTML='<div class="ld-rp-done" role="status"><b>✓ ขอบคุณที่แจ้ง</b><span>ทีมงานจะตรวจประกาศรหัส <b>'+esc(l.id)+'</b> — ถ้าต้องการให้ติดต่อกลับ แจ้งทาง <a href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">LINE</a></span></div>';
+        })
+        .catch(function(err){ sending=false; send.disabled=false; say('bad',(err&&err.message)||'ส่งไม่สำเร็จ — ลองใหม่ หรือแจ้งทาง LINE'); });
+    });
+  }
+
   // ---------- แปลงที่เพิ่งดู ----------
   // ⚠️ เก็บแค่รหัส ไม่เก็บข้อมูลแปลง — ราคาและสถานะเปลี่ยนได้ตลอด
   //    เก็บทั้งก้อนไว้ = ผู้ซื้อกลับมาเห็นราคาเก่าที่ไม่ตรงกับความจริงแล้ว
@@ -1241,9 +1288,10 @@
               '<span class="njsave-ico" aria-hidden="true">♥</span><span class="njsave-txt">บันทึก</span></button>'+
             '<button type="button" class="ld-tool" id="ld-share">'+
               '<span aria-hidden="true">↗</span> แชร์แปลงนี้</button>'+
-            '<a class="ld-tool" id="ld-report" href="'+esc(reportHref(l))+'" target="_blank" rel="noopener noreferrer">'+
-              '<span aria-hidden="true">⚑</span> แจ้งข้อมูลไม่ถูกต้อง</a>'+
+            '<button type="button" class="ld-tool" id="ld-report" aria-expanded="false" aria-controls="ld-report-box">'+
+              '<span aria-hidden="true">⚑</span> แจ้งข้อมูลไม่ถูกต้อง</button>'+
           '</div>'+
+          reportBoxHtml(l)+
           shareHtml(l)+
           '<button type="button" class="ld-btn ghost ld-pdf-btn" id="ld-pdf-btn">📄 ดาวน์โหลด PDF ประกาศนี้</button>'+
         '</div>'+
@@ -1345,6 +1393,7 @@
         navigator.clipboard.writeText(url).then(done, function(){ prompt('คัดลอกลิงก์นี้ไว้', url); });
       } else { prompt('คัดลอกลิงก์นี้ไว้', url); }
     });
+    bindReport(l);
     if(window.NJSave) NJSave.sync();
     seenPush(l.id);
     renderRelated(l);
