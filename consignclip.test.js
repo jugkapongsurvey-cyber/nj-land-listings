@@ -27,7 +27,7 @@ const pcss = read('portalclip.css');
 const js = read('portalclip.js').replace(/\/\/.*$/gm, '');
 const sec = (page.match(/<section class="pt-clip cs-clip"[\s\S]*?<\/section>/) || [''])[0];
 const secNC = noComments(sec);
-const DURATION = 180; // วินาที — video/consign-tutorial.mp4 ยาว 3:00 (เสียงหญิง 15 ต.ค. 69)
+const DURATION = 194; // วินาที — video/consign-tutorial.mp4 ยาว 3:14 (รุ่น 3 ฝากขาย 2 ทาง · 3 พ.ย. 69)
 const ID = 'คลิปวิธีฝากขาย';
 
 console.log('\n1) โครงแถบคลิปและตำแหน่ง');
@@ -71,7 +71,7 @@ const chapBlock = (secNC.match(/<ol class="pc-chap"[\s\S]*?<\/ol>/) || [''])[0];
 const times = [...chapBlock.matchAll(/<button type="button" data-t="(\d+(?:\.\d+)?)"><span class="pc-t">(\d+):(\d\d)<\/span>/g)]
   .map(m => ({ t: +m[1], label: +m[2] * 60 + +m[3], raw: m[1] }));
 const liCount = (chapBlock.match(/<li>/g) || []).length;
-ok('⭐ สารบัญอยู่ใน <ol class="pc-chap"> เดียว · ทุกบทอ่าน data-t ได้', liCount === 14 && times.length === liCount, liCount + '/' + times.length);
+ok('⭐ สารบัญอยู่ใน <ol class="pc-chap"> เดียว · ทุกบทอ่าน data-t ได้', liCount === 15 && times.length === liCount, liCount + '/' + times.length);
 ok('⭐ บทแรกเริ่มที่ 0 วินาที', times.length > 0 && times[0].t === 0);
 ok('⭐ เวลาเรียงจากน้อยไปมากและไม่ซ้ำ', times.every((x, i) => i === 0 || x.t > times[i - 1].t), times.map(x => x.raw).join(','));
 ok('⭐ ทุกบทอยู่ในช่วง 0..' + DURATION + ' วินาที และเริ่มก่อนจบคลิปอย่างน้อย 3 วินาที', times.every(x => x.t >= 0 && x.t < DURATION - 3));
