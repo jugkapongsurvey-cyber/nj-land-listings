@@ -903,10 +903,22 @@
     '</section>';
   }
 
+  // ลงประกาศเอง รอบ 3 (ระบบ 2 พ.ย. 69) — ชวนผู้ซื้อให้ทีมตรวจแปลงก่อนซื้อ ข้างฟอร์มและหลังส่งฟอร์ม
+  // ⚠️ ลิงก์ไปฟอร์มเดิม (verify.html) เท่านั้น ไม่ส่งอีเมล/ไม่เก็บข้อมูลผู้ซื้อเพิ่ม (ผู้ซื้อไม่ได้ยินยอมรับข่าวสาร)
+  //    กรอกแหล่ง "อื่นๆ" + ลิงก์หน้าประกาศ + หัวข้อ selflisted ผ่าน query ที่ verify.js รับอยู่แล้ว (prefillFromQuery)
+  function selfVerifyHref(l){
+    return 'verify.html?source='+encodeURIComponent('อื่นๆ')+'&url='+encodeURIComponent(SITE_URL+'/land.html?id='+l.id)+'&topic=selflisted#form';
+  }
+  function selfVerifyHtml(l){
+    if(l.selfListed!==true) return '';
+    return '<div class="ld-selfchk"><b>ตรวจแปลงนี้ก่อนตัดสินใจซื้อ</b>'+
+      '<span>ประกาศนี้เจ้าของลงเอง ยังไม่ผ่านการตรวจโดยที่ดินชัวร์ — ให้ทีมช่างรังวัดตรวจเอกสารสิทธิ์ แนวเขต และผังเมืองของแปลงนี้ก่อนได้</span>'+
+      '<a href="'+esc(selfVerifyHref(l))+'">ส่งให้ทีมตรวจแปลงนี้ →</a></div>';
+  }
   function ownerFormHtml(l){
     return '<section class="njsv ld-inq ld-own" id="ld-inq" aria-labelledby="ld-inq-h">'+
       '<h2 id="ld-inq-h">ติดต่อเจ้าของทรัพย์</h2>'+
-      '<p class="ld-inq-lede">ประกาศ <b>ขายเองชัวร์</b> — เจ้าของขายเอง กรอกชื่อและเบอร์ ระบบจะส่งถึงเจ้าของให้ เจ้าของติดต่อกลับเอง · รหัสทรัพย์ <b>'+esc(l.id)+'</b></p>'+
+      '<p class="ld-inq-lede">ประกาศ <b>'+(l.selfListed===true?'เจ้าของลงประกาศเอง':'ขายเองชัวร์')+'</b> — เจ้าของขายเอง กรอกชื่อและเบอร์ ระบบจะส่งถึงเจ้าของให้ เจ้าของติดต่อกลับเอง · รหัสทรัพย์ <b>'+esc(l.id)+'</b></p>'+
       '<form class="njsv-form" id="ld-own-form" novalidate>'+
         '<label class="njsv-field"><span>ชื่อผู้ติดต่อ</span><input type="text" name="name" maxlength="80" autocomplete="name" placeholder="ระบุชื่อ"></label>'+
         '<label class="njsv-field"><span>เบอร์โทร</span><input type="tel" name="phone" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="ระบุเบอร์โทร"></label>'+
@@ -916,7 +928,8 @@
         '<div class="njsv-msg" data-own-msg role="alert" hidden></div>'+
         '<button type="submit" class="njsv-submit">ส่งถึงเจ้าของทรัพย์</button>'+
       '</form>'+
-      '<p class="ld-own-note">ที่ดินชัวร์ไม่ได้เป็นตัวแทนการขายของประกาศนี้ · ดูผลการตรวจสอบแปลงในหัวข้อด้านล่าง · สอบถามเรื่องข้อมูลแปลงกับทีมงานทางไลน์ได้</p>'+
+      '<p class="ld-own-note">ที่ดินชัวร์ไม่ได้เป็นตัวแทนการขายของประกาศนี้ · '+(l.selfListed===true?'':'ดูผลการตรวจสอบแปลงในหัวข้อด้านล่าง · ')+'สอบถามเรื่องข้อมูลแปลงกับทีมงานทางไลน์ได้</p>'+
+      selfVerifyHtml(l)+
     '</section>';
   }
   function bindOwnerForm(l){
@@ -941,7 +954,8 @@
           // เซิร์ฟเวอร์ตัดสินปลายทาง — route 'owner' = ส่งถึงเจ้าของ · อย่างอื่น = ทีมงานติดต่อกลับแทน (บอกตามจริง)
           var toOwner=d&&d.route==='owner';
           form.parentNode.innerHTML='<div class="njsv-done"><b>✓ '+(toOwner?'ส่งถึงเจ้าของทรัพย์แล้ว':'ส่งเรื่องให้ทีมงานแล้ว')+'</b>'+
-            '<span>'+(toOwner?'เจ้าของจะติดต่อกลับเอง':'ทีมงานจะติดต่อกลับภายใน 1 วันทำการ')+' — รหัสทรัพย์ <b>'+esc(l.id)+'</b>'+(d&&d.id?' · เลขที่เรื่อง <b>'+esc(d.id)+'</b>':'')+'</span></div>';
+            '<span>'+(toOwner?'เจ้าของจะติดต่อกลับเอง':'ทีมงานจะติดต่อกลับภายใน 1 วันทำการ')+' — รหัสทรัพย์ <b>'+esc(l.id)+'</b>'+(d&&d.id?' · เลขที่เรื่อง <b>'+esc(d.id)+'</b>':'')+'</span></div>'+
+            selfVerifyHtml(l);
         })
         .catch(function(err){ sending=false; btn.disabled=false; say('bad',err.message||'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง หรือทักไลน์'); });
     });
