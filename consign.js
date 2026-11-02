@@ -1153,8 +1153,8 @@ function setupService(getProvince, getTotalWa, onChange, getPropType) {
       ((s.excludes || []).length ? '<div class="cs-svc-sub">ไม่รวม</div><ul class="cs-svc-list exc">' +
         s.excludes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
       '<div class="cs-svc-line"><b>ค่าใช้จ่าย:</b> ' + esc(condoFree() ? condoFree().feeLine : s.fee) + '</div>' +
-      (s.listing && t.listingDays
-        ? '<div class="cs-svc-line">ประกาศพื้นฐานอยู่บนเว็บ ' + esc(t.listingDays) + ' วัน และต่ออายุได้</div>' : '') +
+      (s.listing && (s.listingDays || t.listingDays)
+        ? '<div class="cs-svc-line">ประกาศพื้นฐานอยู่บนเว็บ ' + esc(s.listingDays || t.listingDays) + ' วัน และต่ออายุได้</div>' : '') +
       (s.broker
         ? '<div class="cs-svc-line">ไม่ผูกขาด — คุณยังขายเองหรือขายผ่านนายหน้าอื่นได้</div>'
         : '') +
