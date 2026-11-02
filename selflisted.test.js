@@ -30,5 +30,19 @@ ok('หน้าแปลงมีบล็อกเจ้าของลงป�
 const css = read('listingcard.css') + read('home.css');
 ok('มีสไตล์ .badge-self ทั้งชุดการ์ดกลางและหน้าแรก', (css.match(/\.badge-self\{/g) || []).length >= 2);
 ok('ไม่มีคำรับประกันในป้าย', !/รับประกัน|การันตี|ชัวร์แน่นอน/.test(self));
+// รอบ 3 (2 พ.ย. 69) — ชวนผู้ซื้อให้ทีมตรวจแปลงก่อนซื้อ ข้างฟอร์มและหลังส่ง · ไม่ส่งอีเมลถึงผู้ซื้อ
+const chk = land.slice(land.indexOf('function selfVerifyHref'), land.indexOf('function ownerFormHtml'));
+const has = (s, t) => s.indexOf(t) >= 0;
+ok('มีกล่องชวนตรวจเฉพาะใบลงเอง', has(chk, "if(l.selfListed!==true) return ''") && has(chk, 'ส่งให้ทีมตรวจแปลงนี้'));
+ok('ลิงก์ไป verify.html พร้อมแหล่ง อื่นๆ + ลิงก์หน้าประกาศ + หัวข้อ selflisted',
+  has(chk, "'verify.html?source='+encodeURIComponent('อื่นๆ')+'&url='+encodeURIComponent(SITE_URL+'/land.html?id='+l.id)+'&topic=selflisted#form'"));
+const own = land.slice(land.indexOf('function ownerFormHtml'), land.indexOf('// ---------- การ์ดติดต่อในแถบข้าง'));
+ok('กล่องอยู่ใต้ฟอร์มและในข้อความหลังส่งสำเร็จ', own.split('selfVerifyHtml(l)').length - 1 === 2);
+ok('ไม่มีการส่งอีเมล/บันทึกเพิ่มจากกล่องนี้', !has(chk, 'fetch(') && !/mail/i.test(chk));
+const verifyJs = read('verify.js');
+ok('verify.js รู้จักหัวข้อ selflisted + แหล่ง อื่นๆ อยู่ในรายการ', /^\s*selflisted: '/m.test(verifyJs) && has(verifyJs, "'อื่นๆ']"));
+ok('ใบลงเองไม่เรียกตัวเองว่า ขายเองชัวร์ ในฟอร์มเจ้าของ', has(own, "l.selfListed===true?'เจ้าของลงประกาศเอง':'ขายเองชัวร์'"));
+ok('ไม่มีคำรับประกัน/เร่งเวลาในกล่อง', !/รับประกัน|การันตี|เร็วขึ้น|ไม่กี่นาที/.test(chk));
+ok('มีสไตล์ .ld-selfchk', has(read('land.css'), '.ld-selfchk{'));
 console.log('selflisted: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

@@ -693,6 +693,10 @@ html.ld-lb-lock{overflow:hidden}
 .ld-own-ck{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.6;color:#334155;cursor:pointer}
 .ld-own-ck input{margin-top:3px;flex:0 0 auto;width:16px;height:16px}
 .ld-own-note{font-size:12px;line-height:1.65;color:#5A7091;margin:12px 0 0}
+/* ลงประกาศเอง รอบ 3 — ชวนให้ทีมตรวจแปลงก่อนซื้อ (ข้างฟอร์ม + หลังส่ง) */
+.ld-selfchk{display:flex;flex-direction:column;gap:4px;margin:12px 0 0;padding:11px 13px;border-radius:10px;background:#FFFBEB;border:1px solid #FCD34D;font-size:12.5px;line-height:1.6;color:#78350F}
+.ld-selfchk b{font-size:13.5px;color:#92400E}
+.ld-selfchk a{font-weight:700;color:#B45309;text-decoration:underline}
 .ld-tier-sum{font-size:13px;color:#334155;margin:8px 0 10px;line-height:1.6}
 
 /* ---------- ห้องชุด (รอบคอนโด 3) ---------- */
