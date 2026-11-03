@@ -167,6 +167,10 @@ const tick = () => new Promise(r => setTimeout(r, 5));
   global.window.NJLandForm = saved;
   ok('⛔ ไม่มีชั้นภาพผังเมืองเหลือในโค้ด (สั่ง 22 ก.ย. 69 ใช้ลิงก์ออก)', !/cityplan|zoning/i.test(code));
   ok('⛔ ไม่ซ่อนเครดิตของ Longdo', !/Ui\.(Copyright|Credit)|attribution/i.test(code));
+  const css = read('areamap.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  ok('⛔ CSS ไม่ซ่อนเครดิตมุมแผนที่ (maplibregl-ctrl-attrib)', !/ctrl-attrib|ctrl-logo/.test(css));
+  ok('ตัวเลือกชั้นของ Longdo ถูกซ่อนซ้ำทั้งตอน Ready และด้วย CSS (ทดสอบกับของจริงแล้วสั่งครั้งเดียวไม่พอ)',
+     /EventName\.Ready/.test(code) && /\.am-map \.ldmap-menubar\{display:none !important\}/.test(css));
   const tools = read('tools.html');
   const toolsJs = read('tools.js');
   ok('tools.html โหลด areamap.js + areamap.css', /src="areamap\.js"/.test(tools) && /href="areamap\.css"/.test(tools));

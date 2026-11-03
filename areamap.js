@@ -39,7 +39,7 @@
 (function (w) {
   'use strict';
 
-  var LONGDO_KEY = '';
+  var LONGDO_KEY = '40e24f6d8dc6bc61c80dbbad00cbb375';   // บัญชี Longdo ของเจ้าของ (jugka…) · แพ็กเกจ Free · สร้าง 3 พ.ย. 69
   var LONGDO_SRC = 'https://api.longdo.com/map3/?key=';
   var DEFAULT_VIEW = { lon: 100.5018, lat: 13.7563, zoom: 11 };
   var MAX_POINTS = 60;
@@ -325,7 +325,12 @@
           language: 'th',
           ui: L.UiComponent ? L.UiComponent.Mobile : undefined
         });
-        try { map.Ui.LayerSelector.visible(false); } catch (e) { /* บางเวอร์ชันไม่มีตัวเลือกชั้น */ }
+        // ซ่อนตัวเลือกชั้นของ Longdo (กติกาข้อ 3) — ⚠️ ต้องสั่งซ้ำตอน Ready ด้วย
+        // ทดสอบกับ Longdo จริง 3 พ.ย. 69: แผนที่ที่สร้างทันทีหลังโหลดสคริปต์ครั้งแรก สั่งครั้งเดียวไม่มีผล
+        // (แถบ "แผนที่/ดาวเทียม/จราจร" ยังโผล่) · areamap.css มี .ldmap-menubar กันไว้อีกชั้น
+        function hideLayers() { try { map.Ui.LayerSelector.visible(false); } catch (e) { /* บางเวอร์ชันไม่มีตัวเลือกชั้น */ } }
+        hideLayers();
+        try { map.Event.bind((L.EventName && L.EventName.Ready) || 'ready', hideLayers); } catch (e) { /* ตัวปลอมในเทสต์ */ }
         ctl = createController(L, map, render);
         render(null);
         if (w.njTrack) w.njTrack('ViewContent', { content_name: 'area_map_open' });

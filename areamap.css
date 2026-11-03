@@ -31,6 +31,10 @@
 }
 @media (max-width:560px){ .am-map{height:56vh;min-height:320px} }
 
+/* ตัวเลือกชั้นแผนที่ของ Longdo (แผนที่/ดาวเทียม/จราจร) — areamap.js สั่งซ่อนแล้ว แต่ครั้งแรกที่โหลดสคริปต์
+   คำสั่งไม่มีผลเสมอ จึงกันไว้อีกชั้น · ⛔ ห้ามซ่อนเครดิต (.maplibregl-ctrl-attrib) — เงื่อนไขการใช้ฟรีของ Longdo */
+.am-map .ldmap-menubar{display:none !important}
+
 /* หมุดของเรา (ใส่ผ่าน icon.html ของ Longdo) */
 .am-pin{
   width:26px;height:26px;border-radius:50%;box-sizing:border-box;
