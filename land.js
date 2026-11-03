@@ -577,6 +577,32 @@
   // ⚠️ null = ไม่ใช่คอนโด/ยังไม่มีข้อไหนตรวจ → คืนสตริงว่าง ไม่วาดกล่องว่าง (กติกาข้อ 5)
   // ⚠️ ข้อที่ยังไม่ตรวจต้องแสดงเป็นขีด "—" พร้อมคำว่า "ยังไม่ได้ตรวจ" ห้ามซ่อนและห้ามแสดงเป็นผ่าน (ยังไม่ตรวจ ≠ ไม่มีปัญหา)
   // ⚠️ ชุดนี้แยกจากแผง "ระดับ 1/2" — ไม่ได้เปลี่ยนระดับข้อมูลของประกาศ จึงใช้คลาส .tc คนละสีกับ .t1/.t2 และไม่ใช้ป้าย "ตรวจโดย NJ"
+  // ---------- วิดีโอทรัพย์ (ฝากขายชัวร์ · ระบบ 3 พ.ย. 69) ----------
+  // ⚠️ ระบบส่งเฉพาะคลิปที่ทีมตรวจแล้ว ({url, duration, width, height, quality} · ไม่มีชื่อไฟล์/ผู้แนบ) · ไม่มี/API รุ่นเก่า = ไม่มีหัวข้อ (กติกาข้อ 5)
+  // ⚠️ ไม่เล่นเอง ไม่ปิดเสียงให้ — ผู้ซื้อกดเล่นเอง (เปลืองเน็ตมือถือ) · preload="metadata" โหลดแค่หัวไฟล์
+  //    `#t=0.1` ให้ Safari มือถือวาดเฟรมแรกเป็นภาพปก (ระบบไม่มี ffmpeg ทำภาพปกให้)
+  // ⚠️ รับเฉพาะลิงก์ http(s) — ลิงก์ชนิดอื่นถูกทิ้ง ไม่ใส่ลง src
+  function videosOf(l){
+    return (Array.isArray(l.videos) ? l.videos : []).filter(function(v){
+      return v && typeof v.url==='string' && /^https?:\/\//.test(v.url);
+    }).slice(0,5);
+  }
+  function videosHtml(l){
+    var vs=videosOf(l);
+    if(!vs.length) return '';
+    return '<div class="ld-vids">'+vs.map(function(v,i){
+      var w=Number(v.width)||0, h=Number(v.height)||0;
+      var tall=h>w;
+      var sec=Math.round(Number(v.duration)||0);
+      return '<figure class="ld-vid'+(tall?' tall':'')+'">'+
+        '<video src="'+esc(v.url)+'#t=0.1" controls preload="metadata" playsinline'+
+          (w&&h?' width="'+w+'" height="'+h+'"':'')+
+          ' aria-label="วิดีโอทรัพย์ คลิปที่ '+(i+1)+'"></video>'+
+        '<figcaption>คลิปที่ '+(i+1)+(sec?' · '+sec+' วินาที':'')+(v.quality?' · '+esc(v.quality):'')+'</figcaption>'+
+      '</figure>';
+    }).join('')+'</div>';
+  }
+
   function condoChecksHtml(l){
     var cc=l&&l.condoChecks;
     if(!cc||!cc.items||!cc.items.length) return '';
@@ -1249,6 +1275,8 @@
             (l.parcelInfo&&l.parcelInfo!==shortLabel(l)
               ? '<div class="ld-desc"><p>'+esc(l.parcelInfo)+'</p></div>' : '')+
             (l.blurb?'<p class="ld-blurb">'+esc(l.blurb)+'</p>':''))+
+          // วิดีโอทรัพย์ — ต่อจากรายละเอียด (ผู้ซื้อเห็นภาพแปลงจริงก่อนอ่านตารางสเปก) · ไม่มีคลิป = ไม่มีหัวข้อ
+          secHtml('ld-s-video','วิดีโอทรัพย์ ('+videosOf(l).length+' คลิป)', videosHtml(l))+
           secHtml('ld-s-feat','สาธารณูปโภคและจุดเด่นของแปลง', featuresHtml(l,L))+
           secHtml('ld-s-check','ผลการตรวจสอบแปลง',
             (tier===2?tier2Html(L):tier1Html(L))+
