@@ -36,14 +36,15 @@ const h = A.html();
 ok('ลิงก์ทั้งหมดขึ้นในหน้า พร้อม noopener noreferrer',
    A.MEASURE_LINKS.every(l => h.indexOf('href="' + l.url + '" target="_blank" rel="noopener noreferrer"') >= 0));
 
-console.log('\n2) ⚠️ ห้ามฝังแผนที่ของผู้ให้บริการไว้ในหน้า (ข้อตัดสิน 22 ก.ย. 69 — ทั้งเรื่องค่าใช้จ่ายและสิทธิ์ในข้อมูล)');
+console.log('\n2) ⚠️ ห้ามฝังแผนที่ของผู้ให้บริการตรงๆ — Longdo โหลดได้ทางเดียวคือ areamap.js ตอนผู้ใช้กด (3 พ.ย. 69)');
 [['arealink.js', CODE], ['tools.html', code(HTML)], ['tools.js', code(read('tools.js'))]].forEach(([name, src]) => {
   ok(name + ': ไม่มี <iframe>', !/<iframe/i.test(src));
   ok(name + ': ไม่โหลดสคริปต์ของบริการแผนที่', !/api\.longdo\.com|maps\.googleapis\.com|api\.mapbox\.com|unpkg\.com\/leaflet/i.test(src));
 });
 ok('ไม่มีคีย์ API ค้างอยู่ในไฟล์', !/LONGDO_KEY|['"]AIza[0-9A-Za-z_-]{10}/.test(CODE));
-ok('บอกผู้ใช้ในหน้าเลยว่าทำไมไม่ฝังแผนที่', /ไม่ฝังแผนที่/.test(A.WHY) && h.indexOf(A.WHY.slice(0, 40)) >= 0);
-ok('เหตุผลพูดถึงทั้งสิทธิ์ในข้อมูลและค่าบริการ', /สิทธิ์ตามสัญญา/.test(A.WHY) && /ค่าบริการตามปริมาณการใช้/.test(A.WHY));
+ok('ข้อความนำขึ้นในหน้า', h.indexOf(A.WHY.slice(0, 40)) >= 0);
+ok('⛔ ข้อความนำไม่อ้างว่า "ไม่ฝังแผนที่" อีก (หน้ามีแผนที่ Longdo แล้ว)', !/ไม่ฝังแผนที่/.test(A.WHY));
+ok('ข้อความนำบอกว่าเนื้อที่ตามเอกสารสิทธิ์น่าเชื่อถือกว่าการวัดจากภาพ', /เอกสารสิทธิ์/.test(A.WHY) && /LandsMaps/.test(A.WHY));
 
 console.log('\n3) คณิตหน่วยที่ดิน — อ่านจาก NJLandForm ที่เดียว');
 ok('ไม่มีค่าคงที่หน่วยที่ดินของตัวเองในไฟล์', !/WA_PER_RAI|WA_PER_NGAN|SQM_PER_WA\s*=/.test(CODE));

@@ -30,6 +30,9 @@
 
   NJZoneGuide.mount(document.getElementById('tl-zoning'));
   NJAreaLink.mount(document.getElementById('tl-area'));
+  // แผนที่วัดพื้นที่ (Longdo) — ไม่มีคีย์/ไม่มี NJLandForm = mount คืน false แล้วกล่องซ่อนต่อไป (หัวไฟล์ areamap.js)
+  var amEl = document.getElementById('tl-areamap');
+  if (window.NJAreaMap && NJAreaMap.mount(amEl)) amEl.hidden = false;
 
   document.getElementById('year').textContent = new Date().getFullYear() + 543;   // ปี พ.ศ.
   njTrack('ViewContent', { content_name: 'tools_page' });
