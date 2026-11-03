@@ -111,6 +111,8 @@
       estValue: Number(item.estValue || 0),
       blurb: item.blurb || '',
       photos: Array.isArray(item.photos) ? item.photos : [],
+      // จำนวนวิดีโอทรัพย์ที่ทีมตรวจแล้ว (ฝากขายชัวร์ · ระบบ 3 พ.ย. 69) — การ์ดบอกแค่จำนวน คลิปเล่นที่หน้าแปลง · API รุ่นเก่า = 0
+      videoCount: Array.isArray(item.videos) ? item.videos.length : 0,
       updatedAt: item.updatedAt || '',
       // ระดับความน่าเชื่อถือจาก API — ไม่มีข้อมูล = ระดับ 1 เสมอ ห้ามเดาเป็น 2
       tier: item.tier === 2 ? 2 : 1,
@@ -269,7 +271,11 @@
         esc(shortTitleOf(item)) + '">'
       : '<div class="fallback-land" aria-hidden="true"></div>';
     // นับรูปตามจริง ไม่มีรูปก็ไม่ต้องขึ้นตัวเลข
-    var count = item.photos.length > 1 ? '<span class="photo-count">▣ ' + item.photos.length + '</span>' : '';
+    // วิดีโอต่อท้ายในป้ายเดียวกัน (ไม่เพิ่มป้ายใหม่บนรูป — มุมบนขวามีปุ่มบันทึก/เทียบแปะอยู่แล้ว)
+    var cnt = [];
+    if (item.photos.length > 1) cnt.push('▣ ' + item.photos.length);
+    if (item.videoCount > 0) cnt.push('▶ วิดีโอ' + (item.videoCount > 1 ? ' ' + item.videoCount : ''));
+    var count = cnt.length ? '<span class="photo-count"' + (item.videoCount > 0 ? ' aria-label="มีวิดีโอทรัพย์ ' + item.videoCount + ' คลิป"' : '') + '>' + cnt.join(' · ') + '</span>' : '';
 
     // ---------- ราคา ----------
     var perWa = item.pricePerWa > 0 ? '<span>฿' + num(item.pricePerWa) + '/ตร.ว.</span>' : '';

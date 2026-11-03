@@ -646,6 +646,14 @@ html.ld-lb-lock{overflow:hidden}
 .ld-feat-i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
   background:#E4F4EA;color:#127A47;font-size:12px;font-weight:800;flex:none}
 
+/* ---------- วิดีโอทรัพย์ (ฝากขายชัวร์) ---------- */
+/* ⚠️ คลิปแนวตั้งจากมือถือ (9:16) จำกัดความสูงไว้ ไม่งั้นกินจอทั้งหน้า · แนวนอนเต็มความกว้างคอลัมน์ */
+.ld-vids{display:flex;flex-wrap:wrap;gap:12px}
+.ld-vid{margin:0;flex:1 1 320px;max-width:100%;min-width:0}
+.ld-vid.tall{flex:0 1 260px}
+.ld-vid video{display:block;width:100%;height:auto;max-height:520px;background:#0B1F3A;border-radius:10px}
+.ld-vid figcaption{font-size:13px;color:var(--muted,#5A6B7D);margin-top:6px}
+
 /* ---------- รูปภาพทั้งหมด ---------- */
 .ld-pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
 .ld-pgrid-i{aspect-ratio:4/3;padding:0;border:0;border-radius:10px;overflow:hidden;background:#E3EAF1;cursor:zoom-in}
