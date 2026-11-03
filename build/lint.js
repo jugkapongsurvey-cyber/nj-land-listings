@@ -132,6 +132,8 @@ const ORDER = [
   ['consignpreview.js', 'consign.js'],
   ['landform.js', 'arealink.js'],
   ['arealink.js', 'tools.js'],
+  ['landform.js', 'areamap.js'],
+  ['areamap.js', 'tools.js'],
   ['analytics.js', 'njchat.js']
 ];
 console.log('\n5) ลำดับการโหลดสคริปต์');
