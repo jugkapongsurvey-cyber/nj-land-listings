@@ -1,0 +1,138 @@
+/* ===================================================================
+   mirage-home.css — ดีไซน์หน้าแรกรุ่นใหม่ (แนวเว็บตัวอย่าง · โทนสว่าง)
+   เจ้าของอนุมัติต้นแบบ 8 พ.ย. 2569 (web-redesign-mirage-2026-11-07/ นอก repo)
+   โหลดต่อจาก home.css เฉพาะ index.html — ทับเฉพาะหน้าตา ไม่แตะ id ที่ marketplace.js ผูกไว้
+
+   ⚠️ กติกาที่ห้ามผ่อน
+   1. ทั้งหน้าเป็นพื้นสว่าง — ส่วนเข้มมีแค่ hero (วิดีโอ/พื้นกรมท่า) · การ์ดทางลัดไล่สี · ฟุตเตอร์
+      เจ้าของบอกว่าโทนเข้มทั้งหน้า "มืดไป อึดอัด" ห้ามกลับไปทำพื้นเข้มเป็นแถบยาว
+   2. ทองสด (--gold) บนพื้นขาวอ่านยาก — ตัวหนังสือ/เส้นบนพื้นสว่างใช้ --mh-accent-text เท่านั้น
+      ปุ่มยังใช้ --gold ตามเดิม
+   3. ภาพขั้นตอน 01–04 = ภาพคนทำงานจริงของทีม กรอบ 4:5 (ภาพทั้งคลังเป็นแนวตั้ง กรอบกว้างจะตัดคน)
+   4. เขียวใช้กับเครื่องหมายติ๊กเท่านั้น
+   =================================================================== */
+:root{
+  --mh-ink:#0F2341;--mh-soft:#4A5B75;--mh-line:rgba(15,35,65,.12);
+  --mh-bg3:#EAF1FA;--mh-tA1:#12315F;--mh-tA2:#1E4B8F;--mh-tB1:#1E4B8F;--mh-tB2:#3B74D1;
+  --mh-accent-text:#8A5F0A;--mh-display:'Anuphan',var(--font);  /* ⚠️ ฟอนต์ตระกูลเดียวทั้งเว็บ — ห้ามเพิ่ม Montserrat/ตระกูลอื่น */
+}
+body{background:#F5F8FC}
+
+/* ---------- HERO: วิดีโอโดรนเต็มพื้นหลัง ---------- */
+.hero[data-mh-hero]{position:relative;isolation:isolate;overflow:hidden;color:#fff;
+  background:linear-gradient(160deg,#0C1D3B 0%,#12315F 55%,#1E4B8F 100%);padding:72px 0 64px}
+.mh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;display:block}
+.hero[data-mh-hero]::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:
+  linear-gradient(90deg,rgba(6,16,34,.78) 0%,rgba(6,16,34,.5) 48%,rgba(6,16,34,.2) 100%),
+  linear-gradient(180deg,rgba(0,0,0,.25) 0%,transparent 30%,transparent 70%,rgba(4,14,30,.45) 100%)}
+.mh-hero-word{position:absolute;right:3vw;top:24px;z-index:-1;text-align:right;font-family:var(--mh-display);
+  font-weight:900;font-size:clamp(56px,8vw,128px);line-height:.86;text-transform:uppercase;pointer-events:none;opacity:.5}
+.mh-hero-word span{display:block}
+.mh-hero-word .o{color:transparent;-webkit-text-stroke:2px rgba(242,181,48,.85)}
+.mh-hero-word .f{color:rgba(255,255,255,.55)}
+.hero[data-mh-hero] h1{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.hero[data-mh-hero] h1 span{color:#F2C350}
+.hero[data-mh-hero] .hero-lead{color:#DCE7F6}
+.hero[data-mh-hero] .hero-pill{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(4px)}
+.hero[data-mh-hero] .hero-clip{color:#fff}
+.hero[data-mh-hero] .search{color:var(--ink);box-shadow:0 26px 56px -28px rgba(0,0,0,.55);border-color:transparent}
+.hero[data-mh-hero] .hero-media{box-shadow:0 30px 60px -24px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.18)}
+.hero[data-mh-hero] .hero-check{color:var(--ink)}
+
+/* ภาพ hero = ภาพทีมช่างรังวัดจริงริมถนน (4:3 · แทนภาพสต็อกครอบครัวเดิม)
+   ⚠️ กฎขยาย 140% + เลื่อนภาพใน home.css คิดจากภาพเก่าที่มีกล่องติ๊กติดมาในภาพ — ภาพใหม่ไม่มี จึงคืนเป็นเต็มกรอบ
+      และย้ายการ์ดเช็กลิสต์ลงมุมล่างขวาที่เป็นพื้นถนน/หญ้า ไม่ทับหน้าคน */
+.hero[data-mh-hero] .hero-media img{position:static;width:100%;height:100%;max-width:100%;left:auto;top:auto;object-fit:cover;object-position:50% 40%}
+@media (min-width:1024px){
+  .hero[data-mh-hero] .hero-check{top:auto;bottom:12px;right:12px}
+}
+
+/* ---------- ทางลัด 4 ช่อง = กล่องไล่สี + ภาพ ---------- */
+.quick .container{gap:0;box-shadow:0 30px 60px -34px rgba(15,35,65,.45);padding-top:0;margin-top:40px;border-radius:6px;overflow:hidden}
+.quick a,.quick a.is-dark{position:relative;isolation:isolate;overflow:hidden;border:0;border-radius:0;min-height:190px;
+  justify-content:flex-end;padding:26px;color:#fff;background:linear-gradient(150deg,var(--mh-tA1),var(--mh-tA2))}
+.quick a:nth-child(even){background:linear-gradient(150deg,var(--mh-tB1),var(--mh-tB2))}
+.quick a:hover{transform:none}
+.quick a .mh-pic{position:absolute;z-index:-1;right:0;top:0;width:70%;height:100%;object-fit:cover;opacity:.75;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 60%);mask-image:linear-gradient(90deg,transparent 0%,#000 60%);transition:transform .8s}
+.quick a:hover .mh-pic{transform:scale(1.06)}
+.quick a::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.08);pointer-events:none}
+.quick a small,.quick a.is-dark small{color:#F2C350;font-family:var(--mh-display);letter-spacing:2px}
+.quick a b{font-size:20px;color:#fff}
+.quick a span,.quick a.is-dark span{color:#DCE7F6;max-width:16em}
+.quick a:focus-visible{outline:3px solid #F2C350;outline-offset:-3px}
+
+/* ---------- หัวข้อแบบใหม่ ---------- */
+.eyebrow{color:var(--mh-accent-text);letter-spacing:3px}
+
+/* ---------- มาตรฐาน: พื้นสว่างลายเส้นแผนที่ + ขั้นตอน 01–04 ภาพคนทำงาน ---------- */
+.standard{color:var(--mh-ink);background:linear-gradient(rgba(234,241,250,.8),rgba(234,241,250,.8)),#EAF1FA url(illustrations/topo.svg) center/cover no-repeat}
+.standard .container{display:block;padding-top:88px;padding-bottom:96px}
+.standard-copy{max-width:640px;margin:0 auto 72px;text-align:center;align-items:center}
+.standard-copy p{color:var(--mh-soft)}
+.standard .eyebrow-light{color:var(--mh-accent-text)}
+.standard .btn-gold-light{background:var(--gold);color:var(--navy)}
+.mh-steps{list-style:none;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:100px;max-width:1120px}
+.mh-step{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr) 64px;gap:clamp(28px,5vw,72px);align-items:center}
+.mh-frame{position:relative;aspect-ratio:4/5;max-width:480px;width:100%;justify-self:end}
+.mh-frame::before{content:"";position:absolute;inset:22px -22px -22px 22px;border:1.5px solid var(--mh-accent-text);border-radius:6px;opacity:.55}
+.mh-frame picture{position:absolute;inset:0;overflow:hidden;border-radius:6px;box-shadow:0 26px 50px -24px rgba(15,35,65,.5)}
+.mh-frame img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.06);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.mh-step.in .mh-frame img{transform:scale(1)}
+.mh-tag{position:absolute;left:16px;bottom:16px;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:rgba(5,12,24,.78);color:#fff}
+.mh-txt{max-width:460px}
+.mh-num{display:block;font-family:var(--mh-display);font-weight:800;font-size:clamp(60px,7vw,100px);line-height:.9;color:transparent;-webkit-text-stroke:1.5px var(--mh-accent-text);letter-spacing:2px}
+.mh-txt h3{margin:14px 0 12px;font-size:clamp(22px,2.2vw,28px);line-height:1.35}
+.mh-txt p{margin:0;color:var(--mh-soft);font-size:16px;line-height:1.75;padding-left:16px;border-left:3px solid var(--mh-accent-text)}
+.mh-vlabel{writing-mode:vertical-rl;font-family:var(--mh-display);font-weight:800;font-size:clamp(26px,3vw,42px);letter-spacing:3px;color:transparent;-webkit-text-stroke:1.2px var(--mh-accent-text);justify-self:center;text-transform:uppercase;opacity:.8}
+.mh-rev{grid-template-columns:64px minmax(0,6fr) minmax(0,5fr)}
+.mh-rev .mh-vlabel{order:-1;transform:rotate(180deg)}
+.mh-rev .mh-frame{order:2;justify-self:start}
+.mh-rev .mh-frame::before{inset:22px 22px -22px -22px}
+.mh-rev .mh-txt{justify-self:end;text-align:right}
+.mh-rev .mh-txt p{padding-left:0;padding-right:16px;border-left:0;border-right:3px solid var(--mh-accent-text)}
+
+/* ---------- ติดต่อ + แผนที่ ---------- */
+.mh-branch{position:relative;min-height:560px;display:flex;align-items:center;overflow:hidden;
+  background:linear-gradient(rgba(234,241,250,.82),rgba(234,241,250,.82)),#EAF1FA url(illustrations/topo.svg) center/cover no-repeat}
+.mh-map{position:absolute;inset:0}
+.mh-map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;filter:saturate(.85)}
+.mh-map-open{position:absolute;right:24px;bottom:24px;z-index:3;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--mh-line);background:#fff;color:var(--mh-ink);font:inherit;font-weight:600;cursor:pointer;box-shadow:0 10px 24px -14px rgba(15,35,65,.5)}
+.mh-branch .container{position:relative;z-index:2;width:100%;pointer-events:none}
+.mh-bcard{pointer-events:auto;width:min(560px,100%);background:rgba(255,255,255,.96);color:var(--mh-ink);padding:40px;border-top:3px solid var(--gold);box-shadow:0 30px 60px -28px rgba(15,35,65,.45)}
+.mh-bcard .h2{margin:8px 0 20px;font-size:24px;line-height:1.4}
+.mh-bcard ul{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:12px}
+.mh-bcard li{display:grid;grid-template-columns:26px 1fr;gap:10px;color:var(--mh-soft);font-size:15px;line-height:1.6}
+.mh-bcard li svg{margin-top:3px;color:var(--mh-accent-text)}
+.mh-bcard li a{color:var(--mh-ink);font-weight:600}
+.mh-brow{display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.mh-more{font-weight:600;color:var(--mh-ink);min-height:44px;display:inline-flex;align-items:center}
+
+@media (prefers-reduced-motion:reduce){.mh-frame img{transform:none;transition:none}.quick a .mh-pic{transition:none}}
+
+/* ---------- แท็บเล็ต/มือถือ ---------- */
+@media (max-width:900px){
+  .mh-hero-video{display:none}
+  .mh-hero-word{font-size:clamp(48px,16vw,84px);top:12px;opacity:.35}
+  .quick .container{grid-template-columns:1fr 1fr}
+  .quick a,.quick a.is-dark{min-height:160px;padding:18px}
+  .mh-steps{gap:64px}
+  .mh-step,.mh-rev{grid-template-columns:1fr;gap:30px}
+  .mh-frame,.mh-rev .mh-frame{order:0;justify-self:start;width:calc(100% - 18px);max-width:440px}
+  .mh-frame::before,.mh-rev .mh-frame::before{inset:14px -14px -14px 14px}
+  .mh-rev .mh-txt{justify-self:start;text-align:left}
+  .mh-rev .mh-txt p{padding-right:0;border-right:0;padding-left:16px;border-left:3px solid var(--mh-accent-text)}
+  .mh-num{font-size:60px}
+  .mh-vlabel{display:none}
+  .standard .container{padding-top:64px;padding-bottom:72px}
+  .standard-copy{margin-bottom:48px}
+  .mh-branch{display:block;min-height:0}
+  .mh-map{position:relative;height:300px}
+  .mh-branch .container{padding-top:0;padding-bottom:40px}
+  .mh-bcard{margin-top:-40px;padding:26px 22px}
+}
+@media (max-width:640px){
+  .hero[data-mh-hero]{padding:40px 0 36px}
+  .mh-hero-word{display:none}
+  .quick a b{font-size:17px}
+}
