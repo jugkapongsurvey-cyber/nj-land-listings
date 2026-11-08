@@ -36,15 +36,14 @@ body{background:#F5F8FC}
 .hero[data-mh-hero] .hero-pill{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(4px)}
 .hero[data-mh-hero] .hero-clip{color:#fff}
 .hero[data-mh-hero] .search{color:var(--ink);box-shadow:0 26px 56px -28px rgba(0,0,0,.55);border-color:transparent}
-.hero[data-mh-hero] .hero-media{box-shadow:0 30px 60px -24px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.18)}
-.hero[data-mh-hero] .hero-check{color:var(--ink)}
 
-/* ภาพ hero = ภาพทีมช่างรังวัดจริงริมถนน (4:3 · แทนภาพสต็อกครอบครัวเดิม)
-   ⚠️ กฎขยาย 140% + เลื่อนภาพใน home.css คิดจากภาพเก่าที่มีกล่องติ๊กติดมาในภาพ — ภาพใหม่ไม่มี จึงคืนเป็นเต็มกรอบ
-      และย้ายการ์ดเช็กลิสต์ลงมุมล่างขวาที่เป็นพื้นถนน/หญ้า ไม่ทับหน้าคน */
-.hero[data-mh-hero] .hero-media img{position:static;width:100%;height:100%;max-width:100%;left:auto;top:auto;object-fit:cover;object-position:50% 40%}
+/* hero คอลัมน์เดียว — เจ้าของสั่งเอาภาพทีมและการ์ดเช็กลิสต์ด้านขวาออก (8 พ.ย. 2569)
+   ช่องค้นหาจึงกางเต็มความกว้าง ไม่เหลือครึ่งขวาว่าง · ให้วิดีโอโดรนเป็นภาพหลักของส่วนนี้ */
+.hero[data-mh-hero] .container{grid-template-columns:minmax(0,1fr)}
+.hero[data-mh-hero] .hero-lead{max-width:680px}
 @media (min-width:1024px){
-  .hero[data-mh-hero] .hero-check{top:auto;bottom:12px;right:12px}
+  .hero[data-mh-hero] .search-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 170px}
+  .hero[data-mh-hero] .search-grid .field:first-child{grid-column:auto}
 }
 
 /* ---------- ทางลัด 4 ช่อง = กล่องไล่สี + ภาพ ---------- */

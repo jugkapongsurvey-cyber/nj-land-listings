@@ -45,19 +45,11 @@ const heroBtns = (hero.match(/class="btn /g) || []).length;
 ok('⭐ hero มีปุ่มหลักไม่เกิน 2 ปุ่ม', heroBtns <= 2, 'พบ ' + heroBtns + ' ปุ่ม');
 ok('ปุ่มหลักคือปุ่มค้นหาของฟอร์ม', /<button class="btn btn-gold" type="submit">ค้นหาที่ดิน<\/button>/.test(hero));
 ok('⭐ ไม่เหลือปุ่มเล่นคลิปใน hero แล้ว', !/data-nj-intro-play/.test(home));
-ok('การ์ดเช็กลิสต์ในภาพมีชื่อกำกับให้เครื่องอ่านหน้าจอ', /class="hero-check" aria-label=/.test(hero));
 
-console.log('\n3) ภาพ hero — WebP + หลายขนาด');
-ok('มี <source> แบบ WebP', /type="image\/webp"/.test(home));
-// ⚠️ ต้องมีไฟล์ JPEG ให้ถอยเสมอ — <source> ทุกอันเป็น WebP แล้วเบราว์เซอร์เก่าจะไม่ได้รูปเลย
-ok('ยังมีไฟล์ JPEG ให้ถอยเสมอ', /<img src="photos\/hero-1280\.jpg"/.test(home));
-ok('มีไฟล์แนวตั้งสำหรับจอเล็ก', /hero-mobile\.(webp|jpg)/.test(home));
-['hero-mobile.webp', 'hero-mobile.jpg', 'hero-1280.webp', 'hero-1280.jpg']
-  .forEach(f => ok('ไฟล์ photos/' + f + ' มีอยู่จริง', fs.existsSync(path.join(__dirname, 'photos', f))));
-ok('hero ยังตั้ง fetchpriority สูง', /fetchpriority="high"/.test(home));
-// ⚠️ ไม่มี width/height = หน้ากระโดดตอนรูปโหลดเสร็จ (CLS) ซึ่งเป็นเกณฑ์ที่ Google ใช้จัดอันดับ
-ok('⭐ ภาพ hero บอกขนาดไว้ กันหน้ากระโดด', /<img src="photos\/hero-1280\.jpg" width="1200" height="900"/.test(home));
-ok('⭐ ภาพ hero ไม่ lazy (อยู่ในจอแรก)', !/hero-1280\.jpg"[^>]*loading="lazy"/.test(home));
+console.log('\n3) hero ไม่มีภาพทีม/การ์ดเช็กลิสต์ (เจ้าของสั่งเอาออก 8 พ.ย. 2569)');
+ok('⭐ ไม่มีกล่องภาพ .hero-media ใน hero', !/class="hero-media"/.test(home));
+ok('⭐ ไม่มีการ์ดเช็กลิสต์ซ้อนใน hero', !/hero-check/.test(hero));
+ok('⭐ หน้าแรกไม่อ้างไฟล์ภาพชุดนี้แล้ว', !/hero-1280|hero-mobile/.test(home));
 
 console.log('\n4) แถบความน่าเชื่อถือ');
 ok('มีแถบความน่าเชื่อถือ', /<section class="trust"/.test(home));
