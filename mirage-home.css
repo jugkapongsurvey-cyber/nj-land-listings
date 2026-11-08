@@ -64,47 +64,52 @@ body{background:#F5F8FC}
 /* ---------- หัวข้อแบบใหม่ ---------- */
 .eyebrow{color:var(--mh-accent-text);letter-spacing:3px}
 
-/* ---------- มาตรฐาน: พื้นสว่างลายเส้นแผนที่ + ขั้นตอน 01–04 ภาพคนทำงาน ---------- */
+/* ---------- มาตรฐาน: พื้นสว่างลายเส้นแผนที่ + ขั้นตอน 01–04 ภาพคนทำงาน ----------
+   เจ้าของสั่งย่อ 9 พ.ย. 2569 ("กินพื้นที่เยอะเกินไป") — เดิมแถวละภาพสลับซ้ายขวา สูงรวม 2,896px ที่จอ 1366
+   จึงเรียงเป็นการ์ดแถวเดียว 4 ใบ · ⚠️ กรอบภาพยังต้องเป็น 4:5 (กติกาข้อ 3 หัวไฟล์) อย่าบีบเป็นกรอบกว้างเพื่อประหยัดที่ */
 .standard{color:var(--mh-ink);background:linear-gradient(rgba(234,241,250,.8),rgba(234,241,250,.8)),#EAF1FA url(illustrations/topo.svg) center/cover no-repeat}
-.standard .container{display:block;padding-top:88px;padding-bottom:96px}
-.standard-copy{max-width:640px;margin:0 auto 72px;text-align:center;align-items:center}
+.standard .container{display:block;padding-top:48px;padding-bottom:52px}
+.standard-copy{max-width:720px;margin:0 auto 28px;text-align:center;align-items:center}
 .standard-copy p{color:var(--mh-soft)}
 .standard .eyebrow-light{color:var(--mh-accent-text)}
 .standard .btn-gold-light{background:var(--gold);color:var(--navy)}
-.mh-steps{list-style:none;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:100px;max-width:1120px}
-.mh-step{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr) 64px;gap:clamp(28px,5vw,72px);align-items:center}
-.mh-frame{position:relative;aspect-ratio:4/5;max-width:480px;width:100%;justify-self:end}
-.mh-frame::before{content:"";position:absolute;inset:22px -22px -22px 22px;border:1.5px solid var(--mh-accent-text);border-radius:6px;opacity:.55}
-.mh-frame picture{position:absolute;inset:0;overflow:hidden;border-radius:6px;box-shadow:0 26px 50px -24px rgba(15,35,65,.5)}
+.mh-steps{list-style:none;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;max-width:1160px}
+.mh-step{display:flex;flex-direction:column;background:#fff;border:1px solid var(--mh-line);border-radius:10px;overflow:hidden;box-shadow:0 14px 30px -24px rgba(15,35,65,.45)}
+.mh-frame{position:relative;aspect-ratio:4/5;width:100%}
+.mh-frame picture{position:absolute;inset:0;overflow:hidden}
 .mh-frame img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.06);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
 .mh-step.in .mh-frame img{transform:scale(1)}
-.mh-tag{position:absolute;left:16px;bottom:16px;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:rgba(5,12,24,.78);color:#fff}
-.mh-txt{max-width:460px}
-.mh-num{display:block;font-family:var(--mh-display);font-weight:800;font-size:clamp(60px,7vw,100px);line-height:.9;color:transparent;-webkit-text-stroke:1.5px var(--mh-accent-text);letter-spacing:2px}
-.mh-txt h3{margin:14px 0 12px;font-size:clamp(22px,2.2vw,28px);line-height:1.35}
-.mh-txt p{margin:0;color:var(--mh-soft);font-size:16px;line-height:1.75;padding-left:16px;border-left:3px solid var(--mh-accent-text)}
-.mh-vlabel{writing-mode:vertical-rl;font-family:var(--mh-display);font-weight:800;font-size:clamp(26px,3vw,42px);letter-spacing:3px;color:transparent;-webkit-text-stroke:1.2px var(--mh-accent-text);justify-self:center;text-transform:uppercase;opacity:.8}
-.mh-rev{grid-template-columns:64px minmax(0,6fr) minmax(0,5fr)}
-.mh-rev .mh-vlabel{order:-1;transform:rotate(180deg)}
-.mh-rev .mh-frame{order:2;justify-self:start}
-.mh-rev .mh-frame::before{inset:22px 22px -22px -22px}
-.mh-rev .mh-txt{justify-self:end;text-align:right}
-.mh-rev .mh-txt p{padding-left:0;padding-right:16px;border-left:0;border-right:3px solid var(--mh-accent-text)}
+.mh-tag{position:absolute;left:10px;bottom:10px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:rgba(5,12,24,.78);color:#fff}
+.mh-txt{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:center;padding:14px 16px 16px}
+.mh-num{font-family:var(--mh-display);font-weight:800;font-size:32px;line-height:1;color:transparent;-webkit-text-stroke:1px var(--mh-accent-text);letter-spacing:1px}
+.mh-txt h3{margin:0;font-size:17px;line-height:1.4}
+.mh-txt p{grid-column:1/-1;margin:10px 0 0;color:var(--mh-soft);font-size:14px;line-height:1.6}
+
+/* ---------- คู่มือ · เกี่ยวกับเรา · ฝากขาย: ลดระยะเท่านั้น ไม่ตัดเนื้อหา (9 พ.ย. 2569) ---------- */
+.standard .h2,.guide .h2,.team .h2,.sell-copy h2{font-size:clamp(24px,2.5vw,32px)}
+.guide{padding:40px 0}
+.guide-head{margin-bottom:16px}
+.guide-head .eyebrow{display:inline-block;margin-bottom:6px}
+.team .container,.sell .container{gap:32px;padding-top:32px;padding-bottom:32px}
+.team-copy,.sell-copy{gap:10px}
+.team-copy p,.sell-copy p{font-size:15px;line-height:1.6}
+.team-points li{padding:11px 12px}
 
 /* ---------- ติดต่อ + แผนที่ ---------- */
-.mh-branch{position:relative;min-height:560px;display:flex;align-items:center;overflow:hidden;
+.mh-branch{position:relative;min-height:360px;display:flex;align-items:center;overflow:hidden;
   background:linear-gradient(rgba(234,241,250,.82),rgba(234,241,250,.82)),#EAF1FA url(illustrations/topo.svg) center/cover no-repeat}
 .mh-map{position:absolute;inset:0}
 .mh-map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;filter:saturate(.85)}
-.mh-map-open{position:absolute;right:24px;bottom:24px;z-index:3;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--mh-line);background:#fff;color:var(--mh-ink);font:inherit;font-weight:600;cursor:pointer;box-shadow:0 10px 24px -14px rgba(15,35,65,.5)}
-.mh-branch .container{position:relative;z-index:2;width:100%;pointer-events:none}
-.mh-bcard{pointer-events:auto;width:min(560px,100%);background:rgba(255,255,255,.96);color:var(--mh-ink);padding:40px;border-top:3px solid var(--gold);box-shadow:0 30px 60px -28px rgba(15,35,65,.45)}
-.mh-bcard .h2{margin:8px 0 20px;font-size:24px;line-height:1.4}
-.mh-bcard ul{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:12px}
-.mh-bcard li{display:grid;grid-template-columns:26px 1fr;gap:10px;color:var(--mh-soft);font-size:15px;line-height:1.6}
+/* ปุ่มอยู่มุมขวาบน — มุมขวาล่างโดนปุ่มแชทลอยบัง */
+.mh-map-open{position:absolute;right:24px;top:20px;z-index:3;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--mh-line);background:#fff;color:var(--mh-ink);font:inherit;font-weight:600;cursor:pointer;box-shadow:0 10px 24px -14px rgba(15,35,65,.5)}
+.mh-branch .container{position:relative;z-index:2;width:100%;pointer-events:none;padding-top:24px;padding-bottom:24px}
+.mh-bcard{pointer-events:auto;width:min(500px,100%);background:rgba(255,255,255,.96);color:var(--mh-ink);padding:22px 26px;border-top:3px solid var(--gold);box-shadow:0 24px 48px -28px rgba(15,35,65,.45)}
+.mh-bcard .h2{margin:4px 0 12px;font-size:20px;line-height:1.4}
+.mh-bcard ul{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:6px}
+.mh-bcard li{display:grid;grid-template-columns:22px 1fr;gap:8px;color:var(--mh-soft);font-size:14.5px;line-height:1.55}
 .mh-bcard li svg{margin-top:3px;color:var(--mh-accent-text)}
 .mh-bcard li a{color:var(--mh-ink);font-weight:600}
-.mh-brow{display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.mh-brow{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .mh-more{font-weight:600;color:var(--mh-ink);min-height:44px;display:inline-flex;align-items:center}
 
 @media (prefers-reduced-motion:reduce){.mh-frame img{transform:none;transition:none}.quick a .mh-pic{transition:none}}
@@ -115,23 +120,27 @@ body{background:#F5F8FC}
   .mh-hero-word{font-size:clamp(48px,16vw,84px);top:12px;opacity:.35}
   .quick .container{grid-template-columns:1fr 1fr}
   .quick a,.quick a.is-dark{min-height:160px;padding:18px}
-  .mh-steps{gap:64px}
-  .mh-step,.mh-rev{grid-template-columns:1fr;gap:30px}
-  .mh-frame,.mh-rev .mh-frame{order:0;justify-self:start;width:calc(100% - 18px);max-width:440px}
-  .mh-frame::before,.mh-rev .mh-frame::before{inset:14px -14px -14px 14px}
-  .mh-rev .mh-txt{justify-self:start;text-align:left}
-  .mh-rev .mh-txt p{padding-right:0;border-right:0;padding-left:16px;border-left:3px solid var(--mh-accent-text)}
-  .mh-num{font-size:60px}
-  .mh-vlabel{display:none}
-  .standard .container{padding-top:64px;padding-bottom:72px}
-  .standard-copy{margin-bottom:48px}
+  /* จอเล็ก: การ์ดเป็นแนวนอน ภาพซ้าย 4:5 ข้อความขวา — ป้ายบนภาพแคบเกินจึงซ่อน (alt ยังบอกครบ) */
+  .mh-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .mh-step{display:grid;grid-template-columns:120px minmax(0,1fr)}
+  .mh-frame{align-self:start}
+  .mh-tag{display:none}
+  .mh-txt{align-self:center;padding:10px 12px}
+  .mh-num{font-size:26px}
+  .mh-txt h3{font-size:16px}
+  .mh-txt p{margin-top:6px;font-size:13.5px;line-height:1.55}
+  .standard .container{padding-top:36px;padding-bottom:36px}
+  .standard-copy{margin-bottom:20px}
+  .guide{padding:28px 0}
+  .team .container,.sell .container{gap:18px;padding-top:26px;padding-bottom:26px}
   .mh-branch{display:block;min-height:0}
-  .mh-map{position:relative;height:300px}
-  .mh-branch .container{padding-top:0;padding-bottom:40px}
-  .mh-bcard{margin-top:-40px;padding:26px 22px}
+  .mh-map{position:relative;height:190px}
+  .mh-branch .container{padding-top:0;padding-bottom:28px}
+  .mh-bcard{margin-top:-28px;padding:18px}
 }
 @media (max-width:640px){
   .hero[data-mh-hero]{padding:40px 0 36px}
   .mh-hero-word{display:none}
   .quick a b{font-size:17px}
+  .mh-steps{grid-template-columns:minmax(0,1fr)}
 }
