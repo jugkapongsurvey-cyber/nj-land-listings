@@ -1011,3 +1011,12 @@ a.cs-keep-btn{display:inline-block;text-decoration:none}
   padding-left: 2px; background: #D8B96B; color: #0B1F3A; }
 .cs-gate-clip:hover > span:last-child { text-decoration: underline; text-underline-offset: 3px; }
 .cs-gate-clip:focus-visible { outline: 2px solid #1B4B7A; outline-offset: 3px; border-radius: 8px; }
+
+/* รังวัดเมื่อขายได้ ในฟอร์มฝากขาย */
+.cs-sv-opt.cs-sv-rec{border-color:#D8B96B;background:#FFFCF3}
+.cs-sv-pill{display:inline-block;font-style:normal;background:#0B1F3A;color:#D8B96B;font-size:12px;font-weight:600;padding:1px 9px;border-radius:999px;margin-left:4px}
+.cs-sv-onsale{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border:1.5px solid #0B1F3A;border-radius:12px;padding:14px 16px;background:#fff}
+.cs-sv-agree{grid-column:1/-1;display:flex;gap:9px;align-items:flex-start;font-size:14.5px;line-height:1.5}
+.cs-sv-agree input{margin:4px 0 0;width:18px;height:18px;flex:none;accent-color:#0B1F3A}
+.cs-sv-agree-note{grid-column:1/-1;margin:0;font-size:13px;color:#5A6B7D}
+@media (max-width:640px){.cs-sv-onsale{grid-template-columns:minmax(0,1fr)}}

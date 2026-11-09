@@ -491,6 +491,25 @@
           <div class="cs-sv-flag" id="cs-sv-flag" role="status"></div>
 
           <div class="cs-sv-opts" id="cs-sv-opts" role="radiogroup" aria-label="ต้องการให้รังวัดยืนยันเขตหรือไม่">
+            <!-- รังวัดเมื่อขายได้ — JS เปิดเมื่อ spec ส่ง surveyOnSale มาและบริการเข้าเงื่อนไขเท่านั้น · ติ๊กยินยอมแยก แต่ไม่บล็อกปุ่มบันทึก -->
+            <label class="cs-sv-opt cs-sv-rec" id="cs-sv-onsale" hidden>
+              <input type="radio" name="surveyOpt" value="on_sale">
+              <span><b>รังวัดเมื่อขายได้ <em class="cs-sv-pill">แนะนำ</em></b><i>ค่ารังวัดรอบนี้จ่ายเมื่อเปิดงาน แยกจากค่าตรวจก่อนลงประกาศ · ประกาศติดแถบ “รังวัดก่อนโอน” · เมื่อมีผู้ซื้อวางมัดจำ เอ็นเจเปิดงานรังวัดทันที</i></span>
+            </label>
+            <div class="cs-sv-onsale" id="cs-sv-onsale-more" hidden>
+              <div class="cs-sv-col good"><b>ได้อะไร</b><ul>
+                <li>ผู้ซื้อเห็นว่าแปลงนี้เจ้าของเปิดให้ตรวจ ช่วยให้ตัดสินใจได้ง่ายขึ้น</li>
+                <li>ค่ารังวัดรอบนี้จ่ายเมื่อเปิดงาน ไม่ต้องจ่ายก่อนมีผู้ซื้อ</li>
+                <li>ผู้ซื้อกรองหาแปลงกลุ่มนี้ได้</li>
+              </ul></div>
+              <div class="cs-sv-col cost"><b>สิ่งที่ต้องแลก</b><ul>
+                <li>ถ้าเนื้อที่จริงน้อยกว่าโฉนด ราคารวมอาจลดลง เพราะคิดตามเนื้อที่จริง</li>
+                <li>วันรังวัดต้องมีเจ้าของหรือผู้รับมอบอำนาจ และเจ้าของที่ดินข้างเคียงมาระวังแนวเขต</li>
+                <li>ต้องรอคิวนัดรังวัดก่อนจึงโอนได้</li>
+              </ul></div>
+              <label class="cs-sv-agree"><input type="checkbox" id="cs-sv-agree"><span id="cs-sv-agree-t"></span></label>
+              <p class="cs-sv-agree-note">ถ้ายังไม่ติ๊ก บันทึกใบได้ตามปกติ แต่แถบบนประกาศจะยังไม่ขึ้น</p>
+            </div>
             <label class="cs-sv-opt">
               <input type="radio" name="surveyOpt" value="yes">
               <span><b>ต้องการให้รังวัดยืนยันเขตและตรวจกรรมสิทธิ์ก่อนประกาศ</b><i>มีค่าบริการรังวัด · เมื่อช่างลงสนามเสร็จจริง ประกาศจะขึ้นขั้น “รังวัดยืนยันแนวเขต” พร้อมผลตรวจ 7 หัวข้อ</i></span>

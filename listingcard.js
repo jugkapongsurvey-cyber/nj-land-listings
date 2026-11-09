@@ -22,6 +22,23 @@
   var TEL = 'tel:' + TEL_TXT.replace(/[^0-9+]/g, '');
   var TEL2 = 'tel:' + TEL2_TXT.replace(/[^0-9+]/g, '');
 
+  // รังวัดก่อนโอน — รับเฉพาะรูปแบบที่รู้จัก · ระบบคิดผลให้แล้ว หน้าเว็บห้ามคำนวณเนื้อที่/ราคาเอง
+  var PS_PIN = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 4.9 5.4 10.9 6.3 11.8a1 1 0 0 0 1.4 0C13.6 19.9 19 13.9 19 9a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>';
+  function preSurveyOf(p) {
+    if (!p || ['wait', 'busy', 'done'].indexOf(p.state) < 0) return null;
+    if (p.state === 'done' && !(p.result && Number(p.result.actualWa) > 0)) return null;
+    return { state: p.state, mode: p.mode === 'informal' ? 'informal' : 'formal', modeTh: String(p.modeTh || ''), result: p.result || null };
+  }
+  function preSurveyStrip(p) {
+    if (!p) return '';
+    if (p.state === 'done') {
+      var d = p.result.diffWa, txt = d == null ? '' : d === 0 ? '· เนื้อที่ตรงโฉนด' : '· ต่างจากโฉนด ' + Math.abs(d) + ' ตร.ว.';
+      return '<div class="card-presurvey is-done">' + PS_PIN + (p.mode === 'informal' ? 'รังวัดแล้วโดยช่างเอกชน' : 'รังวัดแล้ว') + ' <span>' + txt + '</span></div>';
+    }
+    if (p.state === 'busy') return '<div class="card-presurvey is-busy">' + PS_PIN + 'กำลังรังวัด <span>· ติดจอง</span></div>';
+    return '<div class="card-presurvey" title="เจ้าของตกลงให้รังวัดก่อนโอนเมื่อมีผู้ซื้อวางมัดจำ · ยังไม่ใช่ผลรังวัด">' + PS_PIN + 'รังวัดก่อนโอน <span>· เจ้าของตกลงแล้ว</span></div>';
+  }
+
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
@@ -143,6 +160,7 @@
       saleBy: item.saleBy === 'owner' || item.saleBy === 'nj' ? item.saleBy : '',
       // ลงประกาศเอง (ระบบ 1 พ.ย. 69) — เจ้าของลงเองโดยทีมยังไม่ได้ตรวจ · ป้ายต้องบอกเสมอว่ายังไม่ผ่านการตรวจ (ไม่ใช่ true จริง = ไม่ใช่)
       selfListed: item.selfListed === true,
+      preSurvey: preSurveyOf(item.preSurvey),
       // ตรวจอะไรแล้ว (เฉพาะประกาศที่มีรูปแบบบริการ) — null = ไม่มีป้าย
       inspected: inspectedOf(item.inspected),
       // ประกาศเด่น — ระบบคิดวันหมด/สิทธิ์ให้แล้ว ส่งมาแค่ true/false · ไม่ส่ง/ค่าอื่น = ไม่ใช่ประกาศเด่น (ห้ามเดา)
@@ -338,6 +356,7 @@
             : '<span class="badge badge-basic">ข้อมูลเบื้องต้น</span>') +
         '</div>' + count +
       '</div>' +
+      preSurveyStrip(item.preSurvey) +
       '<div class="card-body">' +
         '<div class="card-price">' + priceHtml + '</div>' +
         '<h3 class="card-title"><a href="' + esc(href) + '">' + esc(shortTitleOf(item)) + '</a></h3>' +
@@ -465,7 +484,7 @@
     esc: esc, money: money, num: num, num2: num2, ago: ago, areaTh: areaTh,
     rentOf: rentOf, rentMoney: rentMoney, rentPerList: rentPerList,
     normalize: normalize, card: card, shortTitleOf: shortTitleOf,
-    inspectedOf: inspectedOf, inspectedText: inspectedText,
+    inspectedOf: inspectedOf, inspectedText: inspectedText, preSurveyOf: preSurveyOf,
     emptyHtml: emptyHtml, loadFailedHtml: loadFailedHtml,
     fetchListings: fetchListings, bindGrid: bindGrid,
     fullAttr: fullAttr, imgFallback: imgFallback

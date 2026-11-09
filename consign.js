@@ -974,6 +974,16 @@ function setupSurvey(getProvince, getTotalWa) {
   var box = $('cs-survey');
   if (!box) return null;
   var flag = $('cs-sv-flag'), quote = $('cs-sv-quote'), modeBox = $('cs-sv-mode');
+  // รังวัดเมื่อขายได้ (spec.surveyOnSale · ระบบเป็นคนบอกว่าเปิดไหมและใช้กับบริการใด)
+  var onSaleForced = false, onSaleSpec = null, onSaleBox = $('cs-sv-onsale'), onSaleMore = $('cs-sv-onsale-more'), agreeEl = $('cs-sv-agree');
+  function onSaleOk() {
+    if (!onSaleSpec || !onSaleSpec.surveyOnSale) return false;
+    var svc = SVC ? (SVC.value().service || '') : '', form = $('consign-form');
+    var deal = form && form.elements && form.elements.type ? (form.elements.type.value || 'sell') : 'sell';
+    var pt = PT ? PT.value().propertyType : '';
+    var t = (onSaleSpec.types || []).filter(function (x) { return x.key === pt; })[0];
+    return onSaleSpec.surveyOnSale.services.indexOf(svc) >= 0 && deal === 'sell' && !(t && t.landArea === false);
+  }
   var radios = Array.prototype.slice.call(box.querySelectorAll('input[name="surveyOpt"]'));
   var modes = Array.prototype.slice.call(box.querySelectorAll('input[name="surveyMode"]'));
   if (!radios.length) return null;
@@ -1005,7 +1015,7 @@ function setupSurvey(getProvince, getTotalWa) {
 
   // ---------- ค่ารังวัดประมาณการ ----------
   function drawQuote() {
-    if (value() === 'no') { quote.innerHTML = ''; return; }
+    if (value() === 'no' || (onSaleOk() && value() !== 'on_sale')) { quote.innerHTML = ''; return; }
     var wa = getTotalWa();
     if (!(wa > 0)) {
       quote.innerHTML = '<div class="cs-sv-box"><div class="cs-sv-sub">' +
@@ -1061,28 +1071,75 @@ function setupSurvey(getProvince, getTotalWa) {
     });
   }
 
+  function syncOnSale() {
+    var ok = onSaleOk();
+    if (!ok && value() === 'on_sale') pick(radios, 'undecided');
+    // เลือกบริการแล้วเดิมซ่อนกล่องนี้ทั้งกล่อง (บริการเป็นตัวกำหนดงานตรวจ) · เปิดกลับเฉพาะรังวัดเมื่อขายได้ กับ ยังไม่ตัดสินใจ
+    if (ok) {
+      box.hidden = false;
+      if (value() === 'yes' || value() === 'no') pick(radios, 'undecided');
+    } else if (onSaleForced) {
+      box.hidden = !!(SVC && SVC.value().service);   // ออกจากเงื่อนไข (เช่นเปลี่ยนเป็นฝากเช่า) กลับไปตามกติกาบริการเดิม
+    }
+    onSaleForced = ok;
+    radios.forEach(function (x) {
+      if (x.value !== 'yes' && x.value !== 'no') return;
+      var l = x.closest('label'); if (l) l.hidden = ok;
+    });
+    if (flag) flag.hidden = ok;
+    var pros = $('cs-sv-pros'); if (pros) pros.hidden = ok;
+    var ttl = box.querySelector('.cs-group-title');
+    if (ttl) {
+      if (!ttl.dataset.base) ttl.dataset.base = ttl.textContent;
+      var wantT = ok ? 'รังวัดเมื่อขายได้' : ttl.dataset.base;
+      if (ttl.textContent !== wantT) ttl.textContent = wantT;
+    }
+    if (onSaleBox) onSaleBox.hidden = !ok;
+    if (onSaleMore) onSaleMore.hidden = !(ok && value() === 'on_sale');
+    var und = modes.filter(function (x) { return x.value === 'undecided'; })[0];
+    if (und) {
+      var lab = und.closest('label');
+      // รังวัดเมื่อขายได้ต้องรู้รูปแบบ เพราะแสดงบนประกาศ
+      if (value() === 'on_sale' && und.checked) pick(modes, 'formal');
+      if (lab) lab.hidden = value() === 'on_sale';
+    }
+    return ok;
+  }
   function sync() {
-    var key = [value(), mode(), getTotalWa(), getProvince()].join('|');
+    var okSale = syncOnSale();
+    var key = [value(), mode(), getTotalWa(), getProvince(), okSale].join('|');
     // วาดใหม่เฉพาะตอนค่าที่เกี่ยวข้องเปลี่ยนจริง — ถูกเรียกทุกครั้งที่พิมพ์ตัวอักษรเดียว
     if (key === lastKey) return;
     lastKey = key;
-    if (modeBox) modeBox.hidden = value() === 'no';
+    if (modeBox) modeBox.hidden = value() === 'no' || (okSale && value() !== 'on_sale');
     drawQuote();
   }
   function applyFromLead(d) {
     if (d && d.surveyOpt) pick(radios, d.surveyOpt);
+    if (agreeEl) agreeEl.checked = !!(d && d.surveyOnSaleAgreed);
     pick(modes, d && SURVEY_MODES.indexOf(d.surveyMode) >= 0 ? d.surveyMode : 'formal');
     lastKey = null; sync();
   }
   function reset() {
     pick(radios, 'undecided'); pick(modes, 'formal');
+    if (agreeEl) agreeEl.checked = false;
     lastKey = null; sync();
   }
 
   box.addEventListener('change', sync);
+  // บริการ/ฝากขาย-เช่า/ประเภททรัพย์อยู่นอกกล่องนี้ แต่ตัดสินว่าแสดงตัวเลือกรังวัดเมื่อขายได้ไหม
+  var csForm = $('consign-form');
+  if (csForm) csForm.addEventListener('change', sync);
   drawFlag();
   sync();
-  return { value: value, mode: mode, sync: sync, applyFromLead: applyFromLead, reset: reset };
+  function setSpec(sp) {
+    onSaleSpec = sp || null;
+    var t = $('cs-sv-agree-t');
+    if (t && sp && sp.surveyOnSale) t.textContent = 'ฉัน' + sp.surveyOnSale.consent;
+    lastKey = null; sync();
+  }
+  function agree() { return value() === 'on_sale' && !!(agreeEl && agreeEl.checked); }
+  return { value: value, mode: mode, sync: sync, applyFromLead: applyFromLead, reset: reset, setSpec: setSpec, agree: agree };
 }
 
 // ============================================================================
@@ -1213,7 +1270,7 @@ function setupService(getProvince, getTotalWa, onChange, getPropType) {
     var o = on();
     box.hidden = !o;
     // บริการ 3 แบบรวมการรังวัดแบบไม่เป็นทางการไว้ในค่าตรวจแล้ว — ซ่อนกล่องรังวัดแบบเดิมกันราคาซ้อนสองที่
-    if (survey) survey.hidden = o;
+    if (survey) { survey.hidden = o; if (SV) SV.sync(); }   // บริการที่ใช้รังวัดเมื่อขายได้ SV เปิดกล่องกลับเฉพาะตัวเลือกนั้น
   }
   function render() {
     if (!model) return;
@@ -1424,6 +1481,7 @@ function setupPropertyType(onChange) {
       if (sp && sp.sellerAccounts === true) { SELLER_ON = true; ACCOUNT_REQ = sp.accountRequired === true; renderClaim(); }
       // รูปแบบบริการ 3 แบบ — มีก้อนนี้เฉพาะเมื่อสวิตช์ service_abc เปิด (ไม่มี = ฟอร์มแบบเดิม)
       if (sp && sp.serviceModel && SVC) { SVC.setModel(sp.serviceModel); renderClaim(); }
+      if (sp && SV && SV.setSpec) SV.setSpec(sp);
       if (!sp || !Array.isArray(sp.types) || !sp.types.length || !sp.layout || !sp.fields) return;
       spec = sp;
       grid.innerHTML = sp.types.map(function (t) {
@@ -1613,6 +1671,7 @@ function setupForm() {
       // ตัวเลือกรังวัด + รูปแบบ (ทางการ / ไม่เป็นทางการ) — ไม่มีเขตบังคับแล้ว เซิร์ฟเวอร์เก็บตามที่เลือก
       surveyOpt: SV ? SV.value() : 'undecided',
       surveyMode: SV && SV.mode ? SV.mode() : 'formal',
+      surveyOnSaleAgree: SV && SV.agree ? SV.agree() : false,
       // ประเภททรัพย์ + รายละเอียด — เซิร์ฟเวอร์ตรวจกับ spec ของตัวเองซ้ำเสมอ ช่องที่ไม่รู้จักถูกทิ้ง
       propertyType: PT ? PT.value().propertyType : '',
       details: PT ? PT.value().details : {},

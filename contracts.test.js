@@ -83,7 +83,7 @@ check('หัวข้อใหม่ "รังวัดยืนยันเ�
 
 console.log('\n4) ตัวเลือกรังวัดที่เซิร์ฟเวอร์รับได้');
 const opts = listAfter(server, 'CONSIGN_SURVEY_OPTS');
-check('มีครบ 3 ค่า yes/no/undecided', same(opts || [], ['yes', 'no', 'undecided']), (opts || []).join(','));
+check('มีครบ 4 ค่า yes/no/undecided/on_sale', same(opts || [], ['yes', 'no', 'undecided', 'on_sale']), (opts || []).join(','));
 check('ค่าตั้งต้นในฟอร์มคือ undecided ไม่ใช่ no (ยังไม่เลือก ≠ เลือกว่าไม่เอา)',
       /value="undecided" checked/.test(read(path.join(WEB, 'consign.html'))));
 

@@ -67,6 +67,7 @@
       feats: FEATURES.filter(function (k) { var el = $('f-feat-' + k); return el && el.checked; }),
       score: ($('f-score') && SCORE_MINS.indexOf($('f-score').value) >= 0) ? $('f-score').value : 'all',
       saved: !!($('f-saved') && $('f-saved').checked),
+      preSurvey: !!($('f-presurvey') && $('f-presurvey').checked),
       sort: $('f-sort').value
     };
   }
@@ -86,6 +87,8 @@
       // ⚠️ "เฉพาะที่บันทึกไว้" ไม่ใช่ช่องข้อมูลของแปลง จึง **ไม่นับเป็น hiddenUnknown**
       //    แปลงที่ไม่ได้บันทึกไม่ได้แปลว่า "ยังไม่ได้ระบุ" — มันแค่ไม่ถูกเลือก
       if (f.saved && !(window.NJSave && NJSave.has(item.id))) return false;
+      // รังวัดก่อนโอนเป็นข้อตกลงที่เจ้าของเลือกเอง ไม่ใช่ช่องที่ทีมยังไม่กรอก จึงไม่นับเป็น hiddenUnknown
+      if (f.preSurvey && !item.preSurvey) return false;
       if (f.type !== 'all' && item.type !== f.type) return false;
 
       // ราคา — แปลงที่ยังไม่ระบุราคา (estValue 0 = "ติดต่อสอบถาม") ตกรอบเมื่อกรองช่วงราคา
@@ -499,6 +502,8 @@
       .then(function (list) {
         state.listings = list;
         state.loaded = true;
+        // ไม่มีแปลงกลุ่มนี้ = ไม่แสดงตัวเลือก (เลือกแล้วว่างเปล่าจะดูเหมือนเว็บพัง)
+        if ($('f-presurvey-w')) $('f-presurvey-w').hidden = !list.some(function (x) { return x.preSurvey; });
         fillProvinces();
         // ตัวกรองจากที่อยู่หน้า (?q= จากหน้าแปลง · ลิงก์ที่แชร์มา) — ต้องหลัง fillProvinces เพราะรายชื่อจังหวัดมาจากข้อมูล
         applyUrl();
@@ -599,6 +604,7 @@
     if (el.textContent !== txt) el.textContent = txt;   // เทียบก่อนเขียน (กับดัก MutationObserver)
   }
   if (savedBox) savedBox.addEventListener('change', render);
+  if ($('f-presurvey')) $('f-presurvey').addEventListener('change', render);
   if (window.NJSave) {
     paintSavedCount();
     // กดบันทึก/เอาออกจากการ์ด แล้วตัวเลขกับผลกรองต้องตามทันที
