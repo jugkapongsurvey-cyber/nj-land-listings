@@ -4,7 +4,7 @@
 
 /* ⚠️ [hidden] ต้องชนะ display ที่ตั้งในไฟล์นี้ (กับดักเดิมของ repo — หน้านี้ไม่ได้โหลด ui.css ที่มีกฎ !important) */
 .ls-chips[hidden],.ls-chip[hidden],.ls-view[hidden],.ls-map[hidden],.land-grid[hidden],.ls-backdrop[hidden],
-.lm-pop[hidden]{display:none !important}
+.lm-pop[hidden],.ls-saved[hidden]{display:none !important}
 
 /* ===== แถบหัว — เตี้ยลง 10 ต.ค. 69 เพื่อให้รายการแปลงอยู่ในจอแรก (เดิม 52/46px ดันการ์ดลงไป 732px ที่จอ 1440×900) ===== */
 .ls-head{position:relative;background:var(--navy);color:#fff;padding:24px 0 22px;overflow:hidden}

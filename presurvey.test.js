@@ -39,6 +39,10 @@ ok('ตัวเลือกซ่อนจนระบบเปิด', /id="cs
 ok('ค่าเริ่มต้นยังเป็นยังไม่ตัดสินใจ', /value="undecided" checked/.test(html));
 const form = html.slice(html.indexOf('id="cs-sv-onsale"'), html.indexOf('cs-sv-agree-note'));
 ok('⭐ ฟอร์มบอกข้อแลกเปลี่ยน', /สิ่งที่ต้องแลก/.test(form) && !banned.test(form));
+// ตัวกรองหน้ารวมประกาศ: .ls-saved ตั้ง display เอง → ต้องมีกฎ [hidden] !important ไม่งั้นโผล่ทั้งที่สวิตช์ปิด (เจอบน production 11 พ.ย. 69)
+const lcss = read('listings.css');
+ok('⭐ ตัวกรองรังวัดก่อนโอนซ่อนได้จริง', /id="f-presurvey-w" hidden/.test(read('listings.html')) &&
+  /\.ls-saved\[hidden\][^{]*\{display:none !important\}/.test(lcss.replace(/\s+/g, ' ').replace(/\{ /g, '{').replace(/ \}/g, '}')));
 const css = read('marketplace.css') + read('home.css') + read('njchat.css');
 ok('สไตล์การ์ดครบ 3 ชุด', css.split('card-presurvey{').length - 1 >= 3);
 console.log('presurvey: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
