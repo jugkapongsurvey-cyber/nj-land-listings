@@ -771,3 +771,42 @@ html.ld-lb-lock{overflow:hidden}
   .ld-cmp-scale b{font-size:13px}
 }
 @media print{.ld-cmp-wrap{overflow:visible}}
+
+/* รังวัดก่อนโอน — แผงเด่นใต้ราคา · ก่อนรังวัดจริงห้ามใช้สีเขียว (กติกาข้อ 10) */
+.ld-ps{margin:16px 0;background:#0B1F3A;color:#D9E3EE;border-radius:16px;overflow:hidden}
+.ld-ps-head{display:flex;gap:14px;align-items:flex-start;padding:20px 22px 14px}
+.ld-ps-mark{flex:none;width:48px;height:48px;border-radius:12px;background:#D8B96B;color:#0B1F3A;display:flex;align-items:center;justify-content:center}
+.ld-ps-mark svg{width:28px;height:28px}
+.ld-ps-kick{color:#D8B96B;font-size:14px;font-weight:600}
+.ld-ps h2{margin:0;color:#fff;font-size:clamp(20px,3vw,26px);line-height:1.35;font-weight:700}
+.ld-ps-lede{margin:6px 0 0;font-size:15.5px;line-height:1.6}
+.ld-ps-lede b,.ld-ps-now b{color:#fff}
+.ld-ps-now{margin:0 22px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.09);font-size:14.5px;line-height:1.55}
+.ld-ps-steps{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0;padding:18px 22px 6px;counter-reset:ps}
+.ld-ps-steps li{counter-increment:ps;font-size:14px;line-height:1.5;position:relative;padding-top:38px}
+.ld-ps-steps li::before{content:counter(ps);position:absolute;top:0;left:0;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;background:rgba(255,255,255,.14);color:#fff}
+.ld-ps-steps li.past::before{content:"✓";background:#1CA45C}
+.ld-ps-steps li.cur::before{background:#D8B96B;color:#0B1F3A}
+.ld-ps-steps b{display:block;color:#fff;font-size:14.5px}
+.ld-ps-steps small{display:block;font-size:12.5px;color:#AFC0D2}
+.ld-ps-steps li.cur small{color:#D8B96B}
+.ld-ps-know{background:#fff;color:#31465E;margin:14px 12px 12px;border-radius:12px;padding:16px 18px;display:grid;gap:12px}
+.ld-ps-know h3{margin:0;font-size:16px;color:#0B1F3A;font-weight:600}
+.ld-ps-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:14px;line-height:1.5}
+.ld-ps-g b{display:block;font-size:14.5px;color:#0B1F3A}
+.ld-ps-rows{display:grid;gap:6px;font-size:14px;border-top:1px solid #DCE5EF;padding-top:12px}
+.ld-ps-rows>div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px}
+.ld-ps-rows>div>span:first-child{color:#5A6B7D}
+.ld-ps-cta{display:inline-flex;justify-content:center;align-items:center;min-height:46px;padding:0 22px;border-radius:10px;background:#0F7A42;color:#fff;font-weight:600;font-size:15.5px;text-decoration:none;justify-self:start}
+.ld-ps-cta:focus-visible{outline:2px solid #1B4B7A;outline-offset:2px}
+.ld-ps-fine{margin:0;font-size:12.5px;color:#5A6B7D;line-height:1.55}
+@media (max-width:760px){
+  .ld-ps-head{padding:16px 16px 12px}.ld-ps-now{margin:0 16px}
+  .ld-ps-steps{grid-template-columns:minmax(0,1fr);gap:10px;padding:16px 16px 4px}
+  .ld-ps-steps li{padding:2px 0 0 42px;min-height:30px}
+  .ld-ps-know{margin:12px 8px 8px;padding:14px}
+  .ld-ps-g{grid-template-columns:minmax(0,1fr)}
+  .ld-ps-rows>div{grid-template-columns:minmax(0,1fr);gap:0}
+  .ld-ps-cta{justify-self:stretch}
+}
+@media print{.ld-ps-cta{display:none}.ld-ps{-webkit-print-color-adjust:exact;print-color-adjust:exact}}

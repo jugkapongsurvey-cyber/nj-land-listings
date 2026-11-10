@@ -932,6 +932,47 @@
   // ลงประกาศเอง รอบ 3 (ระบบ 2 พ.ย. 69) — ชวนผู้ซื้อให้ทีมตรวจแปลงก่อนซื้อ ข้างฟอร์มและหลังส่งฟอร์ม
   // ⚠️ ลิงก์ไปฟอร์มเดิม (verify.html) เท่านั้น ไม่ส่งอีเมล/ไม่เก็บข้อมูลผู้ซื้อเพิ่ม (ผู้ซื้อไม่ได้ยินยอมรับข่าวสาร)
   //    กรอกแหล่ง "อื่นๆ" + ลิงก์หน้าประกาศ + หัวข้อ selflisted ผ่าน query ที่ verify.js รับอยู่แล้ว (prefillFromQuery)
+  // รังวัดก่อนโอน — ก่อนรังวัดจริงเป็น "ข้อตกลง" ไม่ใช่ผลตรวจ (กติกาข้อ 10) · ราคาตามเนื้อที่จริงมาจากเซิร์ฟเวอร์ · ไม่ใช้คำรับประกัน
+  function psArea(wa){
+    var w=Number(wa)||0, rai=Math.floor(w/400), rest=w-rai*400, ngan=Math.floor(rest/100), left=Math.round((rest-ngan*100)*100)/100;
+    return [rai?rai+' ไร่':'', ngan?ngan+' งาน':'', left||(!rai&&!ngan)?left+' ตร.ว.':''].filter(Boolean).join(' ');
+  }
+  function preSurveyHtml(l){
+    var p=window.NJListing&&NJListing.preSurveyOf?NJListing.preSurveyOf(l.preSurvey):null;
+    if(!p) return '';
+    var S={
+      wait:{h:'แปลงนี้ ถ้ามีการซื้อขาย ต้องรังวัดก่อนโอน',
+        l:'เจ้าของทรัพย์<b>ตกลงไว้แล้ว</b>ว่า เมื่อมีผู้ซื้อวางมัดจำ จะให้ช่างรังวัดของเอ็นเจตรวจแนวเขตและเนื้อที่จริงก่อนวันโอน',
+        n:'<b>ตอนนี้:</b> ยังไม่ได้เปิดงานรังวัด · เนื้อที่ในประกาศเป็นเนื้อที่ตามโฉนด',cur:-1,c:'สนใจแปลงนี้ — สอบถามเงื่อนไขรังวัด'},
+      busy:{h:'แปลงนี้กำลังรังวัดก่อนโอน',
+        l:'มีผู้ซื้อวางมัดจำแล้ว เอ็นเจเปิดงานรังวัดตามเงื่อนไขที่เจ้าของทรัพย์ตกลงไว้',
+        n:'<b>ตอนนี้:</b> เปิดงานรังวัดแล้ว รอวันนัดลงพื้นที่ · เนื้อที่ในประกาศยังเป็นเนื้อที่ตามโฉนด',cur:1,c:'ฝากชื่อไว้ หากแปลงนี้กลับมาขาย'},
+      done:{h:'แปลงนี้รังวัดแล้ว ก่อนโอน',l:'ผลรังวัดพร้อมให้ผู้ซื้อดูก่อนตกลงราคาสุดท้าย',n:'',cur:2,c:'สอบถามผลรังวัดและหมุดเขต'}
+    }[p.state];
+    if(p.state==='done'){
+      var r=p.result;
+      S.n='<b>ผล:</b> เนื้อที่จริง '+esc(psArea(r.actualWa))+(r.deedWa>0?' · โฉนด '+esc(psArea(r.deedWa))+(r.diffWa?' · ต่างกัน '+esc(String(Math.abs(r.diffWa)))+' ตร.ว.':' · ตรงกัน'):'');
+    }
+    var steps=['ผู้ซื้อตกลงและวางมัดจำ','เอ็นเจเปิดงานรังวัดทันที','ผู้ซื้อดูเนื้อที่จริงและหมุดเขต','ตกลงราคาสุดท้าย แล้วไปโอน'].map(function(t,i){
+      var c=S.cur<0?'':(i<S.cur?'past':(i===S.cur?'cur':''));
+      var note=c==='past'?'เสร็จแล้ว':(c==='cur'?'ขั้นปัจจุบัน':'');
+      return '<li class="'+c+'"><b>'+t+'</b>'+(note?'<small>'+note+'</small>':'')+'</li>';
+    }).join('');
+    var pw=Number(l.pricePerWa)||0;
+    var adj=p.state==='done'&&p.result.adjustedPrice>0&&p.result.diffWa?'<div><span>ราคาตามเนื้อที่จริง</span><span><b>'+money(p.result.adjustedPrice)+'</b> (ตัวเลขอ้างอิง · ราคาสุดท้ายตามที่ตกลงในสัญญา)</span></div>':'';
+    return '<section class="ld-ps" aria-labelledby="ld-ps-h">'+
+      '<div class="ld-ps-head"><div class="ld-ps-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 4.9 5.4 10.9 6.3 11.8a1 1 0 0 0 1.4 0C13.6 19.9 19 13.9 19 9a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg></div>'+
+        '<div><div class="ld-ps-kick">เงื่อนไขสำคัญของแปลงนี้</div><h2 id="ld-ps-h">'+S.h+'</h2><p class="ld-ps-lede">'+S.l+'</p></div></div>'+
+      '<p class="ld-ps-now">'+S.n+'</p>'+
+      '<ol class="ld-ps-steps">'+steps+'</ol>'+
+      '<div class="ld-ps-know"><h3>สิ่งที่คุณจะรู้ก่อนจ่ายเงินก้อนใหญ่</h3>'+
+        '<div class="ld-ps-g"><div><b>เนื้อที่จริง</b>เทียบกับที่เขียนในโฉนด</div><div><b>หมุดหลักเขต</b>ครบหรือขาด เดินดูหน้างานได้</div><div><b>แนวเขตข้างเคียง</b>มีรุกล้ำหรือมีคนคัดค้านไหม</div></div>'+
+        '<div class="ld-ps-rows"><div><span>รูปแบบการรังวัด</span><span>'+esc(p.modeTh)+'</span></div>'+
+          '<div><span>ถ้าเนื้อที่ไม่ตรงโฉนด</span><span>คิดราคาตามเนื้อที่จริง'+(pw?' ที่ '+money(pw)+'/ตร.ว.':'')+' ตามที่ตกลงในใบมัดจำ</span></div>'+adj+'</div>'+
+        '<a class="ld-ps-cta" href="#ld-inq">'+S.c+'</a>'+
+        '<p class="ld-ps-fine">เป็นเงื่อนไขที่เจ้าของทรัพย์ตกลงไว้กับที่ดินชัวร์ ไม่ใช่การรับรองผลรังวัด · วันรังวัดขึ้นกับคิวงานและการมาระวังแนวเขตของเจ้าของที่ดินข้างเคียง</p>'+
+      '</div></section>';
+  }
   function selfVerifyHref(l){
     return 'verify.html?source='+encodeURIComponent('อื่นๆ')+'&url='+encodeURIComponent(SITE_URL+'/land.html?id='+l.id)+'&topic=selflisted#form';
   }
@@ -1256,6 +1297,7 @@
           '<h1 class="ld-title">'+esc(shortLabel(l))+'</h1>'+
           (L.locality?'<div class="ld-loc">📍 '+esc(L.locality)+'</div>':'')+
           listedLine(l)+
+          preSurveyHtml(l)+
           statsHtml(l,L,tier)+
           codeHtml(l)+
         '</div>'+

@@ -457,3 +457,10 @@ h1,h2,h3,p{margin:0}
   *{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
   .card:hover,.quick a:hover{transform:none}
 }
+
+/* รังวัดก่อนโอน — แถบเต็มความกว้างใต้รูป (ยังไม่รังวัด = น้ำเงิน–ทอง · ห้ามใช้เขียวจนกว่าจะรังวัดจริง) */
+.card-presurvey{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:600;line-height:1.4;background:#0B1F3A;color:#D8B96B}
+.card-presurvey span{font-weight:400;opacity:.92}
+.card-presurvey svg{width:14px;height:14px;flex:none}
+.card-presurvey.is-busy{background:#E6EEF7;color:#1B4B7A}
+.card-presurvey.is-done{background:#0F7A42;color:#fff}
