@@ -117,64 +117,135 @@
   box-shadow: inset 0 -3px 0 var(--nj-gold-500);
 }
 
-/* ---------- เมนูย่อย ---------- */
-/* ⚠️ เปิดด้วย :hover และ :focus-within ล้วนๆ **ไม่พึ่ง JS เลย**
+/* ---------- เมนูย่อย — แบบ B "เมกะเมนู" (เจ้าของเลือก 12 พ.ย. 2569) ----------
+ * ตัวอย่างที่เจ้าของดูและเลือก: menu-redesign-2026-11-11/index.html#b (นอก repo)
+ * แผงกว้างเต็มจอใต้หัวเว็บ · หัวกลุ่ม + รายการ 2 คอลัมน์พร้อมไอคอน + การ์ดภาพแนะนำ
+ *
+ * ⚠️ เปิดด้วย :hover และ :focus-within ล้วนๆ **ไม่พึ่ง JS เลย** (เหมือนเดิม)
  *    ไฟล์ JS โหลดไม่สำเร็จเมื่อไหร่ เมนูย่อยยังกางได้ทั้งด้วยเมาส์และด้วยปุ่ม Tab
- *    (เหตุผลเดียวกับที่บันไดการตรวจสอบใช้ <details> ของเบราว์เซอร์) */
+ *    menu.js แค่เสริม: โหลดภาพการ์ด · สลับกลุ่มแบบเลื่อนข้าง (.njh-swap) · .is-open บนจอสัมผัส
+ *
+ * ⚠️⚠️ กติกาเดิม "ห้ามมีช่วงที่แผงกดได้แต่มองไม่เห็น" ยังอยู่ — แบบนี้ทำตามด้วย clip-path ไม่ใช่ opacity
+ *    แผงเลื่อนลงด้วยการเปิด clip-path จากขอบบน · clip-path ตัดทั้งภาพ **และพื้นที่กด** พร้อมกัน
+ *    ถ้าเบราว์เซอร์หน่วงการวาดจนแอนิเมชันค้างที่จุดเริ่ม แผงจะมองไม่เห็นและกดไม่โดนไปพร้อมกัน
+ *    (ทดสอบแล้วในแผงพรีวิวที่หยุดวาด 11 พ.ย. 2569) · ⛔ ห้ามเปลี่ยนกลับไปไล่ opacity จาก 0
+ *    รายการข้างในเลื่อนด้วย transform อย่างเดียว ด้วยเหตุผลเดียวกัน */
+
+/* แผงอ้างกรอบของ .njh (sticky) แทน <li> → กว้างเต็มจอ
+ * ⚠️ ห้ามใส่ position ให้ .njh-in / .njh-nav / .njh-list — แผงจะไปอ้างกรอบนั้นแล้วแคบลงทันที */
+.njh-has-menu { position: static; }
+
 .njh-panel {
   position: absolute;
   top: 100%;
   left: 0;
-  min-width: 268px;
-  padding: var(--nj-space-2);
+  right: 0;
   background: var(--nj-white);
-  border: 1px solid var(--nj-gray-200);
-  box-shadow: var(--nj-shadow-lg);
-  /* ซ่อนด้วย visibility ไม่ใช่ display:none — เปลี่ยน display ทำให้ transition ไม่ทำงาน
-   * และบางเบราว์เซอร์ข้ามลิงก์ข้างในตอนกด Tab ไปเลย */
+  border-top: 1px solid var(--nj-gray-200);
+  box-shadow: 0 30px 60px -30px rgba(11, 31, 58, 0.5);
+  /* ซ่อนด้วย visibility ไม่ใช่ display:none — บางเบราว์เซอร์ข้ามลิงก์ข้างในตอนกด Tab */
   visibility: hidden;
-  opacity: 0;
-  transform: translateY(-4px);
-  /* ⚠️ **ห้ามใส่ visibility ลงในรายการที่มีระยะเวลา** — ค่ามันไม่ไล่ระดับ
-   * ใส่แล้วช่วงที่กำลังเปลี่ยน getComputedStyle ยังอ่านได้ว่า hidden
-   * ผลคือแผงกางออกช้ากว่าที่ควร และทดสอบอัตโนมัติอ่านว่า "ไม่เปิด" (เจอจริงตอนพรีวิว)
-   * ท่าที่ถูกคือ: เปิด = เปลี่ยนทันที (0s) · ปิด = หน่วงไว้จนภาพจางจบก่อน (0s + delay) */
-  transition: opacity var(--nj-dur) var(--nj-ease),
-              transform var(--nj-dur) var(--nj-ease),
-              visibility 0s linear var(--nj-dur);
+  clip-path: inset(0 0 100% 0);
+  /* ขาปิด: เก็บแผงขึ้นใต้ขอบหัวเว็บ แล้วค่อยซ่อน
+   * ⚠️ **ห้ามใส่ visibility ลงในรายการที่มีระยะเวลา** — ใช้ 0s + delay เท่านั้น (เหตุผลเดิม: ทดสอบอัตโนมัติอ่านว่า "ไม่เปิด") */
+  transition: clip-path var(--nj-dur-slide) var(--nj-ease-out),
+              visibility 0s linear var(--nj-dur-slide);
 }
 
-/* ⚠️ **ขาเปิดไม่มี transition เลย** — แผงต้องปรากฏเต็มตัวทันทีที่เมาส์แตะหรือโฟกัสมาถึง
- * เหตุผล: ถ้าให้ opacity ค่อยๆ ไล่ขึ้น จะมีช่วงที่แผง "กดได้แล้วแต่ยังมองไม่เห็น"
- * และในสภาพที่เบราว์เซอร์หน่วงการวาด (แท็บพื้นหลัง · เครื่องช้า · โหมดประหยัดพลังงาน)
- * ช่วงนั้นยืดออกจนกลายเป็นเมนูที่เปิดแล้วแต่ใสสนิท — เจอจริงตอนทดสอบในแผงพรีวิว
- * ส่วนขาปิดยังค่อยๆ จางตามกฎด้านบน ซึ่งไม่มีปัญหาแบบเดียวกันเพราะของที่กำลังจะหายไป */
+/* ⚠️ **ขาเปิดไม่มี transition** — visibility เปลี่ยนทันที ส่วนการเลื่อนลงเป็น animation ของ clip-path
+ *    (จุดเริ่ม = ตัดหมด = มองไม่เห็นและกดไม่โดน · ดูกติกาข้างบน) · ขอบล่าง -90px เผื่อเงาใต้แผง */
 .njh-has-menu:hover > .njh-panel,
 .njh-has-menu.is-open > .njh-panel,
 .njh-has-menu:focus-within > .njh-panel {
   visibility: visible;
-  opacity: 1;
-  transform: none;
+  clip-path: inset(0 0 -90px 0);
   transition: none;
+  animation: njh-drop var(--nj-dur-slide) var(--nj-ease-out);
 }
+@keyframes njh-drop { from { clip-path: inset(0 0 100% 0); } }
 
 /* ⚠️ `.is-open` ตั้งโดย menu.js (bindTouchMenus) เฉพาะตอนแตะด้วยนิ้ว — จอสัมผัสที่กว้างพอจะเห็นแถวเมนูเต็ม
  *    (iPad แนวนอน 1024–1366 · แท็บเล็ต Android) ไม่มี :hover จริง · แตะหัวกลุ่มครั้งเดียวเบราว์เซอร์ก็พาไปหน้ารวม
  *    ของกลุ่มทันที เมนูย่อยจึงไม่เคยโผล่ให้เลือก · เมาส์และคีย์บอร์ดยังใช้ :hover/:focus-within เหมือนเดิม */
 
-/* กลุ่มขวาสุดกางออกนอกจอถ้าชิดซ้าย — ให้ชิดขวาแทน */
-.njh-item:nth-last-child(-n+2) > .njh-panel { left: auto; right: 0; }
+.njh-mega {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 290px;
+  gap: var(--nj-space-6);
+  align-items: start;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--nj-space-5) var(--nj-space-5) var(--nj-space-6);
+}
 
-.njh-panel ul { margin: 0; padding: 0; list-style: none; }
-
-.njh-panel a {
-  display: block;
-  padding: 10px var(--nj-space-3);
+/* หัวกลุ่ม — ใช้ <p> ไม่ใช่ <h*> เพราะอยู่ในหัวเว็บทุกหน้า ไม่ควรแทรกลำดับหัวข้อของเนื้อหา */
+.njh-mh-t {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: var(--nj-fw-semi);
+  line-height: 1.35;
   color: var(--nj-text-strong);
+}
+.njh-mh-d {
+  margin: 0 0 var(--nj-space-2);
+  font-size: var(--nj-fs-sm);
+  line-height: 1.6;
+  color: var(--nj-text-muted);
+}
+.njh-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: var(--nj-fs-sm);
+  font-weight: var(--nj-fw-semi);
+  color: var(--nj-navy-600);
   text-decoration: none;
 }
-.njh-panel a:hover { background: var(--nj-navy-050); }
-.njh-panel a:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: -2px; }
+.njh-all span[aria-hidden] { transition: transform 0.25s var(--nj-ease-out); }
+.njh-all:hover span[aria-hidden] { transform: translateX(4px); }
+.njh-all:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: 2px; }
+
+.njh-panel ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px var(--nj-space-3);
+  align-content: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ไอคอนอยู่ท้ายลิงก์ใน HTML (header.test.js อ่าน <a ...><b>ชื่อ</b>) → ย้ายไปคอลัมน์ซ้ายด้วย grid */
+.njh-panel li > a {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: var(--nj-space-3);
+  align-items: center;
+  padding: 10px var(--nj-space-3);
+  border-radius: var(--nj-radius-lg);
+  color: var(--nj-text-strong);
+  text-decoration: none;
+  transition: background var(--nj-dur) var(--nj-ease);
+}
+.njh-panel li > a > b { grid-column: 2; grid-row: 1; }
+.njh-panel li > a > small { grid-column: 2; grid-row: 2; }
+.njh-ic {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--nj-navy-100);
+  color: var(--nj-navy-600);
+  transition: background 0.25s var(--nj-ease), color 0.25s var(--nj-ease);
+}
+.njh-ic svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.njh-panel li > a:hover { background: var(--nj-navy-050); }
+.njh-panel li > a:hover .njh-ic { background: var(--nj-navy-600); color: var(--nj-white); }
+.njh-panel li > a:focus-visible { outline: 2px solid var(--nj-focus); outline-offset: -2px; }
 .njh-panel b {
   display: block;
   font-size: var(--nj-fs-sm);
@@ -188,9 +259,108 @@
   line-height: 1.4;
   color: var(--nj-text-muted);
 }
-.njh-panel a[aria-current="page"] {
+.njh-panel li > a[aria-current="page"] {
   background: var(--nj-navy-050);
   box-shadow: inset 3px 0 0 var(--nj-gold-600);
+}
+
+/* การ์ดภาพแนะนำ — ภาพมาทีหลังจาก menu.js (data-bg) · ยังไม่มีภาพ = พื้นกรมท่าไล่สี ข้อความอ่านได้ครบ
+ * tabindex="-1" เพราะปลายทางซ้ำกับรายการ/ปุ่มอื่น — คนใช้คีย์บอร์ดไม่ต้องกด Tab ผ่านซ้ำ */
+.njh-feat {
+  position: relative;
+  display: block;
+  min-height: 196px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(160deg, var(--nj-navy-900), var(--nj-navy-600));
+  color: var(--nj-white);
+  text-decoration: none;
+}
+.njh-feat-img {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transition: transform 0.8s var(--nj-ease-out);
+}
+.njh-feat:hover .njh-feat-img { transform: scale(1.05); }
+.njh-feat::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 31, 58, 0) 25%, rgba(11, 31, 58, 0.88) 100%);
+}
+.njh-feat-tx { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; }
+.njh-feat em {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 3px 9px;
+  border-radius: var(--nj-radius-pill);
+  background: var(--nj-gold-500);
+  color: var(--nj-navy-900);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: var(--nj-fw-semi);
+}
+.njh-feat strong { display: block; font-size: 17px; line-height: 1.4; }
+.njh-feat small { display: block; margin-top: 4px; font-size: var(--nj-fs-xs); line-height: 1.45; color: rgba(255, 255, 255, 0.85); }
+
+/* รายการไหลเข้าทีละแถว + การ์ดเลื่อนจากขวา — transform อย่างเดียว (fill backwards = ช่วงหน่วงยังเห็นรายการ แค่เลื่อนอยู่)
+ * ไม่ไล่ opacity: รายการที่ค้างกลางทางยังมองเห็นเสมอ */
+.njh-has-menu:hover > .njh-panel li,
+.njh-has-menu.is-open > .njh-panel li,
+.njh-has-menu:focus-within > .njh-panel li { animation: njh-item 0.42s var(--nj-ease-out) backwards; }
+.njh-panel li:nth-child(2) { animation-delay: 0.04s !important; }
+.njh-panel li:nth-child(3) { animation-delay: 0.08s !important; }
+.njh-panel li:nth-child(4) { animation-delay: 0.12s !important; }
+.njh-panel li:nth-child(5) { animation-delay: 0.16s !important; }
+.njh-panel li:nth-child(6) { animation-delay: 0.20s !important; }
+.njh-has-menu:hover > .njh-panel .njh-feat,
+.njh-has-menu.is-open > .njh-panel .njh-feat,
+.njh-has-menu:focus-within > .njh-panel .njh-feat { animation: njh-feat 0.5s var(--nj-ease-out) 0.06s backwards; }
+@keyframes njh-item { from { transform: translateY(-10px); } }
+@keyframes njh-feat { from { transform: translateX(18px); } }
+
+/* ย้ายเมาส์ไปกลุ่มข้างๆ ขณะแผงเปิดอยู่ (menu.js ใส่ .njh-swap ที่ .njh ชั่วครู่)
+ * → ไม่เลื่อนแผงลงใหม่ทั้งแผง แต่เลื่อนเนื้อหาเข้ามาด้านข้างตามทิศที่เมาส์ไป */
+.njh.njh-swap .njh-panel { animation: none; transition: none; }
+.njh.njh-swap .njh-panel li,
+.njh.njh-swap .njh-panel .njh-feat { animation: none; }
+.njh.njh-swap .njh-from-r > .njh-panel .njh-mega { animation: njh-from-r 0.38s var(--nj-ease-out); }
+.njh.njh-swap .njh-from-l > .njh-panel .njh-mega { animation: njh-from-l 0.38s var(--nj-ease-out); }
+@keyframes njh-from-r { from { transform: translateX(36px); } }
+@keyframes njh-from-l { from { transform: translateX(-36px); } }
+
+/* เส้นทองใต้หัวกลุ่มที่เปิดอยู่ — ลิงก์หัวกลุ่มยืดเต็มความสูงหัวเว็บ เมาส์จึงเลื่อนลงแผงได้โดยไม่หลุด :hover */
+@media (min-width: 1024px) {
+  .njh-nav { align-self: stretch; display: flex; }
+  .njh-list { align-items: stretch; }
+  .njh-item { display: flex; align-items: center; }
+  .njh-top { position: relative; align-self: stretch; }
+  .njh-top::after {
+    content: "";
+    position: absolute;
+    left: var(--nj-space-3);
+    right: var(--nj-space-3);
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--nj-gold-500);
+    transform: scaleX(0);
+    transition: transform var(--nj-dur-slide) var(--nj-ease-out);
+  }
+  .njh-has-menu:hover > .njh-top::after,
+  .njh-has-menu.is-open > .njh-top::after,
+  .njh-has-menu:focus-within > .njh-top::after { transform: none; }
+}
+/* จอ 1024–1279: ไม่มีที่พอสำหรับการ์ดภาพ — เหลือหัวกลุ่ม + รายการ */
+@media (max-width: 1279px) {
+  .njh-mega { grid-template-columns: 190px minmax(0, 1fr); gap: var(--nj-space-5); }
+  .njh-feat { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .njh-panel, .njh-panel li, .njh-feat, .njh-mega { animation: none !important; }
 }
 
 /* ---------- ปุ่มหลัก ---------- */

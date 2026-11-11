@@ -49,41 +49,53 @@ const SELLER_REGISTER = SELLER_LOGIN + '#start=consign&tab=register';
 
 const NAV = [
   {
-    label: 'ซื้อ/เช่าทรัพย์', href: 'listings.html', items: [
-      { label: 'ประกาศทั้งหมด', href: 'listings.html', note: 'กรองตามทำเล ราคา เนื้อที่ ผังสี' },
-      { label: 'ค้นตามวัตถุประสงค์', href: 'purpose.html', note: 'สร้างบ้าน โกดัง เกษตร ลงทุน' },
-      { label: 'ทรัพย์หน่วยงาน', href: 'agency.html', note: 'บังคับคดี ธนาคาร BAM SAM' },
-      { label: 'ฝากหาที่ดิน', href: 'wanted.html', note: 'บอกโจทย์ไว้ ให้ทีมช่างรังวัดหาให้' }
+    label: 'ซื้อ/เช่าทรัพย์', href: 'listings.html', all: true,
+    desc: 'ทุกแปลงแสดงระดับข้อมูลที่ตรวจสอบแล้ว',
+    feat: { img: 'listings', tag: 'ประกาศ', title: 'ดูแปลงที่ประกาศอยู่ตอนนี้', sub: 'กรองตามทำเล ราคา เนื้อที่ ผังสี', href: 'listings.html' },
+    items: [
+      { icon: 'list', label: 'ประกาศทั้งหมด', href: 'listings.html', note: 'กรองตามทำเล ราคา เนื้อที่ ผังสี' },
+      { icon: 'target', label: 'ค้นตามวัตถุประสงค์', href: 'purpose.html', note: 'สร้างบ้าน โกดัง เกษตร ลงทุน' },
+      { icon: 'bank', label: 'ทรัพย์หน่วยงาน', href: 'agency.html', note: 'บังคับคดี ธนาคาร BAM SAM' },
+      { icon: 'find', label: 'ฝากหาที่ดิน', href: 'wanted.html', note: 'บอกโจทย์ไว้ ให้ทีมช่างรังวัดหาให้' }
     ]
   },
   {
     // ตัวกลุ่มพาไปสมัครบัญชีเจ้าของทรัพย์ตรง (เจ้าของสั่ง 14 ต.ค. 2569 · ฝากขายต้องสมัครก่อน)
     // `pages` = หน้าที่นับว่าอยู่ในกลุ่มนี้ทั้งที่ไม่มีรายการของตัวเอง → consign.html ยังได้ aria-current ที่ตัวกลุ่ม
-    label: 'ขาย/ฝากทรัพย์', href: SELLER_REGISTER, pages: ['consign.html'], items: [
+    label: 'ขาย/ฝากทรัพย์', href: SELLER_REGISTER, pages: ['consign.html'],
+    desc: 'ฝากขาย ฝากเช่า และบริการสำหรับเจ้าของทรัพย์',
+    feat: { img: 'consign', tag: 'ลงประกาศฟรี', title: 'สมัครเพื่อฝากขาย', sub: 'ทีมงานเสนอราคาค่าตรวจสอบ/รังวัดให้ก่อนขึ้นประกาศ', href: SELLER_REGISTER },
+    items: [
       // เมนูย่อย "ฝากขายที่ดิน" ถูกซ่อน (เจ้าของสั่ง 14 ต.ค. 2569) — ฝากขายต้องสมัครก่อน ทางเข้าคือปุ่ม CTA "สมัครเพื่อฝากขาย"
       //   ตัวกลุ่มยังชี้ consign.html (หน้าอธิบายบริการ + ด่านสมัคร) · header.test.js ล็อก
-      { label: 'แพ็กเกจบริการ', href: 'packages.html', note: 'ตรวจสอบ · เตรียมขาย · ฝากขาย' },
-      { label: 'เข้าสู่ระบบเจ้าของทรัพย์', href: SELLER_LOGIN, note: 'ดูแปลงที่ฝาก · ใบเสนอราคา · ยืนยันก่อนประกาศ' },
-      { label: 'สมัครเป็นพันธมิตร', href: 'partner-apply.html', note: 'ผู้ให้บริการด้านที่ดิน' }
+      { icon: 'box', label: 'แพ็กเกจบริการ', href: 'packages.html', note: 'ตรวจสอบ · เตรียมขาย · ฝากขาย' },
+      { icon: 'user', label: 'เข้าสู่ระบบเจ้าของทรัพย์', href: SELLER_LOGIN, note: 'ดูแปลงที่ฝาก · ใบเสนอราคา · ยืนยันก่อนประกาศ' },
+      { icon: 'hands', label: 'สมัครเป็นพันธมิตร', href: 'partner-apply.html', note: 'ผู้ให้บริการด้านที่ดิน' }
     ]
   },
   {
-    label: 'ตรวจสอบและรังวัด', href: 'verify.html', items: [
-      { label: 'บริการของเรา', href: 'services.html', note: 'รังวัด ตรวจสอบ และดูแลหลังซื้อ' },
-      { label: 'ส่งทรัพย์ให้ตรวจก่อนซื้อ', href: 'verify.html', note: 'ตรวจเอกสารและแนวเขต' },
-      { label: 'นัดตรวจแปลงก่อนซื้อ', href: 'inspect.html', note: 'ให้ช่างรังวัดไปดูให้ก่อน' },
-      { label: 'เช็กลิสต์ก่อนซื้อ', href: 'checklist.html', note: '16 ข้อที่ควรตรวจก่อนวางมัดจำ' },
-      { label: 'ระดับการตรวจสอบ 2 ระดับ', href: 'terms.html#levels', note: 'แต่ละระดับหมายถึงอะไร' }
+    label: 'ตรวจสอบและรังวัด', href: 'verify.html', all: true,
+    desc: 'ตรวจเอกสารและแนวเขตก่อนตัดสินใจ โดยทีมช่างรังวัดเอกชน',
+    feat: { img: 'verify', tag: 'ก่อนวางมัดจำ', title: 'ส่งทรัพย์ให้ตรวจก่อนซื้อ', sub: 'ตรวจเอกสารและแนวเขต', href: 'verify.html' },
+    items: [
+      { icon: 'survey', label: 'บริการของเรา', href: 'services.html', note: 'รังวัด ตรวจสอบ และดูแลหลังซื้อ' },
+      { icon: 'doc', label: 'ส่งทรัพย์ให้ตรวจก่อนซื้อ', href: 'verify.html', note: 'ตรวจเอกสารและแนวเขต' },
+      { icon: 'cal', label: 'นัดตรวจแปลงก่อนซื้อ', href: 'inspect.html', note: 'ให้ช่างรังวัดไปดูให้ก่อน' },
+      { icon: 'check', label: 'เช็กลิสต์ก่อนซื้อ', href: 'checklist.html', note: '16 ข้อที่ควรตรวจก่อนวางมัดจำ' },
+      { icon: 'shield', label: 'ระดับการตรวจสอบ 2 ระดับ', href: 'terms.html#levels', note: 'แต่ละระดับหมายถึงอะไร' }
     ]
   },
   {
-    label: 'ความรู้และเครื่องมือ', href: 'guides.html', items: [
-      { label: 'คู่มือที่ดิน', href: 'guides.html', note: 'เอกสารสิทธิ์ การโอน ผังเมือง' },
-      { label: 'บทความความรู้', href: 'knowledge.html', note: 'ก่อนซื้อ รังวัด ขาย กฎหมาย ภาษี' },
-      { label: 'เครื่องมือคำนวณ', href: 'tools.html', note: 'ค่างวดสินเชื่อ ค่าโอนวันโอน' },
-      { label: 'วิดีโอให้ความรู้', href: 'videos.html', note: 'ดูจบใน 30 วินาที' },
-      { label: 'วารสาร', href: 'journal.html', note: 'สรุปข่าวที่ดินและกฎหมายรายสัปดาห์' },
-      { label: 'แชทกับน้องเอ็นเจชัวร์', href: 'chat.html', note: 'ผู้ช่วย AI ตอบเรื่องที่ดิน' }
+    label: 'ความรู้และเครื่องมือ', href: 'guides.html', all: true,
+    desc: 'คู่มือ บทความ และเครื่องคำนวณสำหรับคนซื้อ–ขายที่ดิน',
+    feat: { img: 'guides', tag: 'ความรู้', title: 'คู่มือที่ดิน', sub: 'เอกสารสิทธิ์ การโอน ผังเมือง', href: 'guides.html' },
+    items: [
+      { icon: 'book', label: 'คู่มือที่ดิน', href: 'guides.html', note: 'เอกสารสิทธิ์ การโอน ผังเมือง' },
+      { icon: 'article', label: 'บทความความรู้', href: 'knowledge.html', note: 'ก่อนซื้อ รังวัด ขาย กฎหมาย ภาษี' },
+      { icon: 'calc', label: 'เครื่องมือคำนวณ', href: 'tools.html', note: 'ค่างวดสินเชื่อ ค่าโอนวันโอน' },
+      { icon: 'video', label: 'วิดีโอให้ความรู้', href: 'videos.html', note: 'ดูจบใน 30 วินาที' },
+      { icon: 'news', label: 'วารสาร', href: 'journal.html', note: 'สรุปข่าวที่ดินและกฎหมายรายสัปดาห์' },
+      { icon: 'chat', label: 'แชทกับน้องเอ็นเจชัวร์', href: 'chat.html', note: 'ผู้ช่วย AI ตอบเรื่องที่ดิน' }
     ]
   },
   // หน้าแยก about.html (เจ้าของอนุมัติ 2 พ.ย. 2569) · หน้าแรกยังมีกล่องย่อ #ทีมเรา ที่ลิงก์มาหน้านี้
@@ -132,6 +144,37 @@ function pageOf(href) { return String(href).split('#')[0].split('?')[0]; }
 // (เช็กลิสต์ห้องชุดเป็นหน้าคู่ของเช็กลิสต์ที่ดิน · แถวเมนูเต็มแล้ว เพิ่มรายการใหม่ไม่ได้)
 const CURRENT_AS = { 'checklist-condo.html': 'checklist.html' };
 
+// ⭐ เมนูย่อยแบบ B "เมกะเมนู" (เจ้าของเลือก 12 พ.ย. 2569 จากตัวอย่าง menu-redesign-2026-11-11)
+//    แผงเต็มความกว้าง: หัวกลุ่ม (desc + ดูทั้งหมด) · รายการ 2 คอลัมน์พร้อมไอคอน · การ์ดภาพแนะนำ (feat)
+//    ⚠️ ไอคอนวางท้ายลิงก์ใน HTML (หลัง <b>/<small>) แล้ว CSS ย้ายไปซ้าย — header.test.js อ่านว่า <a ...><b>ชื่อ</b>
+//    ⚠️ ภาพการ์ดใส่เป็น data-bg (ไม่ใช่ <img>) — menu.js โหลดเมื่อเมาส์/โฟกัสแตะเมนูครั้งแรก
+//       ใส่ <img> = ทุกหน้าบนจอคอมโหลดภาพ 4 ใบทั้งที่ไม่มีใครเปิดเมนู · ไม่มี JS = การ์ดพื้นกรมท่า ยังกดได้
+//    ⚠️ ลิงก์ "ดูทั้งหมด" และการ์ดภาพไม่อยู่ใน <li> — menu.js หยิบเฉพาะ `.njh-panel li > a` ไปลิ้นชักมือถือ
+const ICONS = {
+  list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  bank: '<path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+  find: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
+  box: '<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',
+  hands: '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 2.7-5 6-5 1.6 0 3 .5 4 1.2 1-.7 2.4-1.2 4-1.2 3.3 0 6 2 6 5"/>',
+  survey: '<path d="M12 3v4M7 21l5-14 5 14M8.5 16h7"/>',
+  doc: '<path d="M14 3H6v18h12V7l-4-4z"/><path d="M14 3v4h4M9 14l2 2 4-4"/>',
+  cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17M8 14h3"/>',
+  check: '<path d="M10 6h10M10 12h10M10 18h10M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>',
+  book: '<path d="M4 4.5h6a2.5 2.5 0 012.5 2.5v13a2 2 0 00-2-2H4zM20 4.5h-6A2.5 2.5 0 0011.5 7v13a2 2 0 012-2H20z"/>',
+  article: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 7.5h7M8.5 11.5h7M8.5 15.5h4"/>',
+  calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/>',
+  video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3"/>',
+  news: '<path d="M4 5h13v14H6a2 2 0 01-2-2z"/><path d="M17 9h3v8a2 2 0 01-2 2M7.5 9h6M7.5 12.5h6M7.5 16h3"/>',
+  chat: '<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/>'
+};
+function iconHtml(k) {
+  if (!ICONS[k]) throw new Error('ไม่รู้จักไอคอนเมนู: ' + k);
+  return '<span class="njh-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" focusable="false">' + ICONS[k] + '</svg></span>';
+}
+
 function headerHtml(file, NL) {
   const cur = CURRENT_AS[file] || file;
   const L = [];
@@ -156,14 +199,27 @@ function headerHtml(file, NL) {
       (g.items ? '<span class="njh-caret" aria-hidden="true">▾</span>' : '') + '</a>');
     if (g.items) {
       L.push('          <div class="njh-panel">');
+      L.push('           <div class="njh-mega">');
+      L.push('            <div class="njh-mh"><p class="njh-mh-t">' + esc(g.label) + '</p>' +
+        (g.desc ? '<p class="njh-mh-d">' + esc(g.desc) + '</p>' : '') +
+        (g.all ? '<a class="njh-all" href="' + esc(g.href) + '">ดูทั้งหมด<span class="nj-sr-only"> ใน' + esc(g.label) + '</span> <span aria-hidden="true">→</span></a>' : '') +
+        '</div>');
       L.push('            <ul>');
       for (const it of g.items) {
         L.push('              <li><a href="' + esc(it.href) + '"' +
           (pageOf(it.href) === cur ? ' aria-current="page"' : '') + '>' +
           '<b>' + esc(it.label) + '</b>' +
-          (it.note ? '<small>' + esc(it.note) + '</small>' : '') + '</a></li>');
+          (it.note ? '<small>' + esc(it.note) + '</small>' : '') +
+          (it.icon ? iconHtml(it.icon) : '') + '</a></li>');
       }
       L.push('            </ul>');
+      if (g.feat) {
+        const f = g.feat;
+        L.push('            <a class="njh-feat" href="' + esc(f.href) + '" tabindex="-1">' +
+          '<span class="njh-feat-img" data-bg="/photos/menu/' + esc(f.img) + '.webp" aria-hidden="true"></span>' +
+          '<span class="njh-feat-tx"><em>' + esc(f.tag) + '</em><strong>' + esc(f.title) + '</strong><small>' + esc(f.sub) + '</small></span></a>');
+      }
+      L.push('           </div>');
       L.push('          </div>');
     }
     L.push('        </li>');
