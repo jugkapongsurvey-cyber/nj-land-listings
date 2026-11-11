@@ -229,6 +229,20 @@ ok('หัวเว็บติดหนึบ', /\.njh\s*{[^}]*position:\s*stic
 ok('⭐ เมนูย่อยเปิดได้ด้วยโฟกัส ไม่ต้องพึ่ง JS', /:focus-within\s*>\s*\.njh-panel/.test(hcss));
 ok('⭐ ขาเปิดไม่มี transition (กันแผงเปิดแล้วยังใสอยู่)',
    /:focus-within > \.njh-panel\s*{[^}]*transition:\s*none/.test(hcss));
+// เมกะเมนูแบบ B (12 พ.ย. 2569) — เลื่อนลงด้วย clip-path ซึ่งตัดทั้งภาพและพื้นที่กด · ห้ามกลับไปไล่ opacity
+{
+  const open = (hcss.match(/:focus-within > \.njh-panel\s*{[^}]*}/) || [''])[0];
+  ok('⭐ แผงเปิดเลื่อนลงด้วย animation ของ clip-path ไม่ใช่ opacity',
+     /animation:\s*njh-drop/.test(open) && /@keyframes njh-drop\s*{\s*from\s*{\s*clip-path:\s*inset\(0 0 100% 0\)/.test(hcss) && !/opacity/.test(open));
+  ok('⭐ แผงตอนปิดถูกตัดด้วย clip-path (ค้างกลางทาง = มองไม่เห็นและกดไม่โดน)',
+     /\.njh-panel\s*{[^}]*clip-path:\s*inset\(0 0 100% 0\)/.test(hcss));
+  ok('⭐ แอนิเมชันรายการ/การ์ดใช้ transform อย่างเดียว ไม่ไล่ opacity',
+     !/@keyframes njh-(item|feat|from-r|from-l)\s*{[^}]*opacity/.test(hcss));
+  ok('ภาพการ์ดเมนูเป็น data-bg ไม่ใช่ <img> (ไม่ให้ทุกหน้าโหลดภาพเปล่าๆ)',
+     /class="njh-feat-img" data-bg="\/photos\/menu\/[a-z]+\.webp"/.test(home) && !/<img[^>]*photos\/menu\//.test(home));
+  ok('ไอคอนเมนูอยู่หลังชื่อในลิงก์ (<a ...><b>ชื่อ</b> ต้องคงเดิม)',
+     /<li><a href="listings\.html"><b>ประกาศทั้งหมด<\/b><small>[^<]*<\/small><span class="njh-ic"/.test(home));
+}
 ok('⭐ ซ่อนแถวเมนูที่จอต่ำกว่า 1024px ไม่ใช่ 1280px เหมือนเดิม',
    /max-width:\s*1023px\s*\)\s*{[^}]*\.njh-nav\s*{\s*display:\s*none/.test(hcss));
 ok('สถานะหน้าปัจจุบันผูกกับ [aria-current] ไม่ใช่คลาสที่ตั้งเอง',
@@ -244,6 +258,8 @@ console.log('\n10) ลิ้นชักจอเล็กต้องได้�
 const mjs = read('menu.js');
 ok('อ่านกลุ่มจาก DOM จริง ไม่ได้พิมพ์รายการซ้ำ', /querySelectorAll\('\.njh-item'\)/.test(mjs));
 ok('ทำหัวกลุ่มกับลูกให้ต่างกัน', /njmenu-group/.test(mjs) && /njmenu-sub/.test(mjs));
+ok('⭐ ลิ้นชักหยิบเฉพาะรายการใน <li> (ไม่เอาลิงก์ "ดูทั้งหมด"/การ์ดภาพของเมกะเมนูไปซ้ำ)',
+   /querySelectorAll\('\.njh-panel li > a'\)/.test(mjs));
 ok('ยกสถานะหน้าปัจจุบันไปลิ้นชักด้วย', /aria-current/.test(mjs));
 ok('⭐ กันลิงก์พอร์ทัลซ้ำหลังย้ายเข้า <nav>', /portal = null/.test(mjs));
 ok('รู้จักปุ่มหลักของหัวเว็บชุดใหม่', /'\.njh-cta'/.test(mjs));

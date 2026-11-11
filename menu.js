@@ -144,7 +144,8 @@
       Array.prototype.forEach.call(groups, function (li) {
         var top = li.querySelector('.njh-top');
         if (!top) return;
-        var subs = li.querySelectorAll('.njh-panel a');
+        // ⚠️ เฉพาะรายการใน <li> — แผงแบบเมกะเมนูมีลิงก์ "ดูทั้งหมด" และการ์ดภาพด้วย ซึ่งซ้ำกับหัวกลุ่ม/รายการ
+        var subs = li.querySelectorAll('.njh-panel li > a');
         if (!subs.length) { addLink(top); return; }
         // กลุ่มที่มีเมนูย่อย: หัวกลุ่มเป็นลิงก์จริงเหมือนบนเดสก์ท็อป แล้วตามด้วยลูกของมัน
         addLink(top, 'njmenu-group');
@@ -277,8 +278,50 @@
     });
   }
 
+  // ---- เมกะเมนูบนจอคอม (แบบ B · 12 พ.ย. 2569) — ส่วนเสริมเท่านั้น ไม่มี JS แผงยังเปิดได้ด้วย CSS ----
+  // 1) ภาพการ์ดแนะนำ (data-bg) โหลดเมื่อเมาส์/โฟกัสแตะแถวเมนูครั้งแรก — ไม่ให้ทุกหน้าโหลดภาพ 4 ใบเปล่าๆ
+  // 2) ย้ายเมาส์ข้ามกลุ่มขณะแผงเปิด → .njh-swap ที่ .njh: แผงไม่เลื่อนลงใหม่ เนื้อหาเลื่อนข้างตามทิศแทน
+  //    ⚠️ ถอด .njh-swap ตอนเมาส์ออกจากแถวเมนู/แผงเท่านั้น — ถอดระหว่างแผงเปิดอยู่ = animation ของแผงเริ่มใหม่ แผงกระตุกลงซ้ำ
+  function bindMegaMenu() {
+    var head = document.querySelector('.njh');
+    var list = head && head.querySelector('.njh-list');
+    if (!list) return;
+    var loaded = false;
+    function loadArt() {
+      if (loaded) return;
+      loaded = true;
+      Array.prototype.forEach.call(head.querySelectorAll('[data-bg]'), function (el) {
+        var u = el.getAttribute('data-bg') || '';
+        if (/^\/photos\/menu\/[a-z0-9-]+\.webp$/.test(u)) el.style.backgroundImage = 'url("' + u + '")';
+      });
+    }
+    list.addEventListener('mouseover', loadArt);
+    list.addEventListener('focusin', loadArt);
+    var groups = Array.prototype.slice.call(list.querySelectorAll('.njh-has-menu'));
+    var last = null, leftAt = 0;
+    groups.forEach(function (li, i) {
+      li.addEventListener('mouseenter', function () {
+        var swap = last && last !== li && (Date.now() - leftAt) < 150;
+        groups.forEach(function (g) { g.classList.remove('njh-from-r', 'njh-from-l'); });
+        if (swap) {
+          void li.offsetWidth;   // เริ่มแอนิเมชันเลื่อนข้างใหม่ทุกครั้ง แม้คลาสทิศเดิม
+          li.classList.add(i > groups.indexOf(last) ? 'njh-from-r' : 'njh-from-l');
+          head.classList.add('njh-swap');
+        } else {
+          head.classList.remove('njh-swap');
+        }
+      });
+      li.addEventListener('mouseleave', function () { last = li; leftAt = Date.now(); });
+    });
+    list.addEventListener('mouseleave', function () {
+      head.classList.remove('njh-swap');
+      last = null;
+    });
+  }
+
   function boot() {
     bindTouchMenus();
+    bindMegaMenu();
     nav = findNav();
     if (!nav) return;
     buildPanel();
