@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* คลิปแนะนำระบบบนหน้า portal.html (#ดูคลิป)
  *   รันด้วย:  node portalclip.test.js
  *

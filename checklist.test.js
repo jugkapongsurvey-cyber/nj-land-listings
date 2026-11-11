@@ -1,6 +1,7 @@
 // ทดสอบหน้า "เช็กลิสต์ตรวจที่ดินก่อนซื้อ" (checklist.html · checklist.js) + ทางเข้าจากหน้าอื่น
 // ⚠️ ไม่มีเครือข่าย · อ่านไฟล์อย่างเดียว + รัน checklist.js กับ DOM จำลองขนาดเล็ก
 'use strict';
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');

@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* หัวเว็บชุดเดียว + Design Token (Sprint 1 · งานที่ 1–2) · เพิ่ม 2026-09-20
  *   รันด้วย:  node header.test.js
  *

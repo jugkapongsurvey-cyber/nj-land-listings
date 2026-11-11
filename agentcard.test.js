@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // การ์ดผู้ลงประกาศ (agent card) ฝั่งเว็บ — 2026-10-10
 //   รันด้วย: node agentcard.test.js
 //

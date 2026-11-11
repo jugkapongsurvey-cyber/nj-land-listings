@@ -23,6 +23,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { versionHtml } = require('./assetver');
 
 const ROOT = path.join(__dirname, '..');
 const CHECK = process.argv.includes('--check');
@@ -348,6 +349,9 @@ function build() {
         }
       }
     }
+
+    // เลขเวอร์ชันท้ายไฟล์ CSS/JS (build/assetver.js) — ใส่ทุกหน้าที่เขียน ไม่งั้น `--check` ตีกับ assetver.js
+    src = versionHtml(src, path.dirname(full));
 
     if (src !== before) {
       changed.push(file);

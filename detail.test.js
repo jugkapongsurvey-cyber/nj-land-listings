@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* หน้ารายละเอียดแปลง + การ์ดประกาศ + บันทึกแปลง (Sprint 3 · งานที่ 7–8) · เพิ่ม 2026-09-20
  *   รันด้วย:  node detail.test.js
  *

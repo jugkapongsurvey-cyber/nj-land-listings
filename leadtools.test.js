@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // เครื่องมือเก็บลีด 5 ตัวบนหน้าเครื่องมือ (Phase 10 สปรินต์ 5)
 //   รันด้วย:  node leadtools.test.js
 //

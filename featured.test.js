@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // ประกาศเด่น (Featured Listing) รอบ 2 ฝั่งเว็บ · เพิ่ม 2026-10-04
 // รันด้วย:  node featured.test.js  [path ไปยัง nj-survey-system]
 //

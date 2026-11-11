@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // ทดสอบวัดพื้นที่บนแผนที่ (areamap.js) — สูตร + ตัวควบคุมหมุดด้วย Longdo ตัวปลอม (ไม่ต่อเน็ต)
 // รันด้วย:  node areamap.test.js
 const fs = require('fs');

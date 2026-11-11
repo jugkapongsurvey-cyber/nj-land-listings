@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // ทดสอบตัวอ่านลิงก์ทรัพย์หน่วยงาน (agencies.js) + หน้า agency.html / tools.html / manifest
 // รันด้วย:  node agency.test.js
 const fs = require('fs');

@@ -1,4 +1,5 @@
 'use strict';
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // ---------- เทสต์วารสารที่ดินชัวร์ฝั่งเว็บ (build/journal.js · journal.html · journalhome.js · หน้าแรก) ----------
 // ไม่ต่อเน็ต ไม่เขียนไฟล์ — ทดสอบตัววางแผนไฟล์ (plan) ด้วยข้อมูลสมมติ
 const fs = require('fs');
