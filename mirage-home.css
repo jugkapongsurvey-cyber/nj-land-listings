@@ -120,7 +120,6 @@ body{background:#F5F8FC}
 
 /* ---------- แท็บเล็ต/มือถือ ---------- */
 @media (max-width:900px){
-  .mh-hero-video{display:none}
   .mh-hero-word{font-size:clamp(48px,16vw,84px);top:12px;opacity:.35}
   .quick .container{grid-template-columns:1fr 1fr}
   .quick a,.quick a.is-dark{min-height:160px;padding:18px}
