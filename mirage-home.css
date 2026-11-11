@@ -21,10 +21,13 @@ body{background:#F5F8FC}
 /* ---------- HERO: วิดีโอโดรนเต็มพื้นหลัง ---------- */
 .hero[data-mh-hero]{position:relative;isolation:isolate;overflow:hidden;color:#fff;
   background:linear-gradient(160deg,#0C1D3B 0%,#12315F 55%,#1E4B8F 100%);padding:72px 0 64px}
-.mh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;display:block}
+/* 11 พ.ย. 2569 เจ้าของว่าพื้นวิดีโอมืดเกินไป → ดันความสว่างวิดีโอ + ลดชั้นเงาทับ
+   ⚠️ เงาซ้ายยังต้องเหลือพอให้ตัวหนังสือขาวอ่านออก — ถ้าจะลดอีกให้เพิ่ม text-shadow แทน */
+.mh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;display:block;
+  filter:brightness(1.18) saturate(1.08)}
 .hero[data-mh-hero]::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:
-  linear-gradient(90deg,rgba(6,16,34,.78) 0%,rgba(6,16,34,.5) 48%,rgba(6,16,34,.2) 100%),
-  linear-gradient(180deg,rgba(0,0,0,.25) 0%,transparent 30%,transparent 70%,rgba(4,14,30,.45) 100%)}
+  linear-gradient(90deg,rgba(6,16,34,.56) 0%,rgba(6,16,34,.4) 38%,rgba(6,16,34,.1) 62%,rgba(6,16,34,0) 100%),
+  linear-gradient(180deg,rgba(0,0,0,.12) 0%,transparent 30%,transparent 72%,rgba(4,14,30,.28) 100%)}
 .mh-hero-word{position:absolute;right:3vw;top:24px;z-index:-1;text-align:right;font-family:var(--mh-display);
   font-weight:900;font-size:clamp(56px,8vw,128px);line-height:.86;text-transform:uppercase;pointer-events:none;opacity:.5}
 .mh-hero-word span{display:block}
@@ -32,7 +35,8 @@ body{background:#F5F8FC}
 .mh-hero-word .f{color:rgba(255,255,255,.55)}
 .hero[data-mh-hero] h1{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.35)}
 .hero[data-mh-hero] h1 span{color:#F2C350}
-.hero[data-mh-hero] .hero-lead{color:#DCE7F6}
+.hero[data-mh-hero] .hero-lead{color:#F4F8FD;text-shadow:0 1px 2px rgba(0,0,0,.6),0 1px 12px rgba(0,0,0,.55)}
+.hero[data-mh-hero] .hero-clip{text-shadow:0 1px 2px rgba(0,0,0,.6),0 1px 10px rgba(0,0,0,.55)}
 .hero[data-mh-hero] .hero-pill{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(4px)}
 .hero[data-mh-hero] .hero-clip{color:#fff}
 .hero[data-mh-hero] .search{color:var(--ink);box-shadow:0 26px 56px -28px rgba(0,0,0,.55);border-color:transparent}
