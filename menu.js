@@ -36,7 +36,7 @@
   // เช็ก href ซ้ำกับใน <nav> ก่อนเสมอ ไม่งั้นหน้าที่มีทั้งสองที่จะได้เมนูซ้ำสองข้อ
   var CHAT_SELECTOR = '[data-njchat]';
 
-  var nav = null, panel = null, backdrop = null, btn = null, lastFocus = null;
+  var nav = null, panel = null, backdrop = null, btn = null, lastFocus = null, hideT = 0;
 
   function pick(list) {
     for (var i = 0; i < list.length; i++) {
@@ -61,6 +61,9 @@
   function open() {
     if (isOpen()) return;
     lastFocus = document.activeElement;
+    clearTimeout(hideT);
+    panel.classList.remove('njmenu-closing');
+    backdrop.classList.remove('njmenu-closing');
     document.documentElement.classList.add('njmenu-open');
     btn.setAttribute('aria-expanded', 'true');
     panel.hidden = false;
@@ -73,8 +76,19 @@
     if (!isOpen()) return;
     document.documentElement.classList.remove('njmenu-open');
     btn.setAttribute('aria-expanded', 'false');
-    panel.hidden = true;
-    backdrop.hidden = true;
+    // เลื่อนลิ้นชักออกทางขวาก่อน แล้วค่อยซ่อนจริง (12 พ.ย. 2569) · ลดการเคลื่อนไหว = ซ่อนทันที
+    // ⚠️ ระหว่างเลื่อนออก ลิ้นชักกดไม่ได้แล้ว (pointer-events:none ใน menu.css) — กันกดลิงก์ที่กำลังหายไป
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { panel.hidden = true; backdrop.hidden = true; }
+    else {
+      panel.classList.add('njmenu-closing');
+      backdrop.classList.add('njmenu-closing');
+      clearTimeout(hideT);
+      hideT = setTimeout(function () {
+        panel.hidden = true; backdrop.hidden = true;
+        panel.classList.remove('njmenu-closing'); backdrop.classList.remove('njmenu-closing');
+      }, 280);
+    }
     // คืนโฟกัสไปที่ปุ่มเมนูเป็นค่าตั้งต้น — ไม่ใช่ปล่อยไว้เฉยๆ
     // ปิดลิ้นชักแล้วโฟกัสยังค้างบนปุ่มที่เพิ่งถูกซ่อน = คนใช้คีย์บอร์ดกด Tab ต่อแล้วไปโผล่กลางหน้า
     // (lastFocus เป็น body ได้ ถ้าเปิดด้วยวิธีอื่นที่ไม่ใช่การกดปุ่ม)
@@ -123,7 +137,7 @@
       var t = (b ? b.textContent : a.textContent) || '';
       return t.replace(/[▾▸▼]/g, '').replace(/^＋\s*/, '').replace(/\s*[→›»]\s*$/, '').trim();
     }
-    function addLink(a, cls) {
+    function addLink(a, cls, into) {
       var item = document.createElement('a');
       item.href = a.getAttribute('href') || '#';
       // ใช้ textContent เสมอ — ข้อความเมนูบางหน้ามีอักขระพิเศษ และเราไม่ต้องการ markup ข้างใน
@@ -132,8 +146,15 @@
       else if (a.classList.contains('active')) item.className = 'on';
       // ⚠️ หน้าที่กำลังเปิดอยู่ต้องบอกให้รู้ในลิ้นชักด้วย ไม่ใช่เฉพาะบนแถวเดสก์ท็อปที่ถูกซ่อนไปแล้ว
       if (a.getAttribute('aria-current') === 'page') item.setAttribute('aria-current', 'page');
-      list.appendChild(item);
+      (into || list).appendChild(item);
       return item;
+    }
+
+    var accSeq = 0;
+    function setAcc(acc, on) {
+      acc.classList.toggle('open', on);
+      var t = acc.querySelector('.njmenu-tog');
+      if (t) t.setAttribute('aria-expanded', on ? 'true' : 'false');
     }
 
     // ---- หัวเว็บชุดใหม่: มีกลุ่มจริง จึงจัดลิ้นชักเป็นกลุ่มตามนั้น ----
@@ -147,9 +168,43 @@
         // ⚠️ เฉพาะรายการใน <li> — แผงแบบเมกะเมนูมีลิงก์ "ดูทั้งหมด" และการ์ดภาพด้วย ซึ่งซ้ำกับหัวกลุ่ม/รายการ
         var subs = li.querySelectorAll('.njh-panel li > a');
         if (!subs.length) { addLink(top); return; }
-        // กลุ่มที่มีเมนูย่อย: หัวกลุ่มเป็นลิงก์จริงเหมือนบนเดสก์ท็อป แล้วตามด้วยลูกของมัน
-        addLink(top, 'njmenu-group');
-        Array.prototype.forEach.call(subs, function (a) { addLink(a, 'njmenu-sub'); });
+        // กลุ่มที่มีเมนูย่อย = หีบเพลง (12 พ.ย. 2569 · แบบตัวอย่าง menu-redesign-2026-11-11)
+        // ⚠️ หัวกลุ่มยังเป็นลิงก์จริง (ไปหน้ารวมของกลุ่ม) · ปุ่มลูกศรข้างๆ เป็นตัวกาง/พับ
+        //    กลุ่มที่มีหน้าที่เปิดอยู่กางไว้ตั้งแต่แรก · กางกลุ่มหนึ่ง = พับกลุ่มอื่น
+        // ⚠️ ไอคอนโคลนจาก .njh-ic ในแผงเดสก์ท็อปของหน้าเดียวกัน (ไม่พิมพ์ไอคอนซ้ำในไฟล์นี้)
+        var acc = document.createElement('div');
+        acc.className = 'njmenu-acc';
+        var row = document.createElement('div');
+        row.className = 'njmenu-row';
+        acc.appendChild(row);
+        list.appendChild(acc);
+        var g = addLink(top, 'njmenu-group', row);
+        var box = document.createElement('div');
+        box.className = 'njmenu-subs';
+        box.id = 'njmenu-subs-' + (++accSeq);
+        var inner = document.createElement('div');
+        box.appendChild(inner);
+        var here = g.getAttribute('aria-current') === 'page';
+        Array.prototype.forEach.call(subs, function (a) {
+          var it = addLink(a, 'njmenu-sub', inner);
+          var ic = a.querySelector('.njh-ic');
+          if (ic) { it.insertBefore(ic.cloneNode(true), it.firstChild); it.classList.add('njmenu-ic'); }
+          if (it.getAttribute('aria-current') === 'page') here = true;
+        });
+        var tog = document.createElement('button');
+        tog.type = 'button';
+        tog.className = 'njmenu-tog';
+        tog.setAttribute('aria-controls', box.id);
+        tog.setAttribute('aria-label', 'รายการใน' + labelOf(top));
+        tog.innerHTML = '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        row.appendChild(tog);
+        acc.appendChild(box);
+        setAcc(acc, here);
+        tog.addEventListener('click', function () {
+          var on = !acc.classList.contains('open');
+          Array.prototype.forEach.call(list.querySelectorAll('.njmenu-acc.open'), function (o) { if (o !== acc) setAcc(o, false); });
+          setAcc(acc, on);
+        });
       });
     } else {
       // ---- หัวเว็บแบบเดิม (เผื่อหน้าที่ยังไม่ได้ผ่าน build/pages.js) ----
