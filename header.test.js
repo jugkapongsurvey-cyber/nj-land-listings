@@ -259,6 +259,18 @@ console.log('\n10) ลิ้นชักจอเล็กต้องได้�
 const mjs = read('menu.js');
 ok('อ่านกลุ่มจาก DOM จริง ไม่ได้พิมพ์รายการซ้ำ', /querySelectorAll\('\.njh-item'\)/.test(mjs));
 ok('ทำหัวกลุ่มกับลูกให้ต่างกัน', /njmenu-group/.test(mjs) && /njmenu-sub/.test(mjs));
+// ลิ้นชักมือถือแบบหีบเพลง (12 พ.ย. 2569)
+ok('ลิ้นชัก: กลุ่มเป็นหีบเพลง หัวกลุ่มยังเป็นลิงก์ + ปุ่มกาง/พับมี aria-expanded',
+   /njmenu-acc/.test(mjs) && /addLink\(top, 'njmenu-group', row\)/.test(mjs) && /njmenu-tog/.test(mjs) && /aria-expanded/.test(mjs));
+ok('ลิ้นชัก: ไอคอนโคลนจากแผงเดสก์ท็อป ไม่พิมพ์ไอคอนซ้ำใน menu.js', /querySelector\('\.njh-ic'\)/.test(mjs) && !/<path d="M8 6h12/.test(mjs));
+ok('ลิ้นชัก: ปิดแบบเลื่อนออกแล้วค่อยซ่อน · ลดการเคลื่อนไหว = ซ่อนทันที',
+   /njmenu-closing/.test(mjs) && /prefers-reduced-motion/.test(mjs));
+{
+  const mcss = read('menu.css');
+  ok('ลิ้นชัก: ระหว่างเลื่อนออกกดไม่ได้ (pointer-events:none)', /\.njmenu-panel\.njmenu-closing\s*{[^}]*pointer-events:\s*none/.test(mcss));
+  ok('ลิ้นชัก: แอนิเมชันแถว/รายการเลื่อนด้วย transform ไม่ไล่ opacity',
+     !/@keyframes njmenu-(row|sub|in|out)\s*{[^}]*opacity/.test(mcss));
+}
 ok('⭐ ลิ้นชักหยิบเฉพาะรายการใน <li> (ไม่เอาลิงก์ "ดูทั้งหมด"/การ์ดภาพของเมกะเมนูไปซ้ำ)',
    /querySelectorAll\('\.njh-panel li > a'\)/.test(mjs));
 ok('ยกสถานะหน้าปัจจุบันไปลิ้นชักด้วย', /aria-current/.test(mjs));

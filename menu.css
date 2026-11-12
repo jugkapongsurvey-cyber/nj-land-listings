@@ -40,11 +40,19 @@ header .njmenu-btn{ color:#fff; }
   display:flex; flex-direction:column; overflow-y:auto;
   padding:0 0 calc(22px + env(safe-area-inset-bottom));
   box-shadow:-14px 0 40px rgba(6,17,33,.42);
-  animation:njmenu-in .22s ease;
+  /* เลื่อนเข้าจากขวาแบบนุ่ม (12 พ.ย. 2569) · ค้างจุดเริ่ม = อยู่นอกจอ มองไม่เห็นและกดไม่โดน */
+  animation:njmenu-in .38s cubic-bezier(.2,.8,.2,1);
 }
+.njmenu-backdrop{ animation:njmenu-fade .3s ease; }
+/* ขาออก: menu.js ใส่ .njmenu-closing แล้วซ่อนจริงหลัง 280ms · ระหว่างนั้นกดอะไรในลิ้นชักไม่ได้แล้ว */
+.njmenu-panel.njmenu-closing{ animation:njmenu-out .28s cubic-bezier(.4,0,1,1) forwards; pointer-events:none; }
+.njmenu-backdrop.njmenu-closing{ animation:njmenu-fade-out .28s ease forwards; pointer-events:none; }
 @keyframes njmenu-in{ from{ transform:translateX(100%) } to{ transform:none } }
+@keyframes njmenu-out{ from{ transform:none } to{ transform:translateX(102%) } }
+@keyframes njmenu-fade{ from{ opacity:0 } }
+@keyframes njmenu-fade-out{ to{ opacity:0 } }
 /* กติกาข้อ 7 ของโปรเจกต์ — คนที่ตั้งค่าปิดภาพเคลื่อนไหวต้องไม่เจอลิ้นชักเลื่อน */
-@media (prefers-reduced-motion:reduce){ .njmenu-panel{ animation:none } }
+@media (prefers-reduced-motion:reduce){ .njmenu-panel, .njmenu-backdrop, .njmenu-list > *, .njmenu-sub{ animation:none !important } .njmenu-subs, .njmenu-tog svg{ transition:none !important } }
 /* [hidden] ต้องชนะ display:flex ข้างบน — กับดักเดิมของโปรเจกต์ (ดู ui.css) */
 .njmenu-panel[hidden], .njmenu-backdrop[hidden]{ display:none !important; }
 /* ล็อกไม่ให้หน้าข้างหลังเลื่อนตามขณะลิ้นชักเปิด */
@@ -198,3 +206,53 @@ html.njmenu-open, html.njmenu-open body{ overflow:hidden; }
 }
 /* หัวกลุ่มของหน้าที่เปิดอยู่คงสีทองไว้ — เป็นป้ายหมวด ไม่ใช่ตัวหน้าเอง */
 .njmenu-list .njmenu-group[aria-current="page"] { color: #D8B96B; background: rgba(255, 255, 255, .04); }
+
+/* ---------- หีบเพลงในลิ้นชัก (12 พ.ย. 2569 · แบบตัวอย่าง menu-redesign-2026-11-11) ----------
+ * โครง: .njmenu-acc > .njmenu-row (a.njmenu-group + button.njmenu-tog) + .njmenu-subs > div > a.njmenu-sub
+ * ⚠️ ห้ามใช้สีตัวแปร navy/gray ในบล็อกนี้ (กติกาเดียวกับข้างบน · mobilefix.test.js ตรวจถึงท้ายไฟล์)
+ * ⚠️ แอนิเมชันรายการเลื่อนด้วย transform อย่างเดียว ไม่ไล่ opacity — ค้างกลางทางยังมองเห็นและกดได้ตรงตัว */
+.njmenu-acc { border-top: 1px solid rgba(255, 255, 255, .10); }
+.njmenu-acc:first-child { border-top: 0; }
+.njmenu-row { display: flex; align-items: stretch; background: rgba(255, 255, 255, .04); }
+.njmenu-row .njmenu-group { flex: 1 1 auto; margin-top: 0; border-top: 0; border-bottom: 0; padding: 15px 18px; font-size: 15px; }
+.njmenu-tog {
+  flex: 0 0 52px; display: grid; place-items: center; min-height: 48px;
+  background: none; border: 0; border-left: 1px solid rgba(255, 255, 255, .08);
+  color: #D8B96B; cursor: pointer;
+}
+.njmenu-tog:hover { background: rgba(216, 185, 107, .12); }
+.njmenu-tog svg { transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.njmenu-acc.open .njmenu-tog svg { transform: rotate(180deg); }
+
+/* กาง/พับด้วย grid-template-rows 0fr → 1fr · พับแล้วซ่อนด้วย visibility (กด Tab ข้ามรายการที่พับไว้) */
+.njmenu-subs {
+  display: grid; grid-template-rows: 0fr; visibility: hidden;
+  transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .34s;
+}
+.njmenu-acc.open > .njmenu-subs { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1); }
+.njmenu-subs > div { overflow: hidden; min-height: 0; }
+
+.njmenu-list .njmenu-sub.njmenu-ic { display: flex; align-items: center; gap: 12px; padding: 11px 18px; }
+.njmenu-list .njmenu-sub.njmenu-ic::before { display: none; }
+.njmenu-list .njh-ic {
+  flex: 0 0 34px; width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .10); color: #F2C350;
+}
+.njmenu-list .njh-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* เปิดลิ้นชัก: แถวไหลเข้าจากขวาทีละแถว · กางกลุ่ม: รายการไหลลงทีละแถว */
+.njmenu-list > * { animation: njmenu-row .45s cubic-bezier(.2, .8, .2, 1) backwards; }
+.njmenu-list > :nth-child(2) { animation-delay: .04s; }
+.njmenu-list > :nth-child(3) { animation-delay: .08s; }
+.njmenu-list > :nth-child(4) { animation-delay: .12s; }
+.njmenu-list > :nth-child(5) { animation-delay: .16s; }
+.njmenu-list > :nth-child(6) { animation-delay: .20s; }
+.njmenu-list > :nth-child(n+7) { animation-delay: .24s; }
+.njmenu-acc.open .njmenu-sub { animation: njmenu-sub .38s cubic-bezier(.2, .8, .2, 1) backwards; }
+.njmenu-acc.open .njmenu-sub:nth-child(2) { animation-delay: .04s; }
+.njmenu-acc.open .njmenu-sub:nth-child(3) { animation-delay: .08s; }
+.njmenu-acc.open .njmenu-sub:nth-child(4) { animation-delay: .12s; }
+.njmenu-acc.open .njmenu-sub:nth-child(n+5) { animation-delay: .16s; }
+@keyframes njmenu-row { from { transform: translateX(28px); } }
+@keyframes njmenu-sub { from { transform: translateY(-8px); } }
