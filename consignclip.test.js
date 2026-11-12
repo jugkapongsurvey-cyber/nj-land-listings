@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* คลิปสอนวิธีฝากขาย 3 นาทีบนหน้า consign.html (#คลิปวิธีฝากขาย)
  *   รันด้วย:  node consignclip.test.js
  *

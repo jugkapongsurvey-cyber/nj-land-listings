@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // ทดสอบคู่มือผังสี (zoneguide.js) + ทางเข้าบน tools.html และในแชท
 // รันด้วย:  node zoneguide.test.js
 const fs = require('fs');

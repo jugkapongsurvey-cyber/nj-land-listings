@@ -226,7 +226,8 @@ function render(tpl, l) {
   // ⚠️ จับแท็กทั้งแบบมีและไม่มี defer — รอบปรับความเร็ว (#18) เติม defer ให้ทุกสคริปต์ แล้วข้อความเดิมหาไม่เจอ
   //    รหัสแปลงหายเงียบทุกหน้า แล้วหน้าแปลงที่เปิดโดยไม่มี ?id= ขึ้นว่าไม่พบประกาศ · หาไม่เจอ = ล้มดังๆ
   //    สคริปต์รหัสแปลงไม่มี defer โดยตั้งใจ (รันทันที ก่อนสคริปต์ที่ defer ทุกตัว)
-  const metaTag = /<script src="\/landmeta\.js"( defer)?><\/script>/;
+  // ⚠️ ท้ายชื่อไฟล์อาจมีเลขเวอร์ชัน ?v=… (build/assetver.js · 12 พ.ย. 2569) — ต้องจับได้ทั้งสองแบบ
+  const metaTag = /<script src="\/landmeta\.js(?:\?v=[0-9a-f]{8})?"( defer)?><\/script>/;
   if (!metaTag.test(s)) throw new Error('ต้นแบบ land.html ไม่มีแท็ก landmeta.js — ฝังรหัสแปลง ' + l.id + ' ไม่ได้');
   s = s.replace(metaTag, (m) =>
     '<script>window.NJ_LISTING_ID=' + jsonInScript(String(l.id)) + ';</script>\n  ' + m);

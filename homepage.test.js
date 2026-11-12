@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* หน้าแรกหลังจัดใหม่ — Hero · Search · Trust Bar · ลำดับบล็อก (Sprint 2 · งานที่ 3–6)
  *   รันด้วย:  node homepage.test.js
  *

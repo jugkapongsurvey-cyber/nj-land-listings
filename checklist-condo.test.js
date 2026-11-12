@@ -1,6 +1,7 @@
 // ทดสอบหน้า "เช็กลิสต์ตรวจห้องชุดก่อนซื้อ" (checklist-condo.html · รอบคอนโด 2 · 10 ต.ค. 2569)
 // ⚠️ ไม่มีเครือข่าย · อ่านไฟล์อย่างเดียว · ชุดแยกจาก 16 ข้อของที่ดิน (checklist.html) — ห้ามยุบรวม
 'use strict';
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');

@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* ตัวอย่างประกาศแบบสดข้างฟอร์มฝากขาย (consignpreview.js) · เพิ่ม 2026-09-21
  *   รันด้วย:  node consignpreview.test.js
  *

@@ -2674,3 +2674,14 @@ GitHub Pages เสิร์ฟ `404.html` **ที่ที่อยู่ท�
 `listingcard.js` (`preSurveyOf` · แถบ `.card-presurvey` ครบ 3 ชุดสไตล์) · `land.js` `preSurveyHtml()` แผงเด่นใต้ราคา · `listings.js` ตัวกรอง `#f-presurvey` · ฟอร์ม `consign.js` `setupSurvey` · เทสต์ `presurvey.test.js`
 - ⚠️ **ก่อนรังวัดจริงเป็นข้อตกลง ห้ามใช้สีเขียวหรือคำว่ารังวัดแล้ว** (กติกาข้อ 10) · ข้อมูลผลมาจากเซิร์ฟเวอร์ หน้าเว็บไม่คำนวณ
 - ฟอร์มเว็บซ่อน `#cs-survey` เมื่อเลือกบริการ · `SV.sync` เปิดกลับเฉพาะกรณี on_sale ใช้ได้ (`show()` ใน setupService ต้องเรียก `SV.sync()` ต่อ)
+
+## เลขเวอร์ชันท้ายไฟล์ CSS/JS (2026-11-12 · `build/assetver.js`)
+
+GitHub Pages แคชทุกไฟล์ 10 นาที — หลังอัปเดตเคยเจอ HTML ใหม่ + `header.css`/`menu.js` เก่า หน้าเพี้ยน (#131)
+ทุก `href`/`src` ที่ชี้ `.css`/`.js` ในเว็บนี้จึงมี `?v=<md5 8 ตัวของเนื้อไฟล์>`
+- **แก้ CSS/JS ไฟล์ไหน ต้องรัน `node build/assetver.js` ก่อน commit** · CI รัน `--check` (เลขไม่ตรง = แดง)
+- ลำดับเต็ม: `build/pages.js` → `build/assetver.js` → commit → `build/sitemap.js` · `pages.js` เรียก `versionHtml()` เองแล้ว จึงไม่ตีกัน
+- เพิ่มหน้า/แท็กใหม่เขียนชื่อไฟล์เปล่าได้ (`x.js`) แล้วรันสคริปต์ให้เติมเลขเอง
+- **เทสต์ที่อ่าน HTML แล้วค้นแท็กด้วยชื่อไฟล์ ให้ `require('./build/testhtml')` บรรทัดแรก** (ตัด `?v=` ตอนอ่าน `.html`) · ห้ามใช้ในตัวสร้างหน้า
+- regex ที่จับแท็กสคริปต์ในตัวสร้าง (เช่น `metaTag` ใน `build/properties.js`) ต้องรับ `(?:\?v=[0-9a-f]{8})?`
+- ยังไม่มีเลข: ไฟล์ที่ JS โหลดเองภายหลัง (`njchatload.js` → `njchat.js` · `lazycss.js`) และรูป/ฟอนต์

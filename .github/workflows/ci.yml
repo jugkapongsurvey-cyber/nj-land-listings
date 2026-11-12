@@ -41,6 +41,9 @@ jobs:
       - name: หัวเว็บกับสไตล์ชีตกลางตรงกับ build/pages.js
         run: node build/pages.js --check
 
+      - name: เลขเวอร์ชันท้ายไฟล์ CSS/JS ตรงกับเนื้อไฟล์ (กันเบราว์เซอร์ใช้ไฟล์เก่าหลังอัปเดต)
+        run: node build/assetver.js --check
+
       - name: สไตล์ชีตของ JS ต้องไม่บล็อกการวาดหน้า
         run: node build/lazycss.js --check
 

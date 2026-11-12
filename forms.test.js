@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 /* ฟอร์มลีด · ที่มาของลีด · แชท · คู่มือ (Sprint 4 · งานที่ 10–12) · เพิ่ม 2026-09-20
  *   รันด้วย:  node forms.test.js
  *

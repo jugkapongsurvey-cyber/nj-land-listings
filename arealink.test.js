@@ -1,3 +1,4 @@
+require('./build/testhtml'); // ตัดเลขเวอร์ชัน ?v= ท้ายไฟล์ CSS/JS ก่อนเทสต์อ่าน HTML (build/assetver.js)
 // ทดสอบส่วน "วัดพื้นที่แปลง" แบบลิงก์ออก (arealink.js) + การต่อสายบน tools.html
 // รันด้วย:  node arealink.test.js
 const fs = require('fs');
