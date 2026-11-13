@@ -155,6 +155,10 @@
         if (h.shape) bits.push('รูปร่าง: ' + vocab('SHAPE_TH', h.shape));
         if (h.markerFound != null && h.markerTotal != null) {
           bits.push('พบหมุดหลักเขต ' + h.markerFound + ' จาก ' + h.markerTotal + ' หมุด');
+        } else if (window.NJHealth && NJHealth.topic && h.markerStatus) {
+          // ผลหมุดแบบเลือกข้อความ (ไม่มีตัวเลข) — อ่านผ่าน topic() ตัวเดียวกับหน้าแปลง
+          var mt = NJHealth.topic(fullLand(x), 'markers');
+          if (mt.src === 'health' && mt.value) bits.push('หมุดหลักเขต: ' + mt.value);
         }
         if (!bits.length) return DASH;
         // ⚠️ ที่ตาบอดและแนวรุกล้ำต้องเด่นเสมอ — เป็นสองข้อที่กระทบการตัดสินใจซื้อมากที่สุด
