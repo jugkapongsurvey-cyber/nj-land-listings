@@ -44,5 +44,17 @@ ok('verify.js รู้จักหัวข้อ selflisted + แหล่ง 
 ok('ใบลงเองไม่เรียกตัวเองว่า ขายเองชัวร์ ในฟอร์มเจ้าของ', has(own, "l.selfListed===true?'เจ้าของลงประกาศเอง':'ขายเองชัวร์'"));
 ok('ไม่มีคำรับประกัน/เร่งเวลาในกล่อง', !/รับประกัน|การันตี|เร็วขึ้น|ไม่กี่นาที/.test(chk));
 ok('มีสไตล์ .ld-selfchk', has(read('land.css'), '.ld-selfchk{'));
+// แสดงเบอร์ผู้ลงประกาศ (20 พ.ย. 69) — ผู้ลงเลือกเองในบัญชี · ระบบส่งแค่ธง selfPhone · ตัวเบอร์ดึงตอนกด
+const ph = land.slice(land.indexOf('function ownerPhoneOn'), land.indexOf('function ownerFormHtml'));
+ok('ปุ่มดูเบอร์ผู้ลงประกาศ เฉพาะใบลงเองที่ selfPhone === true', has(ph, "l.selfListed===true && l.selfPhone===true") && has(ph, 'data-ownphone'));
+ok('ปุ่มดูเบอร์ผู้ลงประกาศไม่มี data-contact (นับเป็น phone_reveal ครั้งเดียว)', !has(ph, 'data-contact'));
+ok('มีคำเตือนว่าไม่ได้ตรวจตัวตนผู้ลงประกาศ', has(ph, 'ไม่ได้ตรวจสอบตัวตนผู้ลงประกาศ'));
+ok('ไม่มีคำรับประกันในกล่องเบอร์', !/รับประกัน|การันตี/.test(ph));
+const rvo = land.slice(land.indexOf('function revealOwnerPhone'), land.indexOf('// แมปช่องทาง'));
+ok('ดึงเบอร์จาก /owner-phone ตอนกดเท่านั้น + ยิง phone_reveal', has(rvo, "'/owner-phone'") && has(rvo, "njTrackInternal('phone_reveal', id)"));
+ok('ดึงไม่สำเร็จ = บอกตรงๆ ไม่เงียบ', has(rvo, 'ดูเบอร์ไม่สำเร็จ'));
+ok('ไม่มีเบอร์ผู้ลงประกาศจากข้อมูลประกาศ (ไม่อ่าน l.ownerPhone/l.phone)', !/\bl\.(ownerPhone|phone)\b/.test(land));
+ok('กล่องเบอร์อยู่ทั้งการ์ดข้างและกล่องติดต่อเจ้าของ', (land.match(/ownerPhoneHtml\(l\)\+/g) || []).length === 2);
+ok('มีสไตล์ .ld-ownphone', has(read('land.css'), '.ld-ownphone{'));
 console.log('selflisted: ผ่าน ' + pass + ' · ไม่ผ่าน ' + fail);
 process.exit(fail ? 1 : 0);

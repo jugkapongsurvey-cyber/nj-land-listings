@@ -982,10 +982,25 @@
       '<span>ประกาศนี้เจ้าของลงเอง ยังไม่ผ่านการตรวจโดยที่ดินชัวร์ — ให้ทีมช่างรังวัดตรวจเอกสารสิทธิ์ แนวเขต และผังเมืองของแปลงนี้ก่อนได้</span>'+
       '<a href="'+esc(selfVerifyHref(l))+'">ส่งให้ทีมตรวจแปลงนี้ →</a></div>';
   }
+  // ---------- เบอร์ผู้ลงประกาศเอง (20 พ.ย. 69) ----------
+  // แสดงเฉพาะประกาศลงเองที่ผู้ลงติ๊กยินยอมให้แสดงเบอร์ในบัญชี (l.selfPhone === true จากระบบ)
+  // ⚠️ ตัวเบอร์ไม่อยู่ในข้อมูลประกาศ — ดึงจาก /api/public/listings/:id/owner-phone ตอนผู้ชมกดเท่านั้น
+  //    (กันกวาดเบอร์ + หน้าแปลงสแตติกไม่มีเบอร์ฝังใน HTML) · ไม่ติ๊ก = หน้าตาเดิมทุกอย่าง
+  // ⚠️ กดดูเบอร์ยิง phone_reveal ตัวเดิม (นับเป็นผู้สนใจของแปลงนี้) ไม่ใช่ชนิดใหม่
+  function ownerPhoneOn(l){ return l.selfListed===true && l.selfPhone===true; }
+  function ownerPhoneHtml(l){
+    if(!ownerPhoneOn(l)) return '';
+    return '<div class="ld-ownphone">'+
+      '<span class="ld-ownphone-h">เบอร์ผู้ลงประกาศ</span>'+
+      '<button type="button" class="ld-btn ownph" data-ownphone="'+esc(l.id)+'">📞 คลิกดูเบอร์ผู้ลงประกาศ</button>'+
+      '<small>เบอร์นี้ผู้ลงประกาศให้แสดงเอง · ที่ดินชัวร์ไม่ได้ตรวจสอบตัวตนผู้ลงประกาศ — อย่าโอนเงินมัดจำก่อนเห็นแปลงและเอกสารสิทธิ์จริง</small>'+
+    '</div>';
+  }
   function ownerFormHtml(l){
     return '<section class="njsv ld-inq ld-own" id="ld-inq" aria-labelledby="ld-inq-h">'+
       '<h2 id="ld-inq-h">ติดต่อเจ้าของทรัพย์</h2>'+
-      '<p class="ld-inq-lede">ประกาศ <b>'+(l.selfListed===true?'เจ้าของลงประกาศเอง':'ขายเองชัวร์')+'</b> — เจ้าของขายเอง กรอกชื่อและเบอร์ ระบบจะส่งถึงเจ้าของให้ เจ้าของติดต่อกลับเอง · รหัสทรัพย์ <b>'+esc(l.id)+'</b></p>'+
+      '<p class="ld-inq-lede">ประกาศ <b>'+(l.selfListed===true?'เจ้าของลงประกาศเอง':'ขายเองชัวร์')+'</b> — เจ้าของขายเอง '+(ownerPhoneOn(l)?'โทรหาผู้ลงประกาศได้โดยตรง หรือ':'')+'กรอกชื่อและเบอร์ ระบบจะส่งถึงเจ้าของให้ เจ้าของติดต่อกลับเอง · รหัสทรัพย์ <b>'+esc(l.id)+'</b></p>'+
+      ownerPhoneHtml(l)+
       '<form class="njsv-form" id="ld-own-form" novalidate>'+
         '<label class="njsv-field"><span>ชื่อผู้ติดต่อ</span><input type="text" name="name" maxlength="80" autocomplete="name" placeholder="ระบุชื่อ"></label>'+
         '<label class="njsv-field"><span>เบอร์โทร</span><input type="tel" name="phone" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="ระบุเบอร์โทร"></label>'+
@@ -1064,7 +1079,7 @@
         // ใครดูแลการขาย (saleBy จากระบบ) — ใบตามเงื่อนไขเดิม ('') หน้าตาเหมือนเดิมทุกตัวอักษร
         // ลงประกาศเอง — บอกเสมอว่ายังไม่ผ่านการตรวจ + ทางขอให้ทีมตรวจแปลง (ไม่แสดงบรรทัดตรวจแล้ว)
         (l.selfListed===true
-          ? '<div><b>เจ้าของลงประกาศเอง</b><small>ข้อมูลจากเจ้าของทรัพย์ ยังไม่ผ่านการตรวจโดยที่ดินชัวร์ · ติดต่อเจ้าของผ่านฟอร์มด้านล่าง · อยากให้ทีมช่างรังวัดตรวจแปลงนี้ก่อนตัดสินใจ <a href="verify.html">ส่งให้ทีมตรวจ</a></small></div>'
+          ? '<div><b>เจ้าของลงประกาศเอง</b><small>ข้อมูลจากเจ้าของทรัพย์ ยังไม่ผ่านการตรวจโดยที่ดินชัวร์ · '+(ownerPhoneOn(l)?'โทรหาผู้ลงประกาศ หรือส่งข้อความผ่านฟอร์มด้านล่าง':'ติดต่อเจ้าของผ่านฟอร์มด้านล่าง')+' · อยากให้ทีมช่างรังวัดตรวจแปลงนี้ก่อนตัดสินใจ <a href="verify.html">ส่งให้ทีมตรวจ</a></small></div>'
           : l.saleBy==='owner'
           ? '<div><b>เจ้าของทรัพย์ขายเอง</b><small>ประกาศขายเองชัวร์ · ติดต่อเจ้าของผ่านฟอร์มด้านล่าง · ทีมที่ดินชัวร์ตอบเรื่องข้อมูลแปลงทางไลน์</small>'+inspectedLine(l)+'</div>'
           : '<div><b>ทีมขาย ที่ดินชัวร์</b><small>'+(l.saleBy==='nj'?'ฝากขายชัวร์ — ทีมที่ดินชัวร์ดูแลการขาย · ':'')+'บริษัท เอ็นเจ แอนด์ คอนซัลติ้ง จำกัด · สำนักงานช่างรังวัดเอกชน ใบอนุญาต 351</small>'+(l.saleBy?inspectedLine(l):'')+'</div>')+
@@ -1073,6 +1088,8 @@
         posterHtml(l)+
         '<div class="ld-agent-price"><span>'+(l.type==='rent'?'ค่าเช่า':'ราคาขาย')+'</span><b>'+(isRent(l)?rentPriceHtml(l):money(l.estValue))+'</b></div>'+
         '<p class="ld-agent-code">รหัสทรัพย์ <b>'+esc(l.id)+'</b> · แจ้งรหัสนี้ทุกครั้งที่ติดต่อ</p>'+
+        ownerPhoneHtml(l)+
+        (ownerPhoneOn(l)?'<p class="ld-agent-sub">สอบถามข้อมูลแปลงกับทีมที่ดินชัวร์</p>':'')+
         '<div class="ld-cta">'+
           '<a class="ld-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">💬 ทักไลน์สอบถาม</a>'+
           '<a class="ld-btn fb" href="'+FB+'" target="_blank" rel="noopener" data-contact="messenger">💬 เมสเซนเจอร์</a>'+
@@ -1386,7 +1403,9 @@
       '<div class="ld-sticky" role="group" aria-label="ติดต่อเรื่องแปลงนี้">'+
         '<span class="ld-sticky-code">รหัส '+esc(l.id)+'</span>'+
         '<a class="ld-sticky-btn line" href="'+LINE+'" target="_blank" rel="noopener" data-contact="line">ทักไลน์</a>'+
-        '<a class="ld-sticky-btn tel" href="'+TEL2+'" data-contact="tel">โทร</a>'+
+        (ownerPhoneOn(l)
+          ? '<button type="button" class="ld-sticky-btn tel" data-ownphone="'+esc(l.id)+'" data-short="1">โทรผู้ลงประกาศ</button>'
+          : '<a class="ld-sticky-btn tel" href="'+TEL2+'" data-contact="tel">โทร</a>')+
       '</div>';
 
     // เครื่องคำนวณค่าโอน — เติมให้แค่ "ราคาซื้อขาย" ซึ่งเป็นตัวเลขที่ประกาศอยู่แล้ว
@@ -1542,6 +1561,34 @@
       });
   }
 
+  // ดึงเบอร์ผู้ลงประกาศ → ปุ่มทุกจุดบนหน้ากลายเป็นลิงก์โทร · ล้ม = บอกตรงๆ ให้ใช้ฟอร์มแทน (ไม่เงียบ)
+  var ownPhoneBusy=false;
+  function revealOwnerPhone(id){
+    if(ownPhoneBusy) return;
+    var btns=[].slice.call(document.querySelectorAll('[data-ownphone]'));
+    if(!btns.length) return;
+    ownPhoneBusy=true;
+    btns.forEach(function(b){ b.disabled=true; if(!b.getAttribute('data-short')) b.textContent='กำลังโหลดเบอร์…'; });
+    var base=window.NJ_API_BASE||'https://app.njteedinsure.com';
+    fetch(base+'/api/public/listings/'+encodeURIComponent(id)+'/owner-phone',{cache:'no-store'})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if(!r.ok||!d.phone) throw new Error(d.error||''); return d; }); })
+      .then(function(d){
+        var tel='tel:'+String(d.phone).replace(/[^0-9]/g,''), txt=d.display||d.phone;
+        btns.forEach(function(b){
+          var a=document.createElement('a');
+          a.className=b.className; a.href=tel;
+          a.textContent=b.getAttribute('data-short')?'โทร '+txt:'📞 '+txt;
+          b.parentNode.replaceChild(a,b);
+        });
+        if(window.njTrackInternal) njTrackInternal('phone_reveal', id);
+        if(window.njTrack) njTrack('Contact',{method:'phone',from:'land_owner'});
+      })
+      .catch(function(){
+        ownPhoneBusy=false;
+        btns.forEach(function(b){ b.disabled=false; b.textContent=b.getAttribute('data-short')?'ลองใหม่':'ดูเบอร์ไม่สำเร็จ — ลองใหม่ หรือส่งข้อความผ่านฟอร์ม'; });
+      });
+  }
+
   // แมปช่องทาง → ชื่อเหตุการณ์ · ห้ามใช้ if/else สองทาง ไม่งั้นช่องทางที่ 3 จะถูกนับเป็นกดโทร
   var TRACK={line:['line_click','line'],messenger:['messenger_click','messenger'],tel:['tel_click','phone']};
   document.getElementById('ld-root').addEventListener('click',function(e){
@@ -1549,6 +1596,8 @@
     // กดครั้งแรก = เผยเบอร์ + นับ phone_reveal · หลังจากนั้นปุ่มกลายเป็นลิงก์โทรธรรมดา
     // ⚠️ ลิงก์ที่เผยออกมา **ไม่มี data-contact** โดยตั้งใจ — กดโทรต่อจะไม่ยิง tel_click ซ้ำ
     // เพราะความตั้งใจจะติดต่อถูกนับไปแล้วตอนกดดูเบอร์ (ดูเหตุผลเต็มที่ PUBLIC_EVENT_TYPES ใน server.js)
+    var op=e.target.closest('[data-ownphone]');
+    if(op){ revealOwnerPhone(op.getAttribute('data-ownphone')); return; }
     var rv=e.target.closest('[data-reveal]');
     if(rv){
       var wrap=document.createElement('a');
