@@ -810,3 +810,16 @@ html.ld-lb-lock{overflow:hidden}
   .ld-ps-cta{justify-self:stretch}
 }
 @media print{.ld-ps-cta{display:none}.ld-ps{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+/* เบอร์ผู้ลงประกาศเอง (20 พ.ย. 69) — โผล่เฉพาะประกาศที่ผู้ลงติ๊กให้แสดงเบอร์ · ดู ownerPhoneHtml() ใน land.js */
+.ld-ownphone{display:flex;flex-direction:column;gap:6px;margin:12px 0;padding:12px 13px;border-radius:12px;background:#F0FDF4;border:1px solid #86EFAC}
+.ld-ownphone-h{font-size:12.5px;font-weight:700;color:#166534}
+.ld-ownphone small{font-size:11.5px;line-height:1.55;color:#4B5E73}
+.ld-btn.ownph{background:#15803D;color:#fff;border:none;width:100%;justify-content:center;font-weight:700;cursor:pointer;font-family:inherit}
+a.ld-btn.ownph{text-decoration:none;font-size:17px;letter-spacing:.3px}
+.ld-btn.ownph[disabled]{opacity:.7;cursor:wait}
+.ld-btn.ownph:focus-visible{outline:3px solid #166534;outline-offset:2px}
+.ld-agent-sub{font-size:12px;color:#5A7091;margin:4px 0 6px}
+button.ld-sticky-btn{border:none;background:transparent;font-family:inherit;cursor:pointer}
+.ld-sticky-btn.tel[data-ownphone]{border:1px solid rgba(255,255,255,.55)}
+@media print{.ld-ownphone button{display:none}}
